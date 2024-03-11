@@ -6,7 +6,7 @@ import util
 class DRIVER:
 
     def __init__(self):
-        self.globals_name = 'globals.ini'
+        self.globals_name = 'input/globals.ini'
         self.afix = ''
         # self.category = 'expr_sims/'
         self.category = 'ic_hpc_sim/'
@@ -102,7 +102,7 @@ class DRIVER:
                         ar = round(8.00, 2)
                         spring_factor = round(0.01 + 0.001*i, 3)
                         period = 9.843520464529260661e-01
-                        sim_length = 500.
+                        sim_length = 1.
 
                         # 9
                         # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\
@@ -176,6 +176,7 @@ class DRIVER:
         print(f"\033[34m{self.exe_name}\033[m")
 
     def write_rules(self):
+        os.system(f'mkdir -p {self.dir}')
         sim = configparser.ConfigParser()
         sim.add_section('Parameter list')
         for key, value in self.pars_list.items():
@@ -209,7 +210,7 @@ class DRIVER:
               f"Partition index: {self.current_thread} / {self.num_thread-1} \n" + \
               f"[{sim_index_start} - {sim_index_end}] / {thread_list}\n" +\
               f"on GPU: {self.cuda_device}")
-
+        
         # Iterate through the sim list and write to .ini file and execute
         for i in range(sim_index_start, sim_index_end):
             # readphase_index = int(i)
@@ -219,17 +220,16 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "simulation_readphase_name", f"phases{readphase_index}.dat")
-            self.write_ini("Filenames", "simulation_readangle_name", f"angles{readphase_index}.dat")
+            self.write_ini("Filenames", "simulation_readstate_name", f"input/psi{readphase_index}.dat")
 
-
-            command = f"export OPENBLAS_NUM_THREADS=1; \
-                        export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} > terminal_outputs/output_{self.date}_{self.pars_list['nfil'][i]:.0f}fil_{i}.out"
 
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-            #             ./bin/{self.exe_name}"
+            #             ./bin/{self.exe_name} > terminal_outputs/output_{self.date}_{self.pars_list['nfil'][i]:.0f}fil_{i}.out"
+
+            command = f"export OPENBLAS_NUM_THREADS=1; \
+                        export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
+                        ./bin/{self.exe_name}"
 
 
             os.system(command)

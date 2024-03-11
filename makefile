@@ -108,12 +108,12 @@ NVCC_FLAGS=-arch=sm_75 -std=c++17 -O3 -I../include -Xcompiler -fopenmp
 LINK= -lcufft -lcurand -llapack -lopenblas -llapacke -lcblas -lineinfo -lopenblas 
 HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8 -l:libcblas.so.3.8 
 
-# CUFCM_FILES = $(CUFCM_ROOT)CUFCM_CELLLIST.cu $(CUFCM_ROOT)CUFCM_FCM.cu $(CUFCM_ROOT)CUFCM_DATA.cu $(CUFCM_ROOT)CUFCM_CORRECTION.cu $(CUFCM_ROOT)CUFCM_SOLVER.cu $(CUFCM_ROOT)CUFCM_RANDOMPACKER.cu
-
-# CUFCM_FILES_SIMPLE = $(CUFCM_ROOT)CUFCM_CELLLIST.cu $(CUFCM_ROOT)CUFCM_FCM.cu $(CUFCM_ROOT)CUFCM_DATA.cu $(CUFCM_ROOT)CUFCM_SOLVER.cu $(CUFCM_ROOT)CUFCM_CORRECTION.cu
-
 cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_periodic_300_1e-8
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia
+
+cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
+	module load cuda/11.4.2 && \
+	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia
