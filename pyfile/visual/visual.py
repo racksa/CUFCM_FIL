@@ -3774,7 +3774,7 @@ class VISUAL:
     def mod_state(self):
         sym_file = 'input/states/reserved_states/sym_state.dat'
         dia_file = 'input/states/reserved_states/dia_state.dat'
-        output_file = 'input/states/s10d1.dat'
+        output_file = 'input/states/s5d1.dat'
 
         sym_state = np.loadtxt(sym_file)
         dia_state = np.loadtxt(dia_file)
@@ -3784,7 +3784,7 @@ class VISUAL:
         sym_state[2:2+nfil] = util.box(sym_state[2:2+nfil], 2*np.pi)
         dia_state[2:2+nfil] = util.box(dia_state[2:2+nfil], 2*np.pi)
 
-        x = (10*sym_state + dia_state)/11.
+        x = (5*sym_state + dia_state)/6.
 
         np.savetxt(output_file, x, newline = " ")
 #

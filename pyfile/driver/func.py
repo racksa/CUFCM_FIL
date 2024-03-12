@@ -32,7 +32,7 @@ class DRIVER:
                      "sim_length": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (72, 1, 1, 1)
+        self.sweep_shape = (16, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -86,9 +86,9 @@ class DRIVER:
                         nfil = int(159 + 0*i)
                         nblob = int(9000 + 0*i)
                         ar = round(8.00, 2)
-                        spring_factor = round(0.01 + 0.001*i, 3)
+                        spring_factor = round(0.005 + 0.005*i, 3)
                         period = 9.843520464529260661e-01
-                        sim_length = 5.
+                        sim_length = 0.05
 
                         # 9
                         # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\
@@ -209,7 +209,7 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/s10d1.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/s1d1.dat")
 
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
