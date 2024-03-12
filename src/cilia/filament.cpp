@@ -338,10 +338,10 @@ void filament::initial_setup(const Real *const base_pos,
           phase = distribution(gen);
           
           // Try to read from file
-          std::ifstream input_file("input/psi.dat");
+          std::ifstream input_file(SIMULATION_ICSTATE_NAME);
           if (input_file.is_open()) {
             if(fil_id == 0){
-              std::cout << "Reading all states from file: " << "input/psi.dat" << std::endl;
+              std::cout << "Reading all states from file: " << SIMULATION_ICSTATE_NAME << std::endl;
             }
             float bin;
             input_file >> bin;
@@ -358,7 +358,7 @@ void filament::initial_setup(const Real *const base_pos,
             }
             input_file.close();
           }else{
-            std::cout << "No true_states file found: " << "input/psi.dat" << std::endl;
+            std::cout << "No true_states file found: " << SIMULATION_ICSTATE_NAME << std::endl;
           }
 
         #endif

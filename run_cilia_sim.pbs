@@ -1,8 +1,12 @@
 #!/bin/bash
-#PBS -l walltime=10:00:00
-#PBS -l select=1:ncpus=4:mem=24gb:ngpus=1
+#PBS -l walltime=00:15:00
+#PBS -l select=1:ncpus=1:mem=4gb:ngpus=1
 module load cuda/11.4.2
-CODE_LOC=$PBS_O_WORKDIR
-OUTPUT_LOC=$CODE_LOC/${PBS_JOBID:0: -4}
-cp $CODE_LOC/*generalised_forces.dat $OUTPUT_LOC/
-(cd $OUTPUT_LOC && make cilia_clean cilia_ic_hpc && OPENBLAS_NUM_THREADS=1 ./cilia)
+module load tools/prod
+module load SciPy-bundle/2022.05-foss-2022a
+
+# CODE_LOC=$PBS_O_WORKDIR
+# OUTPUT_LOC=$CODE_LOC/${PBS_JOBID:0: -4}
+cd $PBS_O_WORKDIR
+# make cilia_ic_hpc_CUFCM
+python3 pyfile/driver/driver.py run 0 72 0

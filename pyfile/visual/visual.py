@@ -50,7 +50,11 @@ class VISUAL:
         # self.date = '20240214_test_solution_d_double'
         self.dir = f"data/JFNK_sims/{self.date}/"
 
+        self.date = '20240311'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
+
         self.pars_list = {
+                     "index": [],
                      "nswim": [],
                      "nseg": [],
                      "nfil": [],
@@ -82,7 +86,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 2200000
+        self.plot_end_frame_setting = 1
         self.frames_setting = 630000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -148,7 +152,6 @@ class VISUAL:
         if(self.index>len(self.pars_list['nfil'])):
             self.index = len(self.pars_list['nfil'])-1
             print(f'Index out of range. Using the last sim: {self.index}')
-
         self.nseg = int(self.pars_list['nseg'][self.index])
         self.nswim = 1
         self.nfil = int(self.pars_list['nfil'][self.index])
@@ -382,8 +385,9 @@ class VISUAL:
     def phase(self):
         self.select_sim()
         
-        fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+        # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Plotting
         colormap = 'cividis'
@@ -414,20 +418,24 @@ class VISUAL:
         def animation_func(t):
             global frame
             ax.cla()
-            fil_phases_str = fil_phases_f.readline()
-            fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-            fil_phases = util.box(fil_phases, 2*np.pi)
+            # fil_phases_str = fil_phases_f.readline()
+            # fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
+            # fil_phases = util.box(fil_phases, 2*np.pi)
 
-            if(self.angle):
-                fil_angles_str = fil_angles_f.readline()
-                fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
+            fil_states_str = fil_states_f.readline()
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            # if(self.angle):
+            #     fil_angles_str = fil_angles_f.readline()
+            #     fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
 
             for i in range(self.nfil):
                 fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
-            variables = fil_phases
+            variables = fil_states[:self.nfil]
             if self.angle:
-                variables = fil_angles
+                variables = fil_states[self.nfil:]
 
             ax.set_ylabel(r"$\theta$")
             ax.set_xlabel(r"$\phi$")
@@ -467,16 +475,18 @@ class VISUAL:
                     ## when save, need to comment out plt.show() and be patient!
                     break
                 else:
-                    fil_phases_str = fil_phases_f.readline()
+                    # fil_phases_str = fil_phases_f.readline()
+                    fil_states_str = fil_states_f.readline()
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i==self.plot_end_frame-1):
                     animation_func(i)
                 else:
-                    fil_phases_str = fil_phases_f.readline()
-                    if(self.angle):
-                        fil_angles_str = fil_angles_f.readline()
+                    fil_states_str = fil_states_f.readline()
+                    # fil_phases_str = fil_phases_f.readline()
+                    # if(self.angle):
+                    #     fil_angles_str = fil_angles_f.readline()
                 
             plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
@@ -1522,8 +1532,8 @@ class VISUAL:
 
         near_pole_ind = np.where(np.sin(fil_references_sphpolar[:,2]) < 0.0 )            
 
-        fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+        # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         states = np.zeros((self.frames, 2*self.nfil))
@@ -3760,4 +3770,21 @@ class VISUAL:
         plt.tight_layout()
         plt.savefig(f'fig/ciliate_periodic_soln_{sim_dir}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
+    
+    def mod_state(self):
+        sym_file = 'input/states/reserved_states/sym_state.dat'
+        dia_file = 'input/states/reserved_states/dia_state.dat'
+        output_file = 'input/states/s10d1.dat'
+
+        sym_state = np.loadtxt(sym_file)
+        dia_state = np.loadtxt(dia_file)
+
+        nfil = int((len(sym_state)-2)/2)
+
+        sym_state[2:2+nfil] = util.box(sym_state[2:2+nfil], 2*np.pi)
+        dia_state[2:2+nfil] = util.box(dia_state[2:2+nfil], 2*np.pi)
+
+        x = (10*sym_state + dia_state)/11.
+
+        np.savetxt(output_file, x, newline = " ")
 #

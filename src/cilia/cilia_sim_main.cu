@@ -66,8 +66,7 @@ int main(int argc, char** argv){
   SIMULATION_DIR = data_from_ini("Filenames", "simulation_dir");
   SIMULATION_FILE = data_from_ini("Filenames", "simulation_file");
 
-  SIMULATION_READPHASE_NAME = SIMULATION_DIR + data_from_ini("Filenames", "simulation_readphase_name");
-  SIMULATION_READANGLE_NAME = SIMULATION_DIR + data_from_ini("Filenames", "simulation_readangle_name");
+  SIMULATION_ICSTATE_NAME = data_from_ini("Filenames", "simulation_icstate_name");
 
   #if INFINITE_PLANE_WALL
     NSWIM = 1;
@@ -608,7 +607,7 @@ int main(int argc, char** argv){
       tether_force_file << std::endl;
       tether_force_file.close();
 
-      mobility.write_data(nt, swimmers); // Writes all velocity and force data.
+      // mobility.write_data(nt, swimmers); // Writes all velocity and force data.
 
       std::ofstream backup_file(SIMULATION_BACKUP_NAME);
       backup_file << save_step << " ";

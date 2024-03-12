@@ -12,28 +12,14 @@ class DRIVER:
         self.category = 'ic_hpc_sim/'
         
         self.exe_name = 'cilia'
-        # self.exe_name = 'cilia_readphase_free'
-        # self.exe_name = 'cilia_resolution'
-        # self.date = '20240104_readphase_hold'
-        # self.date = '20240112_readphase_free'
-        # self.date = '20240114_readphase_free_hemisphere'
-        # self.date = '20240114_readphase_free_diaplectic'
-        # self.date = '20240115_resolution'
-        # self.date = '20240118_periodic'
-        # self.date = '20240119_example_for_periodic'
-        # self.date = '20240124_test_solution'
-        # self.date = '20240129_test_solution'
-        # self.date = '20240207_159fil_hold'
-        # self.date = '20240208_test_solution'
-
-
-        self.date = '20240214_hold'
+        
         self.date = '20240311'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
 
         self.pars_list = {
+                     "index": [],
                      "nswim": [],
                      "nseg": [],
                      "nfil": [],
@@ -73,7 +59,7 @@ class DRIVER:
 
     def create_rules(self):
         # Define the rule of sweeping simulations
-
+        index = 0
         for i in range(self.sweep_shape[0]):
             for j in range(self.sweep_shape[1]):
                 for k in range(self.sweep_shape[2]):
@@ -102,7 +88,7 @@ class DRIVER:
                         ar = round(8.00, 2)
                         spring_factor = round(0.01 + 0.001*i, 3)
                         period = 9.843520464529260661e-01
-                        sim_length = 1.
+                        sim_length = 5.
 
                         # 9
                         # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\
@@ -154,6 +140,7 @@ class DRIVER:
                             nfil = 1
                             nblob = 0
                             
+                        self.pars_list["index"].append(index)
                         self.pars_list["nswim"].append(1)
                         self.pars_list["nseg"].append(nseg)
                         self.pars_list["nfil"].append(nfil)
@@ -164,6 +151,9 @@ class DRIVER:
                         self.pars_list["seg_sep"].append(seg_sep)
                         self.pars_list["period"].append(period)
                         self.pars_list["sim_length"].append(sim_length)
+
+
+                        index += 1
         # Write rules to sim list file
         self.write_rules()
 
@@ -213,15 +203,13 @@ class DRIVER:
         
         # Iterate through the sim list and write to .ini file and execute
         for i in range(sim_index_start, sim_index_end):
-            # readphase_index = int(i)
-            readphase_index = ''
+            
             for key, value in self.pars_list.items():
                 self.write_ini("Parameters", key, float(self.pars_list[key][i]))
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "simulation_readstate_name", f"input/psi{readphase_index}.dat")
-
+            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/s10d1.dat")
 
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \

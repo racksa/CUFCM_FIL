@@ -29,8 +29,7 @@ extern std::string SIMULATION_TIME_NAME;
 extern std::string SIMULATION_TETHERLAM_NAME;
 extern std::string SIMULATION_TRUESTATE_NAME;
 
-extern std::string SIMULATION_READPHASE_NAME;
-extern std::string SIMULATION_READANGLE_NAME;
+extern std::string SIMULATION_ICSTATE_NAME;
 
 
 #define FIL_USE_DOUBLE_PRECISION false
