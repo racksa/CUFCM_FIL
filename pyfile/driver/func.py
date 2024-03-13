@@ -101,12 +101,12 @@ class DRIVER:
                         #     period = 1.
 
                         # # find branches wider range
-                        # nfil = int(639 + 0*i)
-                        # nblob = int(40961 + 0*i)
-                        # ar = round(15.00, 2)
-                        # spring_factor = round(0.02 + 0.002*i, 3)
-                        # period = 1.0
-                        # sim_length = 500.
+                        nfil = int(639 + 0*i)
+                        nblob = int(40961 + 0*i)
+                        ar = round(15.00, 2)
+                        spring_factor = round(0.02 + 0.002*i, 3)
+                        period = 1.0
+                        sim_length = 2.
 
                         # # resolution study
                         # nfil = int(159)
@@ -208,7 +208,7 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/s1d1.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/none.dat")
 
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
