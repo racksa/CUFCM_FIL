@@ -86,7 +86,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 1
+        self.plot_end_frame_setting = 1000
         self.frames_setting = 630000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -100,7 +100,7 @@ class VISUAL:
 
         self.ncol = 4
 
-        self.plot_interval = 10
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -171,6 +171,10 @@ class VISUAL:
         
         
         self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
+        try:
+            self.fil_q = myIo.read_fil_references(self.simName + '_fil_q.dat')
+        except:
+            pass
 
         self.pars = myIo.read_pars(self.simName + '.par')
         self.radius = 0.5*self.ar*self.pars['FIL_LENGTH']
@@ -183,8 +187,8 @@ class VISUAL:
             self.pars['PRESCRIBED_CILIA'] = 0
         if(self.pars['NBLOB']>0):
             self.blob_references = myIo.read_blob_references(self.simName + '_blob_references.dat')
-        if(self.pars['NFIL']>0):
-            self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
+        # if(self.pars['NFIL']>0):
+        #     self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
 
         self.plot_end_frame = min(self.plot_end_frame_setting, sum(1 for line in open(self.simName + '_body_states.dat')))
         self.plot_start_frame = max(0, self.plot_end_frame-self.frames_setting)
@@ -314,7 +318,143 @@ class VISUAL:
                             fil_color = 255
                         self.write_data(pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
                         
+    def plot_eco(self):
+        self.select_sim()
 
+        # Fourier coeffs for the shape
+        Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
+                    [4.0318e-01, -1.5553e+00, 7.3455e-01], \
+                    [-9.9513e-02, 3.2829e-02, -1.2106e-01], \
+                    [8.1046e-02, -3.0982e-01, 1.4568e-01]])
+
+        Ax = np.array([[9.7204e-01, -2.8315e-01, 4.9243e-02], \
+                    [-1.8466e-02, -1.2926e-01, 2.6981e-01], \
+                    [1.6209e-01, -3.4983e-01, 1.9082e-01], \
+                    [1.0259e-02, 3.5907e-02, -6.8736e-02]])
+
+        By = np.array([[0, 0, 0], \
+                    [2.9136e-01, 1.0721e+00, -1.0433e+00], \
+                    [6.1554e-03, 3.2521e-01, -2.8315e-01], \
+                    [-6.0528e-02, 2.3185e-01, -2.0108e-01]])
+
+        Bx = np.array([[0, 0, 0], \
+                    [1.9697e-01, -5.1193e-01, 3.4778e-01], \
+                    [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
+                    [1.2311e-02, 1.4157e-01, -1.1695e-01]])
+        
+        def fitted_shape(s, phase):
+            pos = np.zeros(3)
+            svec = np.array([s, s**2, s**3])
+            fourier_dim = np.shape(Ax)[0]
+            cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
+            sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
+
+            x = (cosvec@Ax + sinvec@Bx)@svec
+            y = (cosvec@Ay + sinvec@By)@svec
+            z = np.zeros(np.shape(x))
+
+            return x, y, z
+
+        superpuntoDatafileName = f"{self.simName}_superpunto_{self.date}.dat"
+        myIo.clean_file(superpuntoDatafileName)
+
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        if (self.pars['PRESCRIBED_CILIA'] == 1):
+            fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            if(self.check_overlap):
+                segs_list = np.zeros((int(self.nfil*self.nseg), 3))
+                blobs_list = np.zeros((int(self.nblob), 3))
+                
+            body_states_str = body_states_f.readline()
+            if(self.pars['NFIL']>0):
+                seg_states_str = seg_states_f.readline()
+                if (self.pars['PRESCRIBED_CILIA'] == 1):
+                    fil_states_str = fil_states_f.readline()
+
+                    fil_phases = np.array(fil_states_str.split()[2:2+self.nfil], dtype=float)
+                    fil_phases = util.box(fil_phases, 2*np.pi)
+
+            if(i%self.plot_interval==0 and i>=self.plot_start_frame):
+                body_states = np.array(body_states_str.split()[1:], dtype=float)
+                if(self.pars['NFIL']>0):
+                    seg_states = np.array(seg_states_str.split()[1:], dtype=float)                
+                
+                myIo.write_line('#', superpuntoDatafileName)
+                for swim in range(int(self.pars['NSWIM'])):
+                    body_pos = body_states[7*swim : 7*swim+3]
+                    R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
+
+                    if(not self.big_sphere or self.check_overlap):
+                        for blob in range(int(self.pars['NBLOB'])):
+                            blob_x, blob_y, blob_z = util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])
+                            if(self.check_overlap):
+                                blobs_list[blob] = blob_x, blob_y, blob_z
+                            elif(not self.big_sphere):
+                                color=16777215 #white
+                                color=13882323 # grey
+                                # color=0 # black
+                                if not self.ignore_blob:
+                                    self.write_data([blob_x, blob_y, blob_z], float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=color)
+
+                    if(self.big_sphere):
+                        self.write_data(body_pos, self.radius, superpuntoDatafileName, self.periodic, color=16777215)
+                    
+                    if(self.show_poles):
+                        self.write_data(body_pos + np.matmul(R, np.array([0,0,self.radius])), 3*float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=0*65536+0*256+255)
+                        self.write_data(body_pos + np.matmul(R, np.array([0,0,-self.radius])), 3*float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=0*65536+0*256+255)
+
+                    for fil in range(int(self.pars['NFIL'])):
+                        fil_color = int("000000", base=16)
+                        fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                        if (self.pars['PRESCRIBED_CILIA'] == 1):
+                            fil_i = int(3*fil*self.pars['NSEG'])
+                            
+                            # WRITE A FUNCTION FOR THIS!!
+                            cmap_name = 'hsv'
+                            cmap = plt.get_cmap(cmap_name)
+                            rgb_color = cmap(fil_phases[fil]/(2*np.pi))[:3]  # Get the RGB color tuple
+                            rgb_hex = mcolors.rgb2hex(rgb_color)[1:]  # Convert RGB to BGR hexadecimal format
+                            bgr_hex = rgb_hex[4:]+rgb_hex[2:4]+rgb_hex[:2]
+                            fil_color = int(bgr_hex, base=16)
+
+                            # ref = self.fillength*R@fitter
+                        # self.write_data(fil_base, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
+
+                        s = np.linspace(0, 1, 20)
+                        Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+                        for seg in range(0, int(self.pars['NSEG'])):
+                            
+                            ref = self.fillength*R@Rfil@np.array(fitted_shape(s[seg], fil_phases[fil]))
+                            seg_pos = fil_base + ref
+                            self.write_data(seg_pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
+
+                            # if (self.pars['PRESCRIBED_CILIA'] == 1):
+                            #     seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] 
+                            # if(self.check_overlap):
+                            #     segs_list[fil*self.nseg + seg] = seg_pos
+                            # else:
+                            #     self.write_data(seg_pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
+                            
+                if(self.check_overlap):
+                    threshold = 1.0
+                    cell_size = 10
+                    particle_list = np.concatenate([segs_list, blobs_list])
+
+                    colliding_indices, colliding_particles = util.label_colliding_particles_with_3d_cell_list(particle_list, cell_size, threshold*float(self.pars['RSEG']))
+                    
+                    self.write_data(body_pos, self.radius, superpuntoDatafileName, self.periodic, color=16777215)
+                    print(f'Overlapping case at threshold {threshold} = {len(colliding_indices)}')
+
+                    for i, pos in enumerate(segs_list):
+                        fil_color = 16777215
+                        if(i in colliding_indices):
+                            fil_color = 255
+                        self.write_data(pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
+                        
 ## Filaments
     def plot_fil(self):
         self.select_sim()

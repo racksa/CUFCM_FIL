@@ -1,12 +1,12 @@
 #!/bin/bash
 #PBS -l walltime=00:15:00
-#PBS -l select=1:ncpus=1:mem=4gb:ngpus=1
+#PBS -l select=1:ncpus=1:mem=4gb:ngpus=1:gpu_type=RTX6000
 module load cuda/11.4.2
-module load tools/prod
-module load SciPy-bundle/2022.05-foss-2022a
+# module load tools/prod
+# module load SciPy-bundle/2022.05-foss-2022a
 
 # CODE_LOC=$PBS_O_WORKDIR
 # OUTPUT_LOC=$CODE_LOC/${PBS_JOBID:0: -4}
 cd $PBS_O_WORKDIR
-# make cilia_ic_hpc_CUFCM
+make cilia_ic_hpc_CUFCM
 python3 pyfile/driver/driver.py run 0 72 0

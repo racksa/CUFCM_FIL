@@ -588,13 +588,11 @@ int main(int argc, char** argv){
       body_state_file << save_step << " ";
       body_state_file << std::scientific << std::setprecision(10);
 
-      std::ofstream tether_force_file(SIMULATION_TETHERLAM_NAME, std::ios::app);
-      tether_force_file << save_step << " ";
-      tether_force_file << std::scientific << std::setprecision(10);
+
 
       for (int n = 0; n < NSWIM; n++){
 
-        swimmers[n].write_data(seg_state_file, body_state_file, tether_force_file);
+        swimmers[n].write_data(seg_state_file, body_state_file);
 
       }
 
@@ -604,29 +602,26 @@ int main(int argc, char** argv){
       body_state_file << std::endl;
       body_state_file.close();
 
-      tether_force_file << std::endl;
-      tether_force_file.close();
-
       // mobility.write_data(nt, swimmers); // Writes all velocity and force data.
 
-      std::ofstream backup_file(SIMULATION_BACKUP_NAME);
-      backup_file << save_step << " ";
-      backup_file << std::scientific << std::setprecision(10);
+      // std::ofstream backup_file(SIMULATION_BACKUP_NAME);
+      // backup_file << save_step << " ";
+      // backup_file << std::scientific << std::setprecision(10);
 
-      for (int n = 0; n < NSWIM; n++){
+      // for (int n = 0; n < NSWIM; n++){
 
-        swimmers[n].write_backup(backup_file);
+      //   swimmers[n].write_backup(backup_file);
 
-      }
+      // }
 
-      backup_file << std::endl;
-      backup_file.close();
+      // backup_file << std::endl;
+      // backup_file.close();
 
       #if PRESCRIBED_CILIA
 
-        std::ofstream fil_phase_file(SIMULATION_NAME+std::string("_filament_phases.dat"), std::ios::app);
-        fil_phase_file << save_step << " ";
-        fil_phase_file << std::scientific << std::setprecision(10);
+        // std::ofstream fil_phase_file(SIMULATION_NAME+std::string("_filament_phases.dat"), std::ios::app);
+        // fil_phase_file << save_step << " ";
+        // fil_phase_file << std::scientific << std::setprecision(10);
 
         std::ofstream true_states_file(SIMULATION_TRUESTATE_NAME, std::ios::app);
         true_states_file << std::scientific << std::setprecision(10);
@@ -636,35 +631,35 @@ int main(int argc, char** argv){
 
           for (int m = 0; m < NFIL; m++){
 
-            fil_phase_file << swimmers[n].filaments[m].phase << " ";
+            // fil_phase_file << swimmers[n].filaments[m].phase << " ";
             true_states_file << swimmers[n].filaments[m].phase << " ";
 
           }
 
         }
 
-        fil_phase_file << std::endl;
-        fil_phase_file.close();
+        // fil_phase_file << std::endl;
+        // fil_phase_file.close();
 
         #if DYNAMIC_SHAPE_ROTATION
 
-          std::ofstream fil_angle_file(SIMULATION_NAME+std::string("_filament_shape_rotation_angles.dat"), std::ios::app);
-          fil_angle_file << save_step << " ";
-          fil_angle_file << std::scientific << std::setprecision(10);
+          // std::ofstream fil_angle_file(SIMULATION_NAME+std::string("_filament_shape_rotation_angles.dat"), std::ios::app);
+          // fil_angle_file << save_step << " ";
+          // fil_angle_file << std::scientific << std::setprecision(10);
 
           for (int n = 0; n < NSWIM; n++){
 
             for (int m = 0; m < NFIL; m++){
 
-              fil_angle_file << swimmers[n].filaments[m].shape_rotation_angle << " ";
+              // fil_angle_file << swimmers[n].filaments[m].shape_rotation_angle << " ";
               true_states_file << swimmers[n].filaments[m].shape_rotation_angle << " ";
 
             }
 
           }
 
-          fil_angle_file << std::endl;
-          fil_angle_file.close();
+          // fil_angle_file << std::endl;
+          // fil_angle_file.close();
 
         #endif
 

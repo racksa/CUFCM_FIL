@@ -1,4 +1,3 @@
-import numpy as np
 import func
 import sys
 
@@ -16,9 +15,10 @@ if(len(sys.argv) > 1):
 
     if(sys.argv[1] == 'run'):
         driver.create_rules()
-        if(len(sys.argv) > 4):
+        if(len(sys.argv) > 3):
             driver.current_thread = int(sys.argv[2])
             driver.num_thread = int(sys.argv[3])
+        if(len(sys.argv) > 4):
             driver.cuda_device = int(sys.argv[4])
         driver.run()
 

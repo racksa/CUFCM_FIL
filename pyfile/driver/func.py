@@ -1,6 +1,5 @@
 import configparser
 import os
-import math
 import util
 
 class DRIVER:
@@ -88,7 +87,7 @@ class DRIVER:
                         ar = round(8.00, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
                         period = 9.843520464529260661e-01
-                        sim_length = 0.05
+                        sim_length = 2
 
                         # 9
                         # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\
@@ -218,6 +217,10 @@ class DRIVER:
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
                         ./bin/{self.exe_name}"
+            
+            # on ic hpc
+            # command = f"export OPENBLAS_NUM_THREADS=1; \
+            #             ./bin/{self.exe_name}"
 
 
             os.system(command)

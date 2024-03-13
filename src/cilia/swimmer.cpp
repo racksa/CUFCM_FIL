@@ -1122,15 +1122,26 @@ void swimmer::write_reference_positions() const {
   fil_ref_file << "\n";
   fil_ref_file.close();
 
+  std::ofstream fil_q_file(SIMULATION_NAME+std::string("_fil_q.dat"));
+
+  for (int n = 0; n < NFIL; n++){
+
+    fil_q_file << filaments[n].body_q.scalar_part << " " << filaments[n].body_q.vector_part[0] << " " << filaments[n].body_q.vector_part[1] << " " << filaments[n].body_q.vector_part[2] << " " ;
+
+  }
+
+  fil_q_file << "\n";
+  fil_q_file.close();
+
 }
 
-void swimmer::write_data(std::ofstream& seg_state_file, std::ofstream& body_state_file, std::ofstream& tether_force_file) const {
+void swimmer::write_data(std::ofstream& seg_state_file, std::ofstream& body_state_file) const {
 
   body.write_data(body_state_file);
 
   for (int n = 0; n < NFIL; n++){
 
-    filaments[n].write_data(seg_state_file, tether_force_file);
+    // filaments[n].write_data(seg_state_file);
 
   }
 

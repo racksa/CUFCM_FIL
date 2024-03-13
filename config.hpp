@@ -333,7 +333,7 @@ extern int TOTAL_TIME_STEPS;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 
@@ -527,7 +527,7 @@ extern int TOTAL_TIME_STEPS;
 
 // #endif
 
-#define DISPLAYTIME true
+#define DISPLAYTIME false
 
 
 #endif // MY_CONFIG_HEADER_INCLUDED
