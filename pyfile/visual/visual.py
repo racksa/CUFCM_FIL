@@ -86,7 +86,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 1000
+        self.plot_end_frame_setting = 30000
         self.frames_setting = 630000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -525,8 +525,6 @@ class VISUAL:
     def phase(self):
         self.select_sim()
         
-        # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Plotting
@@ -558,17 +556,10 @@ class VISUAL:
         def animation_func(t):
             global frame
             ax.cla()
-            # fil_phases_str = fil_phases_f.readline()
-            # fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-            # fil_phases = util.box(fil_phases, 2*np.pi)
 
             fil_states_str = fil_states_f.readline()
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
-
-            # if(self.angle):
-            #     fil_angles_str = fil_angles_f.readline()
-            #     fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
 
             for i in range(self.nfil):
                 fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
@@ -743,8 +734,9 @@ class VISUAL:
         fig4 = plt.figure()
         ax4 = fig4.add_subplot(1,1,1)
 
-        fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+        # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
         corr_array = np.zeros(self.frames)
@@ -779,12 +771,16 @@ class VISUAL:
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-            fil_phases_str = fil_phases_f.readline()
-            fil_angles_str = fil_angles_f.readline()
+            # fil_phases_str = fil_phases_f.readline()
+            # fil_angles_str = fil_angles_f.readline()
+            fil_states_str = fil_states_f.readline()
 
             if(i>=self.plot_start_frame):
-                fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
+                # fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
+                # fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                fil_angles = fil_states[self.nfil:]
 
                 fil_angles_sorted = fil_angles[sorted_indices]
                 fil_phases_sorted = fil_phases[sorted_indices]
@@ -1891,15 +1887,19 @@ class VISUAL:
                     self.select_sim()
 
                     fil_references_sphpolar = np.zeros((self.nfil,3))
-                    fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+                    # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+                    fil_states_f = open(self.simName + '_true_states.dat', "r")
                     # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
                     for i in range(self.plot_end_frame):
                         print(" index ", self.index,  " frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                        fil_phases_str = fil_phases_f.readline()
+                        fil_states_str = fil_states_f.readline()
+                        # fil_phases_str = fil_phases_f.readline()
                         # fil_angles_str = fil_angles_f.readline()
                         if(i==self.plot_end_frame-1):
-                            fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                            fil_phases = util.box(fil_phases, 2*np.pi)
+                            # fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
+                            # fil_phases = util.box(fil_phases, 2*np.pi)
+                            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
                             for i in range(self.nfil):
                                 fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
                                 
@@ -1908,11 +1908,11 @@ class VISUAL:
                                 azim_grid = np.linspace(-np.pi, np.pi, n1)
                                 polar_grid = np.linspace(0, np.pi, n2)
                                 xx, yy = np.meshgrid(azim_grid, polar_grid)
-                                zz = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), fil_phases, (xx, yy), method='cubic')
+                                zz = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), fil_states[:self.nfil], (xx, yy), method='cubic')
                                 ax.scatter(xx, yy, c=zz, cmap=colormap, vmin=0, vmax=2*np.pi)
                             else:
                             # Individual filaments
-                                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=fil_phases, cmap=colormap, vmin=0, vmax=2*np.pi)
+                                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=fil_states[:self.nfil], cmap=colormap, vmin=0, vmax=2*np.pi)
                     # ax.set_ylabel(r"$\theta$")
                     # ax.set_xlabel(r"$\phi$")
                     # ax.set_xlim(-np.pi, np.pi)
