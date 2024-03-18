@@ -50,7 +50,7 @@ class VISUAL:
         # self.date = '20240214_test_solution_d_double'
         self.dir = f"data/JFNK_sims/{self.date}/"
 
-        self.date = '20240311'
+        self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         self.pars_list = {
@@ -86,7 +86,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 30000
+        self.plot_end_frame_setting = 300000
         self.frames_setting = 630000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1919,7 +1919,7 @@ class VISUAL:
                     # ax.set_ylim(0, np.pi)
                     # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
                     # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
-                    ax.set_title(f"ind={self.index} nfil={self.nfil} AR={self.ar} spr={self.spring_factor} {self.plot_end_frame}")
+                    ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
                 except:
                     print("WARNING: " + self.simName + " not found.")
         for ax in axs_flat:

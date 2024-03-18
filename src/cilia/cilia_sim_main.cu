@@ -582,11 +582,11 @@ int main(int argc, char** argv){
 
       std::ofstream seg_state_file(SIMULATION_SEG_STATE_NAME, std::ios::app);
       seg_state_file << save_step << " ";
-      seg_state_file << std::scientific << std::setprecision(10);
+      seg_state_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
 
       std::ofstream body_state_file(SIMULATION_BODY_STATE_NAME, std::ios::app);
       body_state_file << save_step << " ";
-      body_state_file << std::scientific << std::setprecision(10);
+      body_state_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
 
 
 
@@ -606,7 +606,7 @@ int main(int argc, char** argv){
 
       // std::ofstream backup_file(SIMULATION_BACKUP_NAME);
       // backup_file << save_step << " ";
-      // backup_file << std::scientific << std::setprecision(10);
+      // backup_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
 
       // for (int n = 0; n < NSWIM; n++){
 
@@ -621,10 +621,10 @@ int main(int argc, char** argv){
 
         // std::ofstream fil_phase_file(SIMULATION_NAME+std::string("_filament_phases.dat"), std::ios::app);
         // fil_phase_file << save_step << " ";
-        // fil_phase_file << std::scientific << std::setprecision(10);
+        // fil_phase_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
 
         std::ofstream true_states_file(SIMULATION_TRUESTATE_NAME, std::ios::app);
-        true_states_file << std::scientific << std::setprecision(10);
+        true_states_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
         true_states_file << save_step << " " << PERIOD << " ";
 
         for (int n = 0; n < NSWIM; n++){
@@ -645,7 +645,7 @@ int main(int argc, char** argv){
 
           // std::ofstream fil_angle_file(SIMULATION_NAME+std::string("_filament_shape_rotation_angles.dat"), std::ios::app);
           // fil_angle_file << save_step << " ";
-          // fil_angle_file << std::scientific << std::setprecision(10);
+          // fil_angle_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
 
           for (int n = 0; n < NSWIM; n++){
 

@@ -34,6 +34,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
 
 #define FIL_USE_DOUBLE_PRECISION false
 
+
 #if FIL_USE_DOUBLE_PRECISION
     typedef double Real;
     typedef long Integer;
@@ -48,6 +49,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
     #define myfil_gemm_ dgemm_
     #define myfil_cos cos
     #define myfil_sin sin
+    #define OUTPUT_DIGIT 15
 #else
     typedef float Real;
     typedef int Integer;
@@ -62,7 +64,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
     #define myfil_gemm_ sgemm_
     #define myfil_cos cosf
     #define myfil_sin sinf
-    
+    #define OUTPUT_DIGIT 7
 #endif
 
 
@@ -333,7 +335,7 @@ extern int TOTAL_TIME_STEPS;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 30
+  #define SAVES_PER_PERIOD 300
 
 #endif
 
