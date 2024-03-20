@@ -531,6 +531,8 @@ int main(int argc, char** argv){
         std::cout << DELETE_CURRENT_LINE << std::flush;
         
         mobility.cufcm_solver->check_overlap();
+
+        mobility.cufcm_solver->prompt_time();
       }
     #endif
 

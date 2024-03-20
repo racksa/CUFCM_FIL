@@ -13,18 +13,18 @@ def box(x, box_size):
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
-fig2 = plt.figure()
-ax2 = fig2.add_subplot(1,1,1)
+# fig2 = plt.figure()
+# ax2 = fig2.add_subplot(1,1,1)
 
-mrow = 1000
+mrow = 300
 accuracy_list = ['1e-4', '1e-5', '1e-6', '1e-7', '1e-8']
-linestyle_list = ['solid', 'dashdot', 'dashed', 'dotted', '' ]
-marker_list = ['', '', '', '', '+']
-group = 'group3'
+linestyle_list = ['solid', 'dashdot', 'dashed', 'dotted', 'solid' ]
+marker_list = ['', '', '', '', '']
+group = 'group5'
 for ai, accuracy in enumerate(accuracy_list):
     try:
-        a = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_1/ciliate_159fil_9000blob_8.00R_0.0800torsion_true_states.dat", max_rows=mrow)
-        b = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_2/ciliate_159fil_9000blob_8.00R_0.0800torsion_true_states.dat", max_rows=mrow)
+        a = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_5/ciliate_159fil_9000blob_8.00R_0.0800torsion_true_states.dat", max_rows=mrow)
+        b = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_7/ciliate_159fil_9000blob_8.00R_0.0800torsion_true_states.dat", max_rows=mrow)
 
         a = a[2:]
         b = b[2:]
@@ -58,18 +58,18 @@ for ai, accuracy in enumerate(accuracy_list):
 
 ax.set_xlim(0)
 ax.set_yscale('log')
-ax.set_ylabel(rf'$\|\Psi_1 - \Psi_2\|_2$')
+ax.set_ylabel(r'$\|\mathbf{x}_1 - \mathbf{x}_2\|_2$')
 ax.set_xlabel(r'$t/T$')
 
-ax2.set_xlim(0)
-ax2.set_yscale('log')
-ax2.set_ylabel(r'$\frac{\|\Psi_1 - \Psi_2\|_1}{N}$')
-ax2.set_xlabel(r'$t/T$')
+# ax2.set_xlim(0)
+# ax2.set_yscale('log')
+# ax2.set_ylabel(r'$\frac{\|\mathbf{x}_1 - \mathbf{x}_2\|_1}{N}$')
+# ax2.set_xlabel(r'$t/T$')
 
 ax.legend()
-ax2.legend()
+# ax2.legend()
 fig.tight_layout()
-fig2.tight_layout()
+# fig2.tight_layout()
 fig.savefig(f'fig/numeric_error_{group}.pdf', bbox_inches = 'tight', format='pdf')
             
 plt.show()

@@ -32,7 +32,7 @@ extern std::string SIMULATION_TRUESTATE_NAME;
 extern std::string SIMULATION_ICSTATE_NAME;
 
 
-#define FIL_USE_DOUBLE_PRECISION false
+#define FIL_USE_DOUBLE_PRECISION true
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -228,7 +228,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
 // N.B. For options 0 and 2, whilst the simulation state will be fresh, all saved data will still be appended to any data from a previous simulation of the same name.
 
 #if MOBILITY_TYPE==4
-  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
+  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia_expr2"
 #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -311,7 +311,7 @@ extern int TOTAL_TIME_STEPS;
 #if SOLVER_TYPE==1
 
   #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
+  #define LINEAR_SYSTEM_TOL 1e-8 // Relative tolerance in the linear system solves.
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,
@@ -529,7 +529,7 @@ extern int TOTAL_TIME_STEPS;
 
 // #endif
 
-#define DISPLAYTIME false
+#define DISPLAYTIME true
 
 
 #endif // MY_CONFIG_HEADER_INCLUDED

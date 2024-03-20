@@ -50,7 +50,7 @@ class VISUAL:
         # self.date = '20240214_test_solution_d_double'
         self.dir = f"data/JFNK_sims/{self.date}/"
 
-        self.date = '20240311_2'
+        self.date = '20240311_3'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         self.pars_list = {
@@ -86,7 +86,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 300000
+        self.plot_end_frame_setting = 15000
         self.frames_setting = 630000
 
         self.plot_end_frame = self.plot_end_frame_setting

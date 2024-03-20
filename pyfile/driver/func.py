@@ -8,12 +8,12 @@ class DRIVER:
         self.globals_name = 'input/globals.ini'
         self.afix = ''
         self.category = 'ic_hpc_sim/'
-        self.category = 'numeric_error/group4/'
+        self.category = 'numeric_error/group5/'
         
-        self.exe_name = 'cilia_double_1e-7'
+        self.exe_name = 'cilia_expr2'
         
         # self.date = '20240318'
-        self.date = 'run_1e-7_2'
+        self.date = 'run_1e-8_9'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 

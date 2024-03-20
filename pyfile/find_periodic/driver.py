@@ -7,12 +7,11 @@ import numpy as np
 class DRIVER:
 
     def __init__(self):
-        self.globals_name = 'globals.ini'
-        self.exe_name = 'cilia_periodic_300_1e-6'
-        # self.category = 'expr_sims/'
-        self.category = 'JFNK_sims/'
+        self.globals_name = 'input/globals.ini'
+        self.exe_name = 'cilia_double_1e-8'
+        self.category = 'JFNK/'
 
-        self.date = '20240214_periodic_d'
+        self.date = '20240319_JFNK'
         self.afix = ''
         # self.dir = f"data/expr_sims/{self.date}{self.afix}/"
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -33,7 +32,7 @@ class DRIVER:
         
         self.current_thread = 0
         self.num_thread = 1
-        self.cuda_device = 5
+        self.cuda_device = 4
     
     def create_ini(self):
         ini = configparser.ConfigParser()
@@ -86,50 +85,11 @@ class DRIVER:
         self.simName = f"ciliate_{self.pars_list['nfil'][-1]:.0f}fil_{self.pars_list['nblob'][-1]:.0f}blob_{self.pars_list['ar'][-1]:.2f}R_{self.pars_list['spring_factor'][-1]:.4f}torsion"
         self.write_ini("Filenames", "simulation_dir", self.dir)
         self.write_ini("Filenames", "simulation_file", self.simName)
-        self.write_ini("Filenames", "simulation_readphase_name", f"phases.dat")
-        self.write_ini("Filenames", "simulation_readangle_name", f"angles.dat")
+        self.write_ini("Filenames", "simulation_icstate_name", self.dir + f"psi.dat")
 
         return True
-    
-    # def save_orbit(self):
-    #     # print("Saving orbits using the driver....")
-    #     input_filenames = self.simName + '_true_states.dat'
-        
-    #     input_filename = self.dir + input_filenames
-
-    #     # Open the input file in read mode
-    #     with open(input_filename, 'r') as input_file:
-    #         # Read all lines from the file
-    #         lines = input_file.readlines()
-
-    #         # Check if the file is not empty
-    #         if lines:
-    #             # Extract the last line
-    #             first_line = lines[0]
-    #             last_line = lines[-1]
-    #             true_states_start = np.array(first_line.split(), dtype=float)
-    #             true_states = np.array(last_line.split(), dtype=float)
-
-    #             np.savetxt(self.dir + f"phases.dat", true_states[2:self.pars_list["nfil"][0]+2], delimiter=' ', newline=' ')
-    #             np.savetxt(self.dir + f"angles.dat", true_states[self.pars_list["nfil"][0]+2:], delimiter=' ', newline=' ')
-                
-    #             # np.savetxt(self.dir + f"psi.dat", true_states, delimiter=' ', newline=' ')
-    #             # np.savetxt(self.dir + f"psi_start.dat", true_states_start, delimiter=' ', newline=' ')
-
-    #             # print(f"[SUCCESS]: last line copied from '{input_filename}' to '{output_filenames[0]}'.")
-    #         else:
-    #             print(f"The file '{input_filename}' is empty.")
 
     def run(self):
-        
-        # for key, value in self.pars_list.items():
-        #     self.write_ini("Parameters", key, float(self.pars_list[key][0]))
-        # self.simName = f"ciliate_{self.pars_list['nfil'][0]:.0f}fil_{self.pars_list['nblob'][0]:.0f}blob_{self.pars_list['ar'][0]:.2f}R_{self.pars_list['spring_factor'][0]:.3f}torsion"
-        # self.write_ini("Filenames", "simulation_file", self.simName)
-        # self.write_ini("Filenames", "simulation_dir", self.dir)
-
-        # print(self.pars_list)
-        
 
         k = float(self.pars_list["spring_factor"][0])
         command = f"export OPENBLAS_NUM_THREADS=1; \
