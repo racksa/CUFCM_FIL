@@ -10,8 +10,7 @@ import matplotlib.patches as patches
 import matplotlib.animation as animation
 import configparser
 from sklearn.cluster import KMeans
-import math
-import sys
+import time
 import matplotlib as mpl
 import os
 from scipy.optimize import curve_fit
@@ -50,7 +49,7 @@ class VISUAL:
         # self.date = '20240214_test_solution_d_double'
         self.dir = f"data/JFNK_sims/{self.date}/"
 
-        self.date = '20240311_3'
+        self.date = '20240311_4'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         self.pars_list = {
@@ -86,7 +85,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 15000
+        self.plot_end_frame_setting = 1500000
         self.frames_setting = 630000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -144,11 +143,13 @@ class VISUAL:
                     # self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')][0::num_elst]
                     # self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')][num_per_elst*select_elst:num_per_elst*(select_elst+1)]
             self.num_sim = len(self.pars_list["nfil"])
-            print(self.pars_list['nfil'])
+            # print(self.pars_list['nfil'])
         except:
             print("WARNING: " + self.dir + "rules.ini not found.")
 
     def select_sim(self):
+        
+
         if(self.index>len(self.pars_list['nfil'])):
             self.index = len(self.pars_list['nfil'])-1
             print(f'Index out of range. Using the last sim: {self.index}')
@@ -160,6 +161,7 @@ class VISUAL:
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
+
         try:
             open(self.simName + '_fil_references.dat')
         except:
@@ -168,7 +170,6 @@ class VISUAL:
             open(self.simName + '_fil_references.dat')
         except:
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
-        
         
         self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
         try:
@@ -187,13 +188,11 @@ class VISUAL:
             self.pars['PRESCRIBED_CILIA'] = 0
         if(self.pars['NBLOB']>0):
             self.blob_references = myIo.read_blob_references(self.simName + '_blob_references.dat')
-        # if(self.pars['NFIL']>0):
-        #     self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
 
         self.plot_end_frame = min(self.plot_end_frame_setting, sum(1 for line in open(self.simName + '_body_states.dat')))
         self.plot_start_frame = max(0, self.plot_end_frame-self.frames_setting)
         self.frames = self.plot_end_frame - self.plot_start_frame
-        
+
         print(f'index={self.index} file={self.simName}')
         
     def plot(self):
@@ -3927,4 +3926,56 @@ class VISUAL:
         x = (5*sym_state + dia_state)/6.
 
         np.savetxt(output_file, x, newline = " ")
+
+    def IVPs(self):
+        path = "data/ic_hpc_sim/"
+        folders = util.list_folders(path)
+        print(folders)
+
+        self.plot_end_frame_setting = 1500000
+        self.frames_setting = 300
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+
+        for fi, folder in enumerate(folders):
+            self.dir = path + folder + '/'
+            print(self.dir)
+            self.read_rules()
+
+            k_arrays = self.pars_list['spring_factor']
+            r_arrays = np.zeros(np.shape(k_arrays))
+            
+            for ind in range(self.num_sim):
+                self.index = ind
+                try:
+                    self.select_sim()
+
+                    fil_references_sphpolar = np.zeros((self.nfil,3))
+                    for i in range(self.nfil):
+                        fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
+                    fil_states_f = open(self.simName + '_true_states.dat', "r")
+                    print(self.frames)
+                    print(self.plot_start_frame, self.plot_end_frame)
+                    for t in range(self.plot_end_frame):
+                        fil_states_str = fil_states_f.readline()
+                        if(t>=self.plot_start_frame):
+                            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+                            variables = fil_states[:self.nfil]
+
+                            r = np.abs(np.sum(np.exp(1j*variables))/self.nfil)
+                            r_arrays[ind] += r
+                    
+                    r_arrays[ind] /= self.frames
+                
+                except:
+                    pass
+            
+            ax.scatter(k_arrays, r_arrays)
+
+        plt.show()
+
 #

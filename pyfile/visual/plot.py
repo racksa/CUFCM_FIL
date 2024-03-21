@@ -10,25 +10,28 @@ list_of_single_options = ['plot', 'plot_eco', 'plot_fil', 'phase', 'order_parame
                    'timing', 'ciliate_forcing', 'ciliate_dissipation',
                    'ciliate_svd', 'ciliate_dmd', 'kymograph', 'copy_phases',
                    'periodic_solution', 'find_periodicity']
-list_of_multi_options = ['multi_phase', 'multi_ciliate', 'multi_ciliate_traj',
-                         'multi_ciliate_speed', 'multi_timing', 'multi_ciliate_svd',
-                         'multi_check_overlap', 'multi_ciliate_dissipation',
-                         'multi_order_parameter', 'multi_ciliate_dissipation_generate',
-                         'multi_ciliate_dissipation_plots', 'multi_output_phase',
-                         'multi_kymograph', 'multi_copy_lastline_phases']
-list_of_summary_options = ['summary_ciliate_speed', 'summary_timing',
-                           'summary_ciliate_dissipation', 'summary_check_overlap',
-                           'summary_ciliate_density', 'summary_ciliate_k', 'summary_ciliate_resolution']
+# list_of_multi_options = ['multi_phase', 'multi_ciliate', 'multi_ciliate_traj',
+#                          'multi_ciliate_speed', 'multi_timing', 'multi_ciliate_svd',
+#                          'multi_check_overlap', 'multi_ciliate_dissipation',
+#                          'multi_order_parameter', 'multi_ciliate_dissipation_generate',
+#                          'multi_ciliate_dissipation_plots', 'multi_output_phase',
+#                          'multi_kymograph', 'multi_copy_lastline_phases']
+# list_of_summary_options = ['summary_ciliate_speed', 'summary_timing',
+#                            'summary_ciliate_dissipation', 'summary_check_overlap',
+#                            'summary_ciliate_density', 'summary_ciliate_k', 'summary_ciliate_resolution']
 
-list_of_special_options = ['ishikawa', 'view_solution', 'mod_state']
-list_of_all_options = list_of_single_options\
-                    + list_of_multi_options\
-                    + list_of_summary_options\
-                    + list_of_special_options
+# list_of_special_options = ['ishikawa', 'view_solution', 'mod_state']
+# list_of_all_options = list_of_single_options\
+#                     + list_of_multi_options\
+#                     + list_of_summary_options\
+#                     + list_of_special_options
 
+attributes = dir(visualiser)
+methods = [attr for attr in attributes if callable(getattr(visualiser, attr)) and not attr.startswith('__') and not attr.endswith('__')]
+# methods = list_of_all_options
 
 # execute the plotting function
-if(sys.argv[1] in list_of_all_options):
+if(sys.argv[1] in methods):
     visualiser.read_rules()
     if('interpolate' in sys.argv):
         visualiser.interpolate = True
@@ -44,8 +47,6 @@ if(sys.argv[1] in list_of_all_options):
         if('video' in sys.argv):
             visualiser.video = True
         
-        
-
     if hasattr(visualiser, sys.argv[1]):
         method_to_call = getattr(visualiser, sys.argv[1])
         if callable(method_to_call):

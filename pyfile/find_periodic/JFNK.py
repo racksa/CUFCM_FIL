@@ -20,7 +20,7 @@ def main():
     # AR = 15
 
     # output_filename = f"data/expr_sims/20240208_periodic/psi_guess{NFIL}.dat"
-    output_filename = f"data/JFNK/20240319_JFNK/psi_guess{NFIL}.dat"
+    output_filename = f"data/JFNK/20240320_JFNK/psi_guess{NFIL}.dat"
 
     # Number of time steps (ndts) and fixT
     ndts = 300

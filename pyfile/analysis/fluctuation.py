@@ -51,7 +51,7 @@ for ai, accuracy in enumerate(accuracy_list):
             error = np.linalg.norm(diff) / np.linalg.norm(a[i])
 
         ax.plot(np.linspace(0,length/300,length), error_norm_array, c='black', linestyle=linestyle_list[ai], marker=marker_list[ai], label = f"TOL={accuracy}")
-        ax2.plot(np.linspace(0,length/300,length), error_avg_array, c='black', linestyle=linestyle_list[ai], marker=marker_list[ai], label = f"TOL={accuracy}")
+        # ax2.plot(np.linspace(0,length/300,length), error_avg_array, c='black', linestyle=linestyle_list[ai], marker=marker_list[ai], label = f"TOL={accuracy}")
 
     except:
         pass

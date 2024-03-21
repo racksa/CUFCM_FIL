@@ -1,23 +1,32 @@
 import os
 import pandas as pd
+import numpy as np
 
 def read_blob_references(fileName):
-    ret = pd.read_csv(fileName, sep = ' ', header=None)
-    return ret.iloc[:,:-1].to_numpy().reshape(-1)
+    try:
+        with open(fileName, 'r') as file:
+            lines = file.readlines()
+            data = [line.strip().split() for line in lines]
+            data = np.array(data, dtype=float)  # Assuming your data is numeric
+            return data[:, :].reshape(-1)
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+    # ret = pd.read_csv(fileName, sep = ' ', header=None)
+    # return ret.iloc[:,:-1].to_numpy().reshape(-1)
 
 def read_fil_references(fileName):
-    ret = pd.read_csv(fileName, sep = ' ', header=None)
-    return ret.iloc[:,:-1].to_numpy().reshape(-1)
-
-def read_body_states(fileName):
-    ret = pd.read_csv(fileName, sep=' ', header=None)
-    ret = ret.iloc[:, 1:-1]
-    return ret.to_numpy()
-
-def read_seg_states(fileName):
-    ret = pd.read_csv(fileName, sep = ' ', header=None)
-    ret = ret.iloc[:, 1:-1]
-    return ret.to_numpy()
+    try:
+        with open(fileName, 'r') as file:
+            lines = file.readlines()
+            data = [line.strip().split() for line in lines]
+            data = np.array(data, dtype=float)  # Assuming your data is numeric
+            return data[:, :].reshape(-1)
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+    # ret = pd.read_csv(fileName, sep = ' ', header=None)
+    # return ret.iloc[:,:-1].to_numpy().reshape(-1)
     
 def read_pars(fileName):
     ret_pardict = {}

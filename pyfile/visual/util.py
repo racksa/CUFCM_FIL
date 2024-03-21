@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import os
 
 def rot_mat(quaternion):
     ret = np.zeros((3,3))
@@ -205,4 +206,24 @@ def label_colliding_particles(positions, radius):
 
     return colliding_indices, colliding_particles
 
+def list_folders(path):
+    try:
+        folders = [folder for folder in os.listdir(path) if os.path.isdir(os.path.join(path, folder))]
+        return folders
+    except OSError as e:
+        print(f"Error: {e}")
+        return []
+    
+def get_member_functions(obj):
+    try:
+        # Get all attributes of the object
+        attributes = dir(obj)
+        
+        # Filter out methods (functions)
+        methods = [attr for attr in attributes if callable(getattr(obj, attr))]
+        
+        return methods
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
 #
