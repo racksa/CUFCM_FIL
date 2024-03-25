@@ -49,8 +49,8 @@ class VISUAL:
         # self.date = '20240214_test_solution_d_double'
         self.dir = f"data/JFNK_sims/{self.date}/"
 
-        self.date = '20240311_4'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_6'
+        self.dir = f"data/ic_hpc_sim2/{self.date}/"
 
         self.pars_list = {
                      "index": [],
@@ -3928,7 +3928,7 @@ class VISUAL:
         np.savetxt(output_file, x, newline = " ")
 
     def IVPs(self):
-        path = "data/ic_hpc_sim/"
+        path = "data/ic_hpc_sim2/"
         folders = util.list_folders(path)
         print(folders)
 
@@ -3956,7 +3956,6 @@ class VISUAL:
                         fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
                     fil_states_f = open(self.simName + '_true_states.dat', "r")
-                    print(self.frames)
                     print(self.plot_start_frame, self.plot_end_frame)
                     for t in range(self.plot_end_frame):
                         fil_states_str = fil_states_f.readline()
@@ -3974,8 +3973,15 @@ class VISUAL:
                 except:
                     pass
             
-            ax.scatter(k_arrays, r_arrays)
+            ax.scatter(k_arrays, r_arrays, label = folder)
 
+        ax.set_ylim(0)
+        ax.set_xlabel(r'$k$')
+        ax.set_ylabel(r'$<r>$')
+
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
 #

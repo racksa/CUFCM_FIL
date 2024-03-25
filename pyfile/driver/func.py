@@ -8,12 +8,12 @@ class DRIVER:
         self.globals_name = 'input/globals.ini'
         self.afix = ''
         self.category = 'ic_hpc_sim/'
-        self.category = 'numeric_error/group5/'
+        self.category = 'temp/'
         
-        self.exe_name = 'cilia_expr2'
+        self.exe_name = 'cilia_1e-4'
         
         # self.date = '20240318'
-        self.date = 'run_1e-8_9'
+        self.date = 'test'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -40,6 +40,10 @@ class DRIVER:
         self.num_thread = 1
         self.cuda_device = 0
     
+    def update_date(self, date):
+        self.date = date
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
     def create_ini(self):
         ini = configparser.ConfigParser()
         ini.add_section('Parameters')
