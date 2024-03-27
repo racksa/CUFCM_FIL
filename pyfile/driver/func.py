@@ -7,16 +7,15 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        self.category = 'ic_hpc_sim/'
-        self.category = 'temp/'
+        self.category = 'JFNK/test_solution/'
+        # self.category = 'group6/'
         
-        self.exe_name = 'cilia_1e-4'
+        self.exe_name = 'cilia_double_1e-4'
         
         # self.date = '20240318'
-        self.date = 'test'
+        self.date = 'ivp'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
 
         self.pars_list = {
                      "index": [],
@@ -91,8 +90,8 @@ class DRIVER:
                         nblob = int(9000 + 0*i)
                         ar = round(8.00, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
-                        period = 1.
-                        sim_length = 1
+                        period = 1.0
+                        sim_length = 1000
 
                         # 9
                         # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\
@@ -213,7 +212,7 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/s0d1.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/s10d1.dat")
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \

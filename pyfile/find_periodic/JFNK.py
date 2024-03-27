@@ -41,7 +41,7 @@ def main():
     # f_range = np.arange(0.010, 0.061, 0.001)
     f_range = np.arange(0.035, 0.061, 0.001)[::-1]
     # f_range = np.arange(0.030, 0.062, 0.002)
-    f_range = [1.399999999999999682e-02]
+    f_range = [0.005]
     for k in f_range:
 
         print('-----------Spring constant = ' + str(k))

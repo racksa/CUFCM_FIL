@@ -16,15 +16,15 @@ ax = fig.add_subplot(1,1,1)
 # fig2 = plt.figure()
 # ax2 = fig2.add_subplot(1,1,1)
 
-mrow = 300
+mrow = 100
 accuracy_list = ['1e-4', '1e-5', '1e-6', '1e-7', '1e-8']
 linestyle_list = ['solid', 'dashdot', 'dashed', 'dotted', 'solid' ]
 marker_list = ['', '', '', '', '']
-group = 'group5'
+group = 'group6'
 for ai, accuracy in enumerate(accuracy_list):
     try:
-        a = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_5/ciliate_159fil_9000blob_8.00R_0.0800torsion_true_states.dat", max_rows=mrow)
-        b = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_7/ciliate_159fil_9000blob_8.00R_0.0800torsion_true_states.dat", max_rows=mrow)
+        a = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_1/ciliate_159fil_9000blob_8.00R_0.0140torsion_true_states.dat", max_rows=mrow)
+        b = np.loadtxt(f"data/numeric_error/{group}/run_{accuracy}_2/ciliate_159fil_9000blob_8.00R_0.0140torsion_true_states.dat", max_rows=mrow)
 
         a = a[2:]
         b = b[2:]

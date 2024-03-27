@@ -44,13 +44,13 @@ class VISUAL:
         self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240214_hold'
-        self.date = '20240214_test_solution_s2'
-        # self.date = '20240214_test_solution_d_double'
-        self.dir = f"data/JFNK_sims/{self.date}/"
+        # self.date = '20240311_5'
+        # self.dir = f"data/ic_hpc_sim2/{self.date}/"
 
-        self.date = '20240311_6'
-        self.dir = f"data/ic_hpc_sim2/{self.date}/"
+        self.date = 'ivp'
+        # self.date = "test1"
+        self.dir = f"data/JFNK/test_solution/{self.date}/"
+
 
         self.pars_list = {
                      "index": [],
@@ -86,7 +86,7 @@ class VISUAL:
         self.check_overlap = False
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 630000
+        self.frames_setting = 63000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -148,7 +148,6 @@ class VISUAL:
             print("WARNING: " + self.dir + "rules.ini not found.")
 
     def select_sim(self):
-        
 
         if(self.index>len(self.pars_list['nfil'])):
             self.index = len(self.pars_list['nfil'])-1
@@ -732,6 +731,8 @@ class VISUAL:
         ax3 = fig3.add_subplot(1,1,1)
         fig4 = plt.figure()
         ax4 = fig4.add_subplot(1,1,1)
+        fig5 = plt.figure()
+        ax5 = fig5.add_subplot(1,1,1)
 
         # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
         # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
@@ -741,6 +742,7 @@ class VISUAL:
         corr_array = np.zeros(self.frames)
         corr_array2 = np.zeros(self.frames)
         corr_array_angle = np.zeros(self.frames)
+        r_array = np.zeros(self.frames)
 
         fil_references_sphpolar = np.zeros((self.nfil,3))
         for fil in range(self.nfil):
@@ -770,13 +772,9 @@ class VISUAL:
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-            # fil_phases_str = fil_phases_f.readline()
-            # fil_angles_str = fil_angles_f.readline()
             fil_states_str = fil_states_f.readline()
 
             if(i>=self.plot_start_frame):
-                # fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                # fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
                 fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                 fil_phases = fil_states[:self.nfil]
                 fil_angles = fil_states[self.nfil:]
@@ -803,6 +801,7 @@ class VISUAL:
                     variance_array_angle[m] = np.var(angles_in_group)
                 
                 corr_array_angle[i-self.plot_start_frame] = np.mean(variance_array_angle)
+                r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
 
         ax.plot(time_array, corr_array)
         ax.set_xlabel('t/T')
@@ -826,6 +825,8 @@ class VISUAL:
         ax4.set_ylabel('Coordination number 2 (angle)')
         ax4.set_xlim(time_array[0], time_array[-1])
         ax4.set_ylim(0)
+
+        ax5.plot(time_array, r_array)
         
         fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
@@ -1707,7 +1708,7 @@ class VISUAL:
             return diff_norm, norm, rel_error
 
         # Search for T
-        search_T_min, search_T_max = 0.96, 1.02
+        search_T_min, search_T_max = 0.96, 1.0
         dframe_array = np.arange(int(search_T_min*self.period), int(search_T_max*self.period)+1)
         error_array = np.zeros(np.shape(dframe_array))
         try:
@@ -3931,9 +3932,10 @@ class VISUAL:
         path = "data/ic_hpc_sim2/"
         folders = util.list_folders(path)
         print(folders)
+        folders=['20240311_2']
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 300
+        self.frames_setting = 100
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -3961,7 +3963,7 @@ class VISUAL:
                         fil_states_str = fil_states_f.readline()
                         if(t>=self.plot_start_frame):
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-                            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                            # fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
 
                             variables = fil_states[:self.nfil]
 
@@ -3973,13 +3975,13 @@ class VISUAL:
                 except:
                     pass
             
-            ax.scatter(k_arrays, r_arrays, label = folder)
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
 
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
 
-        ax.legend()
+        # ax.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()

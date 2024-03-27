@@ -228,7 +228,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
 // N.B. For options 0 and 2, whilst the simulation state will be fresh, all saved data will still be appended to any data from a previous simulation of the same name.
 
 #if MOBILITY_TYPE==4
-  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia_expr2"
+  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
 #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
