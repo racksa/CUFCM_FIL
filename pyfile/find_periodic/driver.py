@@ -11,7 +11,7 @@ class DRIVER:
         self.exe_name = 'cilia_double_1e-8'
         self.category = 'JFNK/'
 
-        self.date = '20240320_JFNK'
+        self.date = '20240320_JFNK_s'
         self.afix = ''
         # self.dir = f"data/expr_sims/{self.date}{self.afix}/"
         self.dir = f"data/{self.category}{self.date}{self.afix}/"

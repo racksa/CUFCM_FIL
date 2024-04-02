@@ -44,12 +44,11 @@ class VISUAL:
         self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        # self.date = '20240311_5'
-        # self.dir = f"data/ic_hpc_sim2/{self.date}/"
+        self.date = '20240311_3'
+        self.dir = f"data/ic_hpc_sim2/{self.date}/"
 
-        self.date = 'ivp'
-        # self.date = "test1"
-        self.dir = f"data/JFNK/test_solution/{self.date}/"
+        # self.date = 'test1'
+        # self.dir = f"data/JFNK/test_solution/{self.date}/"
 
 
         self.pars_list = {
