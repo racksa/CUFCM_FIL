@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Submit the PBS job script to the queue, catching the job ID as we do so.
-if [ $# -eq 1 ] && [ $1 = 'express' ]
-then
-	JOB_ID=$(qsub -q express -P exp-XXXXX run_cilia_sim.pbs)
-	echo "Using the express queue..."
-else
-	JOB_ID=$(qsub run_cilia_sim.pbs)
-	echo "Using the normal queue..."
-fi
-JOB_ID=${JOB_ID:0:-4} # Throw away the .pbs extension
+# if [ $# -eq 1 ] && [ $1 = 'express' ]
+# then
+# 	JOB_ID=$(qsub -q express -P exp-XXXXX run_cilia_sim.pbs)
+# 	echo "Using the express queue..."
+# else
+# 	JOB_ID=$(qsub run_cilia_sim.pbs)
+# 	echo "Using the normal queue..."
+# fi
+# JOB_ID=${JOB_ID:0:-4} # Throw away the .pbs extension
 
 # Make the job-specific directory to store everything related to this job.
 # LOC=$JOB_ID
@@ -24,5 +24,9 @@ JOB_ID=${JOB_ID:0:-4} # Throw away the .pbs extension
 # cp *.input $LOC/
 
 # And we should be done!
+JOB_ID=$(qsub run_cilia_sim.pbs)
+JOB_ID=${JOB_ID:0:-4}
+echo "Using the normal queue..."
 echo "Job submitted!"
 echo $JOB_ID
+tail -n 1 run_cilia_sim.pbs

@@ -44,8 +44,8 @@ class VISUAL:
         self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_3'
-        self.dir = f"data/ic_hpc_sim2/{self.date}/"
+        self.date = '20240311_10'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = 'test1'
         # self.dir = f"data/JFNK/test_solution/{self.date}/"
@@ -3928,13 +3928,12 @@ class VISUAL:
         np.savetxt(output_file, x, newline = " ")
 
     def IVPs(self):
-        path = "data/ic_hpc_sim2/"
+        path = "data/ic_hpc_sim/"
         folders = util.list_folders(path)
         print(folders)
-        folders=['20240311_2']
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 100
+        self.frames_setting = 300
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -3974,13 +3973,14 @@ class VISUAL:
                 except:
                     pass
             
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
 
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
 
-        # ax.legend()
+        ax.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
