@@ -20,7 +20,7 @@ def main():
     # AR = 15
 
     # output_filename = f"data/expr_sims/20240208_periodic/psi_guess{NFIL}.dat"
-    output_filename = f"data/JFNK/20240320_JFNK_d/psi_guess{NFIL}.dat"
+    output_filename = f"data/JFNK/20240320_JFNK_s/psi_guess{NFIL}.dat"
 
     # Number of time steps (ndts) and fixT
     ndts = 300
@@ -41,7 +41,7 @@ def main():
     # f_range = np.arange(0.010, 0.061, 0.001)
     f_range = np.arange(0.005, 0.056, 0.005)[::-1]
     # f_range = np.arange(0.030, 0.062, 0.002)
-    # f_range = [0.01, 0.045, 0.005]
+    f_range = np.arange(0.015, 0.045, 0.005)
     for k in f_range:
 
         print('-----------Spring constant = ' + str(k))

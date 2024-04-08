@@ -24,9 +24,18 @@
 # cp *.input $LOC/
 
 # And we should be done!
-JOB_ID=$(qsub run_cilia_sim.pbs)
+
+q=15
+date=20240311_2
+command="python3 pyfile/driver/driver.py run ${q} 16 0 ${date}"
+
+# cp --attributes-only "run_cilia_sim.pbs" "pbs/run_cilia_sim${q}.pbs"
+sed -e "\$a\\$command" "run_cilia_sim.pbs" > "pbs/run_cilia_sim${q}.pbs"
+chmod +x "pbs/run_cilia_sim${q}.pbs"
+
+JOB_ID=$(qsub pbs/run_cilia_sim${q}.pbs)
 JOB_ID=${JOB_ID:0:-4}
 echo "Using the normal queue..."
 echo "Job submitted!"
 echo $JOB_ID
-tail -n 1 run_cilia_sim.pbs
+tail -n 1 pbs/run_cilia_sim${q}.pbs

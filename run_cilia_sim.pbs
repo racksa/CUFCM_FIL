@@ -10,4 +10,4 @@ module load cuda/11.4.2
 # OUTPUT_LOC=$CODE_LOC/${PBS_JOBID:0: -4}
 cd $PBS_O_WORKDIR
 # make cilia_ic_hpc_CUFCM
-python3 pyfile/driver/driver.py run 1 16 0 20240311_8
+# python3 pyfile/driver/driver.py run 0 16 0 20240311_2

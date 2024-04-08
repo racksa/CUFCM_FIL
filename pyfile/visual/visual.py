@@ -41,11 +41,11 @@ class VISUAL:
         self.date = '20240207_159fil_hold'
         self.date = '20240208_test_solution'
 
-        self.dir = f"data/expr_sims/{self.date}/"
+        # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_10'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
         # self.date = 'test1'
         # self.dir = f"data/JFNK/test_solution/{self.date}/"
@@ -84,8 +84,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 1500000
-        self.frames_setting = 63000
+        self.plot_end_frame_setting = 900000
+        self.frames_setting = 9000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
