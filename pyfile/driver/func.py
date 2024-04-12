@@ -10,10 +10,10 @@ class DRIVER:
         self.category = 'JFNK/test_solution/'
         # self.category = 'group6/'
         
-        self.exe_name = 'cilia_double_1e-8'
+        self.exe_name = 'cilia_double_1e-4'
         
-        # self.date = '20240318'
-        self.date = 'test1'
+        self.date = 'ivp'
+        # self.date = 'test1'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -90,8 +90,8 @@ class DRIVER:
                         nblob = int(9000 + 0*i)
                         ar = round(8.00, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
-                        period = 9.924888231158773833e-01
-                        sim_length = 1
+                        period = 1
+                        sim_length = 10000
 
                         # 9
                         # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\

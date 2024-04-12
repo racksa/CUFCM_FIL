@@ -44,10 +44,10 @@ class VISUAL:
         # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_1'
+        self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        # self.date = 'test1'
+        # self.date = 'ivp'
         # self.dir = f"data/JFNK/test_solution/{self.date}/"
 
 
@@ -85,7 +85,7 @@ class VISUAL:
         self.check_overlap = False
 
         self.plot_end_frame_setting = 900000
-        self.frames_setting = 9000
+        self.frames_setting = 90000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3928,7 +3928,7 @@ class VISUAL:
         np.savetxt(output_file, x, newline = " ")
 
     def IVPs(self):
-        path = "data/ic_hpc_sim/"
+        path = "data/ic_hpc_sim_free/"
         folders = util.list_folders(path)
         print(folders)
 
