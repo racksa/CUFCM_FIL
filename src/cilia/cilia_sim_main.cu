@@ -590,8 +590,6 @@ int main(int argc, char** argv){
       body_state_file << save_step << " ";
       body_state_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
 
-
-
       for (int n = 0; n < NSWIM; n++){
 
         swimmers[n].write_data(seg_state_file, body_state_file);
@@ -604,7 +602,7 @@ int main(int argc, char** argv){
       body_state_file << std::endl;
       body_state_file.close();
 
-      // mobility.write_data(nt, swimmers); // Writes all velocity and force data.
+      mobility.write_data(nt, swimmers); // Writes all velocity and force data.
 
       // std::ofstream backup_file(SIMULATION_BACKUP_NAME);
       // backup_file << save_step << " ";

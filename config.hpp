@@ -32,7 +32,7 @@ extern std::string SIMULATION_TRUESTATE_NAME;
 extern std::string SIMULATION_ICSTATE_NAME;
 
 
-#define FIL_USE_DOUBLE_PRECISION true
+#define FIL_USE_DOUBLE_PRECISION false
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -80,7 +80,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES true
+#define PRESCRIBED_BODY_VELOCITIES false
 
 #if CILIA_TYPE==0
 
@@ -311,7 +311,7 @@ extern int TOTAL_TIME_STEPS;
 #if SOLVER_TYPE==1
 
   #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-8 // Relative tolerance in the linear system solves.
+  #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,
@@ -335,7 +335,7 @@ extern int TOTAL_TIME_STEPS;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 

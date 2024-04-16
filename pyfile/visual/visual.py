@@ -44,8 +44,9 @@ class VISUAL:
         # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_2'
+        self.date = '20240311_3'
         self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        # self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
 
         # self.date = 'ivp'
         # self.dir = f"data/JFNK/test_solution/{self.date}/"
@@ -1601,13 +1602,10 @@ class VISUAL:
     def copy_phases(self):
         self.select_sim()
 
-        print(self.radius)
-
         input_filenames = [self.simName + '_filament_phases.dat',
                            self.simName + '_filament_shape_rotation_angles.dat',
                            self.simName + '_true_states.dat']
         afix = int(self.index)
-        afix = ''
         output_filenames = [self.dir + f"phases{afix}.dat",
                             self.dir + f"angles{afix}.dat",
                             self.dir + f"psi{afix}.dat"]
@@ -2910,13 +2908,14 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
                 
-    def multi_copy_lastline_phases(self):
+    def multi_copy_phases(self):
         for ind in range(self.num_sim):
             self.index = ind
             try:
                 self.select_sim()
-                input_filename = self.simName + '_filament_phases.dat'
-                output_filename = self.dir + f"phases{int(ind)}.dat"
+                # input_filename = self.simName + '_filament_phases.dat'
+                input_filename = self.simName + '_true_states.dat'
+                output_filename = self.dir + f"psi{int(ind)}.dat"
                 try:
                     # Open the input file in read mode
                     with open(input_filename, 'r') as input_file:
@@ -2930,12 +2929,10 @@ class VISUAL:
 
                             data = np.array(last_line.split()[1:], dtype=float)
 
-                            np.savetxt(output_filename, data, delimiter=' ', newline=' ')
+                            if input_filename == self.simName + '_true_states.dat':
+                                data = np.concatenate(([self.spring_factor], data))
 
-                            # # Open the output file in write mode
-                            # with open(output_filename, 'w') as output_file:
-                            #     # Write the last line to the output file
-                            #     output_file.write(last_line)
+                            np.savetxt(output_filename, data, delimiter=' ', newline=' ')
 
                             print(f"Success: last line copied from '{input_filename}' to '{output_filename}'.")
                         else:
@@ -3928,15 +3925,22 @@ class VISUAL:
         np.savetxt(output_file, x, newline = " ")
 
     def IVPs(self):
-        path = "data/ic_hpc_sim_free/"
+        free = True
+        path = "data/ic_hpc_sim_free_continue/"
+        # free = False
+        # path = "data/ic_hpc_sim_free/"
         folders = util.list_folders(path)
         print(folders)
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 300
+        self.frames_setting = 60
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
 
         for fi, folder in enumerate(folders):
             self.dir = path + folder + '/'
@@ -3945,6 +3949,9 @@ class VISUAL:
 
             k_arrays = self.pars_list['spring_factor']
             r_arrays = np.zeros(np.shape(k_arrays))
+            v_arrays = np.zeros(np.shape(k_arrays))
+            dis_arrays = np.zeros(np.shape(k_arrays))
+            eff_arrays = np.zeros(np.shape(k_arrays))
             
             for ind in range(self.num_sim):
                 self.index = ind
@@ -3956,25 +3963,66 @@ class VISUAL:
                         fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
                     fil_states_f = open(self.simName + '_true_states.dat', "r")
-                    print(self.plot_start_frame, self.plot_end_frame)
+                    if free:
+                        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+                        seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
+                        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+                        blob_references_f = open(self.simName + '_blob_references.dat', "r")
+                        body_vels_f = open(self.simName + '_body_vels.dat', "r")
+
+                        blob_references_str = blob_references_f.readline()
+                        blob_references= np.array(blob_references_str.split(), dtype=float)
+                        blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+
+                    print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
                     for t in range(self.plot_end_frame):
                         fil_states_str = fil_states_f.readline()
+                        if free:
+                            seg_forces_str = seg_forces_f.readline()
+                            seg_vels_str = seg_vels_f.readline()
+                            blob_forces_str = blob_forces_f.readline()
+                            body_vels_str = body_vels_f.readline()
                         if(t>=self.plot_start_frame):
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                             # fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                            phases = fil_states[:self.nfil]
 
-                            variables = fil_states[:self.nfil]
-
-                            r = np.abs(np.sum(np.exp(1j*variables))/self.nfil)
+                            r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
                             r_arrays[ind] += r
+
+                            if free:
+                                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                                seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
+                                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                                body_vels= np.array(body_vels_str.split(), dtype=float)
+
+                                seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                                seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                                blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
+                                body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
+                                blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
+
+                                speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                                # dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+                                # eff = 6*np.pi*self.radius*speed**2/dis
+                                v_arrays[ind] += speed
+                                # dis_arrays[ind] += dis
+                                # eff_arrays[ind] += eff
                     
                     r_arrays[ind] /= self.frames
+                    if free:
+                        v_arrays[ind] /= self.frames
+                        dis_arrays[ind] /= self.frames
+                        eff_arrays[ind] /= self.frames
                 
                 except:
+                    print("Something went wrong")
                     pass
             
             # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
             ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            if free:
+                ax2.scatter(k_arrays, v_arrays, marker='x', label = folder)
 
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')

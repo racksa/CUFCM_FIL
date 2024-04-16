@@ -8,14 +8,16 @@ class DRIVER:
         self.globals_name = 'input/globals.ini'
         self.afix = ''
         self.category = 'JFNK/test_solution/'
-        # self.category = 'group6/'
+        self.category = 'ic_hpc_sim_free_continue/'
         
-        self.exe_name = 'cilia_double_1e-4'
+        self.exe_name = 'cilia_free_1e-4'
         
-        self.date = 'ivp'
-        # self.date = 'test1'
+        self.date = '20240311_2'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.inputfile = f"input/states/temp/psi.dat"
+        
 
         self.pars_list = {
                      "index": [],
@@ -93,16 +95,12 @@ class DRIVER:
                         period = 1
                         sim_length = 10000
 
-                        # 9
-                        # periods = [0.984372, 0.982040, 0.980421, 0.979161, 0.977439, 0.975960, 0.975093, 0.973299, 0.972009, 0.970836,\
-                        #            0.969454, 0.968152, 0.967049, 0.965561, 0.964556, 0.96320,  0.96232, 0.96128, 0.96008, 0.95909,\
-                        #            0.95807, 0.95707, 0.95597, 0.95516, 0.95420, 0.95325, 0.95233, 0.95145, 0.95064, 0.94943,\
-                        #            0.94854, 0.94786, 0.94729, 0.94631, 0.94567, 0.94545, 0.94515, 0.94466, 0.94419, 0.94382,\
-                        #            ]
-                        # try:
-                        #     period = periods[i]
-                        # except:
-                        #     period = 1.
+                        nfil = int(639 + 0*i)
+                        nblob = int(40961 + 0*i)
+                        ar = round(15.00, 2)
+                        spring_factor = round(0.006 + 0.005*i, 3)
+                        period = 1.0
+                        sim_length = 12
 
                         # # find branches wider range
                         # nfil = int(639 + 0*i)
@@ -212,7 +210,7 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "simulation_icstate_name", f"input/states/temp/psi.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
