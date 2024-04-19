@@ -45,7 +45,7 @@ class VISUAL:
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
         self.date = '20240311_3'
-        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
         # self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
 
         # self.date = 'ivp'
@@ -85,7 +85,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 900000
+        self.plot_end_frame_setting = 30000
         self.frames_setting = 90000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -577,12 +577,21 @@ class VISUAL:
 
             # Interpolation
             if (self.interpolate):
-                n1, n2 = 100, 100
-                azim_grid = np.linspace(-np.pi, np.pi, n1)
-                polar_grid = np.linspace(0, np.pi, n2)
+                print(min(fil_references_sphpolar[:,1]), max(fil_references_sphpolar[:,1]))
+                print(min(fil_references_sphpolar[:,2]), max(fil_references_sphpolar[:,2]))
+
+                n1, n2 = 64, 64
+                offset = 0.2
+                azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
+                polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
                 xx, yy = np.meshgrid(azim_grid, polar_grid)
-                zz = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='nearest')
-                ax.scatter(xx, yy, c=zz, cmap=colormap, vmin=vmin, vmax=vmax)
+                xx, yy = xx.ravel(), yy.ravel()
+
+                cmap = mpl.colormaps[colormap]
+                colors = cmap(variables/vmax)
+                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
+                ax.scatter(xx, yy, c=colors_inter)
+
             else:
             # Individual filaments
                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=variables, cmap=colormap, vmin=vmin, vmax=vmax)
@@ -1000,7 +1009,117 @@ class VISUAL:
 
             plt.savefig(f'fig/fil_phase_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
+     
+    def spherical_contour(self):
+        self.select_sim()
         
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        # Plotting
+        colormap = 'twilight_shifted'
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        vmin = 0
+        vmax = 2*np.pi
+        if(self.angle):
+            vmin = -.2*np.pi
+            vmax = .2*np.pi
+        norm = Normalize(vmin=vmin, vmax=vmax)
+        sm = ScalarMappable(cmap=colormap, norm=norm)
+        sm.set_array([])
+        cbar = plt.colorbar(sm)
+        cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+        cbar.set_label(r"phase")    
+        
+        global frame
+        frame = 0
+        import scipy.interpolate
+
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+            if(i==self.plot_end_frame-1):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+                variables = fil_states[:self.nfil]
+                if self.angle:
+                    variables = fil_states[self.nfil:]
+                
+                # u: azim v: polar
+                u = fil_references_sphpolar[:,1]
+                v = fil_references_sphpolar[:,2]
+                # Plot only a hemisphere
+                min_phi, max_phi = 0, np.pi
+                hemisphere_indices = np.where((min_phi<u) & (max_phi>u))
+
+
+                u = u[hemisphere_indices]
+                v = v[hemisphere_indices]
+                variables = variables[hemisphere_indices]
+
+                R  = fil_references_sphpolar[0,0]
+
+                x,y,z = util.spherical_to_cartesian(R, u, v)
+
+                n1, n2 = 40, 40
+                azim_grid = np.linspace(0, np.pi, n1)
+                polar_grid = np.linspace(0, np.pi, n2)
+                tt, pp = np.meshgrid(azim_grid, polar_grid)
+                xx,yy,zz = util.spherical_to_cartesian(R, pp, tt)
+
+                def generate(r, n):
+                    Ntotal = int(n*6 + n*(n-1)*6/2)
+                    dR = r/n
+        
+                    r = np.zeros(Ntotal)
+                    p = np.zeros(Ntotal)
+                    for l in range(n):
+                        start = int(6*l + l*(l-1)*6/2)
+                        Np = int((l+1)*6)
+                        dp = 2*np.pi/Np
+                        for point in range(Np):
+                            r[start + point] = dR*(l+1)
+                            p[start + point] = point*dp
+
+                    r = np.insert(r, 0, 0)
+                    p = np.insert(p, 0, 0)
+                    return r, p
+
+                
+                r, p = generate(R, 30)
+                xx, zz = r*np.sin(p), r*np.cos(p)
+
+                
+                # ax.scatter(x, z, c=variables, cmap=colormap, vmin=vmin, vmax=vmax)
+
+                cmap = mpl.colormaps[colormap]
+                colors = cmap(variables/vmax)
+                colors = scipy.interpolate.griddata((x, z), colors, (xx, zz), method='linear')
+                ax.scatter(xx, zz, c=colors)
+
+
+
+        # ax.set_ylabel(r"$\theta$")
+        # ax.set_xlabel(r"$\phi$")
+        # ax.set_xlim(-np.pi, np.pi)
+        # ax.set_ylim(0, np.pi)
+        # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
+        # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
+        # ax.invert_yaxis()
+        # fig.tight_layout()
+        # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
+
     def ciliate(self):
         self.select_sim()
 
@@ -1840,6 +1959,8 @@ class VISUAL:
         
         plt.show()
 
+
+    
 # Multi sims
     def multi_phase(self):
         # Plotting
@@ -1901,12 +2022,18 @@ class VISUAL:
                                 fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
                                 
                             if (self.interpolate):
-                                n1, n2 = 30, 30
-                                azim_grid = np.linspace(-np.pi, np.pi, n1)
-                                polar_grid = np.linspace(0, np.pi, n2)
+                                n1, n2 = 64, 64
+                                offset = 0.2
+                                azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
+                                polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
                                 xx, yy = np.meshgrid(azim_grid, polar_grid)
-                                zz = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), fil_states[:self.nfil], (xx, yy), method='cubic')
-                                ax.scatter(xx, yy, c=zz, cmap=colormap, vmin=0, vmax=2*np.pi)
+                                xx, yy = xx.ravel(), yy.ravel()
+
+                                cmap = mpl.colormaps[colormap]
+                                colors = cmap(fil_states[:self.nfil]/2/np.pi)
+                                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
+                                ax.scatter(xx, yy, c=colors_inter)
+
                             else:
                             # Individual filaments
                                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=fil_states[:self.nfil], cmap=colormap, vmin=0, vmax=2*np.pi)
@@ -3925,15 +4052,18 @@ class VISUAL:
         np.savetxt(output_file, x, newline = " ")
 
     def IVPs(self):
+        free = False
+        path = "data/ic_hpc_sim/"
+
         free = True
         path = "data/ic_hpc_sim_free_continue/"
-        # free = False
-        # path = "data/ic_hpc_sim_free/"
+
+
         folders = util.list_folders(path)
         print(folders)
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 60
+        self.frames_setting = 300
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -4019,18 +4149,25 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
-                ax2.scatter(k_arrays, v_arrays, marker='x', label = folder)
+                ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder)
 
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
 
-        ax.legend()
+        ax2.set_ylim(0)
+        ax2.set_xlabel(r'$k$')
+        ax2.set_ylabel(r'$<v/L>$')
+
+        # ax.legend()
+        ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.tight_layout()
+        fig2.savefig(f'fig/IVP_velocities.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
 #

@@ -114,9 +114,9 @@ def cartesian_to_spherical(x):
         tuple: (r, theta, phi), where r is the radial distance, theta is the polar angle (azimuthal angle),
                and phi is the elevation angle (zenith angle).
     """
-    r = math.sqrt(x[0]**2 + x[1]**2 + x[2]**2)
-    theta = math.atan2(x[1], x[0])
-    phi = math.acos(x[2] / r)
+    r = np.sqrt(x[0]**2 + x[1]**2 + x[2]**2)
+    theta = np.arctan2(x[1], x[0])
+    phi = np.arccos(x[2] / r)
     
     return r, theta, phi
 
@@ -134,9 +134,9 @@ def spherical_to_cartesian(r, theta, phi):
     Returns:
         tuple: A tuple containing the Cartesian coordinates (x, y, z).
     """
-    x = r * math.sin(phi) * math.cos(theta)
-    y = r * math.sin(phi) * math.sin(theta)
-    z = r * math.cos(phi)
+    x = r * np.sin(phi) * np.cos(theta)
+    y = r * np.sin(phi) * np.sin(theta)
+    z = r * np.cos(phi)
     return x, y, z
 
 def create_3d_cell_list(positions, cell_size):
