@@ -44,8 +44,9 @@ class VISUAL:
         # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_3'
+        self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.date = '20240311_4'
         # self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
 
         # self.date = 'ivp'
@@ -85,8 +86,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 30000
-        self.frames_setting = 90000
+        self.plot_end_frame_setting = 30000 - 3
+        self.frames_setting = 120
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -409,10 +410,9 @@ class VISUAL:
                         fil_color = int("000000", base=16)
                         fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
                         if (self.pars['PRESCRIBED_CILIA'] == 1):
-                            fil_i = int(3*fil*self.pars['NSEG'])
-                            
                             # WRITE A FUNCTION FOR THIS!!
                             cmap_name = 'hsv'
+                            # cmap_name = 'twilight_shifted'
                             cmap = plt.get_cmap(cmap_name)
                             rgb_color = cmap(fil_phases[fil]/(2*np.pi))[:3]  # Get the RGB color tuple
                             rgb_hex = mcolors.rgb2hex(rgb_color)[1:]  # Convert RGB to BGR hexadecimal format
@@ -528,6 +528,7 @@ class VISUAL:
         # Plotting
         colormap = 'cividis'
         colormap = 'twilight_shifted'
+        # colormap = 'hsv'
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -752,13 +753,14 @@ class VISUAL:
         corr_array2 = np.zeros(self.frames)
         corr_array_angle = np.zeros(self.frames)
         r_array = np.zeros(self.frames)
+        wavenumber_array = np.zeros(self.frames)
 
         fil_references_sphpolar = np.zeros((self.nfil,3))
         for fil in range(self.nfil):
             fil_references_sphpolar[fil] = util.cartesian_to_spherical(self.fil_references[3*fil: 3*fil+3])
         azim_array = fil_references_sphpolar[:,1]
         polar_array = fil_references_sphpolar[:,2]
-        sorted_indices = np.argsort(azim_array)
+        sorted_indices = np.argsort(polar_array)
         azim_array_sorted = azim_array[sorted_indices]
         polar_array_sorted = polar_array[sorted_indices]
         fil_phases_sorted = np.array([])
@@ -811,6 +813,7 @@ class VISUAL:
                 
                 corr_array_angle[i-self.plot_start_frame] = np.mean(variance_array_angle)
                 r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
+                wavenumber_array[i-self.plot_start_frame] = fil_phases_sorted[0] - fil_phases_sorted[-1]
 
         ax.plot(time_array, corr_array)
         ax.set_xlabel('t/T')
@@ -824,7 +827,6 @@ class VISUAL:
         ax2.set_xlim(time_array[0], time_array[-1])
         ax2.set_ylim(0)
         
-        
         ax3.scatter(azim_array_sorted, polar_array_sorted, c = cluster_assignments)
         ax3.set_xlabel(r'$\phi$')
         ax3.set_ylabel(r'$\theta$')
@@ -835,7 +837,13 @@ class VISUAL:
         ax4.set_xlim(time_array[0], time_array[-1])
         ax4.set_ylim(0)
 
-        ax5.plot(time_array, r_array)
+        # ax5.plot(time_array, r_array)
+        # ax5.set_ylim(0)
+        ax5.plot(time_array, wavenumber_array)
+        ax5.set_xlabel('t/T')
+        ax5.set_ylabel('<r>')
+        ax5.set_xlim(time_array[0], time_array[-1])
+        
         
         fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
@@ -939,8 +947,7 @@ class VISUAL:
     
         self.select_sim()
         
-        fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Plotting
         colormap = 'cividis'
@@ -966,6 +973,10 @@ class VISUAL:
         ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
         ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
 
+
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
         global frame
         frame = 0
 
@@ -973,12 +984,12 @@ class VISUAL:
             global frame
 
             ax.cla()
-            fil_phases_str = fil_phases_f.readline()
+            fil_states_str = fil_states_f.readline()
 
-            fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-            fil_phases = util.box(fil_phases, 2*np.pi)
-            for i in range(self.nfil):
-                fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            fil_phases = fil_states[:self.nfil]
                 
             projected_points = [eckert_projection(theta, phi) for theta, phi in zip(fil_references_sphpolar[:,2], fil_references_sphpolar[:,1])]
             projected_x, projected_y = zip(*projected_points)
@@ -998,14 +1009,14 @@ class VISUAL:
                     ani.save(f'fig/fil_phase_{self.nfil}fil_anim.mp4', writer=FFwriter)
                     break
                 else:
-                    fil_phases_str = fil_phases_f.readline()
+                    fil_states_str = fil_states_f.readline()
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i==self.plot_end_frame-1):
                     animation_func(i)
                 else:
-                    fil_phases_str = fil_phases_f.readline()
+                    fil_states_str = fil_states_f.readline()
 
             plt.savefig(f'fig/fil_phase_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
@@ -1017,6 +1028,7 @@ class VISUAL:
 
         # Plotting
         colormap = 'twilight_shifted'
+        colormap = 'hsv'
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -1030,12 +1042,12 @@ class VISUAL:
         if(self.angle):
             vmin = -.2*np.pi
             vmax = .2*np.pi
-        norm = Normalize(vmin=vmin, vmax=vmax)
-        sm = ScalarMappable(cmap=colormap, norm=norm)
-        sm.set_array([])
-        cbar = plt.colorbar(sm)
-        cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-        cbar.set_label(r"phase")    
+        # norm = Normalize(vmin=vmin, vmax=vmax)
+        # sm = ScalarMappable(cmap=colormap, norm=norm)
+        # sm.set_array([])
+        # cbar = plt.colorbar(sm)
+        # cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+        # cbar.set_label(r"phase")    
         
         global frame
         frame = 0
@@ -1071,12 +1083,6 @@ class VISUAL:
 
                 x,y,z = util.spherical_to_cartesian(R, u, v)
 
-                n1, n2 = 40, 40
-                azim_grid = np.linspace(0, np.pi, n1)
-                polar_grid = np.linspace(0, np.pi, n2)
-                tt, pp = np.meshgrid(azim_grid, polar_grid)
-                xx,yy,zz = util.spherical_to_cartesian(R, pp, tt)
-
                 def generate(r, n):
                     Ntotal = int(n*6 + n*(n-1)*6/2)
                     dR = r/n
@@ -1095,8 +1101,9 @@ class VISUAL:
                     p = np.insert(p, 0, 0)
                     return r, p
 
-                
-                r, p = generate(R, 30)
+                nring = 30
+                offset = 0.9
+                r, p = generate(R*offset, nring)
                 xx, zz = r*np.sin(p), r*np.cos(p)
 
                 
@@ -1105,20 +1112,22 @@ class VISUAL:
                 cmap = mpl.colormaps[colormap]
                 colors = cmap(variables/vmax)
                 colors = scipy.interpolate.griddata((x, z), colors, (xx, zz), method='linear')
+
                 ax.scatter(xx, zz, c=colors)
 
 
 
-        # ax.set_ylabel(r"$\theta$")
-        # ax.set_xlabel(r"$\phi$")
-        # ax.set_xlim(-np.pi, np.pi)
-        # ax.set_ylim(0, np.pi)
-        # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
-        # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
-        # ax.invert_yaxis()
-        # fig.tight_layout()
-        # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        plt.show()
+        ax.set_ylabel(r"$\theta$")
+        ax.set_xlabel(r"$\phi$")
+        ax.set_xlim(-R, R)
+        ax.set_ylim(-R, R)
+        ax.set_aspect('equal')
+
+        ax.axis('off')
+
+        fig.tight_layout()
+        fig.savefig(f'fig/fil_phase_sph_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        # plt.show()
 
     def ciliate(self):
         self.select_sim()
@@ -1202,6 +1211,137 @@ class VISUAL:
                     seg_states_str = seg_states_f.readline()
                 
             plt.savefig(f'fig/ciliate_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
+            plt.show()
+
+    def ciliate_eco(self):
+        self.select_sim()
+
+        # Fourier coeffs for the shape
+        Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
+                    [4.0318e-01, -1.5553e+00, 7.3455e-01], \
+                    [-9.9513e-02, 3.2829e-02, -1.2106e-01], \
+                    [8.1046e-02, -3.0982e-01, 1.4568e-01]])
+
+        Ax = np.array([[9.7204e-01, -2.8315e-01, 4.9243e-02], \
+                    [-1.8466e-02, -1.2926e-01, 2.6981e-01], \
+                    [1.6209e-01, -3.4983e-01, 1.9082e-01], \
+                    [1.0259e-02, 3.5907e-02, -6.8736e-02]])
+
+        By = np.array([[0, 0, 0], \
+                    [2.9136e-01, 1.0721e+00, -1.0433e+00], \
+                    [6.1554e-03, 3.2521e-01, -2.8315e-01], \
+                    [-6.0528e-02, 2.3185e-01, -2.0108e-01]])
+
+        Bx = np.array([[0, 0, 0], \
+                    [1.9697e-01, -5.1193e-01, 3.4778e-01], \
+                    [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
+                    [1.2311e-02, 1.4157e-01, -1.1695e-01]])
+        
+        def fitted_shape(s, phase):
+            pos = np.zeros(3)
+            svec = np.array([s, s**2, s**3])
+            fourier_dim = np.shape(Ax)[0]
+            cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
+            sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
+
+            x = (cosvec@Ax + sinvec@Bx)@svec
+            y = (cosvec@Ay + sinvec@By)@svec
+            z = np.zeros(np.shape(x))
+
+            return x, y, z
+
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        # Create the sphere data points
+        num_points = 300
+        u = np.linspace(0, 2 * np.pi, num_points)
+        v = np.linspace(0, np.pi, num_points)
+        x = self.radius * np.outer(np.cos(u), np.sin(v))
+        y = self.radius * np.outer(np.sin(u), np.sin(v))
+        z = self.radius * np.outer(np.ones(np.size(u)), np.cos(v))
+
+        # Plotting
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.set_proj_type('ortho')
+        # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
+        ax.view_init(elev=0., azim=0)
+        ax.dist=5.8
+        # ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+
+        def animation_func(t):
+            print(t)
+            ax.cla()
+            ax.axis('off')
+            ax.set_aspect('equal')
+
+            body_states_str = body_states_f.readline()
+            seg_states_str = seg_states_f.readline()
+            fil_states_str = fil_states_f.readline()
+
+            body_states = np.array(body_states_str.split()[1:], dtype=float)
+            seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+            
+            fil_phases = fil_states[:self.nfil]
+            
+            for swim in range(self.nswim):
+                # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
+                body_pos = body_states[7*swim : 7*swim+3]
+                R = np.identity(3)
+                # R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
+
+                # Plot the sphere
+                ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
+
+                # Robot arm to find segment position (Ignored plane rotation!)
+                for fil in range(self.nfil):
+                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                    fil_data = np.zeros((self.nseg, 3))
+                    # WRITE A FUNCTION FOR THIS!!
+                    cmap_name = 'hsv'
+                    # cmap_name = 'twilight_shifted'
+                    cmap = plt.get_cmap(cmap_name)
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+
+                    s = np.linspace(0, 1, 20)
+                    Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+                    for seg in range(0, int(self.pars['NSEG'])):
+                        
+                        ref = self.fillength*R@Rfil@np.array(fitted_shape(s[seg], fil_phases[fil]))
+                        seg_pos = fil_base + ref
+                        fil_data[seg] = seg_pos
+
+                    # Show only one side of the sphere
+                    if(fil_base[0]>0):
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color , zorder = 100)
+
+        if(self.video):
+            plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+            ani = animation.FuncAnimation(fig, animation_func, frames=500, interval=10, repeat=False)
+            plt.show()
+            # FFwriter = animation.FFMpegWriter(fps=10)
+            # ani.save(f'fig/ciliate_{nfil}fil_anim.mp4', writer=FFwriter)
+        else:
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i==self.plot_end_frame-1):
+                    animation_func(i)
+                else:
+                    body_states_str = body_states_f.readline()
+                    seg_states_str = seg_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+            
+            fig.tight_layout()
+            fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
     def ciliate_traj(self):
@@ -1727,7 +1867,8 @@ class VISUAL:
         afix = int(self.index)
         output_filenames = [self.dir + f"phases{afix}.dat",
                             self.dir + f"angles{afix}.dat",
-                            self.dir + f"psi{afix}.dat"]
+                            # self.dir + f"psi{afix}.dat",
+                            f"data/slow_converge_sims/{self.date}/psi{afix}.dat"]
 
         for i, name in enumerate(input_filenames):
             input_filename = name
@@ -2051,7 +2192,7 @@ class VISUAL:
         plt.tight_layout()
         # plt.savefig(f'fig/ciliate_multi_phase_elst{spring_factor}.png', bbox_inches = 'tight', format='png')
         plt.savefig(f'fig/ciliate_multi_phase_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        plt.show()
+        # plt.show()
 
     def multi_kymograph(self):
         # Plotting
@@ -4055,14 +4196,14 @@ class VISUAL:
         free = False
         path = "data/ic_hpc_sim/"
 
-        free = True
-        path = "data/ic_hpc_sim_free_continue/"
+        # free = True
+        # path = "data/ic_hpc_sim_free_continue/"
 
 
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 1500000
+        self.plot_end_frame_setting = 90000
         self.frames_setting = 300
 
         fig = plt.figure()
@@ -4133,11 +4274,11 @@ class VISUAL:
                                 blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
 
                                 speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
-                                # dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
-                                # eff = 6*np.pi*self.radius*speed**2/dis
+                                dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+                                eff = 6*np.pi*self.radius*speed**2/dis
                                 v_arrays[ind] += speed
-                                # dis_arrays[ind] += dis
-                                # eff_arrays[ind] += eff
+                                dis_arrays[ind] += dis
+                                eff_arrays[ind] += eff
                     
                     r_arrays[ind] /= self.frames
                     if free:
@@ -4152,7 +4293,8 @@ class VISUAL:
             ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
             # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
-                ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder)
+                ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
+                ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
 
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
@@ -4162,12 +4304,18 @@ class VISUAL:
         ax2.set_xlabel(r'$k$')
         ax2.set_ylabel(r'$<v/L>$')
 
+        ax3.set_ylim(0)
+        ax3.set_xlabel(r'$k$')
+        ax3.set_ylabel(r'$<Efficiency>$')
+
         # ax.legend()
-        ax2.legend()
+        # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
         fig2.tight_layout()
         fig2.savefig(f'fig/IVP_velocities.pdf', bbox_inches = 'tight', format='pdf')
+        fig3.tight_layout()
+        fig3.savefig(f'fig/IVP_efficiencies.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
 #

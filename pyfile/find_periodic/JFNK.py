@@ -39,7 +39,7 @@ def main():
 
     # f_range = np.arange(0.010, 0.049, 0.001)[::-1]
     # f_range = np.arange(0.010, 0.061, 0.001)
-    f_range = np.arange(0.005, 0.046, 0.005)[::-1]
+    f_range = np.arange(0.025, 0.031, 0.005)[::-1]
     # f_range = np.arange(0.030, 0.062, 0.002)
     # f_range = np.arange(0.015, 0.045, 0.005)
     for k in f_range:
