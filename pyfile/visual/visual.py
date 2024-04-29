@@ -44,8 +44,9 @@ class VISUAL:
         # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_2'
+        self.date = '20240311_9'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
+
         # self.date = '20240311_4'
         # self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
 
@@ -1868,7 +1869,7 @@ class VISUAL:
         output_filenames = [self.dir + f"phases{afix}.dat",
                             self.dir + f"angles{afix}.dat",
                             # self.dir + f"psi{afix}.dat",
-                            f"data/slow_converge_sims/{self.date}/psi{afix}.dat"]
+                            f"data/slow_converge_sims2/{self.date}/psi{afix}.dat"]
 
         for i, name in enumerate(input_filenames):
             input_filename = name
@@ -4195,6 +4196,7 @@ class VISUAL:
     def IVPs(self):
         free = False
         path = "data/ic_hpc_sim/"
+        # path = "data/slow_converge_sims/"
 
         # free = True
         # path = "data/ic_hpc_sim_free_continue/"
@@ -4290,8 +4292,8 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
                 ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
                 ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
@@ -4308,7 +4310,7 @@ class VISUAL:
         ax3.set_xlabel(r'$k$')
         ax3.set_ylabel(r'$<Efficiency>$')
 
-        # ax.legend()
+        ax.legend()
         # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
