@@ -38,20 +38,20 @@ def append_file_contents(file_a, file_b):
 
 
 # Example usage
-date = "20240311_10/"
-file_prefix = "ciliate_639fil_40961blob_15.00R_0.0510torsion"
+date = "20240311_5/"
+file_prefix = "ciliate_639fil_40961blob_15.00R_0.0750torsion"
 
 file_a = f"data/ic_hpc_sim/{date}{file_prefix}_body_states.dat"
-file_b = f"data/slow_converge_sims/{date}{file_prefix}_body_states.dat"
+file_b = f"data/slow_converge_sims2/{date}{file_prefix}_body_states.dat"
 remove_last_line(file_a)
 append_file_contents(file_a, file_b)
 
 file_a = f"data/ic_hpc_sim/{date}{file_prefix}_seg_states.dat"
-file_b = f"data/slow_converge_sims/{date}{file_prefix}_seg_states.dat"
+file_b = f"data/slow_converge_sims2/{date}{file_prefix}_seg_states.dat"
 remove_last_line(file_a)
 append_file_contents(file_a, file_b)
 
 file_a = f"data/ic_hpc_sim/{date}{file_prefix}_true_states.dat"
-file_b = f"data/slow_converge_sims/{date}{file_prefix}_true_states.dat"
+file_b = f"data/slow_converge_sims2/{date}{file_prefix}_true_states.dat"
 remove_last_line(file_a)
 append_file_contents(file_a, file_b)

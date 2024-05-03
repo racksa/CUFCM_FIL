@@ -47,8 +47,9 @@ class VISUAL:
         self.date = '20240311_9'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
-        # self.date = '20240311_4'
-        # self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
+        self.date = '20240311_2'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.dir = f"data/slow_converge_sims2/{self.date}/"
 
         # self.date = 'ivp'
         # self.dir = f"data/JFNK/test_solution/{self.date}/"
@@ -87,8 +88,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 30000 - 3
-        self.frames_setting = 120
+        self.plot_end_frame_setting = 9000
+        self.frames_setting = 12000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -321,6 +322,9 @@ class VISUAL:
     def plot_eco(self):
         self.select_sim()
 
+        cmap_name = 'hsv'
+        cmap_name = 'twilight_shifted'
+
         # Fourier coeffs for the shape
         Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
                     [4.0318e-01, -1.5553e+00, 7.3455e-01], \
@@ -412,8 +416,7 @@ class VISUAL:
                         fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
                         if (self.pars['PRESCRIBED_CILIA'] == 1):
                             # WRITE A FUNCTION FOR THIS!!
-                            cmap_name = 'hsv'
-                            # cmap_name = 'twilight_shifted'
+                            
                             cmap = plt.get_cmap(cmap_name)
                             rgb_color = cmap(fil_phases[fil]/(2*np.pi))[:3]  # Get the RGB color tuple
                             rgb_hex = mcolors.rgb2hex(rgb_color)[1:]  # Convert RGB to BGR hexadecimal format
@@ -730,7 +733,7 @@ class VISUAL:
 
         fig.savefig(f'fig/fil_order_parameter_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
-        
+      
     def order_parameter(self):
         self.select_sim()
 
@@ -838,17 +841,141 @@ class VISUAL:
         ax4.set_xlim(time_array[0], time_array[-1])
         ax4.set_ylim(0)
 
-        # ax5.plot(time_array, r_array)
-        # ax5.set_ylim(0)
-        ax5.plot(time_array, wavenumber_array)
+        ax5.plot(time_array, r_array)
+        ax5.set_ylim(0)
+        # ax5.plot(time_array, wavenumber_array)
         ax5.set_xlabel('t/T')
         ax5.set_ylabel('<r>')
         ax5.set_xlim(time_array[0], time_array[-1])
         
         
-        fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
+
+    def footpath(self):
+        self.select_sim()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        r_array = np.zeros(self.frames)
+        corr_array = np.zeros(self.frames)
+        corr_array2 = np.zeros(self.frames)
+        states_array = np.zeros((self.frames, self.nfil))
+        states_array2 = np.zeros((self.frames, self.nfil))
+
+        window_size = 3000
+        windowd_length = self.frames - window_size + 1
+        r_avg_array = np.zeros(windowd_length)
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        fil_references_cartersian = np.zeros((self.nfil,3))
+        for fil in range(self.nfil):
+            fil_references_sphpolar[fil] = util.cartesian_to_spherical(self.fil_references[3*fil: 3*fil+3])
+            fil_references_cartersian[fil] = self.fil_references[3*fil: 3*fil+3]
+        azim_array = fil_references_sphpolar[:,1]
+        polar_array = fil_references_sphpolar[:,2]
+        sorted_indices = np.argsort(polar_array)
+        azim_array_sorted = azim_array[sorted_indices]
+        polar_array_sorted = polar_array[sorted_indices]
+
+        #########################
+        # Combine x and y into a single array
+        pos_data = np.column_stack((polar_array_sorted, azim_array_sorted))
+
+        # Specify the number of clusters you want
+        n_clusters = int(self.nfil/10) 
+        variance_array = np.zeros(n_clusters) # correlation within each cluster
+        variance_array_angle = np.zeros(n_clusters) # correlation within each cluster
+
+        # Create and fit a K-Means model
+        kmeans = KMeans(n_clusters=n_clusters)
+        kmeans.fit(pos_data)
+        cluster_assignments = kmeans.labels_
+        ##################
+
+        # Create a mapping to its nearest filament
+        from scipy.spatial.distance import cdist
+        def nearest_particles(positions):
+            distances = cdist(positions, positions)
+            np.fill_diagonal(distances, np.inf)
+            nearest_indices = np.argmin(distances, axis=1)
+            return nearest_indices
+        nearest_indices = nearest_particles(fil_references_cartersian)
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                fil_phases = util.box(fil_phases, 2*np.pi)
+                # fil_angles = fil_states[self.nfil:]
+
+                # fil_angles_sorted = fil_angles[sorted_indices]
+                # fil_phases_sorted = fil_phases[sorted_indices]
+                # sin_phases_sorted = np.sin(fil_phases_sorted)
+
+                # # Coordination number 1
+                # phase_diff = np.diff(sin_phases_sorted, prepend=sin_phases_sorted[-1])
+                # corr = np.abs(phase_diff[:-1]) + np.abs(phase_diff[1:])
+                # corr_array[i-self.plot_start_frame] = np.mean(corr)
+
+                diff = np.sin(fil_phases) - np.sin(fil_phases[nearest_indices])
+                # print(diff)
+                corr_array[i-self.plot_start_frame] = np.mean(np.abs(diff))
+
+                r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
+
+                # states_array[i-self.plot_start_frame] = fil_phases_sorted
+                # states_array2[i-self.plot_start_frame] = fil_phases_sorted[nearest_indices[sorted_indices]]
+
+                # states_array[i-self.plot_start_frame] = fil_phases
+                # states_array2[i-self.plot_start_frame] = fil_phases[nearest_indices]
+
+
+        
+        for i in range(windowd_length):
+            r_avg_array[i] = np.mean(r_array[i:i+window_size])
+        ax.plot(time_array[:windowd_length], r_avg_array)
+        ax.set_xlabel('t/T')
+        ax.set_ylabel('Coordination number')
+        ax.set_xlim(time_array[0], time_array[-1])
+        ax.set_ylim(0)
+
+        # ax2.plot(states_array[:, 120], states_array[:,1])
+
+        # print(states_array[0, :20])
+        # print(states_array2[0, :20])
+
+
+        ax2.plot(time_array, corr_array)
+        # ax2.set_xlabel('t/T')
+        # ax2.set_ylabel('Coordination number')
+        # ax2.set_xlim(time_array[0], time_array[-1])
+        # ax2.set_ylim(0)
+
+        ax3.plot(corr_array[:windowd_length], r_avg_array)
+        ax3.set_xlim(0)
+        ax3.set_ylim(0)
+        ax3.set_xlabel(r'Proximity number')
+        ax3.set_ylabel(r'$<r>$')
+        
+
+        
+        # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
     def kymograph(self):
@@ -4196,16 +4323,20 @@ class VISUAL:
     def IVPs(self):
         free = False
         path = "data/ic_hpc_sim/"
-        # path = "data/slow_converge_sims/"
+        path = "data/slow_converge_sims3/"
 
         # free = True
         # path = "data/ic_hpc_sim_free_continue/"
+
+        free_string = 'held_fixed'
+        if free:
+            free_string = 'free'
 
 
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 90000
+        self.plot_end_frame_setting = 900000
         self.frames_setting = 300
 
         fig = plt.figure()
@@ -4313,11 +4444,135 @@ class VISUAL:
         ax.legend()
         # ax2.legend()
         fig.tight_layout()
-        fig.savefig(f'fig/IVP_order_parameters.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         fig2.tight_layout()
-        fig2.savefig(f'fig/IVP_velocities.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         fig3.tight_layout()
-        fig3.savefig(f'fig/IVP_efficiencies.pdf', bbox_inches = 'tight', format='pdf')
+        fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
+    def footpaths(self):
+        free = False
+        path = "data/ic_hpc_sim/"
+        # path = "data/slow_converge_sims3/"
+
+        free_string = 'held_fixed'
+        if free:
+            free_string = 'free'
+
+        folders = util.list_folders(path)
+        print(folders)
+
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 3000
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+
+        for fi, folder in enumerate(folders[:1]):
+            self.dir = path + folder + '/'
+            print(self.dir)
+            self.read_rules()
+
+            k_arrays = self.pars_list['spring_factor']
+            r_arrays = np.zeros(np.shape(k_arrays))
+            v_arrays = np.zeros(np.shape(k_arrays))
+            dis_arrays = np.zeros(np.shape(k_arrays))
+            eff_arrays = np.zeros(np.shape(k_arrays))
+
+            for ind in range(self.num_sim):
+                self.index = ind
+                # try:
+                self.select_sim()
+
+                fil_references_sphpolar = np.zeros((self.nfil,3))
+                fil_references_cartersian = np.zeros((self.nfil,3))
+                for fil in range(self.nfil):
+                    fil_references_sphpolar[fil] = util.cartesian_to_spherical(self.fil_references[3*fil: 3*fil+3])
+                    fil_references_cartersian[fil] = self.fil_references[3*fil: 3*fil+3]
+
+                # Create a mapping to its nearest filament
+                from scipy.spatial.distance import cdist
+                def nearest_particles(positions):
+                    distances = cdist(positions, positions)
+                    np.fill_diagonal(distances, np.inf)
+                    nearest_indices = np.argmin(distances, axis=1)
+                    return nearest_indices
+                nearest_indices = nearest_particles(fil_references_cartersian)
+
+
+                fil_states_f = open(self.simName + '_true_states.dat', "r")
+                time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+                r_array = np.zeros(self.frames_setting)
+                corr_array = np.zeros(self.frames_setting)
+
+                window_size = 600
+                windowd_length = self.frames - window_size + 1
+                r_avg_array = np.zeros(windowd_length)
+
+                if free:
+                    seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+                    seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
+                    blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+                    blob_references_f = open(self.simName + '_blob_references.dat', "r")
+                    body_vels_f = open(self.simName + '_body_vels.dat', "r")
+
+                    blob_references_str = blob_references_f.readline()
+                    blob_references= np.array(blob_references_str.split(), dtype=float)
+                    blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+
+                print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
+                for t in range(self.plot_end_frame):
+                    fil_states_str = fil_states_f.readline()
+                    if free:
+                        seg_forces_str = seg_forces_f.readline()
+                        seg_vels_str = seg_vels_f.readline()
+                        blob_forces_str = blob_forces_f.readline()
+                        body_vels_str = body_vels_f.readline()
+                    if(t>=self.plot_start_frame):
+                        fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                        fil_phases = fil_states[:self.nfil]
+                        fil_phases = util.box(fil_phases, 2*np.pi)
+
+                        diff = np.sin(fil_phases) - np.sin(fil_phases[nearest_indices])
+                        corr_array[t-self.plot_start_frame] = np.mean(np.abs(diff))
+                        r_array[t-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
+            
+                for i in range(windowd_length):
+                    r_avg_array[i] = np.mean(r_array[i:i+window_size])
+                ax.plot(time_array[:windowd_length], r_avg_array)
+                ax.set_xlabel('t/T')
+                ax.set_ylabel('Coordination number')
+                ax.set_xlim(time_array[0], time_array[-1])
+                # ax.set_ylim(0)
+
+                ax3.plot(corr_array[:windowd_length], r_avg_array)
+                # ax3.set_xlim(0)
+                # ax3.set_ylim(0)
+                ax3.set_xlabel(r'Proximity number')
+                ax3.set_ylabel(r'$<r>$')
+
+
+                # except:
+                #     print("Something went wrong")
+                #     pass
+            
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            # if free:
+            #     ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
+            #     ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
+
+
+        fig.tight_layout()
+        # fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.tight_layout()
+        # fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        fig3.tight_layout()
+        # fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
 #

@@ -12,7 +12,7 @@ class DRIVER:
         
         self.exe_name = 'cilia_free_1e-4'
         
-        self.date = '20240311_4'
+        self.date = '20240311_6'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -98,7 +98,7 @@ class DRIVER:
                         nfil = int(639 + 0*i)
                         nblob = int(40961 + 0*i)
                         ar = round(15.00, 2)
-                        spring_factor = round(0.008 + 0.005*i, 3)
+                        spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1.0
                         sim_length = 12
 

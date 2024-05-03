@@ -23,9 +23,9 @@ def main():
 
     # Initialise the driver
     d = driver.DRIVER()
-    d.cuda_device = 4
+    d.cuda_device = 5
     d.category = 'JFNK/'
-    d.date = 'soln2'
+    d.date = 'soln'
     d.dir = f"data/{d.category}{d.date}/"
     eval_filename =  d.dir + f"eigenvalues_pb.dat"
     evec_filename =  d.dir + f"eigenvectors_pb.dat"
