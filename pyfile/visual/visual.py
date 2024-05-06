@@ -88,8 +88,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 9000
-        self.frames_setting = 12000
+        self.plot_end_frame_setting = 12000
+        self.frames_setting = 1200
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -571,6 +571,7 @@ class VISUAL:
             if self.angle:
                 variables = fil_states[self.nfil:]
 
+            ax.set_title(rf"${t}$")
             ax.set_ylabel(r"$\theta$")
             ax.set_xlabel(r"$\phi$")
             ax.set_xlim(-np.pi, np.pi)
@@ -582,10 +583,7 @@ class VISUAL:
 
             # Interpolation
             if (self.interpolate):
-                print(min(fil_references_sphpolar[:,1]), max(fil_references_sphpolar[:,1]))
-                print(min(fil_references_sphpolar[:,2]), max(fil_references_sphpolar[:,2]))
-
-                n1, n2 = 64, 64
+                n1, n2 = 128, 128
                 offset = 0.2
                 azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
                 polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
@@ -597,6 +595,29 @@ class VISUAL:
                 colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
                 ax.scatter(xx, yy, c=colors_inter)
 
+                # Contour
+                phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='linear')
+                xx_grid = np.reshape(xx, (n1, n2))
+                yy_grid = np.reshape(yy, (n1, n2))
+                phases_grid = np.reshape(phases_inter, (n1, n2))
+                levels = np.linspace(0, 2*np.pi, 3)[1:-1]
+                contour = ax.contour(xx_grid, yy_grid, phases_grid, levels=levels, cmap='hsv')
+                ax.clabel(contour, levels)
+                
+                # Find centeroid of contours
+                for i, line in enumerate(contour.collections):
+                    paths = line.get_paths()
+                    centers_of_contour = list()
+                    lengths = [len(path) for path in paths]
+                    max_length = max(lengths)
+                    for p, path in enumerate(paths):
+                        if(len(path)==max_length):
+                            points = path.vertices
+                            center = np.mean(points, axis=0)
+                            centers_of_contour.append(center)
+                            ax.scatter(center[0], center[1], s = 100)
+                            break
+                        
             else:
             # Individual filaments
                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=variables, cmap=colormap, vmin=vmin, vmax=vmax)
@@ -611,7 +632,7 @@ class VISUAL:
                 if(i>=self.plot_start_frame):
                     frame = i
                     plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=1, repeat=False)
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
                     plt.show()    
                     # FFwriter = animation.FFMpegWriter(fps=16)
                     # ani.save(f'fig/fil_phase_index{self.index}_{self.date}_anim.mp4', writer=FFwriter)
@@ -873,7 +894,7 @@ class VISUAL:
         states_array = np.zeros((self.frames, self.nfil))
         states_array2 = np.zeros((self.frames, self.nfil))
 
-        window_size = 3000
+        window_size = 1
         windowd_length = self.frames - window_size + 1
         r_avg_array = np.zeros(windowd_length)
 
@@ -1242,8 +1263,6 @@ class VISUAL:
                 colors = scipy.interpolate.griddata((x, z), colors, (xx, zz), method='linear')
 
                 ax.scatter(xx, zz, c=colors)
-
-
 
         ax.set_ylabel(r"$\theta$")
         ax.set_xlabel(r"$\phi$")
@@ -1653,8 +1672,7 @@ class VISUAL:
     def ciliate_dmd(self):
         self.select_sim()
         
-        fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         nfil = self.nfil
         n_snapshots = min(30, self.plot_end_frame)
@@ -1674,12 +1692,13 @@ class VISUAL:
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-            fil_phases_str = fil_phases_f.readline()
+            fil_states_str = fil_states_f.readline()
             
             if(i>=start):
-                fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                fil_phases_sorted = fil_phases[sorted_indices]
-                fil_phases_sorted = util.box(fil_phases_sorted, 2*np.pi)
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                fil_phases = util.box(fil_phases, 2*np.pi)
+                # fil_phases_sorted = fil_phases[sorted_indices]
 
                 fil_phases_sorted = np.sin(fil_phases_sorted)
 
@@ -1694,7 +1713,6 @@ class VISUAL:
         U = U[:, :r]
         Sigma = Sigma[:r, :r]
         V = V[:, :r]
-        
 
 
         A_tilde = U.conj().T @ X2 @ V @ np.linalg.inv(Sigma)
@@ -1762,7 +1780,7 @@ class VISUAL:
         ax4.set_ylabel(r"fil i")
         
 
-        fig.savefig(f'fig/fil_dmd_modes_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/fil_dmd_modes_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/fil_svd_cumsum_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
         # fig3.savefig(f'fig/fil_svd_modes_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
@@ -1810,10 +1828,10 @@ class VISUAL:
         U, sigma, V = np.linalg.svd(X, full_matrices=False)
         Sigma = np.diag(sigma)
 
-        np.savetxt(f'phase_data_20231201/spring_constant{spring_factor}/X_phase_index{self.index}.txt', X, delimiter=', ')
-        # np.savetxt(f'phase_data_20231107/by_index/spring_constant{spring_factor}/X_rotation_angle_index{self.index}.txt', X_angle, delimiter=', ')
-        np.savetxt(f'phase_data_20231201/spring_constant{spring_factor}/azim_pos_index{self.index}.txt', azim_array_sorted, delimiter=', ')
-        np.savetxt(f'phase_data_20231201/spring_constant{spring_factor}/polar_pos_index{self.index}.txt', polar_array_sorted, delimiter=', ')
+        # np.savetxt(f'phase_data_20231201/spring_constant{spring_factor}/X_phase_index{self.index}.txt', X, delimiter=', ')
+        # # np.savetxt(f'phase_data_20231107/by_index/spring_constant{spring_factor}/X_rotation_angle_index{self.index}.txt', X_angle, delimiter=', ')
+        # np.savetxt(f'phase_data_20231201/spring_constant{spring_factor}/azim_pos_index{self.index}.txt', azim_array_sorted, delimiter=', ')
+        # np.savetxt(f'phase_data_20231201/spring_constant{spring_factor}/polar_pos_index{self.index}.txt', polar_array_sorted, delimiter=', ')
 
 
         # pc = U @ Sigma
@@ -2319,7 +2337,7 @@ class VISUAL:
             ax.tick_params(axis='both', which='both', labelsize=18)
         plt.tight_layout()
         # plt.savefig(f'fig/ciliate_multi_phase_elst{spring_factor}.png', bbox_inches = 'tight', format='png')
-        plt.savefig(f'fig/ciliate_multi_phase_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.savefig(f'fig/ciliate_multi_phase_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         # plt.show()
 
     def multi_kymograph(self):
@@ -4323,7 +4341,7 @@ class VISUAL:
     def IVPs(self):
         free = False
         path = "data/ic_hpc_sim/"
-        path = "data/slow_converge_sims3/"
+        # path = "data/slow_converge_sims3/"
 
         # free = True
         # path = "data/ic_hpc_sim_free_continue/"
@@ -4336,7 +4354,7 @@ class VISUAL:
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 900000
+        self.plot_end_frame_setting = 9000000
         self.frames_setting = 300
 
         fig = plt.figure()
@@ -4423,8 +4441,8 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
                 ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
                 ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
@@ -4441,7 +4459,7 @@ class VISUAL:
         ax3.set_xlabel(r'$k$')
         ax3.set_ylabel(r'$<Efficiency>$')
 
-        ax.legend()
+        # ax.legend()
         # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
@@ -4463,7 +4481,7 @@ class VISUAL:
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 3000
+        self.plot_end_frame_setting = 30000
         self.frames_setting = 3000
 
         fig = plt.figure()
@@ -4472,8 +4490,10 @@ class VISUAL:
         ax2 = fig2.add_subplot(1,1,1)
         fig3 = plt.figure()
         ax3 = fig3.add_subplot(1,1,1)
+        fig4 = plt.figure()
+        ax4 = fig4.add_subplot(1,1,1)
 
-        for fi, folder in enumerate(folders[:1]):
+        for fi, folder in enumerate(folders[3:4]):
             self.dir = path + folder + '/'
             print(self.dir)
             self.read_rules()
@@ -4494,6 +4514,9 @@ class VISUAL:
                 for fil in range(self.nfil):
                     fil_references_sphpolar[fil] = util.cartesian_to_spherical(self.fil_references[3*fil: 3*fil+3])
                     fil_references_cartersian[fil] = self.fil_references[3*fil: 3*fil+3]
+                azim_array = fil_references_sphpolar[:,1]
+                polar_array = fil_references_sphpolar[:,2]
+                sorted_indices = np.argsort(polar_array)
 
                 # Create a mapping to its nearest filament
                 from scipy.spatial.distance import cdist
@@ -4510,9 +4533,10 @@ class VISUAL:
                 r_array = np.zeros(self.frames_setting)
                 corr_array = np.zeros(self.frames_setting)
 
-                window_size = 600
+                window_size = 30
                 windowd_length = self.frames - window_size + 1
                 r_avg_array = np.zeros(windowd_length)
+                corr_avg_array = np.zeros(windowd_length)
 
                 if free:
                     seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
@@ -4537,6 +4561,13 @@ class VISUAL:
                         fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                         fil_phases = fil_states[:self.nfil]
                         fil_phases = util.box(fil_phases, 2*np.pi)
+                        # fil_phases_sorted = fil_phases[sorted_indices]
+                        # sin_phases_sorted = np.sin(fil_phases_sorted)
+
+                        # Coordination number 1
+                        # phase_diff = np.diff(sin_phases_sorted, prepend=sin_phases_sorted[-1])
+                        # corr = np.abs(phase_diff[:-1]) + np.abs(phase_diff[1:])
+                        # corr_array[t-self.plot_start_frame] = np.mean(corr)
 
                         diff = np.sin(fil_phases) - np.sin(fil_phases[nearest_indices])
                         corr_array[t-self.plot_start_frame] = np.mean(np.abs(diff))
@@ -4544,17 +4575,24 @@ class VISUAL:
             
                 for i in range(windowd_length):
                     r_avg_array[i] = np.mean(r_array[i:i+window_size])
+                    corr_avg_array[i] = np.mean(corr_array[i:i+window_size])
                 ax.plot(time_array[:windowd_length], r_avg_array)
                 ax.set_xlabel('t/T')
-                ax.set_ylabel('Coordination number')
+                ax.set_ylabel('<r>')
                 ax.set_xlim(time_array[0], time_array[-1])
                 # ax.set_ylim(0)
 
-                ax3.plot(corr_array[:windowd_length], r_avg_array)
+                ax2.plot(time_array[:windowd_length], corr_avg_array)
+                ax2.set_xlabel('t/T')
+                ax2.set_ylabel(r'Synchronisation number')
+
+                ax3.plot(corr_avg_array, r_avg_array)
                 # ax3.set_xlim(0)
                 # ax3.set_ylim(0)
-                ax3.set_xlabel(r'Proximity number')
+                ax3.set_xlabel(r'Synchronisation number')
                 ax3.set_ylabel(r'$<r>$')
+
+                ax4.hexbin(corr_avg_array, r_avg_array, cmap='viridis', gridsize=10)
 
 
                 # except:
