@@ -29,7 +29,15 @@ extern std::string SIMULATION_TIME_NAME;
 extern std::string SIMULATION_TETHERLAM_NAME;
 extern std::string SIMULATION_TRUESTATE_NAME;
 
+extern std::string PLANAR_SEEDING_PAR_FILE;
 extern std::string SIMULATION_ICSTATE_NAME;
+extern std::string CUFCM_CONFIG_FILE_NAME;
+
+#define GLOBAL_FILE_NAME "input/globals.ini"
+
+#if MOBILITY_TYPE==4
+  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
+#endif
 
 
 #define FIL_USE_DOUBLE_PRECISION false
@@ -173,7 +181,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 3
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -187,7 +195,7 @@ extern std::string SIMULATION_ICSTATE_NAME;
   // 9 = Read from files
 
   #if BODY_OR_SURFACE_TYPE==5
-    #define FOURIER_DIR "data/rigidwall_seeding/"
+    #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
   #else
     #define FOURIER_DIR "input/fourier_modes/"
@@ -222,13 +230,13 @@ extern std::string SIMULATION_ICSTATE_NAME;
 // 0 = Default
 // 1 = Resume from backup file (only really valid if we ensure DT is the same etc., but this is NOT checked automatically)
 // 2 = Fresh start from backup file (i.e. uses saved state but resets t=0. Use for hold-then-release style simulations)
-#define INITIAL_CONDITIONS_FILE_NAME SIMULATION_NAME // SIMULATION_NAME or "a_different_sim_name"
+// #define INITIAL_CONDITIONS_FILE_NAME SIMULATION_NAME // SIMULATION_NAME or "a_different_sim_name"
 // N.B. Simulations using GMRES can resume/start using backup files from Broyden-only simulations, but the opposite is not true.
 // N.B. For options 0 and 2, whilst the simulation state will be fresh, all saved data will still be appended to any data from a previous simulation of the same name.
 
-#if MOBILITY_TYPE==4
-  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
-#endif
+// #if MOBILITY_TYPE==4
+//   #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
+// #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Physical parameters

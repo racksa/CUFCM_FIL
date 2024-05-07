@@ -41,8 +41,8 @@ std::unordered_map<std::string, std::unordered_map<std::string, std::string>> pa
     return data;
 }
 
-std::string data_from_ini(std::string section, std::string variable){
-    std::string filename = "input/globals.ini";
+std::string data_from_ini(std::string filename, std::string section, std::string variable){
+    // std::string filename = "input/globals.ini";
     std::unordered_map<std::string, std::unordered_map<std::string, std::string>> iniData = parseINI(filename);
 
     // Access and use the parameters

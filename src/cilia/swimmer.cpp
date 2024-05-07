@@ -327,28 +327,6 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
       }
 
-      // DEBUGING BEGIN
-      // Real nothing;
-      // Real count = 0;
-      // for (int i = 0; i < 3*472; i++){
-
-      //   if (i>=3*360){
-      //     if (count>=3*NFIL){
-      //       break;
-      //     }
-      //     pos_file >> filament_references[count];
-      //     polar_file >> polar_dir_refs[count];
-      //     azi_file >> azi_dir_refs[count];
-      //     normal_file >> normal_refs[count];
-      //     count ++;
-      //   }else{
-      //     pos_file >> nothing;
-      //     polar_file >> nothing;
-      //     azi_file >> nothing;
-      //     normal_file >> nothing;
-      //   }
-      // }
-      // DEBUGING END
 
     } else {
 

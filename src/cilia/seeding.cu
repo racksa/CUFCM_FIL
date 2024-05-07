@@ -1319,7 +1319,7 @@
 
     const std::string file_name_trunk = GENERATRIX_FILE_NAME+std::to_string(NBLOB);
 
-    std::cout << std::endl << std::endl << "Input file " << "'" << file_name_trunk << ".seed'" << " was not found or could not be opened." << std::endl;
+    std::cout << std::endl << std::endl << "Generating seeding files " << "'" << file_name_trunk << ".seed'" << std::endl;
     
 
     shape_fourier_description shape;
@@ -1340,15 +1340,10 @@
         int blob_grid_dim_x;
         int hex_num;
         Real rev_ratio;
-        std::ifstream in("separation.dat"); // input
-        in >> blob_step_x;
-        in >> blob_step_x;
-        in >> blob_grid_dim_x;
-        in >> blob_grid_dim_x;
-        in >> hex_num;
-        in >> hex_num;
-        in >> hex_num;
-        in >> rev_ratio;
+        blob_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
+        blob_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_x_dim"));
+        hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
+        rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
         hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, blob_step_x, blob_grid_dim_x, hex_num, rev_ratio);
       #elif CENTRIC_WALL_SEEDING
         Real disc_radius;
@@ -1370,7 +1365,6 @@
     std::ofstream normal_file(file_name_trunk + ".normal");
 
     for (int n = 0; n < 3*NBLOB; n++){
-
       blob_ref_file << blob_references[n] << " ";
       polar_file << polar_dir_refs[n] << " ";
       azi_file << azi_dir_refs[n] << " ";
@@ -1401,8 +1395,8 @@
 
     #endif
 
-    std::cout << std::endl << std::endl << "Input file " << "'" << file_name_trunk << ".seed'" << " was not found or could not be opened." << std::endl;
-
+    std::cout << std::endl << std::endl << "Generating seeding files " << "'" << file_name_trunk << ".seed'" << std::endl;
+    
     shape_fourier_description shape;
 
     #if EQUATORIAL_SEEDING // TODO: Make this work for non-spheres.
@@ -1482,15 +1476,10 @@
       int hex_num;
       Real rev_ratio;
 
-      std::ifstream in("separation.dat"); // input
-      in >> fil_grid_step_x;
-      in >> blob_step;
-      in >> fil_grid_dim_x;
-      in >> blob_step;
-      in >> disc_radius;
-      in >> disc_radius;
-      in >> hex_num;
-      in >> rev_ratio;
+      fil_grid_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));
+      fil_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
+      hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
+      rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
 
       hexagonal_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, 
                         fil_grid_step_x, fil_grid_dim_x, hex_num, rev_ratio);

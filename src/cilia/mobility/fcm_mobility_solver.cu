@@ -13,7 +13,7 @@ fcm_mobility_solver::fcm_mobility_solver(){
   Real values[100];
   std::string fcm_folder = "";
   std::vector<std::string> datafile_names{3};
-  read_config(values, datafile_names, CUFCM_CONFIG_FILE_NAME);
+  read_config(values, datafile_names, CUFCM_CONFIG_FILE_NAME.c_str());
   for(int i = 0; i < 3; i++){
     datafile_names[i] = fcm_folder + datafile_names[i];
   }
@@ -29,6 +29,12 @@ fcm_mobility_solver::fcm_mobility_solver(){
   pars.repeat = values[8];
   pars.prompt = values[9];
   pars.boxsize = values[13];
+
+  // Overwriting the parameters from globals.ini
+  pars.nx = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "nx"));
+  pars.ny = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "ny"));
+  pars.nz = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "nz"));
+  pars.boxsize = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "boxsize"));
 
   cufcm_solver = new FCM_solver(pars);
   cufcm_solver->init_aux_for_filament();

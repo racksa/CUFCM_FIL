@@ -30,7 +30,7 @@ static Real get_time_cilia() {
 
 std::unordered_map<std::string, std::unordered_map<std::string, std::string>> parseINI(const std::string& filename);
 
-std::string data_from_ini(std::string section, std::string variable);
+std::string data_from_ini(std::string filename, std::string section, std::string variable);
 
 struct CartesianCoordinates {
     double x;

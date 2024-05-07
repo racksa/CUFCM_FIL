@@ -16,6 +16,7 @@
 #include "../../../../CUFCM/src/CUFCM_SOLVER.cuh"
 #include "../../../../CUFCM/src/util/cuda_util.hpp"
 #include "../../../../CUFCM/src/CUFCM_CELLLIST.cuh"
+#include "../../general/util.hpp"
 
 class fcm_mobility_solver : public mobility_solver{
 

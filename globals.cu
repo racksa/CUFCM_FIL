@@ -40,4 +40,7 @@ std::string SIMULATION_TIME_NAME = SIMULATION_NAME + "_time.dat";
 std::string SIMULATION_TETHERLAM_NAME = SIMULATION_NAME + "_tether_force.dat";
 std::string SIMULATION_TRUESTATE_NAME = SIMULATION_NAME + "_true_states.dat";
 
-std::string SIMULATION_ICSTATE_NAME = "psi.dat";
+// Reading file names
+std::string PLANAR_SEEDING_PAR_FILE = "input/separation.ini";
+std::string CUFCM_CONFIG_FILE_NAME = "input/simulation_info_cilia";
+std::string SIMULATION_ICSTATE_NAME = "input/psi.dat";

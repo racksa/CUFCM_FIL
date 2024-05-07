@@ -53,20 +53,21 @@
 int main(int argc, char** argv){
 
   // Read global variables from .ini
-  NSWIM = std::stoi(data_from_ini("Parameters", "nswim"));
-  NSEG = std::stoi(data_from_ini("Parameters", "nseg"));
-  NFIL = std::stoi(data_from_ini("Parameters", "nfil"));
-  NBLOB = std::stoi(data_from_ini("Parameters", "nblob"));
-  AR = std::stof(data_from_ini("Parameters", "ar"));
-  SEG_SEP = std::stof(data_from_ini("Parameters", "seg_sep"));
-  PERIOD = std::stof(data_from_ini("Parameters", "period"));
-  SIM_LENGTH = std::stof(data_from_ini("Parameters", "sim_length"));
-  TORSIONAL_SPRING_MAGNITUDE_FACTOR = std::stof(data_from_ini("Parameters", "spring_factor"));
-  GEN_FORCE_MAGNITUDE_FACTOR = std::stof(data_from_ini("Parameters", "force_mag"));
-  SIMULATION_DIR = data_from_ini("Filenames", "simulation_dir");
-  SIMULATION_FILE = data_from_ini("Filenames", "simulation_file");
+  NSWIM = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "nswim"));
+  NSEG = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "nseg"));
+  NFIL = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "nfil"));
+  NBLOB = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "nblob"));
+  AR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "ar"));
+  SEG_SEP = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "seg_sep"));
+  PERIOD = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "period"));
+  SIM_LENGTH = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "sim_length"));
+  TORSIONAL_SPRING_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "spring_factor"));
+  GEN_FORCE_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_mag"));
+  SIMULATION_DIR = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_dir");
+  SIMULATION_FILE = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_file");
 
-  SIMULATION_ICSTATE_NAME = data_from_ini("Filenames", "simulation_icstate_name");
+  CUFCM_CONFIG_FILE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "cufcm_config_file_name");
+  SIMULATION_ICSTATE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_icstate_name");
 
   #if INFINITE_PLANE_WALL
     NSWIM = 1;
@@ -602,7 +603,7 @@ int main(int argc, char** argv){
       body_state_file << std::endl;
       body_state_file.close();
 
-      mobility.write_data(nt, swimmers); // Writes all velocity and force data.
+      // mobility.write_data(nt, swimmers); // Writes all velocity and force data.
 
       // std::ofstream backup_file(SIMULATION_BACKUP_NAME);
       // backup_file << save_step << " ";

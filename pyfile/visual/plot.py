@@ -46,6 +46,14 @@ if(sys.argv[1] in methods):
                 visualiser.index = int(sys.argv[2])
         if('video' in sys.argv):
             visualiser.video = True
+
+        if('plane' in sys.argv):
+            visualiser.planar = True
+            visualiser.big_sphere = False
+            visualiser.show_poles = False
+
+        if('blob' in sys.argv):
+            visualiser.noblob = False
         
     if hasattr(visualiser, sys.argv[1]):
         method_to_call = getattr(visualiser, sys.argv[1])

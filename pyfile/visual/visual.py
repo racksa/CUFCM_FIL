@@ -49,10 +49,10 @@ class VISUAL:
 
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
-        # self.dir = f"data/slow_converge_sims2/{self.date}/"
 
-        # self.date = 'ivp'
-        # self.dir = f"data/JFNK/test_solution/{self.date}/"
+
+        # self.date = '20240507'
+        # self.dir = f"data/regular_wall_sim/{self.date}/"
 
 
         self.pars_list = {
@@ -76,20 +76,18 @@ class VISUAL:
         self.big_sphere = True
         self.show_poles = True
 
-        self.ignore_blob = True
+        self.noblob = True
 
         self.planar = False
 
         if(self.planar):
             self.big_sphere = False
             self.show_poles = False
-        else:
-            self.ignore_blob = False
 
         self.check_overlap = False
 
         self.plot_end_frame_setting = 12000
-        self.frames_setting = 1200
+        self.frames_setting = 12000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -250,7 +248,7 @@ class VISUAL:
                                 color=16777215 #white
                                 color=13882323 # grey
                                 # color=0 # black
-                                if not self.ignore_blob:
+                                if not self.noblob:
                                     self.write_data([blob_x, blob_y, blob_z], float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=color)
 
                     if(self.big_sphere):
@@ -323,7 +321,7 @@ class VISUAL:
         self.select_sim()
 
         cmap_name = 'hsv'
-        cmap_name = 'twilight_shifted'
+        # cmap_name = 'twilight_shifted'
 
         # Fourier coeffs for the shape
         Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
@@ -401,7 +399,7 @@ class VISUAL:
                                 color=16777215 #white
                                 color=13882323 # grey
                                 # color=0 # black
-                                if not self.ignore_blob:
+                                if not self.noblob:
                                     self.write_data([blob_x, blob_y, blob_z], float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=color)
 
                     if(self.big_sphere):
@@ -581,6 +579,9 @@ class VISUAL:
             ax.invert_yaxis()
             fig.tight_layout()
 
+            cmap = mpl.colormaps[colormap]
+            colors = cmap(variables/vmax)
+
             # Interpolation
             if (self.interpolate):
                 n1, n2 = 128, 128
@@ -595,33 +596,42 @@ class VISUAL:
                 colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
                 ax.scatter(xx, yy, c=colors_inter)
 
-                # Contour
-                phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='linear')
-                xx_grid = np.reshape(xx, (n1, n2))
-                yy_grid = np.reshape(yy, (n1, n2))
-                phases_grid = np.reshape(phases_inter, (n1, n2))
-                levels = np.linspace(0, 2*np.pi, 3)[1:-1]
-                contour = ax.contour(xx_grid, yy_grid, phases_grid, levels=levels, cmap='hsv')
-                ax.clabel(contour, levels)
-                
-                # Find centeroid of contours
-                for i, line in enumerate(contour.collections):
-                    paths = line.get_paths()
-                    centers_of_contour = list()
-                    lengths = [len(path) for path in paths]
-                    max_length = max(lengths)
-                    for p, path in enumerate(paths):
-                        if(len(path)==max_length):
-                            points = path.vertices
-                            center = np.mean(points, axis=0)
-                            centers_of_contour.append(center)
-                            ax.scatter(center[0], center[1], s = 100)
-                            break
+                # Find the region that takes a certain color (say white)
+                white_band = np.where(np.all(colors_inter>np.array([0.75, 0.75, 0.75, 0]), axis=1))
+                # ax.scatter(xx[white_band], yy[white_band], marker='x')
+                mean_x = np.angle(np.mean(np.exp(xx[white_band]*1j)))
+                ax.scatter(mean_x, np.mean(yy[white_band]), c='black', s = 200, marker='s')
+
+                # Contour (Doesn't work very well because of the discontinuity...)
+                # phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='linear')
+                # xx_grid = np.reshape(xx, (n1, n2))
+                # yy_grid = np.reshape(yy, (n1, n2))
+                # phases_grid = np.reshape(phases_inter, (n1, n2))
+                # levels = np.linspace(0, 2*np.pi, 3)[1:-1]
+                # contour = ax.contour(xx_grid, yy_grid, phases_grid, levels=levels, cmap='hsv')
+                # ax.clabel(contour, levels)
+                # # Find centeroid of contours
+                # for i, line in enumerate(contour.collections):
+                #     paths = line.get_paths()
+                #     centers_of_contour = list()
+                #     lengths = [len(path) for path in paths]
+                #     max_length = max(lengths)
+                #     for p, path in enumerate(paths):
+                #         if(len(path)==max_length):
+                #             points = path.vertices
+                #             center = np.mean(points, axis=0)
+                #             centers_of_contour.append(center)
+                #             ax.scatter(center[0], center[1], s = 100)
+                #             break
                         
             else:
             # Individual filaments
-                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=variables, cmap=colormap, vmin=vmin, vmax=vmax)
-                # ax.scatter(fil_references_sphpolar[98,1], fil_references_sphpolar[98,2], c=variables[98], s=100)
+                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+                # Find the region that takes a certain color (say white)
+                white_band = np.where(np.all(colors>np.array([0.75, 0.75, 0.75, 0]), axis=1))
+                ax.scatter(fil_references_sphpolar[:,1][white_band], fil_references_sphpolar[:,2][white_band], marker='x')
+                mean_x = np.angle(np.mean(np.exp(fil_references_sphpolar[:,1][white_band]*1j)))
+                ax.scatter(mean_x, np.mean(fil_references_sphpolar[:,2][white_band]), c='black', s = 200, marker='s')
                 
 
             frame += 1
@@ -4244,11 +4254,11 @@ class VISUAL:
         colormap = 'cividis'
         colormap = 'twilight_shifted'
 
-        sim_dir = '20240214_periodic_s'
-        dir = 'data/JFNK_sims/' + sim_dir
+        sim_dir = '20240320_JFNK_d'
+        dir = 'data/JFNK/' + sim_dir
 
         fil_references = myIo.read_fil_references(dir + '/fil_references.dat')
-        input_filename = dir + '/psi_guess159_stops_at_026.dat'
+        input_filename = dir + '/psi_guess159_fullrange.dat'
         nfil = int(len(fil_references)/3)
 
         with open(input_filename, 'r') as input_file:
@@ -4293,6 +4303,7 @@ class VISUAL:
                 phase = data[2:2+nfil]
                 phase = util.box(phase, 2*np.pi)
                 angle = data[2+nfil:]
+
 
                 k_array[ind] = k
                 T_array[ind] = T

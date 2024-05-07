@@ -7,12 +7,14 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        self.category = 'JFNK/test_solution/'
-        self.category = 'ic_hpc_sim_free_continue/'
+        # self.category = 'JFNK/test_solution/'
+        # self.category = 'ic_hpc_sim_free_continue/'
+
+        self.category = 'regular_wall_sim/'
         
-        self.exe_name = 'cilia_free_1e-4'
+        self.exe_name = 'cilia_wall_1e-4'
         
-        self.date = '20240311_6'
+        self.date = '20240508'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -30,7 +32,17 @@ class DRIVER:
                      "force_mag": [],
                      "seg_sep": [],
                      "period": [],
-                     "sim_length": []}
+                     "sim_length": [],
+                     "nx": [],
+                     "ny": [],
+                     "nz": [],
+                     "boxsize": [],
+                     "fil_spacing": [],
+                     "blob_spacing": [],
+                     "fil_x_dim": [],
+                     "blob_x_dim": [],
+                     "hex_num": [],
+                     "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
         self.sweep_shape = (16, 1, 1, 1)
@@ -49,6 +61,10 @@ class DRIVER:
         ini = configparser.ConfigParser()
         ini.add_section('Parameters')
         ini.add_section('Filenames')
+        ini.add_section('Box')
+        ini.add_section('Hex')
+        ini.add_section('Concentric')
+        ini.add_section('Seeding_util')
         with open(self.globals_name, 'w') as configfile:
             ini.write(configfile, space_around_delimiters=False)
         
@@ -82,25 +98,55 @@ class DRIVER:
                         # spring_factor = round(0.5+ 0.25*i, 2)
 
                         # # planar hexagonal
-                        # nfil = int(128)
-                        # nblob = int(12800)
-                        # ar = round(12.65 + 0.01*i, 2)
-                        # spring_factor = round(0.005 + 0.00*i, 3)
-
-                        # k-means
-                        nfil = int(159 + 0*i)
-                        nblob = int(9000 + 0*i)
-                        ar = round(8.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
+                        nfil = int(512)
+                        nblob = int(12800)
+                        ar = round(1, 2)
                         period = 1
-                        sim_length = 10000
+                        spring_factor = round(0.005 + 0.00*i, 3)
+                        sim_length = 1000
+                        nx=128
+                        ny=256
+                        nz=32
+                        boxsize=1280
+                        fil_spacing=40.0
+                        blob_spacing=8.0
+                        fil_x_dim=16
+                        blob_x_dim=80
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
 
-                        nfil = int(639 + 0*i)
-                        nblob = int(40961 + 0*i)
-                        ar = round(15.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        period = 1.0
-                        sim_length = 12
+
+                        nfil = int(512)
+                        nblob = int(12800)
+                        ar = round(1, 2)
+                        period = 1
+                        spring_factor = round(0.005 + 0.00*i, 3)
+                        sim_length = 1000
+                        nx=128
+                        ny=256
+                        nz=32
+                        boxsize=1280
+                        fil_spacing=40.0
+                        blob_spacing=8.0
+                        fil_x_dim=16
+                        blob_x_dim=80
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
+
+                        # ic hpc sim
+                        # nfil = int(159 + 0*i)
+                        # nblob = int(9000 + 0*i)
+                        # ar = round(8.00, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # period = 1
+                        # sim_length = 10000
+
+                        # nfil = int(639 + 0*i)
+                        # nblob = int(40961 + 0*i)
+                        # ar = round(15.00, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # period = 1.0
+                        # sim_length = 12
 
                         # # find branches wider range
                         # nfil = int(639 + 0*i)
@@ -152,7 +198,16 @@ class DRIVER:
                         self.pars_list["seg_sep"].append(seg_sep)
                         self.pars_list["period"].append(period)
                         self.pars_list["sim_length"].append(sim_length)
-
+                        self.pars_list["nx"].append(nx)
+                        self.pars_list["ny"].append(ny)
+                        self.pars_list["nz"].append(nz)
+                        self.pars_list["boxsize"].append(boxsize)
+                        self.pars_list["fil_spacing"].append(fil_spacing)
+                        self.pars_list["blob_spacing"].append(blob_spacing)
+                        self.pars_list["fil_x_dim"].append(fil_x_dim)
+                        self.pars_list["blob_x_dim"].append(blob_x_dim)
+                        self.pars_list["hex_num"].append(hex_num)
+                        self.pars_list["reverse_fil_direction_ratio"].append(reverse_fil_direction_ratio)
 
                         index += 1
         # Write rules to sim list file
@@ -211,14 +266,15 @@ class DRIVER:
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
-
-            command = f"export OPENBLAS_NUM_THREADS=1; \
-                        export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} > terminal_outputs/output_{self.date}_{self.pars_list['nfil'][i]:.0f}fil_{i}.out"
+            self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-            #             ./bin/{self.exe_name}"
+            #             ./bin/{self.exe_name} > terminal_outputs/output_{self.date}_{self.pars_list['nfil'][i]:.0f}fil_{i}.out"
+
+            command = f"export OPENBLAS_NUM_THREADS=1; \
+                        export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
+                        ./bin/{self.exe_name}"
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \
