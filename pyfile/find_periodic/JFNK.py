@@ -6,10 +6,6 @@ import util
 
 def main():
     # Define 'global variables'
-    #ndts = 200   # Number of timesteps taken in period T
-    #fixT = 1   # Fix T for equilibrium, rather than PO solution
-    #follower_force = 50      # Follower force (parameter of dynamical system)
-
     NSEG = 20
     NFIL = 159
     NBLOB = 9000
@@ -86,24 +82,7 @@ def find_new_x(fixT,NSEG,NFIL,input_filename):
 
         return full_input[1:]
 
-    # if (fixT == 1):
-        
-    #     return np.concatenate(([0.2],1e-8 * np.random.standard_normal(3*(NSEG-1)*NFIL))) # Current best x
-    
-    # else:
-        
 
-# def save_solution(data,filename):
-#     print(data)
-#     os.chdir("../stability/")
-#     input_filename = filename
-#     print(input_filename)
-
-#     with open(input_filename, "ab") as  f:
-#         f.write(b"\n")
-#         np.savetxt(f, data, newline = " ")
-
-#     return
 
 # Run code
 main()

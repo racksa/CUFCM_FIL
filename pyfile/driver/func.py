@@ -116,19 +116,19 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
 
-                        nfil = int(512)
-                        nblob = int(12800)
+                        nfil = int(1024/(4**(i+1)))
+                        nblob = int(6400)
                         ar = round(1, 2)
                         period = 1
                         spring_factor = round(0.005 + 0.00*i, 3)
                         sim_length = 1000
                         nx=128
-                        ny=256
+                        ny=128
                         nz=32
-                        boxsize=1280
-                        fil_spacing=40.0
+                        boxsize=640
+                        fil_spacing=int(40.0*(2*i))
                         blob_spacing=8.0
-                        fil_x_dim=16
+                        fil_x_dim=int(32/(2*(i+1)))
                         blob_x_dim=80
                         hex_num=2
                         reverse_fil_direction_ratio=0.0

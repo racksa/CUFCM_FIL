@@ -44,14 +44,14 @@ class VISUAL:
         # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_9'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
-
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
+        # self.date = '20240311_2'
+        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        # self.date = '20240507'
+
+        # self.date = '20240508'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
 
@@ -86,8 +86,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 12000
-        self.frames_setting = 12000
+        self.plot_end_frame_setting = 120000
+        self.frames_setting = 120000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -980,9 +980,10 @@ class VISUAL:
             r_avg_array[i] = np.mean(r_array[i:i+window_size])
         ax.plot(time_array[:windowd_length], r_avg_array)
         ax.set_xlabel('t/T')
-        ax.set_ylabel('Coordination number')
+        ax.set_ylabel(r'$<r>$')
         ax.set_xlim(time_array[0], time_array[-1])
         ax.set_ylim(0)
+
 
         # ax2.plot(states_array[:, 120], states_array[:,1])
 
@@ -991,20 +992,20 @@ class VISUAL:
 
 
         ax2.plot(time_array, corr_array)
-        # ax2.set_xlabel('t/T')
-        # ax2.set_ylabel('Coordination number')
+        ax2.set_xlabel('t/T')
+        ax2.set_ylabel(r'Synchronisation number')
         # ax2.set_xlim(time_array[0], time_array[-1])
         # ax2.set_ylim(0)
 
         ax3.plot(corr_array[:windowd_length], r_avg_array)
         ax3.set_xlim(0)
         ax3.set_ylim(0)
-        ax3.set_xlabel(r'Proximity number')
+        ax3.set_xlabel(r'Synchronisation number')
         ax3.set_ylabel(r'$<r>$')
         
 
         
-        # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/fil_order_parameter_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
@@ -2023,8 +2024,9 @@ class VISUAL:
         afix = int(self.index)
         output_filenames = [self.dir + f"phases{afix}.dat",
                             self.dir + f"angles{afix}.dat",
-                            # self.dir + f"psi{afix}.dat",
-                            f"data/slow_converge_sims2/{self.date}/psi{afix}.dat"]
+                            self.dir + f"psi{afix}.dat",
+                            # f"data/slow_converge_sims2/{self.date}/psi{afix}.dat"
+                            ]
 
         for i, name in enumerate(input_filenames):
             input_filename = name
@@ -4355,7 +4357,7 @@ class VISUAL:
         # path = "data/slow_converge_sims3/"
 
         # free = True
-        # path = "data/ic_hpc_sim_free_continue/"
+        path = "data/ic_hpc_sim_free/"
 
         free_string = 'held_fixed'
         if free:
@@ -4366,7 +4368,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 9000000
-        self.frames_setting = 300
+        self.frames_setting = 600
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -4452,8 +4454,8 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
                 ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
                 ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
@@ -4470,7 +4472,7 @@ class VISUAL:
         ax3.set_xlabel(r'$k$')
         ax3.set_ylabel(r'$<Efficiency>$')
 
-        # ax.legend()
+        ax.legend()
         # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
