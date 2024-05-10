@@ -47,6 +47,10 @@ class VISUAL:
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
+
+        self.date = f'section1'
+        self.dir = f"data/bisection/k0.005/iteration1/{self.date}/"
+
         # self.date = '20240311_2'
         # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
@@ -591,18 +595,16 @@ class VISUAL:
                 xx, yy = np.meshgrid(azim_grid, polar_grid)
                 xx, yy = xx.ravel(), yy.ravel()
 
-                cmap = mpl.colormaps[colormap]
-                colors = cmap(variables/vmax)
+                
                 colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
                 ax.scatter(xx, yy, c=colors_inter)
 
-                # Find the region that takes a certain color (say white)
-                white_band = np.where(np.all(colors_inter>np.array([0.75, 0.75, 0.75, 0]), axis=1))
-                # ax.scatter(xx[white_band], yy[white_band], marker='x')
-                mean_x = np.angle(np.mean(np.exp(xx[white_band]*1j)))
-                ax.scatter(mean_x, np.mean(yy[white_band]), c='black', s = 200, marker='s')
+                # # Find the region that takes a certain color (say white)
+                # white_band = np.where(np.all(colors_inter>np.array([0.75, 0.75, 0.75, 0]), axis=1))
+                # mean_x = np.angle(np.mean(np.exp(xx[white_band]*1j)))
+                # ax.scatter(mean_x, np.mean(yy[white_band]), c='black', s = 200, marker='s')
 
-                # Contour (Doesn't work very well because of the discontinuity...)
+                # # Contour (Doesn't work very well because of the discontinuity...)
                 # phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='linear')
                 # xx_grid = np.reshape(xx, (n1, n2))
                 # yy_grid = np.reshape(yy, (n1, n2))
@@ -627,11 +629,12 @@ class VISUAL:
             else:
             # Individual filaments
                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
-                # Find the region that takes a certain color (say white)
-                white_band = np.where(np.all(colors>np.array([0.75, 0.75, 0.75, 0]), axis=1))
-                ax.scatter(fil_references_sphpolar[:,1][white_band], fil_references_sphpolar[:,2][white_band], marker='x')
-                mean_x = np.angle(np.mean(np.exp(fil_references_sphpolar[:,1][white_band]*1j)))
-                ax.scatter(mean_x, np.mean(fil_references_sphpolar[:,2][white_band]), c='black', s = 200, marker='s')
+                
+                # # Find the region that takes a certain color (say white)
+                # white_band = np.where(np.all(colors>np.array([0.75, 0.75, 0.75, 0]), axis=1))
+                # ax.scatter(fil_references_sphpolar[:,1][white_band], fil_references_sphpolar[:,2][white_band], marker='x')
+                # mean_x = np.angle(np.mean(np.exp(fil_references_sphpolar[:,1][white_band]*1j)))
+                # ax.scatter(mean_x, np.mean(fil_references_sphpolar[:,2][white_band]), c='black', s = 200, marker='s')
                 
 
             frame += 1

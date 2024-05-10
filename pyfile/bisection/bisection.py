@@ -3,6 +3,9 @@
 import driver
 import numpy as np
 import util
+import matplotlib.pyplot as plt
+import os
+import sys
 
 
 # Initialisation
@@ -13,22 +16,34 @@ AR = 8
 k = 0.005
 T = 1
 
-# Number of time steps (ndts) and fixT
-ndts = 300
-Max_iterations = 10
-Ustar = np.zeros(2*NFIL)
+Max_iterations = 1
+
+# Bisection
+sec = int(sys.argv[1])
+par = int(sys.argv[2])
+frac = (sec+1)/(par+1)
 
 # Initialise the driver
 d = driver.DRIVER()
 d.cuda_device = 5
-d.category = 'bisection/'
-d.date = 'k=0.005'
+d.category = 'bisection/k0.005/iteration1/'
+d.date = f'section{sec}'
 d.dir = f"data/{d.category}{d.date}/"
+os.system(f'mkdir -p {d.dir}')
+d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
+d.update_globals_file()
 
-leftstate_filename = d.dir + f"leftstate.dat"
-rightstate_filename = d.dir + f"rightstate.dat"
 
-
+def read_fil_references(fileName):
+    try:
+        with open(fileName, 'r') as file:
+            lines = file.readlines()
+            data = [line.strip().split() for line in lines]
+            data = np.array(data, dtype=float)  # Assuming your data is numeric
+            return data[:, :].reshape(-1)
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
 
 def read_input_state(filename):
     with open(filename, 'r') as file:
@@ -41,30 +56,84 @@ def read_input_state(filename):
             
         full_input[2:2+NFIL] = util.box(full_input[2:2+NFIL], 2*np.pi)
 
-        return full_input[1:]
+        return full_input[2:]
+    
+# def read_output_state(d):
+#     output_filename = d.simName + "_true_states.dat"
+#     U = np.loadtxt(output_filename)[-1][2:]
+#     return U
 
 def run(d):
-    d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
+    d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1000.)
     d.update_globals_file()
     d.run()
 
-def read_output_state(d):
-    output_filename = d.dir + d.simName + "_true_states.dat"
-    U = np.loadtxt(output_filename)[-1][2:]
-    return U
+def move_output_file(d, iter):
+    body_states_filename = d.dir + d.simName + "_body_states.dat"
+    fil_states_filename = d.dir + d.simName + "_true_states.dat"
+    seg_states_filename = d.dir + d.simName + "_seg_states.dat"
 
-def identify_states(d):
-    return 0
+    if os.path.exists(seg_states_filename):
+        os.remove(seg_states_filename)
 
-for i in range(Max_iterations):
-    leftstate = read_input_state(leftstate_filename)
-    rightstate = read_output_state(rightstate_filename)
+    if os.path.exists(body_states_filename):
+        os.remove(body_states_filename)
 
-    output_state = read_output_state(d)
+    if os.path.exists(fil_states_filename):
+        os.rename(fil_states_filename, d.dir + d.simName + f"_true_states_{iter}.dat")
+        print(f"File '{fil_states_filename}' has been renamed successfully.")
     
-    print(output_state)
+def calculate_r(d):
+    plot_end_frame_setting = 3000
+    frames_setting = 3000
 
-    # Add stopping criteria here
+    plot_end_frame = min(plot_end_frame_setting, sum(1 for line in open(d.dir + d.simName + '_true_states.dat')))
+    plot_start_frame = max(0, plot_end_frame-frames_setting)
+    frames = plot_end_frame - plot_start_frame
+    fil_references = read_fil_references(d.dir + d.simName + '_fil_references.dat')
+    fil_states_f = open(d.dir + d.simName + '_true_states.dat', "r")
+
+    time_array = np.arange(plot_start_frame, plot_end_frame )
+    r_array = np.zeros(frames)
+
+    for i in range(plot_end_frame):
+        print(" frame ", i, "/", plot_end_frame, "          ", end="\r")
+        fil_states_str = fil_states_f.readline()
+
+        if(i>=plot_start_frame):
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_phases = fil_states[:NFIL]
+            fil_phases = util.box(fil_phases, 2*np.pi)
+            
+            r_array[i-plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/NFIL)
+
+    return time_array, r_array
+
+def identify_state(d):
+    return
+
+
+fig1 = plt.figure()
+ax1 = fig1.add_subplot(111)
+for i in range(Max_iterations):
+    leftstate = read_input_state(f'data/{d.category}' + f"leftstate.dat")
+    rightstate = read_input_state(f'data/{d.category}' + f"rightstate.dat")
+
+    print(sec, par, frac)
+    initial_condition = frac*leftstate + (1-frac)*rightstate
+
+    x = np.insert( initial_condition, 0, [k, T])
+    np.savetxt(d.dir + "psi.dat", x, newline = " ")
+
+    
+    move_output_file(d, i)
+    d.write_rules()
+    run(d)
+
+    time_array, r_array = calculate_r(d)
+    ax1.plot(time_array, r_array)
+    
     # Add update to the left or right state here
 
+plt.show()
 

@@ -112,7 +112,7 @@ cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_expr2
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^ $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_wall_1e-4
+	nvcc $^ $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_30
 
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	module load cuda/11.4.2 && \
