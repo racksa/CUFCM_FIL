@@ -15,19 +15,23 @@ NBLOB = 9000
 AR = 8
 k = 0.005
 T = 1
+sim_length = 100
 
 Max_iterations = 1
 
 # Bisection
 sec = int(sys.argv[1])
 par = int(sys.argv[2])
-frac = (sec+1)/(par+1)
+lower = 0.375
+upper = 0.5
+alpha_range = upper-lower
+alpha = (sec+1)/(par+1)*alpha_range + lower
 
 # Initialise the driver
 d = driver.DRIVER()
-d.cuda_device = 5
-d.category = 'bisection/k0.005/iteration1/'
-d.date = f'section{sec}'
+d.cuda_device = int(sys.argv[3])
+d.category = 'bisection/k0.005/iteration2/'
+d.date = f'alpha{alpha}'
 d.dir = f"data/{d.category}{d.date}/"
 os.system(f'mkdir -p {d.dir}')
 d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
@@ -64,7 +68,7 @@ def read_input_state(filename):
 #     return U
 
 def run(d):
-    d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1000.)
+    d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, sim_length)
     d.update_globals_file()
     d.run()
 
@@ -119,8 +123,8 @@ for i in range(Max_iterations):
     leftstate = read_input_state(f'data/{d.category}' + f"leftstate.dat")
     rightstate = read_input_state(f'data/{d.category}' + f"rightstate.dat")
 
-    print(sec, par, frac)
-    initial_condition = frac*leftstate + (1-frac)*rightstate
+    print(sec, par, alpha)
+    initial_condition = alpha*leftstate + (1-alpha)*rightstate
 
     x = np.insert( initial_condition, 0, [k, T])
     np.savetxt(d.dir + "psi.dat", x, newline = " ")
@@ -135,5 +139,5 @@ for i in range(Max_iterations):
     
     # Add update to the left or right state here
 
-plt.show()
+# plt.show()
 

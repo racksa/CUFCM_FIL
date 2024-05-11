@@ -4485,6 +4485,133 @@ class VISUAL:
         fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
+    def view_bisection(self):
+        free = False
+        path = "data/bisection/k0.005/iteration1/"
+
+        free_string = 'held_fixed'
+        if free:
+            free_string = 'free'
+
+
+        folders = util.list_folders(path)
+        print(folders)
+
+        self.plot_end_frame_setting = 9000000
+        self.frames_setting = 600
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+
+        for fi, folder in enumerate(folders):
+            self.dir = path + folder + '/'
+            print(self.dir)
+            self.read_rules()
+
+            k_arrays = self.pars_list['spring_factor']
+            r_arrays = np.zeros(np.shape(k_arrays))
+            v_arrays = np.zeros(np.shape(k_arrays))
+            dis_arrays = np.zeros(np.shape(k_arrays))
+            eff_arrays = np.zeros(np.shape(k_arrays))
+            
+            for ind in range(self.num_sim):
+                self.index = ind
+                try:
+                    self.select_sim()
+
+                    fil_references_sphpolar = np.zeros((self.nfil,3))
+                    for i in range(self.nfil):
+                        fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
+                    fil_states_f = open(self.simName + '_true_states.dat', "r")
+                    if free:
+                        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+                        seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
+                        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+                        blob_references_f = open(self.simName + '_blob_references.dat', "r")
+                        body_vels_f = open(self.simName + '_body_vels.dat', "r")
+
+                        blob_references_str = blob_references_f.readline()
+                        blob_references= np.array(blob_references_str.split(), dtype=float)
+                        blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+
+                    print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
+                    for t in range(self.plot_end_frame):
+                        fil_states_str = fil_states_f.readline()
+                        if free:
+                            seg_forces_str = seg_forces_f.readline()
+                            seg_vels_str = seg_vels_f.readline()
+                            blob_forces_str = blob_forces_f.readline()
+                            body_vels_str = body_vels_f.readline()
+                        if(t>=self.plot_start_frame):
+                            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                            # fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                            phases = fil_states[:self.nfil]
+
+                            r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
+                            r_arrays[ind] += r
+
+                            if free:
+                                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                                seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
+                                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                                body_vels= np.array(body_vels_str.split(), dtype=float)
+
+                                seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                                seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                                blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
+                                body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
+                                blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
+
+                                speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                                dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+                                eff = 6*np.pi*self.radius*speed**2/dis
+                                v_arrays[ind] += speed
+                                dis_arrays[ind] += dis
+                                eff_arrays[ind] += eff
+                    
+                    r_arrays[ind] /= self.frames
+                    if free:
+                        v_arrays[ind] /= self.frames
+                        dis_arrays[ind] /= self.frames
+                        eff_arrays[ind] /= self.frames
+                
+                except:
+                    print("Something went wrong")
+                    pass
+            
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            if free:
+                ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
+                ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
+
+        ax.set_ylim(0)
+        ax.set_xlabel(r'$k$')
+        ax.set_ylabel(r'$<r>$')
+
+        ax2.set_ylim(0)
+        ax2.set_xlabel(r'$k$')
+        ax2.set_ylabel(r'$<v/L>$')
+
+        ax3.set_ylim(0)
+        ax3.set_xlabel(r'$k$')
+        ax3.set_ylabel(r'$<Efficiency>$')
+
+        ax.legend()
+        # ax2.legend()
+        fig.tight_layout()
+        fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.tight_layout()
+        fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        fig3.tight_layout()
+        fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
+
     def footpaths(self):
         free = False
         path = "data/ic_hpc_sim/"
