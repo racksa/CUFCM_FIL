@@ -22,16 +22,32 @@ Max_iterations = 1
 # Bisection
 sec = int(sys.argv[1])
 par = int(sys.argv[2])
-lower = 0.375
-upper = 0.5
+
+lower0 = 0.
+upper0 = 1.
+range0 = upper0 - lower0
+
+lower1 = 3/8*range0 + lower0
+upper1 = 4/8*range0 + lower0
+range1 = upper1 - lower1
+
+lower2 = (3+1)/(8+1)*range1 + lower1
+upper2 = (4+1)/(8+1)*range1 + lower1
+range2 = upper2 - lower2
+
+lower = (4+1)/(8+1)*range2 + lower2
+upper = (5+1)/(8+1)*range2 + lower2
+
+print(f'lower = {lower}; upper = {upper}')
+
 alpha_range = upper-lower
 alpha = (sec+1)/(par+1)*alpha_range + lower
 
 # Initialise the driver
 d = driver.DRIVER()
 d.cuda_device = int(sys.argv[3])
-d.category = 'bisection/k0.005/iteration2/'
-d.date = f'alpha{alpha}'
+d.category = 'bisection/k0.005/iteration4/'
+d.date = f'index{sec}_alpha{alpha}'
 d.dir = f"data/{d.category}{d.date}/"
 os.system(f'mkdir -p {d.dir}')
 d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
@@ -134,8 +150,8 @@ for i in range(Max_iterations):
     d.write_rules()
     run(d)
 
-    time_array, r_array = calculate_r(d)
-    ax1.plot(time_array, r_array)
+    # time_array, r_array = calculate_r(d)
+    # ax1.plot(time_array, r_array)
     
     # Add update to the left or right state here
 

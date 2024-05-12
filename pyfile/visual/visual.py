@@ -4487,7 +4487,7 @@ class VISUAL:
 
     def view_bisection(self):
         free = False
-        path = "data/bisection/k0.005/iteration1/"
+        path = "data/bisection/k0.005/iteration3/"
 
         free_string = 'held_fixed'
         if free:
@@ -4502,10 +4502,10 @@ class VISUAL:
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1,1,1)
+        # fig2 = plt.figure()
+        # ax2 = fig2.add_subplot(1,1,1)
+        # fig3 = plt.figure()
+        # ax3 = fig3.add_subplot(1,1,1)
 
         for fi, folder in enumerate(folders):
             self.dir = path + folder + '/'
@@ -4594,22 +4594,22 @@ class VISUAL:
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
 
-        ax2.set_ylim(0)
-        ax2.set_xlabel(r'$k$')
-        ax2.set_ylabel(r'$<v/L>$')
+        # ax2.set_ylim(0)
+        # ax2.set_xlabel(r'$k$')
+        # ax2.set_ylabel(r'$<v/L>$')
 
-        ax3.set_ylim(0)
-        ax3.set_xlabel(r'$k$')
-        ax3.set_ylabel(r'$<Efficiency>$')
+        # ax3.set_ylim(0)
+        # ax3.set_xlabel(r'$k$')
+        # ax3.set_ylabel(r'$<Efficiency>$')
 
         ax.legend()
-        # ax2.legend()
+
         fig.tight_layout()
-        fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        fig2.tight_layout()
-        fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        fig3.tight_layout()
-        fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.tight_layout()
+        # fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig3.tight_layout()
+        # fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
     def footpaths(self):
