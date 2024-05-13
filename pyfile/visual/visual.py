@@ -2322,7 +2322,9 @@ class VISUAL:
                             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
                             for i in range(self.nfil):
                                 fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
-                                
+                            
+                            cmap = mpl.colormaps[colormap]
+                            colors = cmap(fil_states[:self.nfil]/2/np.pi)
                             if (self.interpolate):
                                 n1, n2 = 64, 64
                                 offset = 0.2
@@ -2331,14 +2333,13 @@ class VISUAL:
                                 xx, yy = np.meshgrid(azim_grid, polar_grid)
                                 xx, yy = xx.ravel(), yy.ravel()
 
-                                cmap = mpl.colormaps[colormap]
-                                colors = cmap(fil_states[:self.nfil]/2/np.pi)
+                                
                                 colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
                                 ax.scatter(xx, yy, c=colors_inter)
 
                             else:
                             # Individual filaments
-                                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=fil_states[:self.nfil], cmap=colormap, vmin=0, vmax=2*np.pi)
+                                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
                     # ax.set_ylabel(r"$\theta$")
                     # ax.set_xlabel(r"$\phi$")
                     # ax.set_xlim(-np.pi, np.pi)
@@ -4486,130 +4487,132 @@ class VISUAL:
         plt.show()
 
     def view_bisection(self):
-        free = False
-        path = "data/bisection/k0.005/iteration3/"
+        colormap = 'twilight_shifted'
 
-        free_string = 'held_fixed'
-        if free:
-            free_string = 'free'
-
+        k_string = 'k0.010'
+        iteration_string = 'iteration1'
+        path = f"data/bisection/{k_string}/{iteration_string}/"
 
         folders = util.list_folders(path)
+        folders.sort()
         print(folders)
+        num_sim = len(folders)
+        ncol = 4
+        nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 9000000
-        self.frames_setting = 600
+        self.plot_end_frame_setting = 300000
+        self.frames_setting = 100000
+        window_size = 30
 
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
-        # fig2 = plt.figure()
-        # ax2 = fig2.add_subplot(1,1,1)
-        # fig3 = plt.figure()
-        # ax3 = fig3.add_subplot(1,1,1)
+        fig1, axs1 = plt.subplots(1, num_sim, sharex=True, sharey=True)
+        ax_invi1 = fig1.add_subplot(111, frameon=False)
+        axs_flat1 = axs1.ravel()
 
-        for fi, folder in enumerate(folders):
-            self.dir = path + folder + '/'
-            print(self.dir)
-            self.read_rules()
+        fig2, axs2 = plt.subplots(nrow, ncol, figsize=(16, 8), sharex=True, sharey=True)
+        axs_flat2 = axs2.ravel()
 
-            k_arrays = self.pars_list['spring_factor']
-            r_arrays = np.zeros(np.shape(k_arrays))
-            v_arrays = np.zeros(np.shape(k_arrays))
-            dis_arrays = np.zeros(np.shape(k_arrays))
-            eff_arrays = np.zeros(np.shape(k_arrays))
-            
-            for ind in range(self.num_sim):
-                self.index = ind
-                try:
+        axs_flat2[0].set_xlim(-np.pi, np.pi)
+        axs_flat2[0].set_ylim(0, np.pi)
+        axs_flat2[0].set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
+        axs_flat2[0].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
+        plt.gca().invert_yaxis()
+
+        axs_flat1[0].set_xticks([])
+        axs_flat1[0].set_yticks(np.linspace(0, 1, 9))
+        axs_flat1[0].set_ylabel(r'$<r>$')
+        ax_invi1.set_xlabel(r'$t$')
+        ax_invi1.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
+
+        alphas = list()
+        for folder in folders:
+            alphas.append(float(folder.split('_')[1][5:]))
+        alpha_gap = alphas[1] - alphas[0]
+        
+        for fi, ax in enumerate(axs_flat1):
+            if (fi < num_sim):
+                folder = folders[fi]
+
+                self.dir = path + folder + '/'
+                print(self.dir)
+                self.read_rules()
+                
+
+                # k_arrays = self.pars_list['spring_factor']
+                # r_arrays = np.zeros(np.shape(k_arrays))
+                # alpha_arrays = np.array([float(folder.split('_')[1][5:])])
+                
+                for ind in range(self.num_sim):
+                    self.index = ind
                     self.select_sim()
+
+                    r_array = np.zeros(self.frames_setting)
+                    alpha_array = np.ones(np.shape(r_array))*float(folder.split('_')[1][5:])
+                    
+                    windowd_length = self.frames - window_size + 1
+                    r_avg_array = np.zeros(windowd_length)
+                    alpha_avg_array = np.ones(windowd_length)*float(folder.split('_')[1][5:])
+                    time_avg_array = np.arange(windowd_length)
 
                     fil_references_sphpolar = np.zeros((self.nfil,3))
                     for i in range(self.nfil):
                         fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
                     fil_states_f = open(self.simName + '_true_states.dat', "r")
-                    if free:
-                        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
-                        seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
-                        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
-                        blob_references_f = open(self.simName + '_blob_references.dat', "r")
-                        body_vels_f = open(self.simName + '_body_vels.dat', "r")
-
-                        blob_references_str = blob_references_f.readline()
-                        blob_references= np.array(blob_references_str.split(), dtype=float)
-                        blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
 
                     print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
                     for t in range(self.plot_end_frame):
                         fil_states_str = fil_states_f.readline()
-                        if free:
-                            seg_forces_str = seg_forces_f.readline()
-                            seg_vels_str = seg_vels_f.readline()
-                            blob_forces_str = blob_forces_f.readline()
-                            body_vels_str = body_vels_f.readline()
                         if(t>=self.plot_start_frame):
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-                            # fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
                             phases = fil_states[:self.nfil]
 
                             r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
-                            r_arrays[ind] += r
+                            r_array[t-self.plot_start_frame] = r
+                        
+                        if(t==self.plot_end_frame-1):
+                            cmap = mpl.colormaps[colormap]
+                            colors = cmap(phases/2/np.pi)
 
-                            if free:
-                                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
-                                seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
-                                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                                body_vels= np.array(body_vels_str.split(), dtype=float)
+                            # ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+                            ax.set_title(r"$\alpha$={:.5f}".format(alphas[fi]) + '\n'*(fi%2==0),  fontsize=10)
+                            axs_flat2[fi].set_title(folder.split('_')[0] + '\n' +  folder.split('_')[1][:15])
+                            axs_flat2[fi].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
 
-                                seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
-                                seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
-                                blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
-                                body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
-                                blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
+                    # r_arrays[ind] /= self.frames
+                    for i in range(windowd_length):
+                        r_avg_array[i] = np.mean(r_array[i:i+window_size])
 
-                                speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
-                                dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
-                                eff = 6*np.pi*self.radius*speed**2/dis
-                                v_arrays[ind] += speed
-                                dis_arrays[ind] += dis
-                                eff_arrays[ind] += eff
-                    
-                    r_arrays[ind] /= self.frames
-                    if free:
-                        v_arrays[ind] /= self.frames
-                        dis_arrays[ind] /= self.frames
-                        eff_arrays[ind] /= self.frames
                 
-                except:
-                    print("Something went wrong")
-                    pass
+                # ax1.scatter(alpha_array, r_array, marker='x', label = folder)
+
+                plot_gap = 1
+                # plot_x = alpha_avg_array[::plot_gap]+time_avg_array[::plot_gap]/windowd_length*alpha_gap
+                plot_x = time_avg_array[::plot_gap]
+                plot_y = r_avg_array[::plot_gap]
+                plot_samp = len(plot_x)
+                step=30
+                N_segments = int(plot_samp/step)
+                [ax.plot(plot_x[step*i:step*(i+1)],\
+                           plot_y[step*i:step*(i+1
+                                               )],\
+                              alpha=np.min([0.1 + i/N_segments,1]),\
+                                c='black')\
+                                  for i in range(N_segments)]
+
+                # ax1.scatter(plot_x, plot_y, marker='x', \
+                #             label = folder, alpha = time_avg_array[::plot_gap]/windowd_length)
+
+
+        # ax.set_ylim(0)
+        # ax.set_xlabel(r'$\alpha$')
+        # ax.set_ylabel(r'$<r>$')
+        # ax.legend()
+
+        fig1.tight_layout()
+        fig1.savefig(f'fig/bisection_{k_string}_{iteration_string}.pdf', bbox_inches = 'tight', format='pdf')
             
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
-            if free:
-                ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
-                ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
-
-        ax.set_ylim(0)
-        ax.set_xlabel(r'$k$')
-        ax.set_ylabel(r'$<r>$')
-
-        # ax2.set_ylim(0)
-        # ax2.set_xlabel(r'$k$')
-        # ax2.set_ylabel(r'$<v/L>$')
-
-        # ax3.set_ylim(0)
-        # ax3.set_xlabel(r'$k$')
-        # ax3.set_ylabel(r'$<Efficiency>$')
-
-        ax.legend()
-
-        fig.tight_layout()
-        # fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig2.tight_layout()
-        # fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig3.tight_layout()
-        # fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.tight_layout()
         plt.show()
 
     def footpaths(self):

@@ -10,6 +10,7 @@ class DRIVER:
         self.globals_name = 'input/globals.ini'
         self.exe_name = 'cilia_1e-4_30'
         self.category = 'JFNK/'
+        self.iteration = '0/'
 
         self.date = ''
         self.afix = ''
@@ -86,9 +87,9 @@ class DRIVER:
         sim_length = 1000
         
         index=0        
-        nx=256
-        ny=256
-        nz=256
+        nx=400
+        ny=400
+        nz=400
         boxsize=4000
         fil_spacing=1
         blob_spacing=1
@@ -133,8 +134,6 @@ class DRIVER:
         self.write_ini("Filenames", "simulation_file", self.simName)
         self.write_ini("Filenames", "simulation_icstate_name", self.dir + f"psi.dat")
         self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
-
-        return True
 
     def run(self):
 

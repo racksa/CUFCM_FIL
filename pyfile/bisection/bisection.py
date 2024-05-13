@@ -17,41 +17,46 @@ k = 0.005
 T = 1
 sim_length = 100
 
-Max_iterations = 1
+k_string = 'k0.010'
+iteration_string = 'iteration1'
 
 # Bisection
 sec = int(sys.argv[1])
 par = int(sys.argv[2])
 
-lower0 = 0.
-upper0 = 1.
-range0 = upper0 - lower0
+bisection_indices = np.loadtxt(f'data/bisection/{k_string}/bisection_indices.dat', dtype='int')
+if not bisection_indices:
+    print("empty")
+    bisection_indices = [[-1, 0]]
 
-lower1 = 3/8*range0 + lower0
-upper1 = 4/8*range0 + lower0
-range1 = upper1 - lower1
+intervals = [[0, 1]]
+for ite, pair in enumerate(bisection_indices):
+    section, num_sec = pair
+    alpha_range = intervals[ite][1] - intervals[ite][0]
+    lower = (section+1)/(num_sec+1)*alpha_range + intervals[ite][0]
+    upper = (section+2)/(num_sec+1)*alpha_range + intervals[ite][0]
+    intervals.append([lower, upper])
 
-lower2 = (3+1)/(8+1)*range1 + lower1
-upper2 = (4+1)/(8+1)*range1 + lower1
-range2 = upper2 - lower2
+print(intervals)
 
-lower = (4+1)/(8+1)*range2 + lower2
-upper = (5+1)/(8+1)*range2 + lower2
-
+lower, upper = intervals[-1]
 print(f'lower = {lower}; upper = {upper}')
-
 alpha_range = upper-lower
 alpha = (sec+1)/(par+1)*alpha_range + lower
 
 # Initialise the driver
 d = driver.DRIVER()
 d.cuda_device = int(sys.argv[3])
-d.category = 'bisection/k0.005/iteration4/'
+d.category = 'bisection/k0.010/'
+d.iteration = 'iteration1/'
 d.date = f'index{sec}_alpha{alpha}'
-d.dir = f"data/{d.category}{d.date}/"
+d.dir = f"data/{d.category}{d.iteration}{d.date}/"
 os.system(f'mkdir -p {d.dir}')
 d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
 d.update_globals_file()
+
+
+
 
 
 def read_fil_references(fileName):
@@ -77,11 +82,6 @@ def read_input_state(filename):
         full_input[2:2+NFIL] = util.box(full_input[2:2+NFIL], 2*np.pi)
 
         return full_input[2:]
-    
-# def read_output_state(d):
-#     output_filename = d.simName + "_true_states.dat"
-#     U = np.loadtxt(output_filename)[-1][2:]
-#     return U
 
 def run(d):
     d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, sim_length)
@@ -129,31 +129,15 @@ def calculate_r(d):
 
     return time_array, r_array
 
-def identify_state(d):
-    return
 
 
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(111)
-for i in range(Max_iterations):
-    leftstate = read_input_state(f'data/{d.category}' + f"leftstate.dat")
-    rightstate = read_input_state(f'data/{d.category}' + f"rightstate.dat")
+leftstate = read_input_state(f'data/{d.category}' + f"leftstate.dat")
+rightstate = read_input_state(f'data/{d.category}' + f"rightstate.dat")
 
-    print(sec, par, alpha)
-    initial_condition = alpha*leftstate + (1-alpha)*rightstate
+print(sec, par, alpha)
+initial_condition = alpha*leftstate + (1-alpha)*rightstate
 
-    x = np.insert( initial_condition, 0, [k, T])
-    np.savetxt(d.dir + "psi.dat", x, newline = " ")
-
-    
-    move_output_file(d, i)
-    d.write_rules()
-    run(d)
-
-    # time_array, r_array = calculate_r(d)
-    # ax1.plot(time_array, r_array)
-    
-    # Add update to the left or right state here
-
-# plt.show()
-
+x = np.insert( initial_condition, 0, [k, T])
+np.savetxt(d.dir + "psi.dat", x, newline = " ")
+d.write_rules()
+run(d)
