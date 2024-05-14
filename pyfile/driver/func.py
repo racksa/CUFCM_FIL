@@ -7,14 +7,14 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        # self.category = 'JFNK/test_solution/'
-        # self.category = 'ic_hpc_sim_free_continue/'
+        self.category = 'ic_hpc_sim_free_getforce/'
 
-        self.category = 'regular_wall_sim/'
+        # self.category = 'regular_wall_sim/'
         
         self.exe_name = 'cilia_wall_1e-4'
+        self.exe_name = 'cilia_free_1e-4'
         
-        self.date = '20240508'
+        self.date = '20240311_1'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -116,37 +116,31 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
 
-                        nfil = int(1024/(4**(i+1)))
-                        nblob = int(6400)
-                        ar = round(1, 2)
-                        period = 1
-                        spring_factor = round(0.005 + 0.00*i, 3)
-                        sim_length = 1000
-                        nx=128
-                        ny=128
-                        nz=32
-                        boxsize=640
-                        fil_spacing=int(40.0*(2*i))
-                        blob_spacing=8.0
-                        fil_x_dim=int(32/(2*(i+1)))
-                        blob_x_dim=80
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-
                         # ic hpc sim
                         # nfil = int(159 + 0*i)
                         # nblob = int(9000 + 0*i)
                         # ar = round(8.00, 2)
                         # spring_factor = round(0.005 + 0.005*i, 3)
                         # period = 1
-                        # sim_length = 10000
+                        # sim_length = 30
 
-                        # nfil = int(639 + 0*i)
-                        # nblob = int(40961 + 0*i)
-                        # ar = round(15.00, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # period = 1.0
-                        # sim_length = 12
+                        nfil = int(639 + 0*i)
+                        nblob = int(40961 + 0*i)
+                        ar = round(15.00, 2)
+                        spring_factor = round(0.005 + 0.005*i, 3)
+                        period = 1.0
+                        sim_length = 12
+
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
+                        fil_spacing=1.0
+                        blob_spacing=1.0
+                        fil_x_dim=1
+                        blob_x_dim=1
+                        hex_num=1
+                        reverse_fil_direction_ratio=0.0
 
                         # # find branches wider range
                         # nfil = int(639 + 0*i)

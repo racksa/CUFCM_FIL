@@ -13,19 +13,20 @@ NSEG = 20      # Number of segments
 NFIL = 159       # Number of filaments
 NBLOB = 9000
 AR = 8
-k = 0.005
 T = 1
 sim_length = 100
 
-k_string = 'k0.010'
-iteration_string = 'iteration1'
+k = 0.010
+
+k_string = f'k0.010'
+iteration_string = 'iteration4'
 
 # Bisection
 sec = int(sys.argv[1])
 par = int(sys.argv[2])
 
 bisection_indices = np.loadtxt(f'data/bisection/{k_string}/bisection_indices.dat', dtype='int')
-if not bisection_indices:
+if bisection_indices.size==0:
     print("empty")
     bisection_indices = [[-1, 0]]
 
@@ -47,8 +48,8 @@ alpha = (sec+1)/(par+1)*alpha_range + lower
 # Initialise the driver
 d = driver.DRIVER()
 d.cuda_device = int(sys.argv[3])
-d.category = 'bisection/k0.010/'
-d.iteration = 'iteration1/'
+d.category = f'bisection/{k_string}/'
+d.iteration = f'{iteration_string}/'
 d.date = f'index{sec}_alpha{alpha}'
 d.dir = f"data/{d.category}{d.iteration}{d.date}/"
 os.system(f'mkdir -p {d.dir}')

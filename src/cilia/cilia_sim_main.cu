@@ -603,7 +603,9 @@ int main(int argc, char** argv){
       body_state_file << std::endl;
       body_state_file.close();
 
-      // mobility.write_data(nt, swimmers); // Writes all velocity and force data.
+      #if OUTPUT_FORCES
+        mobility.write_data(nt, swimmers); // Writes all velocity and force data.
+      #endif
 
       // std::ofstream backup_file(SIMULATION_BACKUP_NAME);
       // backup_file << save_step << " ";

@@ -51,8 +51,10 @@ class VISUAL:
         self.date = f'section1'
         self.dir = f"data/bisection/k0.005/iteration1/{self.date}/"
 
-        # self.date = '20240311_2'
-        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+
+        self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
 
 
         # self.date = '20240508'
@@ -90,7 +92,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 120000
+        self.plot_end_frame_setting = 1000000
         self.frames_setting = 120000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -3343,9 +3345,11 @@ class VISUAL:
             self.index = ind
             try:
                 self.select_sim()
-                # input_filename = self.simName + '_filament_phases.dat'
                 input_filename = self.simName + '_true_states.dat'
                 output_filename = self.dir + f"psi{int(ind)}.dat"
+
+                output_filename = f"data/ic_hpc_sim_free_getforce/{self.date}/psi{self.index}.dat"
+
                 try:
                     # Open the input file in read mode
                     with open(input_filename, 'r') as input_file:
@@ -3358,6 +3362,7 @@ class VISUAL:
                             last_line = lines[-1]
 
                             data = np.array(last_line.split()[1:], dtype=float)
+                            data[:self.nfil] = util.box(data[:self.nfil], 2*np.pi)
 
                             if input_filename == self.simName + '_true_states.dat':
                                 data = np.concatenate(([self.spring_factor], data))
@@ -4362,6 +4367,7 @@ class VISUAL:
 
         # free = True
         path = "data/ic_hpc_sim_free/"
+        # path = "data/free_sim_rerun/"
 
         free_string = 'held_fixed'
         if free:
@@ -4490,7 +4496,7 @@ class VISUAL:
         colormap = 'twilight_shifted'
 
         k_string = 'k0.010'
-        iteration_string = 'iteration1'
+        iteration_string = 'iteration3'
         path = f"data/bisection/{k_string}/{iteration_string}/"
 
         folders = util.list_folders(path)
