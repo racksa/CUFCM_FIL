@@ -51,10 +51,10 @@ class VISUAL:
         self.date = f'section1'
         self.dir = f"data/bisection/k0.005/iteration1/{self.date}/"
 
-        self.date = '20240311_1'
+        self.date = '20240311_3'
         self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
+        # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
 
 
         # self.date = '20240508'
@@ -4496,7 +4496,7 @@ class VISUAL:
         colormap = 'twilight_shifted'
 
         k_string = 'k0.010'
-        iteration_string = 'iteration3'
+        iteration_string = 'iteration1'
         path = f"data/bisection/{k_string}/{iteration_string}/"
 
         folders = util.list_folders(path)
@@ -4506,9 +4506,9 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 300000
+        self.plot_end_frame_setting = 3000
         self.frames_setting = 100000
-        window_size = 30
+        window_size = 1
 
         fig1, axs1 = plt.subplots(1, num_sim, sharex=True, sharey=True)
         ax_invi1 = fig1.add_subplot(111, frameon=False)

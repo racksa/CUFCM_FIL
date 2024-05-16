@@ -19,7 +19,7 @@ sim_length = 100
 k = 0.010
 
 k_string = f'k0.010'
-iteration_string = 'iteration4'
+iteration_string = 'iteration1'
 
 # Bisection
 sec = int(sys.argv[1])
@@ -136,8 +136,8 @@ leftstate = read_input_state(f'data/{d.category}' + f"leftstate.dat")
 rightstate = read_input_state(f'data/{d.category}' + f"rightstate.dat")
 
 print(sec, par, alpha)
-initial_condition = alpha*leftstate + (1-alpha)*rightstate
 
+initial_condition = alpha*leftstate + (1-alpha)*rightstate
 x = np.insert( initial_condition, 0, [k, T])
 np.savetxt(d.dir + "psi.dat", x, newline = " ")
 d.write_rules()
