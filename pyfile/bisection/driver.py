@@ -84,7 +84,7 @@ class DRIVER:
         seg_sep = 2.6
         period = 1
         spring_factor = k
-        sim_length = 1000
+        sim_length = sim_length
         
         index=0        
         nx=400
@@ -136,7 +136,7 @@ class DRIVER:
         self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 
     def run(self):
-
+        os.system(f'mkdir -p terminal_outputs/')
         k = float(self.pars_list["spring_factor"][0])
         command = f"export OPENBLAS_NUM_THREADS=1; \
                     export CUDA_VISIBLE_DEVICES={self.cuda_device}; \

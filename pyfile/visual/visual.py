@@ -47,12 +47,14 @@ class VISUAL:
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
+        self.date = f'index2_alpha0.4351851851851852'
+        self.dir = f"data/bisection/k0.010/iteration3/{self.date}/"
 
-        self.date = f'section1'
-        self.dir = f"data/bisection/k0.005/iteration1/{self.date}/"
+        self.date = f'alpha0.5'
+        self.dir = f"data/bisection/ini_states/{self.date}/"
 
-        self.date = '20240311_3'
-        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+
+
 
         # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
 
@@ -92,8 +94,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 1000000
-        self.frames_setting = 120000
+        self.plot_end_frame_setting = 900
+        self.frames_setting = 900
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -4494,10 +4496,15 @@ class VISUAL:
 
     def view_bisection(self):
         colormap = 'twilight_shifted'
+        colormap = 'hsv'
 
         k_string = 'k0.010'
-        iteration_string = 'iteration1'
+        iteration_string = 'iteration2'
         path = f"data/bisection/{k_string}/{iteration_string}/"
+
+        # k_string = 'k0.005'
+        # iteration_string = 'iteration1'
+        # path = f"data/ic_hpc_bisection/{k_string}/{iteration_string}/"
 
         folders = util.list_folders(path)
         folders.sort()
@@ -4510,11 +4517,11 @@ class VISUAL:
         self.frames_setting = 100000
         window_size = 1
 
-        fig1, axs1 = plt.subplots(1, num_sim, sharex=True, sharey=True)
+        fig1, axs1 = plt.subplots(1, num_sim, figsize=(8, 4), sharex=True, sharey=True)
         ax_invi1 = fig1.add_subplot(111, frameon=False)
         axs_flat1 = axs1.ravel()
 
-        fig2, axs2 = plt.subplots(nrow, ncol, figsize=(16, 8), sharex=True, sharey=True)
+        fig2, axs2 = plt.subplots(nrow, ncol, figsize=(8, 4), sharex=True, sharey=True)
         axs_flat2 = axs2.ravel()
 
         axs_flat2[0].set_xlim(-np.pi, np.pi)
@@ -4589,25 +4596,23 @@ class VISUAL:
                     for i in range(windowd_length):
                         r_avg_array[i] = np.mean(r_array[i:i+window_size])
 
-                
-                # ax1.scatter(alpha_array, r_array, marker='x', label = folder)
 
                 plot_gap = 1
-                # plot_x = alpha_avg_array[::plot_gap]+time_avg_array[::plot_gap]/windowd_length*alpha_gap
+                
                 plot_x = time_avg_array[::plot_gap]
                 plot_y = r_avg_array[::plot_gap]
-                plot_samp = len(plot_x)
-                step=30
-                N_segments = int(plot_samp/step)
-                [ax.plot(plot_x[step*i:step*(i+1)],\
-                           plot_y[step*i:step*(i+1
-                                               )],\
-                              alpha=np.min([0.1 + i/N_segments,1]),\
-                                c='black')\
-                                  for i in range(N_segments)]
 
-                # ax1.scatter(plot_x, plot_y, marker='x', \
-                #             label = folder, alpha = time_avg_array[::plot_gap]/windowd_length)
+                # plot_samp = len(plot_x)
+                # step=30
+                # N_segments = int(plot_samp/step)
+                # [ax.plot(plot_x[step*i:step*(i+1)],\
+                #            plot_y[step*i:step*(i+1
+                #                                )],\
+                #               alpha=np.min([0.1 + i/N_segments,1]),\
+                #                 c='black')\
+                #                   for i in range(N_segments)]
+
+                ax.plot(plot_x, plot_y, label = folder)
 
 
         # ax.set_ylim(0)

@@ -14,54 +14,59 @@ NFIL = 159       # Number of filaments
 NBLOB = 9000
 AR = 8
 T = 1
+sim_length = 0.0034
 sim_length = 100
 
 k = 0.010
 
-k_string = f'k0.010'
-iteration_string = 'iteration2'
-
+k_string = f'ini_states'
+iteration_string = 'view_ini'
 
 # Bisection
-sec = int(sys.argv[1]) # index of evaluation points, [1, par-1]
-par = int(sys.argv[2]) # num of sections
+# sec = int(sys.argv[1]) # index of evaluation points, [1, par-1]
+# par = int(sys.argv[2]) # num of sections
 
-bisection_indices = np.loadtxt(f'data/bisection/{k_string}/bisection_indices.dat', dtype='int')
-if bisection_indices.size==0:
-    print("empty")
-    bisection_indices = [[0, 1]]
+# bisection_indices = np.loadtxt(f'data/bisection/ini_states/bisection_indices.dat', dtype='int')
+# if bisection_indices.size==0:
+#     print("empty")
+#     bisection_indices = [[0, 1]]
 
 # bisection_indices = [[0, 1], [7, 8]]
 
-intervals = [[0, 1]]
-for ite, pair in enumerate(bisection_indices):
-    section, num_sec = pair
-    alpha_range = intervals[ite][1] - intervals[ite][0]
-    section_length = alpha_range/(num_sec)
-    print(f'section_length = {section_length}')
+# intervals = [[0, 1]]
+# for ite, pair in enumerate(bisection_indices):
+#     section, num_sec = pair
+#     alpha_range = intervals[ite][1] - intervals[ite][0]
+#     section_length = alpha_range/(num_sec)
+#     print(f'section_length = {section_length}')
     
 
-    lower = (section)*section_length + intervals[ite][0]
-    upper = (section+1)*section_length + intervals[ite][0]
-    intervals.append([lower, upper])
+#     lower = (section)*section_length + intervals[ite][0]
+#     upper = (section+1)*section_length + intervals[ite][0]
+#     intervals.append([lower, upper])
 
-    print(f'interval = {intervals[-1]}')
-    print('--------------------')
+#     print(f'interval = {intervals[-1]}')
+#     print('--------------------')
 
 
 
-lower, upper = intervals[-1]
+# lower, upper = intervals[-1]
+# print(f'lower = {lower}; upper = {upper}')
+# alpha_range = upper-lower
+# alpha = (sec)/(par)*alpha_range + lower
+
+# debug
+lower, upper = (0, 1)
 print(f'lower = {lower}; upper = {upper}')
 alpha_range = upper-lower
-alpha = (sec)/(par)*alpha_range + lower
+alpha = float(sys.argv[1])
 
 # Initialise the driver
 d = driver.DRIVER()
-d.cuda_device = int(sys.argv[3])
+d.cuda_device = int(sys.argv[2])
 d.category = f'bisection/{k_string}/'
-d.iteration = f'{iteration_string}/'
-d.date = f'index{sec}_alpha{alpha}'
-d.dir = f"data/{d.category}{d.iteration}{d.date}/"
+d.date = f'alpha{alpha}'
+d.dir = f"data/{d.category}{d.date}/"
 os.system(f'mkdir -p {d.dir}')
 d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
 d.update_globals_file()
@@ -145,15 +150,21 @@ def calculate_r(d):
 leftstate = read_input_state(f'data/{d.category}' + f"leftstate.dat")
 rightstate = read_input_state(f'data/{d.category}' + f"rightstate.dat")
 
-print(sec, par, alpha)
 
 initial_condition = np.zeros(np.shape(leftstate))
 initial_condition[NFIL:] = alpha*leftstate[NFIL:] + (1-alpha)*rightstate[NFIL:]
+initial_condition[:NFIL] = alpha*leftstate[:NFIL] + (1-alpha)*rightstate[:NFIL]
 initial_condition[:NFIL] = np.arctan2((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))
+
+# print(np.shape(((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
+#                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))))
+
+# initial_condition = alpha*leftstate + (1-alpha)*rightstate
 
 
 x = np.insert( initial_condition, 0, [k, T])
 np.savetxt(d.dir + "psi.dat", x, newline = " ")
 d.write_rules()
+move_output_file(d, 0)
 run(d)
