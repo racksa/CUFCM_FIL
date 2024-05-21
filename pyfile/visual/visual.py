@@ -47,13 +47,11 @@ class VISUAL:
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
-        self.date = f'index2_alpha0.4351851851851852'
-        self.dir = f"data/bisection/k0.010/iteration3/{self.date}/"
+        self.date = f'index3_alpha0.4954275262917238'
+        self.dir = f"data/bisection/k0.010/iteration5/{self.date}/"
 
-        self.date = f'alpha0.5'
+        self.date = f'alpha0.52'
         self.dir = f"data/bisection/ini_states/{self.date}/"
-
-
 
 
         # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
@@ -94,7 +92,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 900
+        self.plot_end_frame_setting = 1
         self.frames_setting = 900
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -4496,10 +4494,10 @@ class VISUAL:
 
     def view_bisection(self):
         colormap = 'twilight_shifted'
-        colormap = 'hsv'
+        # colormap = 'hsv'
 
         k_string = 'k0.010'
-        iteration_string = 'iteration2'
+        iteration_string = 'iteration5'
         path = f"data/bisection/{k_string}/{iteration_string}/"
 
         # k_string = 'k0.005'
@@ -4524,12 +4522,16 @@ class VISUAL:
         fig2, axs2 = plt.subplots(nrow, ncol, figsize=(8, 4), sharex=True, sharey=True)
         axs_flat2 = axs2.ravel()
 
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(111)
+
         axs_flat2[0].set_xlim(-np.pi, np.pi)
         axs_flat2[0].set_ylim(0, np.pi)
         axs_flat2[0].set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
         axs_flat2[0].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
         plt.gca().invert_yaxis()
 
+        axs_flat1[0].set_ylim(0, 1)
         axs_flat1[0].set_xticks([])
         axs_flat1[0].set_yticks(np.linspace(0, 1, 9))
         axs_flat1[0].set_ylabel(r'$<r>$')
@@ -4613,6 +4615,7 @@ class VISUAL:
                 #                   for i in range(N_segments)]
 
                 ax.plot(plot_x, plot_y, label = folder)
+                ax3.plot(plot_x, plot_y, label = folder)
 
 
         # ax.set_ylim(0)

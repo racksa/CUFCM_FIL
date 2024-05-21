@@ -19,7 +19,7 @@ sim_length = 100
 k = 0.010
 
 k_string = f'k0.010'
-iteration_string = 'iteration2'
+iteration_string = 'iteration6'
 
 
 # Bisection
@@ -149,7 +149,7 @@ print(sec, par, alpha)
 
 initial_condition = np.zeros(np.shape(leftstate))
 initial_condition[NFIL:] = alpha*leftstate[NFIL:] + (1-alpha)*rightstate[NFIL:]
-initial_condition[:NFIL] = np.arctan2((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
+initial_condition[:NFIL] = np.arctan((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))
 
 

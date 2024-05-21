@@ -15,7 +15,7 @@ NBLOB = 9000
 AR = 8
 T = 1
 sim_length = 0.0034
-sim_length = 100
+# sim_length = 100
 
 k = 0.010
 
@@ -157,10 +157,9 @@ initial_condition[:NFIL] = alpha*leftstate[:NFIL] + (1-alpha)*rightstate[:NFIL]
 initial_condition[:NFIL] = np.arctan2((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))
 
-# print(np.shape(((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
-#                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))))
+# print(initial_condition[:NFIL] - leftstate[:NFIL])
+# print(initial_condition[:NFIL] - rightstate[:NFIL])
 
-# initial_condition = alpha*leftstate + (1-alpha)*rightstate
 
 
 x = np.insert( initial_condition, 0, [k, T])
