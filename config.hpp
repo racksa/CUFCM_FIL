@@ -40,7 +40,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #endif
 
 
-#define FIL_USE_DOUBLE_PRECISION true
+#define FIL_USE_DOUBLE_PRECISION false
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -320,7 +320,7 @@ extern int TOTAL_TIME_STEPS;
 #if SOLVER_TYPE==1
 
   #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-8 // Relative tolerance in the linear system solves.
+  #define LINEAR_SYSTEM_TOL 1e-7 // Relative tolerance in the linear system solves.
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,

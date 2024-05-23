@@ -50,7 +50,7 @@ class VISUAL:
         self.date = f'index3_alpha0.4954275262917238'
         self.dir = f"data/bisection/k0.010/iteration5/{self.date}/"
 
-        self.date = f'alpha0.52'
+        self.date = f'alpha0.5'
         self.dir = f"data/bisection/ini_states/{self.date}/"
 
 
@@ -529,6 +529,7 @@ class VISUAL:
 ## Ciliates
 # Single sim
     def phase(self):
+
         self.select_sim()
         
         fil_states_f = open(self.simName + '_true_states.dat', "r")
@@ -537,6 +538,8 @@ class VISUAL:
         colormap = 'cividis'
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
+
+        colormap = 'binary'
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -667,7 +670,7 @@ class VISUAL:
                     # if(self.angle):
                     #     fil_angles_str = fil_angles_f.readline()
                 
-            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+            # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
     def phi_dot(self):
@@ -4511,7 +4514,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 3000
+        self.plot_end_frame_setting = 4000000
         self.frames_setting = 100000
         window_size = 1
 
@@ -4522,14 +4525,14 @@ class VISUAL:
         fig2, axs2 = plt.subplots(nrow, ncol, figsize=(8, 4), sharex=True, sharey=True)
         axs_flat2 = axs2.ravel()
 
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(111)
-
         axs_flat2[0].set_xlim(-np.pi, np.pi)
         axs_flat2[0].set_ylim(0, np.pi)
         axs_flat2[0].set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
         axs_flat2[0].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
         plt.gca().invert_yaxis()
+
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(111)
 
         axs_flat1[0].set_ylim(0, 1)
         axs_flat1[0].set_xticks([])
@@ -4590,7 +4593,7 @@ class VISUAL:
                             colors = cmap(phases/2/np.pi)
 
                             # ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
-                            ax.set_title(r"$\alpha$={:.5f}".format(alphas[fi]) + '\n'*(fi%2==0),  fontsize=10)
+                            ax.set_title(r"$\alpha$={:.8f}".format(alphas[fi]) + '\n'*(fi%2==0),  fontsize=10)
                             axs_flat2[fi].set_title(folder.split('_')[0] + '\n' +  folder.split('_')[1][:15])
                             axs_flat2[fi].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
 

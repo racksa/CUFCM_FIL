@@ -8,7 +8,7 @@ class DRIVER:
 
     def __init__(self):
         self.globals_name = 'input/globals.ini'
-        self.exe_name = 'cilia_1e-6_30'
+        self.exe_name = 'cilia_1e-7_30'
         self.category = 'JFNK/'
         self.iteration = '0/'
 

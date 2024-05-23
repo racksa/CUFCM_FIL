@@ -19,14 +19,15 @@ sim_length = 100
 k = 0.010
 
 k_string = f'k0.010'
-iteration_string = 'iteration6'
+iteration_string = 'iteration5_1e-7'
+bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 
 # Bisection
 sec = int(sys.argv[1]) # index of evaluation points, [1, par-1]
 par = int(sys.argv[2]) # num of sections
 
-bisection_indices = np.loadtxt(f'data/bisection/{k_string}/bisection_indices.dat', dtype='int')
+bisection_indices = np.loadtxt(f'data/bisection/{k_string}/{bisection_indices_filename}', dtype='int')
 if bisection_indices.size==0:
     print("empty")
     bisection_indices = [[0, 1]]
@@ -65,6 +66,7 @@ d.dir = f"data/{d.category}{d.iteration}{d.date}/"
 os.system(f'mkdir -p {d.dir}')
 d.change_variables(NFIL, NSEG, NBLOB, AR, k, T, 1.)
 d.update_globals_file()
+d.exe_name = 'cilia_1e-7_30'
 
 
 
@@ -149,7 +151,7 @@ print(sec, par, alpha)
 
 initial_condition = np.zeros(np.shape(leftstate))
 initial_condition[NFIL:] = alpha*leftstate[NFIL:] + (1-alpha)*rightstate[NFIL:]
-initial_condition[:NFIL] = np.arctan((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
+initial_condition[:NFIL] = np.arctan2((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))
 
 
