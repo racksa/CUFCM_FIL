@@ -4499,8 +4499,8 @@ class VISUAL:
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
 
-        k_string = 'k0.010'
-        iteration_string = 'iteration5'
+        k_string = 'k0.020'
+        iteration_string = 'iteration1_1e-7'
         path = f"data/bisection/{k_string}/{iteration_string}/"
 
         # k_string = 'k0.005'
@@ -4514,7 +4514,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 4000000
+        self.plot_end_frame_setting = 300000
         self.frames_setting = 100000
         window_size = 1
 

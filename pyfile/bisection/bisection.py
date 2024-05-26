@@ -16,10 +16,10 @@ AR = 8
 T = 1
 sim_length = 100
 
-k = 0.010
+k = 0.020
 
-k_string = f'k0.010'
-iteration_string = 'iteration5_1e-7'
+k_string = f'k0.020'
+iteration_string = 'iteration2_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 
