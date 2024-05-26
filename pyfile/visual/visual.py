@@ -4500,7 +4500,7 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.020'
-        iteration_string = 'iteration1_1e-7'
+        iteration_string = 'iteration3_1e-7'
         path = f"data/bisection/{k_string}/{iteration_string}/"
 
         # k_string = 'k0.005'

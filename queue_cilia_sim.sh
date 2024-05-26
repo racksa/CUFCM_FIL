@@ -25,9 +25,9 @@
 
 # And we should be done!
 
-q=15
-date=20240311_2
-command="python3 pyfile/driver/driver.py run ${q} 16 0 ${date}"
+q=1
+
+command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
 
 # cp --attributes-only "run_cilia_sim.pbs" "pbs/run_cilia_sim${q}.pbs"
 sed -e "\$a\\$command" "run_cilia_sim.pbs" > "pbs/run_cilia_sim${q}.pbs"
