@@ -47,11 +47,8 @@ class VISUAL:
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
-        self.date = f'index3_alpha0.4954275262917238'
-        self.dir = f"data/bisection/k0.010/iteration5/{self.date}/"
-
-        self.date = f'alpha0.5'
-        self.dir = f"data/bisection/ini_states/{self.date}/"
+        self.date = f'index7_alpha0.49447492760249956'
+        self.dir = f"data/bisection/k0.030/iteration5_1e-7/{self.date}/"
 
 
         # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
@@ -92,8 +89,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 1
-        self.frames_setting = 900
+        self.plot_end_frame_setting = 1000
+        self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -535,11 +532,11 @@ class VISUAL:
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Plotting
-        colormap = 'cividis'
+        # colormap = 'cividis'
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
 
-        colormap = 'binary'
+        # colormap = 'binary'
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -578,7 +575,7 @@ class VISUAL:
             if self.angle:
                 variables = fil_states[self.nfil:]
 
-            ax.set_title(rf"${t}$")
+            ax.set_title(rf"${t+self.plot_start_frame}$")
             ax.set_ylabel(r"$\theta$")
             ax.set_xlabel(r"$\phi$")
             ax.set_xlim(-np.pi, np.pi)
@@ -4500,11 +4497,13 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.020'
-        iteration_string = 'iteration3_1e-7'
+        iteration_string = 'iteration6_1e-7'
+        # k_string = 'k0.030'
+        # iteration_string = 'iteration5_1e-7'
         path = f"data/bisection/{k_string}/{iteration_string}/"
 
-        # k_string = 'k0.005'
-        # iteration_string = 'iteration1'
+        # k_string = 'k0.030'
+        # iteration_string = 'iteration2_1e-7'
         # path = f"data/ic_hpc_bisection/{k_string}/{iteration_string}/"
 
         folders = util.list_folders(path)
@@ -4514,7 +4513,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 300000
+        self.plot_end_frame_setting = 8000
         self.frames_setting = 100000
         window_size = 1
 

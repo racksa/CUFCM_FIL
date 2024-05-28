@@ -3,7 +3,6 @@
 import driver
 import numpy as np
 import util
-import matplotlib.pyplot as plt
 import os
 import sys
 
@@ -19,7 +18,7 @@ sim_length = 100
 k = 0.020
 
 k_string = f'k0.020'
-iteration_string = 'iteration3_1e-7'
+iteration_string = 'iteration6_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 
