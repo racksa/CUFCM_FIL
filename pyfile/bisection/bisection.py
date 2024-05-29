@@ -18,7 +18,8 @@ sim_length = 100
 k = 0.020
 
 k_string = f'k0.020'
-iteration_string = 'iteration6_1e-7'
+edge_section = f'section2'
+iteration_string = 'iteration1_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 
@@ -26,7 +27,7 @@ bisection_indices_filename = 'bisection_indices_1e-7.dat'
 sec = int(sys.argv[1]) # index of evaluation points, [1, par-1]
 par = int(sys.argv[2]) # num of sections
 
-bisection_indices = np.loadtxt(f'data/bisection/{k_string}/{bisection_indices_filename}', dtype='int')
+bisection_indices = np.loadtxt(f'data/bisection/{k_string}/{edge_section}/{bisection_indices_filename}', dtype='int')
 if bisection_indices.size==0:
     print("empty")
     bisection_indices = [[0, 1]]
@@ -58,7 +59,7 @@ alpha = (sec)/(par)*alpha_range + lower
 # Initialise the driver
 d = driver.DRIVER()
 d.cuda_device = int(sys.argv[3])
-d.category = f'bisection/{k_string}/'
+d.category = f'bisection/{k_string}/{edge_section}/'
 d.iteration = f'{iteration_string}/'
 d.date = f'index{sec}_alpha{alpha}'
 d.dir = f"data/{d.category}{d.iteration}{d.date}/"

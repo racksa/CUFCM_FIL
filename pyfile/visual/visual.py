@@ -47,8 +47,8 @@ class VISUAL:
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
-        self.date = f'index7_alpha0.49447492760249956'
-        self.dir = f"data/bisection/k0.030/iteration5_1e-7/{self.date}/"
+        self.date = f'index1_alpha0.49445799251469114'
+        self.dir = f"data/bisection/k0.030/iteration6_1e-7/{self.date}/"
 
 
         # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
@@ -89,8 +89,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 1000
-        self.frames_setting = 600
+        self.plot_end_frame_setting = 2000
+        self.frames_setting = 16000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -4464,8 +4464,8 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
                 ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
                 ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
@@ -4482,7 +4482,7 @@ class VISUAL:
         ax3.set_xlabel(r'$k$')
         ax3.set_ylabel(r'$<Efficiency>$')
 
-        ax.legend()
+        # ax.legend()
         # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
@@ -4497,14 +4497,9 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.020'
-        iteration_string = 'iteration6_1e-7'
-        # k_string = 'k0.030'
-        # iteration_string = 'iteration5_1e-7'
-        path = f"data/bisection/{k_string}/{iteration_string}/"
-
-        # k_string = 'k0.030'
-        # iteration_string = 'iteration2_1e-7'
-        # path = f"data/ic_hpc_bisection/{k_string}/{iteration_string}/"
+        iteration_string = 'iteration1_1e-7'
+        edge_section = f'section2'
+        path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"
 
         folders = util.list_folders(path)
         folders.sort()
@@ -4513,7 +4508,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 8000
+        self.plot_end_frame_setting = 6000
         self.frames_setting = 100000
         window_size = 1
 
@@ -4532,6 +4527,9 @@ class VISUAL:
 
         fig3 = plt.figure()
         ax3 = fig3.add_subplot(111)
+        ax3.set_xlabel(r'$t$')
+        ax3.set_ylabel(r'$r$')
+        ax3.set_title(rf'{k_string}')
 
         axs_flat1[0].set_ylim(0, 1)
         axs_flat1[0].set_xticks([])
@@ -4591,6 +4589,9 @@ class VISUAL:
                             cmap = mpl.colormaps[colormap]
                             colors = cmap(phases/2/np.pi)
 
+                            x1 = np.insert(fil_states, 0, [float(k_string[1:]), 1])
+                            np.savetxt(f'data/bisection/ini_states/' + f"state{fi}.dat", x1, newline = " ")
+
                             # ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
                             ax.set_title(r"$\alpha$={:.8f}".format(alphas[fi]) + '\n'*(fi%2==0),  fontsize=10)
                             axs_flat2[fi].set_title(folder.split('_')[0] + '\n' +  folder.split('_')[1][:15])
@@ -4626,9 +4627,12 @@ class VISUAL:
         # ax.legend()
 
         fig1.tight_layout()
-        fig1.savefig(f'fig/bisection_{k_string}_{iteration_string}.pdf', bbox_inches = 'tight', format='pdf')
-            
+        # fig1.savefig(f'fig/bisection_{k_string}_{iteration_string}.pdf', bbox_inches = 'tight', format='pdf')
+        
         fig2.tight_layout()
+
+        fig3.tight_layout()
+        fig3.savefig(f'fig/edgestate_{k_string}_{iteration_string}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
     def footpaths(self):

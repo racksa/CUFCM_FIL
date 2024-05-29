@@ -34,6 +34,19 @@ def read_fil_references(fileName):
         print(f"Error: {e}")
         return []
 
+def read_input_state(filename):
+    with open(filename, 'r') as file:
+        num_lines = sum(1 for line in file)
+
+        if num_lines == 1:
+            full_input = np.loadtxt(filename)
+        else:
+            full_input = np.loadtxt(filename)[-1]
+            
+        full_input[2:2+NFIL] = util.box(full_input[2:2+NFIL], 2*np.pi)
+
+        return full_input[2:]
+
 # Read fiament position
 fil_references = read_fil_references('data/bisection/ini_states/fil_references.dat')
 fil_references_sphpolar = np.zeros((NFIL,3))
@@ -44,19 +57,21 @@ for i in range(NFIL):
 leftstate = np.zeros(2*NFIL)
 rightstate = np.zeros(2*NFIL)
 for i in range(NFIL):
-    leftstate[i] = fil_references_sphpolar[i,1]
-    rightstate[i] = fil_references_sphpolar[i,2]
+    leftstate[i] = fil_references_sphpolar[i,2]
+    rightstate[i] = fil_references_sphpolar[i,1]
 
-x = np.insert( leftstate, 0, [k, T])
-np.savetxt(f'data/bisection/ini_states' + f"leftstate.dat", x, newline = " ")
-x = np.insert( rightstate, 0, [k, T])
-np.savetxt(f'data/bisection/ini_states' + f"rightstate.dat", x, newline = " ")
+x1 = np.insert( leftstate, 0, [k, T])
+x2 = np.insert( rightstate, 0, [k, T])
+# np.savetxt(f'data/bisection/ini_states/' + f"leftstate.dat", x1, newline = " ")
+# np.savetxt(f'data/bisection/ini_states/' + f"rightstate.dat", x2, newline = " ")
 
+leftstate = read_input_state(f'data/bisection/ini_states/' + f"leftstate.dat")
+rightstate = read_input_state(f'data/bisection/ini_states/' + f"rightstate.dat")
 
 # Plotting
 interpolate = True
 video = True
-num_alpha = 300
+num_alpha = 200
 
 # colormap = 'cividis'
 colormap = 'twilight_shifted'
