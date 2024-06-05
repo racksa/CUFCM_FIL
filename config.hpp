@@ -196,6 +196,8 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 8 = Equal-area centric seeding (rigidbody plane)
   // 9 = Read from files
 
+  #define VOLVOX_TILT true
+
   #if BODY_OR_SURFACE_TYPE==5
     #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
@@ -203,6 +205,8 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define FOURIER_DIR "input/fourier_modes/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "sphere"
   #endif
+
+  
 
   
 
@@ -320,7 +324,7 @@ extern int TOTAL_TIME_STEPS;
 #if SOLVER_TYPE==1
 
   #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-7 // Relative tolerance in the linear system solves.
+  #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,

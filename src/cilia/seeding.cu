@@ -279,6 +279,20 @@
 
   };
 
+  matrix full_frame_tilt(const Real theta, const Real phi, const Real tilt_angle) const {
+
+    matrix frame(9,1);
+
+    // frame.set_block(0, 3, cos(tilt_angle)*polar_dir(theta, phi) + sin(tilt_angle)*azi_dir(phi) );
+    // frame.set_block(3, 3, -sin(tilt_angle)*polar_dir(theta, phi) + cos(tilt_angle)*azi_dir(phi) );
+    frame.set_block(0, 3, azi_dir(phi));
+    frame.set_block(3, 3, -polar_dir(theta, phi));
+    frame.set_block(6, 3, cross(frame.get_block(0,3), frame.get_block(3,3)));
+
+    return frame;
+
+  };
+
   matrix random_point(){
 
     // N.B. The Mersenne twister "gen" is modified whenever we call upon it, so this method cannot be
@@ -343,6 +357,10 @@
 
     if (std::string(GENERATRIX_FILE_NAME) == std::string(FOURIER_DIR) + std::string("sphere")){
 
+      std::cout<< "WARNING: Non-spherical shape not implemented." << std::endl;
+
+    }
+
       // There's a really simple way of generating uniform samples on a sphere.
       std::normal_distribution<Real> d(0.0, 1.0);
 
@@ -364,12 +382,6 @@
       sample(2) = sample_norm*std::cos(theta);
      
       sample /= sample_norm;
-
-    } else {
-
-      std::cout<< "Non-spherical shape not implemented." << std::endl;
-
-    }
 
     return sample;
 
@@ -806,13 +818,12 @@
     // Real shift_ratio = (0.471*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Dec 2023 to Feb 2024
     Real shift_ratio = (1.0*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Feb 2024
 
-    while (num_iters < 100000){
+    while (num_iters < 10000){
 
       // Sample from the uniform distribution on the surface.
       for (int n = 0; n < samples_per_iter; n++){
 
         const matrix sample = shape.random_point_away_from_poles(shift_ratio);
-        // const matrix sample = shape.random_point_away_from_poles_and_inhomogeneous(0.02, 10);
 
         samples[3*n] = sample(0);
         samples[3*n + 1] = sample(1);
@@ -891,7 +902,9 @@
       const Real phi = std::atan2(X[3*n + 1], X[3*n]);
 
       matrix frame = shape.full_frame(theta, phi);
-
+      // N.B. the polar and azi refs are not used at the end
+      // To define the beating plane, consult the filament class instead
+      
       polar_dir_refs[3*n] = frame(0);
       polar_dir_refs[3*n + 1] = frame(1);
       polar_dir_refs[3*n + 2] = frame(2);

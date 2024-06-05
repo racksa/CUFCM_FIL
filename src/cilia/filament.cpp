@@ -417,31 +417,33 @@ void filament::initial_setup(const Real *const base_pos,
       // The default constructor will make q2 the identity, so this is what will happen here.
 
       // Introduce tilt
-      //const Real tilt_angle = -2.0*PI/16.0;
-      //const Real sn = sin(0.5*tilt_angle);
-      //const Real cs = cos(0.5*tilt_angle);
-      //q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;
-
+      if(VOLVOX_TILT){
+        const Real tilt_angle = -2.0*PI/16.0;
+        const Real sn = sin(0.5*tilt_angle);
+        const Real cs = cos(0.5*tilt_angle);
+        q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;
+      }
+      
       body_qm1 = q2*qtemp;
       body_q = body_qm1;
 
-      // DEBUGING BEGIN
-      Real body_q_dir[3];
-      body_q.normal(body_q_dir);
+      // DEBUGGING BEGINS
+      // Real body_q_dir[3];
+      // body_q.normal(body_q_dir);
       
-      if(abs(polar_dir[0]-body_q_dir[0]) > 0.00001 || abs(polar_dir[1]-body_q_dir[1]) > 0.00001 || abs(polar_dir[2]-body_q_dir[2]) > 0.00001){
-        printf("fil %d q2_before_sqrt (%.16f %.16f %.16f %.16f) \n",
-        fil_id, q2(0), q2(1), q2(2), q2(3));
-        printf("fil %d polar (%.4f %.4f %.4f) body_q_dir (%.4f %.4f %.4f) q2 (%.4f %.4f %.4f %.4f) qtemp (%.4f %.4f %.4f %.4f) body_q (%.16f %.16f %.16f %.16f)  \n",
-        fil_id, polar_dir[0], polar_dir[1], polar_dir[2],
-        body_q_dir[0], body_q_dir[1], body_q_dir[2],
-        q2(0), q2(1), q2(2), q2(3),
-        qtemp(0), qtemp(1), qtemp(2), qtemp(3),
-        body_q(0), body_q(1), body_q(2), body_q(3) );
-      }
+      // if(abs(polar_dir[0]-body_q_dir[0]) > 0.00001 || abs(polar_dir[1]-body_q_dir[1]) > 0.00001 || abs(polar_dir[2]-body_q_dir[2]) > 0.00001){
+      //   printf("fil %d q2_before_sqrt (%.16f %.16f %.16f %.16f) \n",
+      //   fil_id, q2(0), q2(1), q2(2), q2(3));
+      //   printf("fil %d polar (%.4f %.4f %.4f) body_q_dir (%.4f %.4f %.4f) q2 (%.4f %.4f %.4f %.4f) qtemp (%.4f %.4f %.4f %.4f) body_q (%.16f %.16f %.16f %.16f)  \n",
+      //   fil_id, polar_dir[0], polar_dir[1], polar_dir[2],
+      //   body_q_dir[0], body_q_dir[1], body_q_dir[2],
+      //   q2(0), q2(1), q2(2), q2(3),
+      //   qtemp(0), qtemp(1), qtemp(2), qtemp(3),
+      //   body_q(0), body_q(1), body_q(2), body_q(3) );
+      // }
 
 
-      // DEBUGING END
+      // DEBUGGING ENDE
 
       #if FIT_TO_DATA_BEAT
 

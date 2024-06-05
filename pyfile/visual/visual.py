@@ -44,14 +44,12 @@ class VISUAL:
         # self.dir = f"data/expr_sims/{self.date}/"
         # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
 
-        self.date = '20240311_2'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240605'
+        self.dir = f"data/tilt_test/{self.date}/"
 
-        self.date = f'index1_alpha0.16326530612244897'
-        self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
+        # self.date = f'index1_alpha0.16326530612244897'
+        # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
 
-
-        # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
 
 
         # self.date = '20240508'
@@ -211,8 +209,7 @@ class VISUAL:
         #     blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
         # seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
         if (self.pars['PRESCRIBED_CILIA'] == 1):
-            fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-            # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+            fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -225,10 +222,9 @@ class VISUAL:
             if(self.pars['NFIL']>0):
                 seg_states_str = seg_states_f.readline()
                 if (self.pars['PRESCRIBED_CILIA'] == 1):
-                    fil_phases_str = fil_phases_f.readline()
-                    # fil_angles_str = fil_angles_f.readline()
+                    fil_states_str = fil_states_f.readline()
 
-                    fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
+                    fil_phases = np.array(fil_states_str.split()[2:2+self.nfil], dtype=float)
                     fil_phases = util.box(fil_phases, 2*np.pi)
 
             if(i%self.plot_interval==0 and i>=self.plot_start_frame):
