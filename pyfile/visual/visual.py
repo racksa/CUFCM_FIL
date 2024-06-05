@@ -47,8 +47,8 @@ class VISUAL:
         self.date = '20240311_2'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
-        self.date = f'index1_alpha0.49445799251469114'
-        self.dir = f"data/bisection/k0.030/iteration6_1e-7/{self.date}/"
+        self.date = f'index1_alpha0.16326530612244897'
+        self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
 
 
         # self.dir = f"data/ic_hpc_sim_free_getforce/{self.date}/"
@@ -89,7 +89,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 2000
+        self.plot_end_frame_setting = 20000
         self.frames_setting = 16000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -4496,9 +4496,17 @@ class VISUAL:
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
 
-        k_string = 'k0.020'
-        iteration_string = 'iteration1_1e-7'
-        edge_section = f'section2'
+        k_string = 'k0.030'
+        iteration_string = 'iteration2_1e-7'
+        edge_section = f'section3'
+
+        # k_string = 'k0.020'
+        # iteration_string = 'iteration3_1e-7'
+        # edge_section = f'section8'
+
+        # iteration_string = 'iteration1_1e-7'
+        # edge_section = f'test_new_ini'
+
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"
 
         folders = util.list_folders(path)
@@ -4508,7 +4516,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 6000
+        self.plot_end_frame_setting = 4800
         self.frames_setting = 100000
         window_size = 1
 
@@ -4590,7 +4598,7 @@ class VISUAL:
                             colors = cmap(phases/2/np.pi)
 
                             x1 = np.insert(fil_states, 0, [float(k_string[1:]), 1])
-                            np.savetxt(f'data/bisection/ini_states/' + f"state{fi}.dat", x1, newline = " ")
+                            np.savetxt(f'data/bisection/ini_states/' + f"state{fi+1}.dat", x1, newline = " ")
 
                             # ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
                             ax.set_title(r"$\alpha$={:.8f}".format(alphas[fi]) + '\n'*(fi%2==0),  fontsize=10)

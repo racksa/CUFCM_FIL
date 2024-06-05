@@ -25,7 +25,7 @@
 
 # And we should be done!
 
-q=1
+q=8
 
 command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
 
@@ -38,4 +38,4 @@ JOB_ID=${JOB_ID:0:-4}
 echo "Using the normal queue..."
 echo "Job submitted!"
 echo $JOB_ID
-tail -n 1 pbs/run_cilia_sim${q}.pbs
+# tail -n 1 pbs/run_cilia_sim${q}.pbs

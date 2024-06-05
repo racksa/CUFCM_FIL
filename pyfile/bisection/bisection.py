@@ -18,8 +18,8 @@ sim_length = 100
 k = 0.020
 
 k_string = f'k0.020'
-edge_section = f'section2'
-iteration_string = 'iteration1_1e-7'
+edge_section = f'section8'
+iteration_string = 'iteration3_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 
@@ -153,6 +153,7 @@ initial_condition = np.zeros(np.shape(leftstate))
 initial_condition[NFIL:] = alpha*leftstate[NFIL:] + (1-alpha)*rightstate[NFIL:]
 initial_condition[:NFIL] = np.arctan2((alpha*np.sin(leftstate[:NFIL]) + (1-alpha)*np.sin(rightstate[:NFIL])),
                             (alpha*np.cos(leftstate[:NFIL]) + (1-alpha)*np.cos(rightstate[:NFIL])))
+initial_condition[:NFIL] = util.box(initial_condition[:NFIL], 2*np.pi)
 
 
 x = np.insert( initial_condition, 0, [k, T])

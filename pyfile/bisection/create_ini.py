@@ -57,13 +57,15 @@ for i in range(NFIL):
 leftstate = np.zeros(2*NFIL)
 rightstate = np.zeros(2*NFIL)
 for i in range(NFIL):
-    leftstate[i] = fil_references_sphpolar[i,2]
-    rightstate[i] = fil_references_sphpolar[i,1]
+    theta = fil_references_sphpolar[i,2]
+    phi = fil_references_sphpolar[i,1]
+    leftstate[i] = phi
+    rightstate[i] = np.abs(phi) + theta*0.5 # phi
 
 x1 = np.insert( leftstate, 0, [k, T])
 x2 = np.insert( rightstate, 0, [k, T])
-# np.savetxt(f'data/bisection/ini_states/' + f"leftstate.dat", x1, newline = " ")
-# np.savetxt(f'data/bisection/ini_states/' + f"rightstate.dat", x2, newline = " ")
+np.savetxt(f'data/bisection/ini_states/' + f"leftstate.dat", x1, newline = " ")
+np.savetxt(f'data/bisection/ini_states/' + f"rightstate.dat", x2, newline = " ")
 
 leftstate = read_input_state(f'data/bisection/ini_states/' + f"leftstate.dat")
 rightstate = read_input_state(f'data/bisection/ini_states/' + f"rightstate.dat")
@@ -71,7 +73,8 @@ rightstate = read_input_state(f'data/bisection/ini_states/' + f"rightstate.dat")
 # Plotting
 interpolate = True
 video = True
-num_alpha = 200
+
+num_alpha = 100
 
 # colormap = 'cividis'
 colormap = 'twilight_shifted'
@@ -98,7 +101,7 @@ import scipy.interpolate
 def animation_func(t):
     ax.cla()
 
-    alpha = t/num_alpha * 0.6 + 0.2
+    alpha = t/num_alpha * 1. + 0.
 
     initial_condition = np.zeros(np.shape(leftstate))
     initial_condition = alpha*leftstate + (1-alpha)*rightstate
