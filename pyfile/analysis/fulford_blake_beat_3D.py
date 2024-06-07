@@ -76,41 +76,55 @@ def fitted_shape(s, phase):
     return x, y, z
 
 
+# Plotting
+fig = plt.figure()
+ax = fig.add_subplot(projection='3d')
+ax.set_proj_type('ortho')
+# ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
+# ax.view_init(elev=5., azim=45)
+# ax.dist=20
+ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+# ax.axis('off')
+# ax.grid(False)
 
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(111)
 
-for p in range(num_frame):
-    phase = 2*np.pi/num_frame*p
+u = np.linspace(0, 2 * np.pi, num_points)
+v = np.linspace(0, np.pi, num_points)
+x = radius * np.outer(np.cos(u), np.sin(v))
+y = radius * np.outer(np.sin(u), np.sin(v))
+z = radius * np.outer(np.ones(np.size(u)), np.cos(v))
+
+fil_phases = np.linspace(0, 2*np.pi, num_frame+1)[:-1]
+
+for i in range(num_frame):
+    fil_data = np.zeros((num_seg, 3))
 
     # color
     cmap = plt.get_cmap(cmap_name)
-    fil_color = cmap(phase/(2*np.pi))
+    fil_color = cmap(fil_phases[i]/(2*np.pi))
 
     # s for this phase
-    s = fitted_shape_s(phase)
+    s = fitted_shape_s(fil_phases[i])
 
-    # Plot fil line
-    x_array, y_array, z_array = np.array(fitted_shape(s, phase))*L
-    ax1.plot(y_array, x_array, color=fil_color, zorder=p)
+    # alpha
+    alpha=0.1 + 0.9*i/num_frame
 
-    # Add circles
     for seg in range(num_seg):
-        ax1.add_patch(plt.Circle((y_array[seg], x_array[seg]), 1, facecolor=fil_color, edgecolor=None, zorder=p, alpha = 0.3))
+        seg_pos = np.array(fitted_shape(s[seg], fil_phases[i]))*L
+        fil_data[seg] = seg_pos
+        ax.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
 
-origin = np.array([12, 2])
-axisl = 8
-ax1.scatter(0, 0, s=60, c = 'black', zorder = 1000)
-ax1.arrow(origin[0], origin[1], axisl, 0.0, width=0.2, linewidth=0.2, color='black')
-ax1.arrow(origin[0], origin[1], 0.0, axisl, width=0.2, linewidth=0.2, color='black' )
-ax1.annotate(r'$x$', origin + np.array([axisl+3, 0]), fontsize=25, va='center')
-ax1.annotate(r'$y$', origin + np.array([0, axisl+3.2]), fontsize=25, ha='center')
-ax1.annotate(r'$x_b$', (1.5, 0.0), fontsize=25, va='center')
-ax1.set_xlabel('x')
-ax1.set_ylabel('y')
-ax1.set_aspect('equal')
-# ax1.set_ylim(0)
-ax1.axis('off')
-fig1.savefig(f'fig/fulford_blake_beat.pdf', bbox_inches = 'tight', format='pdf')
-fig1.savefig(f'fig/fulford_blake_beat.png', bbox_inches = 'tight', format='png')
+    ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+
+ax.axis('off')
+ax.set_aspect('equal')
+ax.view_init(elev=100000., azim=0)
+fig.tight_layout()
+fig.savefig(f'fig/single_fil.pdf', bbox_inches = 'tight', format='pdf')
+            
 plt.show()

@@ -1119,7 +1119,7 @@ void swimmer::write_data(std::ofstream& seg_state_file, std::ofstream& body_stat
 
   for (int n = 0; n < NFIL; n++){
 
-    // filaments[n].write_data(seg_state_file);
+    filaments[n].write_data(seg_state_file);
 
   }
 

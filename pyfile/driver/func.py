@@ -9,12 +9,12 @@ class DRIVER:
         self.afix = ''
         self.category = 'tilt_test/'
 
-        # self.category = 'regular_wall_sim/'
+        # self.category = 'single_fil/'
         
-        self.exe_name = 'cilia_wall_1e-4'
-        self.exe_name = 'cilia_1e-4_30'
+        self.exe_name = 'cilia_1e-4_30_tilt'
+        # self.exe_name = 'cilia_1e-4_300_plane'
         
-        self.date = '20240605'
+        self.date = '20240608'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -45,7 +45,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (16, 1, 1, 1)
+        self.sweep_shape = (80, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -97,13 +97,13 @@ class DRIVER:
                         # nblob = int(ar**2*blob_density)
                         # spring_factor = round(0.5+ 0.25*i, 2)
 
-                        # # planar hexagonal
-                        # nfil = int(512)
-                        # nblob = int(12800)
+                        # # # planar hexagonal
+                        # nfil = int(1)
+                        # nblob = int(1)
                         # ar = round(1, 2)
                         # period = 1
                         # spring_factor = round(0.005 + 0.00*i, 3)
-                        # sim_length = 1000
+                        # sim_length = 1
                         # nx=128
                         # ny=256
                         # nz=32
@@ -120,9 +120,9 @@ class DRIVER:
                         nfil = int(159 + 0*i)
                         nblob = int(9000 + 0*i)
                         ar = round(8.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
+                        spring_factor = round(0.005 + 0.001*i, 3)
                         period = 1
-                        sim_length = 300
+                        sim_length = 100
 
                         # nfil = int(639 + 0*i)
                         # nblob = int(40961 + 0*i)
@@ -130,6 +130,7 @@ class DRIVER:
                         # spring_factor = round(0.005 + 0.005*i, 3)
                         # period = 1.0
                         # sim_length = 12
+
                         nx=400
                         ny=400
                         nz=400

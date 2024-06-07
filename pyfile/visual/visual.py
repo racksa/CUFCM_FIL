@@ -26,26 +26,12 @@ class VISUAL:
 
     def __init__(self):
         self.globals_name = 'globals.ini'
-        self.date = '20240104_readphase_hold'
-        self.date = '20231231_readphase'
-        # self.date = '20240112_readphase_free'
-        self.date = '20240114_readphase_free_hemisphere'
-        # self.date = '20240114_readphase_free_diaplectic'
-        # self.date = '20240114_readphase_free_random'
-        # self.date = '20240115_resolution'
-        # self.date = '20240118_periodic'
-        # self.date = '20240119_example_for_periodic'
-        self.date = '20240124_test_solution'
-        # self.date = '20240129_test_solution'
 
-        self.date = '20240207_159fil_hold'
-        self.date = '20240208_test_solution'
 
-        # self.dir = f"data/expr_sims/{self.date}/"
-        # self.dir = f"/home/clustor/ma/h/hs2216/{self.date}/"
-
-        self.date = '20240605'
+        self.date = '20240607'
         self.dir = f"data/tilt_test/{self.date}/"
+
+        # self.dir = f"data/single_fil/{self.date}/"
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -79,7 +65,7 @@ class VISUAL:
 
         self.noblob = True
 
-        self.planar = False
+        self.planar = True
 
         if(self.planar):
             self.big_sphere = False
@@ -88,7 +74,7 @@ class VISUAL:
         self.check_overlap = False
 
         self.plot_end_frame_setting = 20000
-        self.frames_setting = 16000
+        self.frames_setting = 3000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -518,7 +504,6 @@ class VISUAL:
             plt.savefig(f'fig/ciliate_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
-
 ## Ciliates
 # Single sim
     def phase(self):
@@ -571,7 +556,7 @@ class VISUAL:
             if self.angle:
                 variables = fil_states[self.nfil:]
 
-            ax.set_title(rf"${t+self.plot_start_frame}$")
+            ax.set_title(rf"${frame}$")
             ax.set_ylabel(r"$\theta$")
             ax.set_xlabel(r"$\phi$")
             ax.set_xlim(-np.pi, np.pi)
@@ -662,6 +647,7 @@ class VISUAL:
                     # fil_phases_str = fil_phases_f.readline()
                     # if(self.angle):
                     #     fil_angles_str = fil_angles_f.readline()
+                    frame += 1
                 
             # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
@@ -1396,6 +1382,28 @@ class VISUAL:
                     [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
                     [1.2311e-02, 1.4157e-01, -1.1695e-01]])
         
+            
+        s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
+        s_ref = np.loadtxt(s_ref_filename)
+        num_ref_phase = s_ref[0]
+        num_seg = int(s_ref[1])
+        num_frame = 13
+        num_points = 30
+        radius = 1
+        L = (num_seg-1)*2.6
+        
+        def fitted_shape_s(phase):
+            cycle = 0.5*phase/np.pi*num_ref_phase
+            sfloor = int(np.floor(cycle))
+            sceil = sfloor + 1 if sfloor < 299 else 0
+
+            floor_w = (cycle - sfloor)
+            ceil_w = (sceil - cycle) 
+
+            s = s_ref[2:][num_seg*sfloor:num_seg*sfloor+num_seg]*floor_w + s_ref[2:][num_seg*sceil:num_seg*sceil+num_seg]*ceil_w
+
+            return s
+
         def fitted_shape(s, phase):
             pos = np.zeros(3)
             svec = np.array([s, s**2, s**3])
@@ -4362,8 +4370,10 @@ class VISUAL:
         # path = "data/slow_converge_sims3/"
 
         # free = True
-        path = "data/ic_hpc_sim_free/"
+        # path = "data/ic_hpc_sim_free/"
         # path = "data/free_sim_rerun/"
+
+        path = 'data/tilt_test/'
 
         free_string = 'held_fixed'
         if free:
@@ -4493,7 +4503,7 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration2_1e-7'
+        iteration_string = 'iteration3_1e-7'
         edge_section = f'section3'
 
         # k_string = 'k0.020'
