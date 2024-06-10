@@ -28,10 +28,12 @@ class VISUAL:
         self.globals_name = 'globals.ini'
 
 
-        self.date = '20240607'
+        self.date = '20240608'
         self.dir = f"data/tilt_test/{self.date}/"
+        self.dir = f"data/IVP159/{self.date}/"
 
-        # self.dir = f"data/single_fil/{self.date}/"
+
+        # self.dir = f"data/IVP159/{self.date}/"
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -65,7 +67,7 @@ class VISUAL:
 
         self.noblob = True
 
-        self.planar = True
+        self.planar = False
 
         if(self.planar):
             self.big_sphere = False
@@ -73,7 +75,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 20000
+        self.plot_end_frame_setting = 5990
         self.frames_setting = 3000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1422,7 +1424,7 @@ class VISUAL:
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Create the sphere data points
-        num_points = 300
+        num_points = 600
         u = np.linspace(0, 2 * np.pi, num_points)
         v = np.linspace(0, np.pi, num_points)
         x = self.radius * np.outer(np.cos(u), np.sin(v))
@@ -1436,12 +1438,12 @@ class VISUAL:
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
         ax.view_init(elev=0., azim=0)
         ax.dist=5.8
-        # ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        # ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        # ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        # ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        # ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        # ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
 
         def animation_func(t):
             print(t)
@@ -1507,8 +1509,10 @@ class VISUAL:
                     seg_states_str = seg_states_f.readline()
                     fil_states_str = fil_states_f.readline()
             
+            ax.set_aspect('equal')
             fig.tight_layout()
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
     def ciliate_traj(self):
@@ -4367,13 +4371,14 @@ class VISUAL:
     def IVPs(self):
         free = False
         path = "data/ic_hpc_sim/"
-        # path = "data/slow_converge_sims3/"
+        path = "data/IVP159/"
+        # path = 'data/tilt_test/'
 
         # free = True
         # path = "data/ic_hpc_sim_free/"
         # path = "data/free_sim_rerun/"
 
-        path = 'data/tilt_test/'
+        
 
         free_string = 'held_fixed'
         if free:
@@ -4388,10 +4393,11 @@ class VISUAL:
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1,1,1)
+        if free:
+            fig2 = plt.figure()
+            ax2 = fig2.add_subplot(1,1,1)
+            fig3 = plt.figure()
+            ax3 = fig3.add_subplot(1,1,1)
 
         for fi, folder in enumerate(folders):
             self.dir = path + folder + '/'
@@ -4480,22 +4486,25 @@ class VISUAL:
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
 
-        ax2.set_ylim(0)
-        ax2.set_xlabel(r'$k$')
-        ax2.set_ylabel(r'$<v/L>$')
+        if free:
+            ax2.set_ylim(0)
+            ax2.set_xlabel(r'$k$')
+            ax2.set_ylabel(r'$<v/L>$')
 
-        ax3.set_ylim(0)
-        ax3.set_xlabel(r'$k$')
-        ax3.set_ylabel(r'$<Efficiency>$')
+            ax3.set_ylim(0)
+            ax3.set_xlabel(r'$k$')
+            ax3.set_ylabel(r'$<Efficiency>$')
 
         # ax.legend()
         # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        fig2.tight_layout()
-        fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        fig3.tight_layout()
-        fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        if free:
+            fig2.tight_layout()
+            fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+            fig3.tight_layout()
+            fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        
         plt.show()
 
     def view_bisection(self):
@@ -4503,7 +4512,7 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration3_1e-7'
+        iteration_string = 'iteration4_1e-7'
         edge_section = f'section3'
 
         # k_string = 'k0.020'

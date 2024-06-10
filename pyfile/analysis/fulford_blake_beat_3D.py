@@ -41,11 +41,12 @@ Bx = np.array([[0, 0, 0], \
             [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
             [1.2311e-02, 1.4157e-01, -1.1695e-01]])
 
-s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
+s_ref_filename = 's_ref.dat'
 s_ref = np.loadtxt(s_ref_filename)
 num_ref_phase = s_ref[0]
 num_seg = int(s_ref[1])
-num_frame = 15
+num_frame = 16
+num_angle = 3
 num_points = 30 # blob surface points
 radius = 1
 L = (num_seg-1)*2.6
@@ -80,17 +81,9 @@ def fitted_shape(s, phase):
 fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 ax.set_proj_type('ortho')
-# ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-# ax.view_init(elev=5., azim=45)
-# ax.dist=20
-ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-# ax.axis('off')
-# ax.grid(False)
+fig2 = plt.figure()
+ax2 = fig2.add_subplot(projection='3d')
+ax2.set_proj_type('ortho')
 
 
 u = np.linspace(0, 2 * np.pi, num_points)
@@ -100,6 +93,9 @@ y = radius * np.outer(np.sin(u), np.sin(v))
 z = radius * np.outer(np.ones(np.size(u)), np.cos(v))
 
 fil_phases = np.linspace(0, 2*np.pi, num_frame+1)[:-1]
+fil_angles = np.linspace(-np.pi/6, 0/6, num_angle)
+fil_angles = [-np.pi/12, 0, np.pi/4]
+
 
 for i in range(num_frame):
     fil_data = np.zeros((num_seg, 3))
@@ -121,10 +117,97 @@ for i in range(num_frame):
 
     ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
 
+colors = ['r', 'g', 'b']
+for j in range(num_angle):
+    fil_data = np.zeros((num_seg, 3))
+    normal = np.zeros((2,3))
+    tangent = np.zeros((2,3))
+    edge = np.zeros((5,3))
+    phase = 0*np.pi/16
+
+    # color
+    cmap = plt.get_cmap(cmap_name)
+    fil_color = cmap(phase/(2*np.pi))
+
+    # s for this phase
+    s = fitted_shape_s(phase)
+
+    # rotation angle
+    rotation_matrix = np.array([
+        [np.cos(fil_angles[j]), -np.sin(fil_angles[j]), 0],
+        [np.sin(fil_angles[j]), np.cos(fil_angles[j]), 0],
+        [0, 0, 1]
+    ])
+
+    for seg in range(num_seg):
+        seg_pos = np.array(fitted_shape(s[seg], phase))*L
+        seg_pos = np.dot(rotation_matrix, seg_pos)
+        fil_data[seg] = seg_pos
+        ax2.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
+
+    ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = 1.0)
+
+    edge_l = 20
+    edge_h = 60
+    
+    edge[0] = np.dot(rotation_matrix, np.array([0,-edge_l,0]))
+    edge[1] = np.dot(rotation_matrix, np.array([0,edge_l,0]))
+    edge[2] = np.dot(rotation_matrix, np.array([edge_h,edge_l,0]))
+    edge[3] = np.dot(rotation_matrix, np.array([edge_h,-edge_l,0]))
+    edge[4] = np.dot(rotation_matrix, np.array([0,-edge_l,0]))
+    # ax2.plot(edge[:,0], edge[:,1], edge[:,2],  c=fil_color)
+
+    normal[1] = np.dot(rotation_matrix, np.array([edge_l,0,0]))
+    tangent[1] = np.dot(rotation_matrix, np.array([0,edge_l,0]))
+
+    # ax2.plot(normal[:,0], normal[:,1], normal[:,2],  c=fil_color)
+    # ax2.plot(tangent[:,0], tangent[:,1], tangent[:,2],  c=fil_color)
+
+    # ax2.quiver(np.array([0]), np.array([0]), np.array([0]), normal[1][0], normal[1][1], normal[1][2], color=fil_color, arrow_length_ratio = 0.3)
+    # ax2.quiver(np.array([0]), np.array([0]), np.array([0]), tangent[1][0], tangent[1][1], tangent[1][2], color=fil_color, arrow_length_ratio = 0.3)
+
+
+# for i in range(num_frame):
+#     # color
+#     cmap = plt.get_cmap(cmap_name)
+#     fil_color = cmap(fil_phases[i]/(2*np.pi))
+
+#     # s for this phase
+#     s = fitted_shape_s(fil_phases[i])
+
+#     # alpha
+#     alpha=0.1 + 0.9*i/num_frame
+
+#     for j in range(num_angle):
+#         fil_data = np.zeros((num_seg, 3))
+
+#         # rotation angle
+#         rotation_matrix = np.array([
+#             [np.cos(fil_angles[j]), -np.sin(fil_angles[j]), 0],
+#             [np.sin(fil_angles[j]), np.cos(fil_angles[j]), 0],
+#             [0, 0, 1]
+#         ])
+
+#         for seg in range(num_seg):
+#             seg_pos = np.array(fitted_shape(s[seg], fil_phases[i]))*L
+#             seg_pos = np.dot(rotation_matrix, seg_pos)
+#             fil_data[seg] = seg_pos
+#             ax.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
+
+#         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+
+ax2.set_ylim(-30, 30)
+ax2.set_xlim(0, 60)
+
 ax.axis('off')
 ax.set_aspect('equal')
 ax.view_init(elev=100000., azim=0)
 fig.tight_layout()
-fig.savefig(f'fig/single_fil.pdf', bbox_inches = 'tight', format='pdf')
+# fig.savefig(f'single_fil.png', bbox_inches = 'tight', format='png', transparent=True)
+
+ax2.axis('off')
+ax2.set_aspect('equal')
+ax2.view_init(elev=100000., azim=0)
+fig2.tight_layout()
             
 plt.show()
