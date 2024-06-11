@@ -30,8 +30,7 @@ class VISUAL:
 
         self.date = '20240608'
         self.dir = f"data/tilt_test/{self.date}/"
-        self.dir = f"data/IVP159/{self.date}/"
-
+        # self.dir = f"data/IVP159/{self.date}/"
 
         # self.dir = f"data/IVP159/{self.date}/"
 
@@ -75,8 +74,8 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 5990
-        self.frames_setting = 3000
+        self.plot_end_frame_setting = 9000
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -364,8 +363,11 @@ class VISUAL:
                 if (self.pars['PRESCRIBED_CILIA'] == 1):
                     fil_states_str = fil_states_f.readline()
 
-                    fil_phases = np.array(fil_states_str.split()[2:2+self.nfil], dtype=float)
-                    fil_phases = util.box(fil_phases, 2*np.pi)
+                    fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                    fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                    
+                    fil_phases = fil_states[:self.nfil]
+                    fil_angles = fil_states[self.nfil:]
 
             if(i%self.plot_interval==0 and i>=self.plot_start_frame):
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
@@ -413,9 +415,15 @@ class VISUAL:
 
                         s = np.linspace(0, 1, 20)
                         Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+
+                        Rtheta = rotation_matrix = np.array([
+                            [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
+                            [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
+                            [0, 0, 1]
+                        ])
                         for seg in range(0, int(self.pars['NSEG'])):
                             
-                            ref = self.fillength*R@Rfil@np.array(fitted_shape(s[seg], fil_phases[fil]))
+                            ref = self.fillength*R@Rfil@Rtheta@np.array(fitted_shape(s[seg], fil_phases[fil]))
                             seg_pos = fil_base + ref
                             self.write_data(seg_pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
 
@@ -1260,7 +1268,7 @@ class VISUAL:
 
                 cmap = mpl.colormaps[colormap]
                 colors = cmap(variables/vmax)
-                colors = scipy.interpolate.griddata((x, z), colors, (xx, zz), method='linear')
+                colors = scipy.interpolate.griddata((x, z), colors, (xx, zz), method='nearest')
 
                 ax.scatter(xx, zz, c=colors)
 
@@ -1274,7 +1282,7 @@ class VISUAL:
 
         fig.tight_layout()
         fig.savefig(f'fig/fil_phase_sph_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # plt.show()
+        plt.show()
 
     def ciliate(self):
         self.select_sim()
@@ -1446,8 +1454,8 @@ class VISUAL:
         ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
 
         def animation_func(t):
-            print(t)
-            ax.cla()
+            if(self.video):
+                ax.cla()
             ax.axis('off')
             ax.set_aspect('equal')
 
@@ -1461,6 +1469,7 @@ class VISUAL:
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             
             fil_phases = fil_states[:self.nfil]
+            fil_angles = fil_states[self.nfil:]
             
             for swim in range(self.nswim):
                 # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
@@ -1468,8 +1477,10 @@ class VISUAL:
                 R = np.identity(3)
                 # R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
 
+                
                 # Plot the sphere
-                ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
+                if(t==self.plot_end_frame-1):
+                    ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1483,9 +1494,14 @@ class VISUAL:
 
                     s = np.linspace(0, 1, 20)
                     Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+
+                    Rtheta = rotation_matrix = np.array([
+                        [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
+                        [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
+                        [0, 0, 1]
+                    ])
                     for seg in range(0, int(self.pars['NSEG'])):
-                        
-                        ref = self.fillength*R@Rfil@np.array(fitted_shape(s[seg], fil_phases[fil]))
+                        ref = self.fillength*R@Rfil@Rtheta@np.array(fitted_shape(s[seg], fil_phases[fil]))
                         seg_pos = fil_base + ref
                         fil_data[seg] = seg_pos
 
@@ -1502,6 +1518,7 @@ class VISUAL:
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                # if(i>self.plot_end_frame-30 and (i-self.plot_end_frame+1)%3 == 0):
                 if(i==self.plot_end_frame-1):
                     animation_func(i)
                 else:
@@ -1513,7 +1530,7 @@ class VISUAL:
             fig.tight_layout()
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
-            plt.show()
+            # plt.show()
 
     def ciliate_traj(self):
         self.select_sim()
@@ -4369,6 +4386,9 @@ class VISUAL:
         np.savetxt(output_file, x, newline = " ")
 
     def IVPs(self):
+
+        plt.rcParams.update({'font.size': 27})
+
         free = False
         path = "data/ic_hpc_sim/"
         path = "data/IVP159/"
@@ -4388,7 +4408,7 @@ class VISUAL:
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 9000000
+        self.plot_end_frame_setting = 1000000
         self.frames_setting = 600
 
         fig = plt.figure()
@@ -4499,6 +4519,7 @@ class VISUAL:
         # ax2.legend()
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/IVP_order_parameters_{free_string}.png', bbox_inches = 'tight', format='png', transparent=True)
         if free:
             fig2.tight_layout()
             fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
