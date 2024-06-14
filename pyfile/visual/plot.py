@@ -6,7 +6,7 @@ import sys
 visualiser = visual.VISUAL()
 
 # lists of available options
-list_of_single_options = ['plot', 'plot_eco', 'plot_fil', 'phase', 'order_parameter', 'eckert', 'ciliate', 'ciliate_eco', 'ciliate_speed', 'ciliate_traj', 
+list_of_single_options = ['plot', 'plot_eco', 'plot_fil', 'phase', 'phase_plane', 'order_parameter', 'eckert', 'ciliate', 'ciliate_eco', 'ciliate_speed', 'ciliate_traj', 
                    'timing', 'ciliate_forcing', 'ciliate_dissipation', 'footpath',
                    'ciliate_svd', 'ciliate_dmd', 'kymograph', 'copy_phases',
                    'periodic_solution', 'find_periodicity', 'spherical_contour']

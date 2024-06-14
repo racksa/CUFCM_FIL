@@ -223,7 +223,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -348,7 +348,7 @@ extern int TOTAL_TIME_STEPS;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 

@@ -418,7 +418,7 @@ void filament::initial_setup(const Real *const base_pos,
 
       // Introduce tilt
       if(VOLVOX_TILT){
-        const Real tilt_angle = -2.0*PI/16.0;
+        const Real tilt_angle = -PI/2.0;
         const Real sn = sin(0.5*tilt_angle);
         const Real cs = cos(0.5*tilt_angle);
         q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;

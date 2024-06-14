@@ -28,11 +28,11 @@ class VISUAL:
         self.globals_name = 'globals.ini'
 
 
-        self.date = '20240608'
+        self.date = '20240614'
         self.dir = f"data/tilt_test/{self.date}/"
-        # self.dir = f"data/IVP159/{self.date}/"
+        self.dir = f"data/IVP159/{self.date}/"
+        self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        # self.dir = f"data/IVP159/{self.date}/"
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -41,7 +41,6 @@ class VISUAL:
 
         # self.date = '20240508'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
-
 
         self.pars_list = {
                      "index": [],
@@ -54,7 +53,17 @@ class VISUAL:
                      "force_mag": [],
                      "seg_sep": [],
                      "period": [],
-                     "sim_length": []}
+                     "sim_length": [],
+                     "nx": [],
+                     "ny": [],
+                     "nz": [],
+                     "boxsize": [],
+                     "fil_spacing": [],
+                     "blob_spacing": [],
+                     "fil_x_dim": [],
+                     "blob_x_dim": [],
+                     "hex_num": [],
+                     "reverse_fil_direction_ratio": []}
         self.video = False
         self.interpolate = False
         self.angle = False
@@ -66,7 +75,7 @@ class VISUAL:
 
         self.noblob = True
 
-        self.planar = False
+        self.planar = True
 
         if(self.planar):
             self.big_sphere = False
@@ -74,7 +83,7 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 9000
+        self.plot_end_frame_setting = 3000
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -149,6 +158,8 @@ class VISUAL:
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
+        self.fil_spacing = self.pars_list['fil_spacing'][self.index]
+        self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
 
         try:
             open(self.simName + '_fil_references.dat')
@@ -514,6 +525,151 @@ class VISUAL:
             plt.savefig(f'fig/ciliate_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
+    def phase_plane(self):
+
+        self.select_sim()
+        
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        # Plotting
+        # colormap = 'cividis'
+        colormap = 'twilight_shifted'
+        # colormap = 'hsv'
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fil_references = np.zeros((self.nfil,3))
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        vmin = 0
+        vmax = 2*np.pi
+        if(self.angle):
+            vmin = -.2*np.pi
+            vmax = .2*np.pi
+        norm = Normalize(vmin=vmin, vmax=vmax)
+        sm = ScalarMappable(cmap=colormap, norm=norm)
+        sm.set_array([])
+        cbar = plt.colorbar(sm)
+        cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+        cbar.set_label(r"phase")    
+
+        global frame
+        frame = 0
+        import scipy.interpolate
+
+        def animation_func(t):
+            global frame
+            ax.cla()
+
+            fil_states_str = fil_states_f.readline()
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            for i in range(self.nfil):
+                fil_references[i] = self.fil_references[3*i: 3*i+3]
+
+            variables = fil_states[:self.nfil]
+            if self.angle:
+                variables = fil_states[self.nfil:]
+
+            ax.set_title(rf"${frame}$")
+            ax.set_ylabel(r"$y$")
+            ax.set_xlabel(r"$x$")
+            ax.set_aspect('equal')
+            # ax.set_xlim(-np.pi, np.pi)
+            # ax.set_ylim(0, np.pi)
+            # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
+            # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
+            ax.invert_yaxis()
+            fig.tight_layout()
+
+            cmap = mpl.colormaps[colormap]
+            colors = cmap(variables/vmax)
+
+            # Interpolation
+            if (self.interpolate):
+                n1, n2 = 128, 128
+                offset = 0.2
+                azim_grid = np.linspace(min(fil_references[:,0])+offset, max(fil_references[:,0])-offset, n1)
+                polar_grid = np.linspace(min(fil_references[:,1])+offset, max(fil_references[:,1])-offset, n2)
+                xx, yy = np.meshgrid(azim_grid, polar_grid)
+                xx, yy = xx.ravel(), yy.ravel()
+
+                
+                colors_inter = scipy.interpolate.griddata((fil_references[:,0],fil_references[:,1]), colors, (xx, yy), method='linear')
+                ax.scatter(xx, yy, c=colors_inter)
+
+                # # Find the region that takes a certain color (say white)
+                # white_band = np.where(np.all(colors_inter>np.array([0.75, 0.75, 0.75, 0]), axis=1))
+                # mean_x = np.angle(np.mean(np.exp(xx[white_band]*1j)))
+                # ax.scatter(mean_x, np.mean(yy[white_band]), c='black', s = 200, marker='s')
+
+                # # Contour (Doesn't work very well because of the discontinuity...)
+                # phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='linear')
+                # xx_grid = np.reshape(xx, (n1, n2))
+                # yy_grid = np.reshape(yy, (n1, n2))
+                # phases_grid = np.reshape(phases_inter, (n1, n2))
+                # levels = np.linspace(0, 2*np.pi, 3)[1:-1]
+                # contour = ax.contour(xx_grid, yy_grid, phases_grid, levels=levels, cmap='hsv')
+                # ax.clabel(contour, levels)
+                # # Find centeroid of contours
+                # for i, line in enumerate(contour.collections):
+                #     paths = line.get_paths()
+                #     centers_of_contour = list()
+                #     lengths = [len(path) for path in paths]
+                #     max_length = max(lengths)
+                #     for p, path in enumerate(paths):
+                #         if(len(path)==max_length):
+                #             points = path.vertices
+                #             center = np.mean(points, axis=0)
+                #             centers_of_contour.append(center)
+                #             ax.scatter(center[0], center[1], s = 100)
+                #             break
+                        
+            else:
+            # Individual filaments
+                ax.scatter(fil_references[:,0], fil_references[:,1], c=colors)
+                
+                # # Find the region that takes a certain color (say white)
+                # white_band = np.where(np.all(colors>np.array([0.75, 0.75, 0.75, 0]), axis=1))
+                # ax.scatter(fil_references_sphpolar[:,1][white_band], fil_references_sphpolar[:,2][white_band], marker='x')
+                # mean_x = np.angle(np.mean(np.exp(fil_references_sphpolar[:,1][white_band]*1j)))
+                # ax.scatter(mean_x, np.mean(fil_references_sphpolar[:,2][white_band]), c='black', s = 200, marker='s')
+                
+
+            frame += 1
+
+        if(self.video):
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i>=self.plot_start_frame):
+                    frame = i
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
+                    plt.show()    
+                    # FFwriter = animation.FFMpegWriter(fps=16)
+                    # ani.save(f'fig/fil_phase_index{self.index}_{self.date}_anim.mp4', writer=FFwriter)
+                    ## when save, need to comment out plt.show() and be patient!
+                    break
+                else:
+                    # fil_phases_str = fil_phases_f.readline()
+                    fil_states_str = fil_states_f.readline()
+        else:
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i==self.plot_end_frame-1):
+                    animation_func(i)
+                else:
+                    fil_states_str = fil_states_f.readline()
+                    # fil_phases_str = fil_phases_f.readline()
+                    # if(self.angle):
+                    #     fil_angles_str = fil_angles_f.readline()
+                    frame += 1
+                
+            # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.show()
+
 ## Ciliates
 # Single sim
     def phase(self):
@@ -871,7 +1027,6 @@ class VISUAL:
 
         ax5.plot(time_array, r_array)
         ax5.set_ylim(0)
-        # ax5.plot(time_array, wavenumber_array)
         ax5.set_xlabel('t/T')
         ax5.set_ylabel('<r>')
         ax5.set_xlim(time_array[0], time_array[-1])
@@ -2309,7 +2464,7 @@ class VISUAL:
         spring_factor = self.pars_list['spring_factor'][0]
 
         
-        fig, axs = plt.subplots(nrow, ncol, figsize=(18, 18), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrow, ncol, figsize=(18, 72), sharex=True, sharey=True)
         # cax = fig.add_axes([0.92, 0.1, 0.02, 0.8])  # [left, bottom, width, height] for the colorbar
 
         axs_flat = axs.ravel()
@@ -3373,7 +3528,7 @@ class VISUAL:
                 input_filename = self.simName + '_true_states.dat'
                 output_filename = self.dir + f"psi{int(ind)}.dat"
 
-                output_filename = f"data/ic_hpc_sim_free_getforce/{self.date}/psi{self.index}.dat"
+                # output_filename = f"data/IVP159/20240608_continue1/psi{self.index}.dat"
 
                 try:
                     # Open the input file in read mode
@@ -4408,7 +4563,7 @@ class VISUAL:
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 1000000
+        self.plot_end_frame_setting = 30000
         self.frames_setting = 600
 
         fig = plt.figure()
@@ -4533,7 +4688,7 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration4_1e-7'
+        iteration_string = 'iteration3_1e-7'
         edge_section = f'section3'
 
         # k_string = 'k0.020'

@@ -7,14 +7,12 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        self.category = 'tilt_test/'
-
-        # self.category = 'single_fil/'
+        self.category = 'regular_wall_sim/'
         
-        self.exe_name = 'cilia_1e-4_30_tilt'
-        # self.exe_name = 'cilia_1e-4_300_plane'
+        # self.exe_name = 'cilia_1e-4_30_tilt_90deg'
+        self.exe_name = 'cilia_1e-4_30_plane'
         
-        self.date = '20240608'
+        self.date = '20240614'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -45,7 +43,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (80, 1, 1, 1)
+        self.sweep_shape = (4, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -97,64 +95,52 @@ class DRIVER:
                         # nblob = int(ar**2*blob_density)
                         # spring_factor = round(0.5+ 0.25*i, 2)
 
-                        # # # planar hexagonal
-                        # nfil = int(1)
-                        # nblob = int(1)
-                        # ar = round(1, 2)
-                        # period = 1
-                        # spring_factor = round(0.005 + 0.00*i, 3)
-                        # sim_length = 1
-                        # nx=128
-                        # ny=256
-                        # nz=32
-                        # boxsize=1280
-                        # fil_spacing=40.0
-                        # blob_spacing=8.0
-                        # fil_x_dim=16
-                        # blob_x_dim=80
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-
-
-                        # IVP sim
-                        nfil = int(159 + 0*i)
-                        nblob = int(9000 + 0*i)
-                        ar = round(8.00, 2)
-                        spring_factor = round(0.005 + 0.001*i, 3)
+                        # # planar hexagonal
+                        nfil = int(256*(i+1))
+                        nblob = int(6400*(i+1))
+                        ar = round(1, 2)
                         period = 1
+                        spring_factor = round(0.005 + 0.00*i, 3)
+                        sim_length = 1
+                        nx=256
+                        ny=256
+                        nz=256
+                        boxsize=8000
+                        fil_spacing=40.0
+                        blob_spacing=8.0
+                        fil_x_dim=16
+                        blob_x_dim=80
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
                         sim_length = 100
 
-                        # nfil = int(639 + 0*i)
-                        # nblob = int(40961 + 0*i)
-                        # ar = round(15.00, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # period = 1.0
-                        # sim_length = 12
 
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
-                        fil_spacing=1.0
-                        blob_spacing=1.0
-                        fil_x_dim=1
-                        blob_x_dim=1
-                        hex_num=1
-                        reverse_fil_direction_ratio=0.0
+                        # # IVP sim
+                        # nfil = int(159 + 0*i)
+                        # nblob = int(9000 + 0*i)
+                        # ar = round(8.00, 2)
+                        # spring_factor = round(0.005 + 0.001*i, 3)
+                        # period = 1
+                        # sim_length = 100
 
-                        # # find branches wider range
-                        # nfil = int(639 + 0*i)
-                        # nblob = int(40961 + 0*i)
-                        # ar = round(15.00, 2)
-                        # spring_factor = round(0.02 + 0.002*i, 3)
-                        # period = 1.0
-                        # sim_length = 21.
+                        # # nfil = int(639 + 0*i)
+                        # # nblob = int(40961 + 0*i)
+                        # # ar = round(15.00, 2)
+                        # # spring_factor = round(0.005 + 0.005*i, 3)
+                        # # period = 1.0
+                        # # sim_length = 12
 
-                        # # resolution study
-                        # nfil = int(159)
-                        # nblob = int(60*1.7**i)
-                        # ar = round(6.00, 2)
-                        # spring_factor = round(0.001, 3)
+                        # nx=256
+                        # ny=256
+                        # nz=256
+                        # boxsize=4000
+                        # fil_spacing=1.0
+                        # blob_spacing=1.0
+                        # fil_x_dim=1
+                        # blob_x_dim=1
+                        # hex_num=1
+                        # reverse_fil_direction_ratio=0.0
+
 
 
                         # # icosahedral
