@@ -380,12 +380,14 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
       Real *const fil_x_address = &x_segs_address[3*i*NSEG];
       Real *const fil_f_address = &f_segs_address[6*i*NSEG];
       
-      // #if RIGIDWALL and HEXAGONAL_WALL_SEEDING
-      //   const Real dir[3] = {0.0, 0.0, 1.0};
-      // #else
-      //   const Real *const dir = &normal_refs[3*i];
-      // #endif
-      const Real *const dir = &normal_refs[3*i];
+      #if RIGIDWALL and HEXAGONAL_WALL_SEEDING
+        const Real dir[3] = {0.0, 0.0, 1.0};
+      #else
+        const Real *const dir = &normal_refs[3*i];
+      #endif
+      // force to use normal
+      // const Real *const dir = &normal_refs[3*i];
+
       const Real pos[3] = {body.x[0] + filament_references[3*i], body.x[1] + filament_references[3*i + 1], body.x[2] + filament_references[3*i + 2]};
       
       #if READ_INITIAL_CONDITIONS_FROM_BACKUP

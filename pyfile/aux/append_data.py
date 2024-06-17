@@ -38,20 +38,21 @@ def append_file_contents(file_a, file_b):
 
 
 # Example usage
-date = "20240311_5/"
-file_prefix = "ciliate_639fil_40961blob_15.00R_0.0750torsion"
+file_a_prefix = f"data/IVP159/20240608/"
+file_b_prefix = f"data/IVP159_continue/20240608_continue1/"
+file_prefix = "ciliate_159fil_9000blob_8.00R_0.0830torsion"
 
-file_a = f"data/ic_hpc_sim/{date}{file_prefix}_body_states.dat"
-file_b = f"data/slow_converge_sims3/{date}{file_prefix}_body_states.dat"
+file_a = f"{file_a_prefix}{file_prefix}_body_states.dat"
+file_b = f"{file_b_prefix}{file_prefix}_body_states.dat"
 remove_last_line(file_a)
 append_file_contents(file_a, file_b)
 
-file_a = f"data/ic_hpc_sim/{date}{file_prefix}_seg_states.dat"
-file_b = f"data/slow_converge_sims3/{date}{file_prefix}_seg_states.dat"
+file_a = f"{file_a_prefix}{file_prefix}_seg_states.dat"
+file_b = f"{file_b_prefix}{file_prefix}_seg_states.dat"
 remove_last_line(file_a)
 append_file_contents(file_a, file_b)
 
-file_a = f"data/ic_hpc_sim/{date}{file_prefix}_true_states.dat"
-file_b = f"data/slow_converge_sims3/{date}{file_prefix}_true_states.dat"
+file_a = f"{file_a_prefix}{file_prefix}_true_states.dat"
+file_b = f"{file_b_prefix}{file_prefix}_true_states.dat"
 remove_last_line(file_a)
 append_file_contents(file_a, file_b)

@@ -417,12 +417,12 @@ void filament::initial_setup(const Real *const base_pos,
       // The default constructor will make q2 the identity, so this is what will happen here.
 
       // Introduce tilt
-      if(VOLVOX_TILT){
-        const Real tilt_angle = -PI/2.0;
-        const Real sn = sin(0.5*tilt_angle);
-        const Real cs = cos(0.5*tilt_angle);
-        q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;
-      }
+      // if(VOLVOX_TILT){
+      //   const Real tilt_angle = -PI/2.0;
+      //   const Real sn = sin(0.5*tilt_angle);
+      //   const Real cs = cos(0.5*tilt_angle);
+      //   q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;
+      // }
       
       body_qm1 = q2*qtemp;
       body_q = body_qm1;

@@ -299,8 +299,8 @@ void rigid_body::initial_setup(const int id, Real *const f_address, const Real *
         // initialise plane 
 
         x[0] = 0;
-        x[0] = 0;
-        x[0] = 0;
+        x[1] = 0;
+        x[2] = 0;
 
         xm1[0] = x[0];
         xm1[1] = x[1];

@@ -28,9 +28,11 @@ class VISUAL:
         self.globals_name = 'globals.ini'
 
 
-        self.date = '20240614'
+        self.date = '20240608'
         self.dir = f"data/tilt_test/{self.date}/"
         self.dir = f"data/IVP159/{self.date}/"
+
+        self.date = '20240618'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
 
@@ -73,7 +75,7 @@ class VISUAL:
         self.big_sphere = True
         self.show_poles = True
 
-        self.noblob = True
+        self.noblob = False
 
         self.planar = True
 
@@ -83,8 +85,9 @@ class VISUAL:
 
         self.check_overlap = False
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 30000
+
+        self.plot_end_frame_setting = 29
+        self.frames_setting = 3000000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -534,7 +537,7 @@ class VISUAL:
         # Plotting
         # colormap = 'cividis'
         colormap = 'twilight_shifted'
-        # colormap = 'hsv'
+        colormap = 'hsv'
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -577,8 +580,8 @@ class VISUAL:
             ax.set_ylabel(r"$y$")
             ax.set_xlabel(r"$x$")
             ax.set_aspect('equal')
-            # ax.set_xlim(-np.pi, np.pi)
-            # ax.set_ylim(0, np.pi)
+            ax.set_xlim(0, 640)
+            ax.set_ylim(0, 2560)
             # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
             # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
             ax.invert_yaxis()
@@ -667,7 +670,7 @@ class VISUAL:
                     #     fil_angles_str = fil_angles_f.readline()
                     frame += 1
                 
-            # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/fil_phase_plane_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
 ## Ciliates
@@ -2443,7 +2446,110 @@ class VISUAL:
         
         plt.show()
 
+    def flow_field(self):
 
+        with_blob = True
+
+        with_blob_string = ''
+        if(with_blob):
+            with_blob_string = '_with_blob'
+
+        def stokeslet(x, x0, f0):
+            r = np.linalg.norm(x-x0)
+            return f0/(8.*np.pi*r) + np.dot(f0, x-x0) * (x - x0) / (8.*np.pi*r**3)
+
+        # need to test
+        self.select_sim()
+
+        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.set_proj_type('ortho')
+        
+        n_field_point = 10
+        x_list = np.linspace(0, 256, n_field_point)
+        x_list = [128]
+        y_list = np.linspace(0, 256, n_field_point)
+        z_list = np.linspace(-10, 50, n_field_point)
+        vx_list = np.zeros(np.shape(x_list))
+        vy_list = np.zeros(np.shape(y_list))
+        vz_list = np.zeros(np.shape(z_list))
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+
+            seg_forces_str = seg_forces_f.readline()
+            blob_forces_str = blob_forces_f.readline()
+            seg_states_str = seg_states_f.readline()
+            body_states_str = body_states_f.readline()
+
+            if(i==self.plot_end_frame-1):
+                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                for swim in range(int(self.pars['NSWIM'])):
+                    if(with_blob):
+                        for blob in range(int(self.pars['NBLOB'])):
+                            blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                            blob_force = blob_forces[3*blob : 3*blob+3]
+
+                            ax.scatter(blob_pos[0], blob_pos[1], blob_pos[2], c='black')
+                            
+                            for xi in range(len(x_list)):
+                                for yi in range(len(y_list)):
+                                    for zi in range(len(z_list)):
+                                        pos = (x_list[xi], y_list[yi], z_list[zi])
+                                        v = stokeslet(pos, blob_pos, blob_force)
+                                        vx_list[xi] += v[0]
+                                        vy_list[yi] += v[1]
+                                        vz_list[zi] += v[2]
+
+                    for fil in range(int(self.pars['NFIL'])):
+                        fil_i = int(3*fil*self.pars['NSEG'])
+                        for seg in range(int(self.pars['NSEG'])):
+                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                            seg_force = seg_forces[fil_i+6*(seg) : fil_i+6*(seg+1)]
+                            seg_force = seg_force[:3]
+
+                            ax.scatter(seg_pos[0], seg_pos[1], seg_pos[2], c='black')
+
+                            for xi in range(len(x_list)):
+                                for yi in range(len(y_list)):
+                                    for zi in range(len(z_list)):
+                                        pos = (x_list[xi], y_list[yi], z_list[zi])
+                                        v = stokeslet(pos, seg_pos, seg_force)
+                                        vx_list[xi] += v[0]
+                                        vy_list[yi] += v[1]
+                                        vz_list[zi] += v[2]
+
+                                        
+                for xi in range(len(x_list)):
+                    for yi in range(len(y_list)):
+                        for zi in range(len(z_list)):
+                            pos = (x_list[xi], y_list[yi], z_list[zi])
+                            v =  (vx_list[xi], vy_list[yi], vz_list[zi])
+                            ax.quiver(pos[0], pos[1], pos[2], v[0], v[1], v[2], length = 0.2 )
+
+        ax.view_init(elev=0., azim=0)
+        # labels=[r'$\lambda_x$', r'$\lambda_y$', r'$\lambda_z$']
+        # for i in range(len(body_force_array[0])):
+        #     ax.plot(time_array, body_force_array[:,i], label=labels[i])
+        # ax.set_xlabel('Time step')
+        # ax.set_ylabel('Force')
+        # ax.legend()
+        fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
+        return
+
+    def flow_field2D(self):
+        return
     
 # Multi sims
     def multi_phase(self):
@@ -4563,7 +4669,7 @@ class VISUAL:
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 30000
+        self.plot_end_frame_setting = 3000000
         self.frames_setting = 600
 
         fig = plt.figure()
@@ -4689,7 +4795,7 @@ class VISUAL:
 
         k_string = 'k0.030'
         iteration_string = 'iteration3_1e-7'
-        edge_section = f'section3'
+        edge_section = f'section4'
 
         # k_string = 'k0.020'
         # iteration_string = 'iteration3_1e-7'

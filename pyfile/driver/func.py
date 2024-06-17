@@ -10,9 +10,9 @@ class DRIVER:
         self.category = 'regular_wall_sim/'
         
         # self.exe_name = 'cilia_1e-4_30_tilt_90deg'
-        self.exe_name = 'cilia_1e-4_30_plane'
+        self.exe_name = 'cilia_1e-4_30_plane_with_force'
         
-        self.date = '20240614'
+        self.date = '20240618'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -96,7 +96,7 @@ class DRIVER:
                         # spring_factor = round(0.5+ 0.25*i, 2)
 
                         # # planar hexagonal
-                        nfil = int(256*(i+1))
+                        nfil = int(64*(i+1))
                         nblob = int(6400*(i+1))
                         ar = round(1, 2)
                         period = 1
@@ -106,13 +106,21 @@ class DRIVER:
                         ny=256
                         nz=256
                         boxsize=8000
-                        fil_spacing=40.0
+                        fil_spacing=80.0
                         blob_spacing=8.0
-                        fil_x_dim=16
+                        fil_x_dim=8
                         blob_x_dim=80
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
-                        sim_length = 100
+                        sim_length = 500
+
+                        nfil = int(1*(i+1))
+                        nblob = int(4096*(i+1))
+                        fil_spacing=256.0
+                        blob_spacing=4.0
+                        fil_x_dim=2
+                        blob_x_dim=64
+                        sim_length = 3
 
 
                         # # IVP sim
