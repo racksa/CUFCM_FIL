@@ -90,7 +90,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
 #define PRESCRIBED_BODY_VELOCITIES true
 
-#define OUTPUT_FORCES true
+#define OUTPUT_FORCES false
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -324,7 +324,7 @@ extern int TOTAL_TIME_STEPS;
 #if SOLVER_TYPE==1
 
   #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
+  #define LINEAR_SYSTEM_TOL 1e-7 // Relative tolerance in the linear system solves.
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,

@@ -38,6 +38,9 @@ class VISUAL:
         self.date = '20240620'
         self.dir = f"data/IVP159_flowfield/{self.date}/"
 
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -89,8 +92,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 150
+        self.plot_end_frame_setting = 30000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1171,13 +1174,12 @@ class VISUAL:
     def kymograph(self):
         self.select_sim()
 
-        
-        fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Plotting
         colormap = 'cividis'
         colormap = 'twilight_shifted'
+        # colormap = 'jet'
 
         # fig = plt.figure()
         fig, axs = plt.subplots(2, 1, sharex=True)
@@ -1202,12 +1204,12 @@ class VISUAL:
         
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-            fil_phases_str = fil_phases_f.readline()
-            fil_angles_str = fil_angles_f.readline()
+            fil_states_str = fil_states_f.readline()
             if(i>=self.plot_start_frame):
-                fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                fil_phases = util.box(fil_phases, 2*np.pi)
-                fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                fil_phases = fil_states[:self.nfil]
+                fil_angles = fil_states[self.nfil:]
 
                 if self.angle:
                     variables = fil_angles
@@ -1487,7 +1489,6 @@ class VISUAL:
         n_phi = 30
         n_r = 1
         n_field_point = n_phi*n_r
-        ur_data = np.zeros((self.frames, n_phi))
 
         x_flat = np.zeros(n_field_point)
         r_list = np.linspace(1.4, 2.6, n_r)*self.radius
@@ -2582,10 +2583,7 @@ class VISUAL:
         y_flat = np.outer(np.cos(phi_list), r_list).flatten()
         z_flat = np.outer(np.sin(phi_list), r_list).flatten()
 
-        pos_list = np.column_stack((x_flat, y_flat, z_flat))
-        
-        v_list = np.zeros(np.shape(pos_list))
-        
+        pos_list = np.column_stack((x_flat, y_flat, z_flat))       
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -2595,11 +2593,13 @@ class VISUAL:
             seg_states_str = seg_states_f.readline()
             body_states_str = body_states_f.readline()
 
-            if(i==self.plot_end_frame-1):
+            if(i>=self.plot_start_frame):
                 seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                 blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
                 seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                v_list = np.zeros(np.shape(pos_list))
 
                 for swim in range(int(self.pars['NSWIM'])):
                     if(with_blob):
@@ -2625,7 +2625,8 @@ class VISUAL:
 
                             for pi, pos in enumerate(pos_list):
                                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
-                
+
+            if(i==self.plot_end_frame-1):
                 colormap = 'jet'
                 cmap = mpl.colormaps[colormap]
                 speed_list = np.linalg.norm(v_list, axis=1)
@@ -2650,8 +2651,104 @@ class VISUAL:
         fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
         # plt.show()
 
-    def flow_field2D(self):
-        return
+    def flow_field_kymograph(self):
+        def stokeslet(x, x0, f0):
+            r = np.linalg.norm(x-x0)
+            return f0/(8.*np.pi*r) + np.dot(f0, x-x0) * (x - x0) / (8.*np.pi*r**3)
+
+        # need to test
+        self.select_sim()
+
+        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+
+        # sphere
+        n_phi = 30
+        n_r = 1
+        n_field_point = n_phi*n_r
+        ur_data = np.zeros((self.frames, n_phi))
+        utheta_data = np.zeros((self.frames, n_phi))
+        v_data = np.zeros((self.frames, n_phi, 3))
+        r_ratio = 1.3
+
+        x_flat = np.zeros(n_field_point)
+        r_list = np.linspace(r_ratio, 2.6, n_r)*self.radius
+        phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
+        z_flat = np.outer(np.cos(phi_list), r_list).flatten()
+        y_flat = np.outer(np.sin(phi_list), r_list).flatten()
+
+        pos_list = np.column_stack((x_flat, y_flat, z_flat))
+        
+        
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+
+            seg_forces_str = seg_forces_f.readline()
+            blob_forces_str = blob_forces_f.readline()
+            seg_states_str = seg_states_f.readline()
+            body_states_str = body_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                v_list = np.zeros(np.shape(pos_list))
+
+                for swim in range(int(self.pars['NSWIM'])):
+                    for blob in range(int(self.pars['NBLOB'])):
+                        # print(" blob ", blob, "          ", end="\r")
+                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                        blob_force = blob_forces[3*blob : 3*blob+3]
+                        for pi, pos in enumerate(pos_list):
+                            v_list[pi] += stokeslet(pos, blob_pos, blob_force)
+                            
+                    for fil in range(int(self.pars['NFIL'])):
+                        # print(" fil ", fil, "          ", end="\r")
+                        fil_i = int(3*fil*self.pars['NSEG'])
+                        for seg in range(int(self.pars['NSEG'])):
+                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                            seg_force = seg_forces[fil_i+6*(seg) : fil_i+6*(seg+1)]
+                            seg_force = seg_force[:3]
+                            for pi, pos in enumerate(pos_list):
+                                v_list[pi] += stokeslet(pos, seg_pos, seg_force)
+
+                v_data[i-self.plot_start_frame] = v_list
+
+        v_avg_list = np.mean(v_data, axis=0)
+        v_subtract_data = v_data - v_avg_list
+
+        for j in range(self.frames):
+            ur_list = v_subtract_data[j, :, 2] * np.cos(phi_list) + v_subtract_data[j ,:, 1] * np.sin(phi_list)
+            utheta_list = - v_subtract_data[j, :, 2] * np.sin(phi_list) + v_subtract_data[j, :, 1] * np.cos(phi_list)
+
+            ur_data[j] = ur_list
+            utheta_data[j] = utheta_list
+
+        t = ur_data.shape[0]/30
+        
+        ax.imshow(ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+
+        y_ticks = np.linspace(0, 2*np.pi, 5)
+        y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
+        ax.set_yticks(ticks=y_ticks, labels=y_labels)
+
+        ax.set_xlabel(r'$t/T$')
+        ax.set_ylabel(r'$\theta$')
+
+
+        np.save(f'data/IVP159_flowfield/ur_data_fil{self.nfil}_r{r_ratio}.npy', ur_data)
+        np.save(f'data/IVP159_flowfield/utheta_data_fil{self.nfil}_r{r_ratio}.npy', utheta_data)
+
+        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
+        plt.show()
     
 # Multi sims
     def multi_phase(self):
