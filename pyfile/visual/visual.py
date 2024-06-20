@@ -1484,15 +1484,16 @@ class VISUAL:
         # ax.grid(False)
 
         # Flow field
-        n_phi = 20
-        n_r = 4
+        n_phi = 30
+        n_r = 1
         n_field_point = n_phi*n_r
+        ur_data = np.zeros((self.frames, n_phi))
 
         x_flat = np.zeros(n_field_point)
         r_list = np.linspace(1.4, 2.6, n_r)*self.radius
         phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
-        y_flat = np.outer(np.cos(phi_list), r_list).flatten()
-        z_flat = np.outer(np.sin(phi_list), r_list).flatten()
+        z_flat = np.outer(np.cos(phi_list), r_list).flatten()
+        y_flat = np.outer(np.sin(phi_list), r_list).flatten()
 
         pos_list = np.column_stack((x_flat, y_flat, z_flat))
         
@@ -1563,11 +1564,20 @@ class VISUAL:
                     colormap2 = 'jet'
                     cmap2 = mpl.colormaps[colormap2]
                     speed_list = np.linalg.norm(v_list, axis=1)
+                    ur_list = v_list[:, 2] * np.cos(phi_list) + v_list[:, 1] * np.sin(phi_list)
+                    utheta_list = - v_list[:, 2] * np.sin(phi_list) + v_list[:, 1] * np.cos(phi_list)
+
+                    # vr_list = pos_list/np.linalg.norm(pos_list, axis=1)[:, np.newaxis]*ur_list[:, np.newaxis]
+                    # vr_list = np.cos(phi_list)
+
                     max_speed = max(speed_list)
                     print('maxspeed', max_speed)
                     colors = cmap2(np.clip(speed_list/150, None, 0.999))
                     ax.scatter(pos_list[:,0], pos_list[:,1], pos_list[:,2], color=colors)
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = .5 )
+                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = .5, color='b' )
+
+                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], np.zeros(n_field_point), np.sin(phi_list)*ur_list, np.cos(phi_list)*ur_list, length = .5 ,color='r')
+                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], np.zeros(n_field_point), np.cos(phi_list)*utheta_list, -np.sin(phi_list)*utheta_list, length = .5, color='r' )
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -4886,7 +4896,7 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration1_1e-7'
+        iteration_string = 'iteration2_1e-7'
         edge_section = f'section5'
 
         # k_string = 'k0.020'
