@@ -121,7 +121,7 @@ class DRIVER:
                         nfil = int(159 + 480*i)
                         nblob = int(9000 + 31961*i)
                         ar = round(8.00 + 7*i, 2)
-                        spring_factor = round(0.005 + 0.001, 3)
+                        spring_factor = round(0.005 + 0.00, 3)
                         period = 1
                         sim_length = 100
 

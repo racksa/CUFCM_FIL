@@ -16,6 +16,7 @@
 *.pbs.e*
 *.pbs.o*
 *.txt
+*.npy
 
 # ignore all videos and figures
 *.avi
