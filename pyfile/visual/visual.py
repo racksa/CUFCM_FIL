@@ -32,11 +32,12 @@ class VISUAL:
         self.dir = f"data/tilt_test/{self.date}/"
         self.dir = f"data/IVP159/{self.date}/"
 
-        self.date = '20240618'
+        self.date = '20240624_varyingk'
+        # self.date = '20240614_long'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240620'
-        self.dir = f"data/IVP159_flowfield/{self.date}/"
+        # self.date = '20240620'
+        # self.dir = f"data/IVP159_flowfield/{self.date}/"
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
@@ -83,7 +84,7 @@ class VISUAL:
 
         self.noblob = False
 
-        self.planar = False
+        self.planar = True
 
         if(self.planar):
             self.big_sphere = False
@@ -92,8 +93,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 30000
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 61
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1224,8 +1225,6 @@ class VISUAL:
                 phi_kymo[:, i-self.plot_start_frame] = zz[n2//2]
                 theta_kymo[:, i-self.plot_start_frame] = zz[:, n1//2]
             
-        # print(np.shape(phi_kymo_xx))
-        # print(np.shape(phi_kymo))
 
         axs[0].scatter(phi_kymo_xx, phi_kymo_yy, c=phi_kymo, cmap=colormap, vmin=0, vmax=2*np.pi)
         axs[1].scatter(theta_kymo_xx, theta_kymo_yy, c=theta_kymo, cmap=colormap, vmin=0, vmax=2*np.pi)       
@@ -1474,16 +1473,16 @@ class VISUAL:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
-        ax.view_init(elev=0., azim=0)
-        ax.dist=6.2        
+        ax.view_init(elev=0., azim=90)
+        ax.dist=7.4        
 
         # Flow field
         n_theta = 30
-        n_r = 1
-        n_phi = 3
+        n_r = 4
+        n_phi = 2
         n_field_point = n_theta*n_r*n_phi
 
-        r_list = np.linspace(1.4, 2.6, n_r)*self.radius
+        r_list = np.linspace(1.3, 1.6, n_r)*self.radius
         theta_list = np.linspace(0, np.pi, n_theta)
         phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
 
@@ -1546,12 +1545,11 @@ class VISUAL:
                 for fil in range(self.nfil):
                     fil_data = np.zeros((self.nseg, 3))
                     fil_i = int(3*fil*self.nseg)
-                    fil_data[0] = seg_states[fil_i : fil_i+3]
 
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
 
-                    for seg in range(1, self.nseg):
-                        seg_pos = seg_states[fil_i+3*(seg-1) : fil_i+3*seg]
+                    for seg in range(self.nseg):
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
                         fil_data[seg] = seg_pos
 
                         if(show_flow_field):
@@ -1582,8 +1580,6 @@ class VISUAL:
                                     v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
                                         - v_list[:, 2] * np.sin(theta_flat)
 
-                    print(phi_flat)
-                    print(ur_list)
 
                     max_speed = max(speed_list)
                     print('maxspeed', max_speed)
@@ -1591,21 +1587,21 @@ class VISUAL:
                     ax.scatter(pos_list[:,0], pos_list[:,1], pos_list[:,2], color=colors)
                     ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = .5, color='b' )
 
-                    # e_r
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
-                              np.sin(theta_flat)*np.cos(phi_flat)*ur_list,
-                              np.sin(theta_flat)*np.sin(phi_flat)*ur_list,
-                              np.cos(theta_flat)*ur_list, length = .5 ,color='r')
-                    # e_phi
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
-                              -np.sin(phi_flat)*uphi_list,
-                              np.cos(phi_flat)*uphi_list,
-                              np.zeros(n_field_point), length = .5 ,color='r')
-                    # e_theta
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
-                              np.cos(theta_flat)*np.cos(phi_flat)*utheta_list,
-                              np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
-                              -np.sin(theta_flat)*utheta_list, length = .5 ,color='r')
+                    # # e_r
+                    # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
+                    #           np.sin(theta_flat)*np.cos(phi_flat)*ur_list,
+                    #           np.sin(theta_flat)*np.sin(phi_flat)*ur_list,
+                    #           np.cos(theta_flat)*ur_list, length = .5 ,color='r')
+                    # # e_phi
+                    # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
+                    #           -np.sin(phi_flat)*uphi_list,
+                    #           np.cos(phi_flat)*uphi_list,
+                    #           np.zeros(n_field_point), length = .5 ,color='r')
+                    # # e_theta
+                    # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
+                    #           np.cos(theta_flat)*np.cos(phi_flat)*utheta_list,
+                    #           np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
+                    #           -np.sin(theta_flat)*utheta_list, length = .5 ,color='r')
                     
 
         if(self.video):
@@ -2763,22 +2759,28 @@ class VISUAL:
 
                 v_data[i-self.plot_start_frame] = v_list
 
+                ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
+                                v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
+                                    v_list[:, 2] * np.cos(theta_flat)
+                uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
+                utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
+                                v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
+                                    - v_list[:, 2] * np.sin(theta_flat)
+
+                ur_data[i-self.plot_start_frame] = ur_list
+                utheta_data[i-self.plot_start_frame] = utheta_list
+                uphi_data[i-self.plot_start_frame] = uphi_list
+
+                np.save(f'data/IVP159_flowfield/ur_data_fil{self.nfil}_r{r_ratio}.npy', ur_data)
+                np.save(f'data/IVP159_flowfield/utheta_data_fil{self.nfil}_r{r_ratio}.npy', utheta_data)
+                np.save(f'data/IVP159_flowfield/grid_shape_fil{self.nfil}_r{r_ratio}.npy', np.array(R.shape))
+
         # v_avg_list = np.mean(v_data, axis=0)
         # v_subtract_data = v_data - v_avg_list
 
-        for j in range(self.frames):
+        # for j in range(self.frames):
 
-            ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
-                                v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
-                                    v_list[:, 2] * np.cos(theta_flat)
-            uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
-            utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
-                            v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
-                                - v_list[:, 2] * np.sin(theta_flat)
-
-            ur_data[j] = ur_list
-            utheta_data[j] = utheta_list
-            uphi_data[j] = uphi_list
+            
 
         t = ur_data.shape[0]/30
         
@@ -2791,9 +2793,7 @@ class VISUAL:
         ax.set_xlabel(r'$t/T$')
         ax.set_ylabel(r'$\theta$')
 
-        np.save(f'data/IVP159_flowfield/ur_data_fil{self.nfil}_r{r_ratio}.npy', ur_data)
-        np.save(f'data/IVP159_flowfield/utheta_data_fil{self.nfil}_r{r_ratio}.npy', utheta_data)
-        np.save(f'data/IVP159_flowfield/grid_shape_fil{self.nfil}_r{r_ratio}.npy', np.array(R.shape))
+        
 
         # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
@@ -5043,7 +5043,7 @@ class VISUAL:
 
         k_string = 'k0.030'
         iteration_string = 'iteration4_1e-7'
-        edge_section = f'section5'
+        edge_section = f'section6'
 
         # k_string = 'k0.020'
         # iteration_string = 'iteration3_1e-7'
@@ -5061,7 +5061,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 80000
+        self.plot_end_frame_setting = 900
         self.frames_setting = 100000
         window_size = 1
 
