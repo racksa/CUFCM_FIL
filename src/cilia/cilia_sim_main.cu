@@ -66,6 +66,8 @@ int main(int argc, char** argv){
   SIMULATION_DIR = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_dir");
   SIMULATION_FILE = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_file");
 
+  SIMULATION_FILPLACEMENT_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "filplacement_file_name");
+  SIMULATION_BLOBPLACEMENT_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "blobplacement_file_name");
   CUFCM_CONFIG_FILE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "cufcm_config_file_name");
   SIMULATION_ICSTATE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_icstate_name");
 

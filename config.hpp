@@ -29,7 +29,8 @@ extern std::string SIMULATION_TIME_NAME;
 extern std::string SIMULATION_TETHERLAM_NAME;
 extern std::string SIMULATION_TRUESTATE_NAME;
 
-extern std::string PLANAR_SEEDING_PAR_FILE;
+extern std::string SIMULATION_FILPLACEMENT_NAME;
+extern std::string SIMULATION_BLOBPLACEMENT_NAME;
 extern std::string SIMULATION_ICSTATE_NAME;
 extern std::string CUFCM_CONFIG_FILE_NAME;
 
@@ -88,9 +89,9 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES true
+#define PRESCRIBED_BODY_VELOCITIES false
 
-#define OUTPUT_FORCES false
+#define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -118,11 +119,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION true
+  #define DYNAMIC_PHASE_EVOLUTION false
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION true
+  #define DYNAMIC_SHAPE_ROTATION false
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -134,13 +135,12 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #define CILIA_IC_TYPE 5
   // Valid options:
-  // if using 3, we should be able to derive all other cases.
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase.
   // 2 = A metachronal wave (MCW). Its wavelength and direction are defined below.
-  // 3 = Ishikawa MCW
-  // 4 = Read from a file
-  // 5 = Reserved for finding the periodic solution
+  // 3 = Ishikawa MCW (deprecated)
+  // 5 = Read from a file (default - we can define arbitrary initial conditions in python)
+
 
   #if CILIA_IC_TYPE==2
 
@@ -183,7 +183,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 5
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -324,7 +324,7 @@ extern int TOTAL_TIME_STEPS;
 #if SOLVER_TYPE==1
 
   #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-7 // Relative tolerance in the linear system solves.
+  #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,
@@ -496,7 +496,6 @@ extern int TOTAL_TIME_STEPS;
   #define MISMATCH_SEEDING (SEEDING_TYPE==6)
   #define UNIFORM_SEEDING_POLE (SEEDING_TYPE==7)
   #define CENTRIC_WALL_SEEDING (SEEDING_TYPE==8)
-  #define READ_PLACEMENT_FROM_FILE (SEEDING_TYPE==9)
 
 #endif
 

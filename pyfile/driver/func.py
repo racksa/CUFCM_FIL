@@ -13,11 +13,18 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-4_30_tilt_90deg'
         self.exe_name = 'cilia_1e-4_30_plane'
         
-        self.date = '20240624_varyingk'
+        self.date = '20240625_channel'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.inputfile = f"input/states/temp/psi.dat"
+
+
+        self.category = 'ishikawa/'
+        self.exe_name = 'cilia_1e-4_ishikawa'
+        self.date = '20240626_ishikawa'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        self.inputfile = f"input/states/temp/ishikawa.dat"
         
 
         self.pars_list = {
@@ -44,7 +51,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (10, 1, 1, 1)
+        self.sweep_shape = (4, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -94,18 +101,18 @@ class DRIVER:
                         nblob = int(25600*(i+1))
                         ar = round(1, 2)
                         period = 1
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        nx=256
-                        ny=256
-                        nz=32
-                        boxsize=8000
+                        spring_factor = round(0.005 + 0.005, 3)
+                        nx=128
+                        ny=int(256/(i+1))
+                        nz=int(64/(i+1))
+                        boxsize=1280*(i+1)
                         fil_spacing=80.0
                         blob_spacing=8.0
                         fil_x_dim=16*(i+1)
                         blob_x_dim=160*(i+1)
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
-                        sim_length = 200
+                        sim_length = 400
 
                         # nfil = int(1*(i+1))
                         # nblob = int(4096*(i+1))
@@ -133,10 +140,15 @@ class DRIVER:
 
 
                         # # icosahedral
-                        # nfil = int(640)
-                        # nblob = int(40962)
-                        # ar = round(15.0, 2)
-                        # spring_factor = round(0.005 + 0.008*i*(i//4+1), 3)
+                        nfil = int(640)
+                        nblob = int(40962)
+                        ar = round(15.0, 2)
+                        spring_factor = round(1, 3)
+                        nx=256
+                        ny=256
+                        nz=256
+                        boxsize=8000
+                        sim_length = 1
 
                         # # centric
                         # nfil = int(768)
@@ -234,8 +246,12 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
+            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
+            self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
+
+            
 
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
@@ -243,7 +259,7 @@ class DRIVER:
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} > temp.out"
+                        ./bin/{self.exe_name}"
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \

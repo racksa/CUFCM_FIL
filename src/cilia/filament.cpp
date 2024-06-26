@@ -290,47 +290,6 @@ void filament::initial_setup(const Real *const base_pos,
           in >> v;
           phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
 
-        #elif (CILIA_IC_TYPE==4)
-
-          const Real phi = atan2(base_pos[1], base_pos[0]);
-          const Real theta = acos(base_pos[2]/(sqrt(base_pos[0]*base_pos[0]+
-                                                    base_pos[1]*base_pos[1]+
-                                                    base_pos[2]*base_pos[2])));
-                                                    
-          Real k = 0.0;
-          Real v = 0.0;
-          std::ifstream in("ishikawa.dat"); // input
-          in >> k;
-          in >> v;
-          phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
-          
-          // Try to read from file
-          std::ifstream input_file(SIMULATION_READPHASE_NAME);
-          if (input_file.is_open()) {
-            if(fil_id == 0){
-              std::cout << "Reading phases from file: " << SIMULATION_READPHASE_NAME << std::endl;
-            }
-            for (int fpos = 0; fpos < fil_id+1; fpos++){
-              input_file >> phase;
-            }
-            input_file.close();
-          }else{
-            std::cout << "No phase input file found: " << SIMULATION_READPHASE_NAME << std::endl;
-          }
-
-          std::ifstream input_file_angle(SIMULATION_READANGLE_NAME);
-          if (input_file_angle.is_open()) {
-            if(fil_id == 0){
-              std::cout << "Reading angles from file: " << SIMULATION_READANGLE_NAME << std::endl;
-            }
-            for (int fpos = 0; fpos < fil_id+1; fpos++){
-              input_file_angle >> shape_rotation_angle;
-            }
-            input_file_angle.close();
-          }else{
-            std::cout << "No angle input file found: " << SIMULATION_READANGLE_NAME << std::endl;
-          }
-        
         #elif (CILIA_IC_TYPE==5)
           std::random_device rd{};
           std::mt19937 gen{rd()};

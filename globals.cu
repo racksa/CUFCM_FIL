@@ -41,6 +41,7 @@ std::string SIMULATION_TETHERLAM_NAME = SIMULATION_NAME + "_tether_force.dat";
 std::string SIMULATION_TRUESTATE_NAME = SIMULATION_NAME + "_true_states.dat";
 
 // Reading file names
-std::string PLANAR_SEEDING_PAR_FILE = "input/separation.ini";
+std::string SIMULATION_FILPLACEMENT_NAME = "input/icosahedron/icosa_d3_N640.dat";
+std::string SIMULATION_BLOBPLACEMENT_NAME = "input/icosahedron/icosa_d6_N40962.dat";
 std::string CUFCM_CONFIG_FILE_NAME = "input/simulation_info_cilia";
 std::string SIMULATION_ICSTATE_NAME = "input/psi.dat";

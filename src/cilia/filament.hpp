@@ -93,15 +93,20 @@ public:
     quaternion body_qm1;
     std::vector<Real> vel_dir_phase;
 
-    #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
+    // #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
-      // If it isn't solved for dynamically, there is no rotation.
-      // So we don't need to even store the angle in such cases; everything to do with it reduces to the identity.
-      Real shape_rotation_angle;
-      Real shape_rotation_angle_dot;
-      std::vector<Real> vel_dir_angle;
+    //   // If it isn't solved for dynamically, there is no rotation.
+    //   // So we don't need to even store the angle in such cases; everything to do with it reduces to the identity.
+    //   Real shape_rotation_angle;
+    //   Real shape_rotation_angle_dot;
+    //   std::vector<Real> vel_dir_angle;
 
-    #endif
+    // #endif
+
+    // Store the angle no matter what
+    Real shape_rotation_angle;
+    Real shape_rotation_angle_dot;
+    std::vector<Real> vel_dir_angle;
 
     #if FIT_TO_DATA_BEAT
 

@@ -1334,13 +1334,14 @@
 
     std::cout << std::endl << std::endl << "Generating seeding files " << "'" << file_name_trunk << ".seed'" << std::endl;
     
-
     shape_fourier_description shape;
 
-    
     #if ICOSA_SEEDING
+      // std::cout << "Seeking an equal-area distribution for the blobs..." << std::endl;
+      // equal_area_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape);
+    
       std::cout << "Seeking an icosahedral distribution for the blobs..." << std::endl;
-      const std::string ico_file = "data/icosahedron/icosa_d8_N655362.dat";
+      const std::string ico_file = SIMULATION_BLOBPLACEMENT_NAME;
       icosa_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, ico_file);
     #elif ROD
       std::cout << "Seeking an rod placement for the blobs..." << std::endl;
@@ -1518,7 +1519,8 @@
     #elif ICOSA_SEEDING
 
       std::cout << "Seeking a icosahedron distribution for the filaments..." << std::endl;
-      const std::string ico_file = "data/icosahedron/icosa_d2_N160.dat";
+      const std::string ico_file = SIMULATION_FILPLACEMENT_NAME;
+      
       icosa_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, ico_file);
     
     

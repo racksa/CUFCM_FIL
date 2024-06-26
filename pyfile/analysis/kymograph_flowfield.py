@@ -16,6 +16,7 @@ grid_shape = np.load(f'data/IVP159_flowfield/grid_shape_fil{n}_r1.3.npy')
 selected_t = 15
 n_frame = ur_data.shape[0]
 n_frame = 120
+
 ur_data = ur_data[:n_frame]
 utheta_data = utheta_data[:n_frame]
 n_r, n_phi, n_theta = grid_shape
@@ -23,10 +24,22 @@ print(n_r, n_phi, n_theta)
 
 # assuming n_r = 1
 reshaped_ur_data = ur_data.reshape(n_frame, n_phi, n_theta)
-avg_ur_data = reshaped_ur_data.mean(axis=1)
-
 reshaped_utheta_data = utheta_data.reshape(n_frame, n_phi, n_theta)
+
+avg_over_time_ur_data = np.mean(reshaped_ur_data, axis=0)
+avg_over_time_utheta_data = np.mean(reshaped_utheta_data, axis=0)
+
+reshaped_ur_data -= avg_over_time_ur_data
+reshaped_utheta_data -= avg_over_time_utheta_data
+
+print(reshaped_ur_data[0])
+print(avg_over_time_ur_data[0])
+
+avg_ur_data = reshaped_ur_data.mean(axis=1)
 avg_utheta_data = reshaped_utheta_data.mean(axis=1)
+
+
+
 
 
 # print(avg_ur_data)
@@ -41,13 +54,17 @@ ax2 = fig2.add_subplot()
 fig3 = plt.figure()
 ax3 = fig3.add_subplot()
 
-# ax3.plot(np.linspace(0, 2*np.pi, n_theta), reshaped_ur_data[0, iphi, :] - avg_ur_data[0])
 
-phi_var_plot = ax3.imshow(reshaped_ur_data[selected_t].T, cmap='jet', origin='upper', extent=[0, 2*np.pi, 0, np.pi])
+# phi_var_plot = ax3.imshow(reshaped_ur_data[selected_t].T, cmap='jet', origin='upper', extent=[0, 2*np.pi, 0, np.pi])
+phi_var_plot = ax3.imshow(avg_over_time_ur_data.T, cmap='jet', origin='upper', extent=[0, 2*np.pi, 0, np.pi])
 fig3.colorbar(phi_var_plot)
 
-ax1.imshow(avg_ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
-ax2.imshow(avg_utheta_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+ur_plot = ax1.imshow(avg_ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+utheta_plot = ax2.imshow(avg_utheta_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+
+fig1.colorbar(ur_plot)
+fig2.colorbar(utheta_plot)
+
 
 y_ticks = np.linspace(0, 2*np.pi, 5)
 y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
