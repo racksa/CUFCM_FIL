@@ -7,24 +7,24 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        self.category = 'regular_wall_sim/'
-        # self.category = 'IVP159_flowfield/'
+        # self.category = 'regular_wall_sim/'
+        self.category = 'IVP159_flowfield/'
+
+        self.exe_name = 'cilia_1e-4_30_with_force'
+        self.exe_name = 'cilia_1e-4_30_ishikawa'
+
+        self.date = '20240627_ishikawa'
         
-        # self.exe_name = 'cilia_1e-4_30_tilt_90deg'
-        self.exe_name = 'cilia_1e-4_30_plane'
-        
-        self.date = '20240625_channel'
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.inputfile = f"input/states/temp/psi.dat"
+        self.inputfile = f""
 
 
-        self.category = 'ishikawa/'
-        self.exe_name = 'cilia_1e-4_ishikawa'
-        self.date = '20240626_ishikawa'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        self.inputfile = f"input/states/temp/ishikawa.dat"
+        # self.category = 'ishikawa/'
+        # self.exe_name = 'cilia_1e-4_ishikawa'
+        # self.date = '20240626_ishikawa'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -149,6 +149,16 @@ class DRIVER:
                         nz=256
                         boxsize=8000
                         sim_length = 1
+
+                        # nfil = int(639)
+                        # nblob = int(40961)
+                        # ar = round(15.0, 2)
+                        # spring_factor = round(1, 3)
+                        # nx=256
+                        # ny=256
+                        # nz=256
+                        # boxsize=8000
+                        # sim_length = 1
 
                         # # centric
                         # nfil = int(768)

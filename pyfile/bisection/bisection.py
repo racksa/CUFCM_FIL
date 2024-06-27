@@ -18,8 +18,8 @@ sim_length = 100
 k = 0.020
 
 k_string = f'k0.020'
-edge_section = f'section8'
-iteration_string = 'iteration3_1e-7'
+edge_section = f'section11'
+iteration_string = 'iteration4_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 

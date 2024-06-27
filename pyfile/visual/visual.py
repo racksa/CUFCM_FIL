@@ -37,14 +37,14 @@ class VISUAL:
         self.dir = f"data/regular_wall_sim/{self.date}/"
         
 
-        # self.date = '20240620'
-        # self.dir = f"data/IVP159_flowfield/{self.date}/"
+        self.date = '20240627_ishikawa'
+        self.dir = f"data/IVP159_flowfield/{self.date}/"
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
 
-        self.date = '20240626_ishikawa'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.date = '20240626_ishikawa'
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -1534,14 +1534,15 @@ class VISUAL:
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             fil_phases = fil_states[:self.nfil]
+
             
             for swim in range(self.nswim):
                 # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
                 body_pos = body_states[7*swim : 7*swim+3]
-                # R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
-                # for blob in range(int(self.pars['NBLOB'])):
-                #     blob_x, blob_y, blob_z = util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])
-                #     ax.scatter(blob_x, blob_y, blob_z)
+                R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
+                for blob in range(int(self.pars['NBLOB'])):
+                    blob_x, blob_y, blob_z = util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])
+                    ax.scatter(blob_x, blob_y, blob_z)
 
                 # Plot the sphere
                 ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
@@ -1550,6 +1551,7 @@ class VISUAL:
                 for fil in range(self.nfil):
                     fil_data = np.zeros((self.nseg, 3))
                     fil_i = int(3*fil*self.nseg)
+                    print(" fil ", fil_i, "          ", end="\r")
 
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
 
@@ -1558,39 +1560,39 @@ class VISUAL:
                         fil_data[seg] = seg_pos
 
                         if(show_flow_field):
-                            seg_force = seg_forces[fil_i+6*(seg) : fil_i+6*(seg+1)]
+                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                             seg_force = seg_force[:3]
-                            # for pi, pos in enumerate(pos_list):
-                            #     v_list[pi] += stokeslet(pos, seg_pos, seg_force)
+                            for pi, pos in enumerate(pos_list):
+                                v_list[pi] += stokeslet(pos, seg_pos, seg_force)
                     
                     ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
 
                 if(show_flow_field):
-                    for blob in range(int(self.pars['NBLOB'])):
-                        print(" blob ", blob, "          ", end="\r")
-                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                        blob_force = blob_forces[3*blob : 3*blob+3]
-                        for pi, pos in enumerate(pos_list):
-                            v_list[pi] += stokeslet(pos, blob_pos, blob_force)
+                    # for blob in range(int(self.pars['NBLOB'])):
+                    #     print(" blob ", blob, "          ", end="\r")
+                    #     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                    #     blob_force = blob_forces[3*blob : 3*blob+3]
+                    #     for pi, pos in enumerate(pos_list):
+                    #         v_list[pi] += stokeslet(pos, blob_pos, blob_force)
                     
                     colormap2 = 'jet'
                     cmap2 = mpl.colormaps[colormap2]
                     speed_list = np.linalg.norm(v_list, axis=1)
 
-                    ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
-                                v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
-                                    v_list[:, 2] * np.cos(theta_flat)
-                    uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
-                    utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
-                                    v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
-                                        - v_list[:, 2] * np.sin(theta_flat)
+                    # ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
+                    #             v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
+                    #                 v_list[:, 2] * np.cos(theta_flat)
+                    # uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
+                    # utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
+                    #                 v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
+                    #                     - v_list[:, 2] * np.sin(theta_flat)
 
 
                     max_speed = max(speed_list)
                     print('maxspeed', max_speed)
                     colors = cmap2(np.clip(speed_list/150, None, 0.999))
                     ax.scatter(pos_list[:,0], pos_list[:,1], pos_list[:,2], color=colors)
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], 0, v_list[:,1], v_list[:,2], length = 2.5, color='b' )
+                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = .5, color='b' )
 
                     # # e_r
                     # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
@@ -5217,13 +5219,13 @@ class VISUAL:
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
 
-        k_string = 'k0.030'
-        iteration_string = 'iteration2_1e-7'
-        edge_section = f'section7'
+        # k_string = 'k0.030'
+        # iteration_string = 'iteration2_1e-7'
+        # edge_section = f'section7'
 
-        # k_string = 'k0.020'
-        # iteration_string = 'iteration3_1e-7'
-        # edge_section = f'section8'
+        k_string = 'k0.020'
+        iteration_string = 'iteration4_1e-7'
+        edge_section = f'section11'
 
         # iteration_string = 'iteration1_1e-7'
         # edge_section = f'test_new_ini'
