@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-n = 639
+n = 640
 
 ur_data = np.load(f'data/IVP159_flowfield/ur_data_fil{n}_r1.3.npy')
 utheta_data = np.load(f'data/IVP159_flowfield/utheta_data_fil{n}_r1.3.npy')
@@ -12,10 +12,12 @@ grid_shape = np.load(f'data/IVP159_flowfield/grid_shape_fil{n}_r1.3.npy')
 # utheta_data = np.load(f'data/IVP159_flowfield/utheta_data_fil{n}_r1.3_avg.npy')
 # grid_shape = np.load(f'data/IVP159_flowfield/grid_shape_fil{n}_r1.3_avg.npy')
 
+print(ur_data.shape)
+print(grid_shape)
 
-selected_t = 15
+selected_t = 0
 n_frame = ur_data.shape[0]
-n_frame = 120
+# n_frame = 120
 
 ur_data = ur_data[:n_frame]
 utheta_data = utheta_data[:n_frame]

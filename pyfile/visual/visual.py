@@ -97,8 +97,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1
-        self.frames_setting = 61
+        self.plot_end_frame_setting = 10000
+        self.frames_setting = 31
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1483,11 +1483,11 @@ class VISUAL:
 
         # Flow field
         n_theta = 20
-        n_r = 1
+        n_r = 4
         n_phi = 2
         n_field_point = n_theta*n_r*n_phi
 
-        r_list = np.linspace(1.3, 1.6, n_r)*self.radius
+        r_list = np.linspace(1.3, 2.0, n_r)*self.radius
         theta_list = np.linspace(0, np.pi, n_theta)
         phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
 
@@ -1540,9 +1540,9 @@ class VISUAL:
                 # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
                 body_pos = body_states[7*swim : 7*swim+3]
                 R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
-                for blob in range(int(self.pars['NBLOB'])):
-                    blob_x, blob_y, blob_z = util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])
-                    ax.scatter(blob_x, blob_y, blob_z)
+                # for blob in range(int(self.pars['NBLOB'])):
+                #     blob_x, blob_y, blob_z = util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])
+                #     ax.scatter(blob_x, blob_y, blob_z)
 
                 # Plot the sphere
                 ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
@@ -1551,7 +1551,7 @@ class VISUAL:
                 for fil in range(self.nfil):
                     fil_data = np.zeros((self.nseg, 3))
                     fil_i = int(3*fil*self.nseg)
-                    print(" fil ", fil_i, "          ", end="\r")
+                    print(" fil ", fil, "          ", end="\r")
 
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
 
@@ -1568,12 +1568,12 @@ class VISUAL:
                     ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
 
                 if(show_flow_field):
-                    # for blob in range(int(self.pars['NBLOB'])):
-                    #     print(" blob ", blob, "          ", end="\r")
-                    #     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                    #     blob_force = blob_forces[3*blob : 3*blob+3]
-                    #     for pi, pos in enumerate(pos_list):
-                    #         v_list[pi] += stokeslet(pos, blob_pos, blob_force)
+                    for blob in range(int(self.pars['NBLOB'])):
+                        print(" blob ", blob, "          ", end="\r")
+                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                        blob_force = blob_forces[3*blob : 3*blob+3]
+                        for pi, pos in enumerate(pos_list):
+                            v_list[pi] += stokeslet(pos, blob_pos, blob_force)
                     
                     colormap2 = 'jet'
                     cmap2 = mpl.colormaps[colormap2]
@@ -1592,7 +1592,7 @@ class VISUAL:
                     print('maxspeed', max_speed)
                     colors = cmap2(np.clip(speed_list/150, None, 0.999))
                     ax.scatter(pos_list[:,0], pos_list[:,1], pos_list[:,2], color=colors)
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = .5, color='b' )
+                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = 3.5, color='b' )
 
                     # # e_r
                     # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
@@ -2652,7 +2652,7 @@ class VISUAL:
                         for seg in range(int(self.pars['NSEG'])):
                             seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
                             seg_data[seg] = seg_pos
-                            seg_force = seg_forces[fil_i+6*(seg) : fil_i+6*(seg+1)]
+                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                             seg_force = seg_force[:3]
 
                             for pi, pos in enumerate(pos_list):
@@ -2773,7 +2773,7 @@ class VISUAL:
                     for seg in range(int(self.pars['NSEG'])):
                         seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
                         seg_data[seg] = seg_pos
-                        seg_force = seg_forces[fil_i+6*(seg) : fil_i+6*(seg+1)]
+                        seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                         seg_force = seg_force[:3]
 
                         for pi, pos in enumerate(pos_list):
@@ -2906,19 +2906,19 @@ class VISUAL:
                 v_list = np.zeros(np.shape(pos_list))
 
                 for swim in range(int(self.pars['NSWIM'])):
-                    for blob in range(int(self.pars['NBLOB'])):
-                        # print(" blob ", blob, "          ", end="\r")
-                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                        blob_force = blob_forces[3*blob : 3*blob+3]
-                        for pi, pos in enumerate(pos_list):
-                            v_list[pi] += stokeslet(pos, blob_pos, blob_force)
+                    # for blob in range(int(self.pars['NBLOB'])):
+                    #     # print(" blob ", blob, "          ", end="\r")
+                    #     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                    #     blob_force = blob_forces[3*blob : 3*blob+3]
+                    #     for pi, pos in enumerate(pos_list):
+                    #         v_list[pi] += stokeslet(pos, blob_pos, blob_force)
                             
                     for fil in range(int(self.pars['NFIL'])):
                         # print(" fil ", fil, "          ", end="\r")
                         fil_i = int(3*fil*self.pars['NSEG'])
                         for seg in range(int(self.pars['NSEG'])):
                             seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
-                            seg_force = seg_forces[fil_i+6*(seg) : fil_i+6*(seg+1)]
+                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                             seg_force = seg_force[:3]
                             for pi, pos in enumerate(pos_list):
                                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
