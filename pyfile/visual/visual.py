@@ -97,7 +97,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 10000
+        self.plot_end_frame_setting = 30
         self.frames_setting = 31
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1590,9 +1590,9 @@ class VISUAL:
 
                     max_speed = max(speed_list)
                     print('maxspeed', max_speed)
-                    colors = cmap2(np.clip(speed_list/150, None, 0.999))
+                    colors = cmap2(np.clip(speed_list/35, None, 0.999))
                     ax.scatter(pos_list[:,0], pos_list[:,1], pos_list[:,2], color=colors)
-                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = 3.5, color='b' )
+                    ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = 4.5, color='b' )
 
                     # # e_r
                     # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
@@ -2567,131 +2567,9 @@ class VISUAL:
         
         plt.show()
 
-    def flow_field(self):
-
-        with_blob = False
-
-        with_blob_string = ''
-        if(with_blob):
-            with_blob_string = '_with_blob'
-
-        def stokeslet(x, x0, f0):
-            r = np.linalg.norm(x-x0)
-            return f0/(8.*np.pi*r) + np.dot(f0, x-x0) * (x - x0) / (8.*np.pi*r**3)
-
-        # need to test
-        self.select_sim()
-
-        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
-        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
-        seg_states_f = open(self.simName + '_seg_states.dat', "r")
-        body_states_f = open(self.simName + '_body_states.dat', "r")
-
-        fig = plt.figure()
-        ax = fig.add_subplot(projection='3d')
-        ax.set_proj_type('ortho')
-        
-        # plane
-        n_field_point = 15
-        x_list = [128]
-        y_list = np.linspace(60, 196, n_field_point)
-        z_list = np.linspace(-10, 50, n_field_point)
-
-        x_mesh, y_mesh, z_mesh = np.meshgrid(x_list, y_list, z_list, indexing='ij')
-        x_flat = x_mesh.flatten()
-        y_flat = y_mesh.flatten()
-        z_flat = z_mesh.flatten()
-
-
-        # sphere
-        # n_theta = 20
-        # n_r = 4
-        # n_field_point = n_theta*n_r
-
-        # x_flat = np.zeros(n_field_point)
-        # r_list = np.linspace(1.6, 2.6, n_r)*self.radius
-        # theta_list = np.linspace(0, np.pi, n_theta)
-        # y_flat = np.outer(np.cos(theta_list), r_list).flatten()
-        # z_flat = np.outer(np.sin(theta_list), r_list).flatten()
-
-        pos_list = np.column_stack((x_flat, y_flat, z_flat))       
-
-        for i in range(self.plot_end_frame):
-            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-
-            seg_forces_str = seg_forces_f.readline()
-            blob_forces_str = blob_forces_f.readline()
-            seg_states_str = seg_states_f.readline()
-            body_states_str = body_states_f.readline()
-
-            # if(i>=self.plot_start_frame):
-            if(i==self.plot_end_frame-1):
-                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
-                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
-                body_states = np.array(body_states_str.split()[1:], dtype=float)
-
-                v_list = np.zeros(np.shape(pos_list))
-
-                for swim in range(int(self.pars['NSWIM'])):
-                    if(with_blob):
-                        for blob in range(int(self.pars['NBLOB'])):
-                            print(" blob ", blob, "          ", end="\r")
-                            blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                            blob_force = blob_forces[3*blob : 3*blob+3]
-
-                            # ax.scatter(blob_pos[0], blob_pos[1], blob_pos[2], c='black')
-
-                            for pi, pos in enumerate(pos_list):
-                                v_list[pi] += stokeslet(pos, blob_pos, blob_force)
-                            
-                    for fil in range(int(self.pars['NFIL'])):
-                        print(" fil ", fil, "          ", end="\r")
-                        fil_i = int(3*fil*self.pars['NSEG'])
-                        seg_data = np.zeros((int(self.pars['NSEG']), 3))
-                        for seg in range(int(self.pars['NSEG'])):
-                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
-                            seg_data[seg] = seg_pos
-                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
-                            seg_force = seg_force[:3]
-
-                            for pi, pos in enumerate(pos_list):
-                                v_list[pi] += stokeslet(pos, seg_pos, seg_force)
-                        
-                        ax.plot(seg_data[:,0], seg_data[:,1], seg_data[:,2], c='black')
-
-            if(i==self.plot_end_frame-1):
-                colormap = 'jet'
-                cmap = mpl.colormaps[colormap]
-                speed_list = np.linalg.norm(v_list, axis=1)
-                max_speed = max(speed_list)
-                print('maxspeed', max_speed)
-
-                colors = cmap(np.clip(speed_list/150, None, 0.999))
-
-                ax.scatter(pos_list[:,0], pos_list[:,1], pos_list[:,2], color=colors)
-                ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], v_list[:,0], v_list[:,1], v_list[:,2], length = .05 )
-                              
-
-        ax.view_init(elev=0., azim=0)
-        # labels=[r'$\lambda_x$', r'$\lambda_y$', r'$\lambda_z$']
-        # for i in range(len(body_force_array[0])):
-        #     ax.plot(time_array, body_force_array[:,i], label=labels[i])
-        # ax.set_xlabel('Time step')
-        # ax.set_ylabel('Force')
-        # ax.legend()
-
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
-        plt.show()
-
     def flow_field_2D(self):
-
-        with_blob = False
-
-        with_blob_string = ''
-        if(with_blob):
-            with_blob_string = '_with_blob'
+        
+        read_flow_field = False
 
         def stokeslet(x, x0, f0):
             r = np.linalg.norm(x-x0)
@@ -2713,28 +2591,22 @@ class VISUAL:
         y_lower, y_upper = 128-50, 128+51
         z_lower, z_upper = 3, 74
         x_list = [126]
-        # y_list = np.linspace(y_lower, y_upper, n_field_point)
-        # z_list = np.linspace(z_lower, z_upper, n_field_point)
         y_list = np.arange(y_lower, y_upper, 5)
         z_list = np.arange(z_lower, z_upper, 5)
 
-        x_mesh, y_mesh, z_mesh = np.meshgrid(x_list, y_list, z_list, indexing='ij')
-        x_flat = x_mesh.flatten()
+        # sphere        
+        y_lower, y_upper = -1.5*self.radius, 1.5*self.radius, 
+        z_lower, z_upper = -1.5*self.radius, 1.5*self.radius, 
+
+        x_list = [0]
+        y_list = np.arange(y_lower, y_upper+0.01, 20)
+        z_list = np.arange(z_lower, z_upper+0.01, 20)
+
+        y_mesh, z_mesh = np.meshgrid(y_list, z_list)
         y_flat = y_mesh.flatten()
         z_flat = z_mesh.flatten()
 
-        # sphere
-        # n_theta = 20
-        # n_r = 4
-        # n_field_point = n_theta*n_r
-
-        # x_flat = np.zeros(n_field_point)
-        # r_list = np.linspace(1.6, 2.6, n_r)*self.radius
-        # theta_list = np.linspace(0, np.pi, n_theta)
-        # y_flat = np.outer(np.cos(theta_list), r_list).flatten()
-        # z_flat = np.outer(np.sin(theta_list), r_list).flatten()
-
-        pos_list = np.column_stack((x_flat, y_flat, z_flat))
+        pos_list = np.column_stack((np.ones(y_flat.shape)*x_list[0], y_flat, z_flat))
 
         def animation_func(t):
             print(t)
@@ -2752,17 +2624,19 @@ class VISUAL:
             seg_states = np.array(seg_states_str.split()[1:], dtype=float)
             body_states = np.array(body_states_str.split()[1:], dtype=float)
 
-            v_list = np.zeros(np.shape(pos_list))
+            if read_flow_field:
+                v_list = np.load(f'{self.dir}/v_list_index{self.index}_{t}.npy')
+            else:
+                v_list = np.zeros(np.shape(pos_list))
 
             for swim in range(int(self.pars['NSWIM'])):
-                if(with_blob):
-                    for blob in range(int(self.pars['NBLOB'])):
-                        print(" blob ", blob, "          ", end="\r")
-                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                        blob_force = blob_forces[3*blob : 3*blob+3]
+                for blob in range(int(self.pars['NBLOB'])):
+                    print(" blob ", blob, "          ", end="\r")
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                    blob_force = blob_forces[3*blob : 3*blob+3]
 
-                        # ax.scatter(blob_pos[1], blob_pos[2], c='black')
-
+                    # ax.scatter(blob_pos[1], blob_pos[2], c='black')
+                    if not read_flow_field:
                         for pi, pos in enumerate(pos_list):
                             v_list[pi] += stokeslet(pos, blob_pos, blob_force)
                         
@@ -2776,21 +2650,32 @@ class VISUAL:
                         seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                         seg_force = seg_force[:3]
 
-                        for pi, pos in enumerate(pos_list):
-                            v_list[pi] += stokeslet(pos, seg_pos, seg_force)
+                        if not read_flow_field:
+                            for pi, pos in enumerate(pos_list):
+                                v_list[pi] += stokeslet(pos, seg_pos, seg_force)
                     
                     ax.plot(seg_data[:,1], seg_data[:,2], c='black')
+
             colormap = 'jet'
             cmap = mpl.colormaps[colormap]
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
-            normalised_v_list = v_list/15
+            normalised_v_list = v_list/5
             print('maxspeed', max_speed)
 
             colors = cmap(np.clip(speed_list/max_speed, None, 0.999))
 
-            ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
-            ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=1.)
+            speed_mesh = speed_list.reshape(y_mesh.shape)
+            phi_var_plot = ax.imshow(speed_mesh, cmap='jet', origin='upper', extent=[y_lower, y_upper, z_lower, z_upper])
+
+            # ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
+            # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=1.)
+            
+            vy_mesh = normalised_v_list[:,1].reshape(y_mesh.shape)
+            vz_mesh = normalised_v_list[:,2].reshape(y_mesh.shape)
+            ax.streamplot(y_mesh, z_mesh, vy_mesh, vz_mesh)
+
+            np.save(f'{self.dir}/v_list_index{self.index}_{t}.npy', v_list)
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -2817,29 +2702,11 @@ class VISUAL:
                     seg_forces_str = seg_forces_f.readline()
                     blob_forces_str = blob_forces_f.readline()
                     seg_states_str = seg_states_f.readline()
-                    body_states_str = body_states_f.readline()
+                    body_states_str = body_states_f.readline()    
             
             ax.set_aspect('equal')
-            # plt.savefig(f'fig/ciliate_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.savefig(f'fig/wall_flowfield_{self.nfil}fil_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
+            plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
-
-            # if(i==self.plot_end_frame-1):
-            #     colormap = 'jet'
-            #     cmap = mpl.colormaps[colormap]
-            #     speed_list = np.linalg.norm(v_list, axis=1)
-            #     max_speed = max(speed_list)
-            #     print('maxspeed', max_speed)
-
-            #     colors = cmap(np.clip(speed_list/150, None, 0.999))
-
-            #     ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
-            #     ax.quiver(pos_list[:,1], pos_list[:,2], v_list[:,1], v_list[:,2])
-                            
-
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
-        plt.show()
 
     def flow_field_kymograph(self):
         def stokeslet(x, x0, f0):
@@ -2906,12 +2773,12 @@ class VISUAL:
                 v_list = np.zeros(np.shape(pos_list))
 
                 for swim in range(int(self.pars['NSWIM'])):
-                    # for blob in range(int(self.pars['NBLOB'])):
-                    #     # print(" blob ", blob, "          ", end="\r")
-                    #     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                    #     blob_force = blob_forces[3*blob : 3*blob+3]
-                    #     for pi, pos in enumerate(pos_list):
-                    #         v_list[pi] += stokeslet(pos, blob_pos, blob_force)
+                    for blob in range(int(self.pars['NBLOB'])):
+                        # print(" blob ", blob, "          ", end="\r")
+                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                        blob_force = blob_forces[3*blob : 3*blob+3]
+                        for pi, pos in enumerate(pos_list):
+                            v_list[pi] += stokeslet(pos, blob_pos, blob_force)
                             
                     for fil in range(int(self.pars['NFIL'])):
                         # print(" fil ", fil, "          ", end="\r")
@@ -2937,16 +2804,9 @@ class VISUAL:
                 utheta_data[i-self.plot_start_frame] = utheta_list
                 uphi_data[i-self.plot_start_frame] = uphi_list
 
-                np.save(f'data/IVP159_flowfield/ur_data_fil{self.nfil}_r{r_ratio}.npy', ur_data)
-                np.save(f'data/IVP159_flowfield/utheta_data_fil{self.nfil}_r{r_ratio}.npy', utheta_data)
-                np.save(f'data/IVP159_flowfield/grid_shape_fil{self.nfil}_r{r_ratio}.npy', np.array(R.shape))
-
-        # v_avg_list = np.mean(v_data, axis=0)
-        # v_subtract_data = v_data - v_avg_list
-
-        # for j in range(self.frames):
-
-            
+                np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}.npy', ur_data)
+                np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}.npy', utheta_data)
+                np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}.npy', np.array(R.shape))            
 
         t = ur_data.shape[0]/30
         
@@ -2957,9 +2817,7 @@ class VISUAL:
         ax.set_yticks(ticks=y_ticks, labels=y_labels)
 
         ax.set_xlabel(r'$t/T$')
-        ax.set_ylabel(r'$\theta$')
-
-        
+        ax.set_ylabel(r'$\theta$')        
 
         # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
@@ -5224,8 +5082,8 @@ class VISUAL:
         # edge_section = f'section7'
 
         k_string = 'k0.020'
-        iteration_string = 'iteration4_1e-7'
-        edge_section = f'section11'
+        iteration_string = 'iteration1_1e-7'
+        edge_section = f'section12'
 
         # iteration_string = 'iteration1_1e-7'
         # edge_section = f'test_new_ini'
@@ -5239,7 +5097,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 30000
+        self.plot_end_frame_setting = 50000
         self.frames_setting = 100000
         window_size = 1
 
