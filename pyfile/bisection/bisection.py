@@ -13,13 +13,13 @@ NFIL = 159       # Number of filaments
 NBLOB = 9000
 AR = 8
 T = 1
-sim_length = 100
+sim_length = 60
 
 k = 0.020
 
 k_string = f'k0.020'
 edge_section = f'section12'
-iteration_string = 'iteration1_1e-7'
+iteration_string = 'iteration3_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 
