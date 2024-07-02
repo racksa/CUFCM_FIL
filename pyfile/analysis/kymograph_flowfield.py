@@ -2,18 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-n = 640
+n = 159
+r_ratio = 1.5
 
-ur_data = np.load(f'data/IVP159_flowfield/ur_data_fil{n}_r1.3.npy')
-utheta_data = np.load(f'data/IVP159_flowfield/utheta_data_fil{n}_r1.3.npy')
-grid_shape = np.load(f'data/IVP159_flowfield/grid_shape_fil{n}_r1.3.npy')
+ur_data = np.load(f'data/IVP159_flowfield/20240620/ur_data_fil{n}_r{r_ratio}.npy')
+utheta_data = np.load(f'data/IVP159_flowfield/20240620/utheta_data_fil{n}_r{r_ratio}.npy')
+grid_shape = np.load(f'data/IVP159_flowfield/20240620/grid_shape_fil{n}_r{r_ratio}.npy')
 
-# ur_data = np.load(f'data/IVP159_flowfield/ur_data_fil{n}_r1.3_avg.npy')
-# utheta_data = np.load(f'data/IVP159_flowfield/utheta_data_fil{n}_r1.3_avg.npy')
-# grid_shape = np.load(f'data/IVP159_flowfield/grid_shape_fil{n}_r1.3_avg.npy')
+# ur_data = np.load(f'data/IVP159_flowfield/old_data/ur_data_fil{n}_r1.4.npy')
+# utheta_data = np.load(f'data/IVP159_flowfield/old_data/utheta_data_fil{n}_r1.4.npy')
+# grid_shape = np.load(f'data/IVP159_flowfield/old_data/grid_shape_fil{n}_r1.4.npy')
 
-print(ur_data.shape)
-print(grid_shape)
+
+
 
 selected_t = 0
 n_frame = ur_data.shape[0]
@@ -22,7 +23,7 @@ n_frame = ur_data.shape[0]
 ur_data = ur_data[:n_frame]
 utheta_data = utheta_data[:n_frame]
 n_r, n_phi, n_theta = grid_shape
-print(n_r, n_phi, n_theta)
+# print(n_r, n_phi, n_theta)
 
 # assuming n_r = 1
 reshaped_ur_data = ur_data.reshape(n_frame, n_phi, n_theta)
@@ -33,9 +34,6 @@ avg_over_time_utheta_data = np.mean(reshaped_utheta_data, axis=0)
 
 reshaped_ur_data -= avg_over_time_ur_data
 reshaped_utheta_data -= avg_over_time_utheta_data
-
-print(reshaped_ur_data[0])
-print(avg_over_time_ur_data[0])
 
 avg_ur_data = reshaped_ur_data.mean(axis=1)
 avg_utheta_data = reshaped_utheta_data.mean(axis=1)
@@ -49,9 +47,9 @@ avg_utheta_data = reshaped_utheta_data.mean(axis=1)
 
 t = n_frame/30
 
-fig1 = plt.figure()
+fig1 = plt.figure(figsize=(4,1))
 ax1 = fig1.add_subplot()
-fig2 = plt.figure()
+fig2 = plt.figure(figsize=(4,1))
 ax2 = fig2.add_subplot()
 fig3 = plt.figure()
 ax3 = fig3.add_subplot()
@@ -61,8 +59,8 @@ ax3 = fig3.add_subplot()
 phi_var_plot = ax3.imshow(avg_over_time_ur_data.T, cmap='jet', origin='upper', extent=[0, 2*np.pi, 0, np.pi])
 fig3.colorbar(phi_var_plot)
 
-ur_plot = ax1.imshow(avg_ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
-utheta_plot = ax2.imshow(avg_utheta_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+ur_plot = ax1.imshow(avg_ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi], aspect='auto')
+utheta_plot = ax2.imshow(avg_utheta_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi], aspect='auto')
 
 fig1.colorbar(ur_plot)
 fig2.colorbar(utheta_plot)
@@ -90,8 +88,8 @@ ax3.set_yticks(ticks= np.linspace(0, np.pi, 5), labels=ax3_y_labels)
 ax3.set_title(rf'$u_r$, $t={selected_t}$')
 
 plt.tight_layout()
-fig1.savefig(f'fig/ur.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/utheta.pdf', bbox_inches = 'tight', format='pdf')
-fig3.savefig(f'fig/ur_variation_over_phi.pdf', bbox_inches = 'tight', format='pdf')
+fig1.savefig(f'fig/ur_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
+fig2.savefig(f'fig/utheta_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
+fig3.savefig(f'fig/ur_variation_over_phi_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
 
 plt.show()
