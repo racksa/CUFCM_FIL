@@ -11,9 +11,9 @@ class DRIVER:
         self.category = 'IVP159_flowfield/'
 
         self.exe_name = 'cilia_1e-4_30_with_force'
-        self.exe_name = 'cilia_1e-4_30_ishikawa'
+        # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240627_ishikawa'
+        self.date = '20240703_highres'
         
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -124,31 +124,31 @@ class DRIVER:
 
 
                         # # IVP sim
-                        # nfil = int(159 + 480*i)
-                        # nblob = int(9000 + 31961*i)
-                        # ar = round(8.00 + 7*i, 2)
-                        # spring_factor = round(0.005 + 0.00, 3)
-                        # period = 1
-                        # sim_length = 100
+                        nfil = int(159 + 480*i)
+                        nblob = int((9000 + 31961*i)*3)
+                        ar = round(8.00 + 7*i, 2)
+                        spring_factor = round(0.005 + 0.00, 3)
+                        period = 1
+                        sim_length = 10
 
-                        # # nfil = int(639 + 0*i)
-                        # # nblob = int(40961 + 0*i)
-                        # # ar = round(15.00, 2)
-                        # # spring_factor = round(0.005 + 0.005*i, 3)
-                        # # period = 1.0
-                        # # sim_length = 12
+                        # nfil = int(639 + 0*i)
+                        # nblob = int(40961 + 0*i)
+                        # ar = round(15.00, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # period = 1.0
+                        # sim_length = 12
 
 
                         # # icosahedral
-                        nfil = int(640)
-                        nblob = int(40962)
-                        ar = round(15.0, 2)
-                        spring_factor = round(1, 3)
-                        nx=256
-                        ny=256
-                        nz=256
-                        boxsize=8000
-                        sim_length = 1
+                        # nfil = int(640)
+                        # nblob = int(40962)
+                        # ar = round(15.0, 2)
+                        # spring_factor = round(1, 3)
+                        # nx=256
+                        # ny=256
+                        # nz=256
+                        # boxsize=8000
+                        # sim_length = 1
 
                         # nfil = int(639)
                         # nblob = int(40961)

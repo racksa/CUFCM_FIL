@@ -39,7 +39,10 @@ class VISUAL:
         self.dir = f"data/regular_wall_sim/{self.date}/"
         
 
+        
+        
         self.date = '20240620'
+        self.date = '20240703'
         self.dir = f"data/IVP159_flowfield/{self.date}/"
 
         # self.date = '20240311_1'
@@ -50,6 +53,7 @@ class VISUAL:
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
+        
 
 
 
@@ -99,7 +103,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 2990
+        self.plot_end_frame_setting = 2985
         self.frames_setting = 31
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -174,8 +178,12 @@ class VISUAL:
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
-        self.fil_spacing = self.pars_list['fil_spacing'][self.index]
-        self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
+        
+        try:
+            self.fil_spacing = self.pars_list['fil_spacing'][self.index]
+            self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
+        except:
+            pass
 
         try:
             open(self.simName + '_fil_references.dat')
@@ -2682,18 +2690,29 @@ class VISUAL:
         # z_list = np.arange(z_lower, z_upper, 5)
 
         # sphere 
-        r_ratio = 2.
+        r_ratio = 3.
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
 
-        x_list = [0]
-        y_list = np.arange(y_lower, y_upper+0.01, 5)
-        z_list = np.arange(z_lower, z_upper+0.01, 5)
+        flow_spacing = 20
 
-        y_mesh, z_mesh = np.meshgrid(y_list, z_list)
+        # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
+        # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
+        # z_list = np.arange(z_lower, z_upper+0.01, flow_spacing)
+
+        # x_mesh, y_mesh, z_mesh = np.meshgrid(x_list, y_list, z_list)
+        # x_mesh = x_mesh.swapaxes(0, 1)
+        # y_mesh = y_mesh.swapaxes(0, 1)
+        # z_mesh = z_mesh.swapaxes(0, 1)
+
+        x_mesh, y_mesh, z_mesh = np.mgrid[y_lower:y_upper:flow_spacing, y_lower:y_upper:flow_spacing, y_lower:y_upper:flow_spacing ]
+
+        print(x_mesh.shape)
+
+
+        x_flat = x_mesh.flatten()
         y_flat = y_mesh.flatten()
         z_flat = z_mesh.flatten()
-        x_flat = np.ones(y_flat.shape)*x_list[0]
 
         pos_list = np.column_stack((x_flat, y_flat, z_flat))
 
@@ -2701,8 +2720,12 @@ class VISUAL:
         theta_flat = np.arctan2(y_flat, x_flat)
         phi_flat = np.arccos(z_flat / r_flat)
 
+        global frame
+        frame = 0
+
         def animation_func(t):
-            print(t)
+            global frame
+            print(frame)
             ax.cla()
             ax.set_xlim(y_lower, y_upper)
             ax.set_ylim(z_lower, z_upper)
@@ -2721,8 +2744,10 @@ class VISUAL:
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             fil_phases = fil_states[:self.nfil]
 
+            fil_plot_data = np.zeros((self.nfil, self.nseg, 3))
+
             if read_flow_field:
-                v_list = np.load(f'{self.dir}/v_list_index{self.index}_{t}.npy')
+                v_list = np.load(f'{self.dir}/v_list_index{self.index}_{frame}.npy')
             else:
                 v_list = np.zeros(np.shape(pos_list))
 
@@ -2756,8 +2781,11 @@ class VISUAL:
                         source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
                         source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
 
-                    if(seg_data[0, 0]>0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100)
+                    fil_plot_data[fil] = seg_data
+                    # only plot fil when the fil is facing us. this is done by checking the base of the filament
+                    if(seg_data[0, 2]>0):
+                        ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100)
+                        # ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100)
 
             # compute the flow field
             if not read_flow_field:
@@ -2787,39 +2815,73 @@ class VISUAL:
                                 v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
                                     - v_list[:, 2] * np.sin(theta_flat)
 
-
-            colormap = 'jet'
-            cmap2 = mpl.colormaps[colormap]
+            # Flow field
+            cmap_name2= 'seismic'
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
-            normalised_v_list = v_list
             np.clip(speed_list, None, 60, speed_list)
 
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
-            colors = cmap2(np.clip(speed_list/max_speed, None, 0.999))
 
             speed_mesh = speed_list.reshape(y_mesh.shape)
             ur_mesh = ur_list.reshape(y_mesh.shape)
 
-            phi_var_plot = ax.imshow(ur_mesh, cmap='jet', origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 20, vmin=-20)
-            phi_var_plot = ax.imshow(speed_mesh, cmap='jet', origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 60, vmin=0)
+            
+            speed_mesh_2D = speed_mesh[:,:,25]
+
+            vx_mesh = v_list[:,0].reshape(y_mesh.shape)
+            vy_mesh = v_list[:,1].reshape(y_mesh.shape)
+            vz_mesh = v_list[:,2].reshape(y_mesh.shape)
+
+            x_mesh_2D = x_mesh[:,:,25]
+            y_mesh_2D = y_mesh[:,:,25]
+            z_mesh_2D = z_mesh[:,:,25]
+            vx_mesh_2D = vx_mesh[:,:,25]
+            vy_mesh_2D = vy_mesh[:,:,25]
+            vz_mesh_2D = vz_mesh[:,:,25]
+
+
+            # phi_var_plot = ax.imshow(ur_mesh, cmap='jet', origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 20, vmin=-20)
+            phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 65, vmin=0)
+            
+            
+            # Colorbars
+            # from matplotlib.colors import Normalize
+            # from matplotlib.cm import ScalarMappable
+            # norm = Normalize(vmin=0, vmax=2*np.pi)
+            # sm = ScalarMappable(cmap=cmap_name, norm=norm)
+            # sm.set_array([])
+            # cbar = plt.colorbar(sm)
+            # cbar.ax.set_yticks(np.linspace(0, 2*np.pi, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+            # cbar.set_label(r"Phase")
+            # cbar2 = plt.colorbar(phi_var_plot) 
+            # cbar2.set_label(r"|$v$|")
 
             # ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
             # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=3.)
             
-            vy_mesh = normalised_v_list[:,1].reshape(y_mesh.shape)
-            vz_mesh = normalised_v_list[:,2].reshape(y_mesh.shape)
-            ax.streamplot(y_mesh, z_mesh, vy_mesh, vz_mesh, color='black', density=0.5, broken_streamlines=False)
+            # ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
+            ax.streamplot(x_mesh_2D.T, y_mesh_2D.T, vx_mesh_2D.T, vy_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
 
-            # np.save(f'{self.dir}/v_list_index{self.index}_{t}.npy', v_list)
+            np.save(f'{self.dir}/vx_mesh_index{self.index}_{frame}.npy', vx_mesh)
+            np.save(f'{self.dir}/vy_mesh_index{self.index}_{frame}.npy', vy_mesh)
+            np.save(f'{self.dir}/vz_mesh_index{self.index}_{frame}.npy', vz_mesh)
+            np.save(f'{self.dir}/x_mesh_index{self.index}_{frame}.npy', x_mesh)
+            np.save(f'{self.dir}/y_mesh_index{self.index}_{frame}.npy', y_mesh)
+            np.save(f'{self.dir}/z_mesh_index{self.index}_{frame}.npy', z_mesh)
+            np.save(f'{self.dir}/fil_data_index{self.index}_{frame}.npy', fil_plot_data)
+            np.save(f'{self.dir}/fil_phases_index{self.index}_{frame}.npy', fil_phases)
+
+            frame += 1
 
         if(self.video):
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i>=self.plot_start_frame):
+                    frame = i
                     plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-                    ani = animation.FuncAnimation(fig, animation_func, frames=500, interval=10, repeat=False)
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
                     # plt.show()
                     break
                 else:
@@ -5296,12 +5358,12 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration3_1e-7'
-        edge_section = f'section9'
+        iteration_string = 'iteration1_1e-7'
+        edge_section = f'section10'
 
         k_string = 'k0.020'
-        iteration_string = 'iteration4_1e-7'
-        edge_section = f'section7'
+        iteration_string = 'iteration1_1e-7'
+        edge_section = f'section14'
 
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"
 
@@ -5312,7 +5374,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 80000
+        self.plot_end_frame_setting = 10000
         self.frames_setting = 100000
         window_size = 1
 
@@ -5393,7 +5455,7 @@ class VISUAL:
                             cmap = mpl.colormaps[colormap]
                             colors = cmap(phases/2/np.pi)
 
-                            x1 = np.insert(fil_states, 0, [float(k_string[1:]), t])
+                            x1 = np.insert(fil_states, 0, [ind, t])
                             np.savetxt(f'data/bisection/ini_states/' + f"state{fi+1}.dat", x1, newline = " ")
 
                             # ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)

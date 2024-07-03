@@ -19,7 +19,7 @@ k = 0.020
 
 k_string = f'k0.020'
 edge_section = f'section14'
-iteration_string = 'iteration1_1e-7'
+iteration_string = 'iteration2_1e-7'
 bisection_indices_filename = 'bisection_indices_1e-7.dat'
 
 

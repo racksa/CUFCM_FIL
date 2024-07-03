@@ -38,33 +38,6 @@ def read_input_state(filename):
 
         return full_input[2:]
 
-def calculate_r(d):
-    plot_end_frame_setting = 3000
-    frames_setting = 3000
-
-    plot_end_frame = min(plot_end_frame_setting, sum(1 for line in open(d.dir + d.simName + '_true_states.dat')))
-    plot_start_frame = max(0, plot_end_frame-frames_setting)
-    frames = plot_end_frame - plot_start_frame
-    fil_references = read_fil_references(d.dir + d.simName + '_fil_references.dat')
-    fil_states_f = open(d.dir + d.simName + '_true_states.dat', "r")
-
-    time_array = np.arange(plot_start_frame, plot_end_frame )
-    r_array = np.zeros(frames)
-
-    for i in range(plot_end_frame):
-        print(" frame ", i, "/", plot_end_frame, "          ", end="\r")
-        fil_states_str = fil_states_f.readline()
-
-        if(i>=plot_start_frame):
-            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-            fil_phases = fil_states[:NFIL]
-            fil_phases = util.box(fil_phases, 2*np.pi)
-            
-            r_array[i-plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/NFIL)
-
-    return time_array, r_array
-
-
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
@@ -83,8 +56,9 @@ colormap = 'jet'
 cmap = mpl.colormaps[colormap]
 
 last_t = 0
+print(sections)
 for si, section in enumerate(sections[:-1]):
-    iterations = [iteration for iteration in os.listdir(bisection_dir+section) if os.path.isdir(os.path.join(bisection_dir+section, iteration))]
+    iterations = [iteration for iteration in sorted(os.listdir(bisection_dir+section)) if os.path.isdir(os.path.join(bisection_dir+section, iteration))]
     print(f"---------------{section}")
     bisection_indices_filename = 'bisection_indices_1e-7.dat'
     bisection_indices = np.loadtxt(f'{bisection_dir}{section}/{bisection_indices_filename}', dtype='int')
@@ -120,16 +94,14 @@ for si, section in enumerate(sections[:-1]):
     # initial_condition[:NFIL] = box(initial_condition[:NFIL], 2*np.pi)
     # r_array[si] = np.abs(np.sum(np.exp(1j*initial_condition[:NFIL]))/NFIL)
 
-        
-    # find where I cut them..
+    # calculate r based on the data
     for ite, iteration in enumerate(iterations[-1:]):
-        sim_indices = [sim_index for sim_index in os.listdir(f"{bisection_dir}{section}/{iteration}") \
+        sim_indices = [sim_index for sim_index in sorted(os.listdir(f"{bisection_dir}{section}/{iteration}")) \
                    if os.path.isdir(os.path.join(f"{bisection_dir}{section}/{iteration}", sim_index))]
     
         plot_left = False
         plot_right = False
         cut_t = 0
-        
         for sim in sim_indices:
             fil_states_f = open(f'{bisection_dir}{section}/{iteration}/{sim}/{true_state_file}', "r")
             sim_length = sum(1 for line in open(f'{bisection_dir}{section}/{iteration}/{sim}/{true_state_file}'))
@@ -152,13 +124,14 @@ for si, section in enumerate(sections[:-1]):
                 fil_states[:NFIL] = box(fil_states[:NFIL], 2*np.pi)
                 phases = fil_states[:NFIL]
 
+                # find where I cut them..
                 if np.allclose(next_leftstate, fil_states):
-                    print(sim, t)
+                    print(iteration, sim, t)
                     plot_left = True
                     plot_this = True
                     cut_t = t
                 if np.allclose(next_rightstate, fil_states):
-                    print(sim, t)
+                    print(iteration, sim, t)
                     plot_right = True
                     plot_this = True
                     cut_t = t
@@ -175,8 +148,6 @@ for si, section in enumerate(sections[:-1]):
                 ax.plot(t_array[:t], r_array[:t], c = color, alpha =
                          0.5)
                 ax.plot(t_array[:cut_t], r_array[:cut_t], c = 'black', alpha = 0.5)
-                print(len(t_array[:t]))
-
 
     # calculate r based on the data
     # sim_indices = [sim_index for sim_index in os.listdir(f"{bisection_dir}{section}/{iterations[-1]}") \
