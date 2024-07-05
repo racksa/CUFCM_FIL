@@ -5359,12 +5359,12 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration1_1e-7'
+        iteration_string = 'iteration2_1e-7'
         edge_section = f'section11'
 
-        k_string = 'k0.020'
-        iteration_string = 'iteration1_1e-7'
-        edge_section = f'section15'
+        # k_string = 'k0.020'
+        # iteration_string = 'iteration2_1e-7'
+        # edge_section = f'section15'
 
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"
 
