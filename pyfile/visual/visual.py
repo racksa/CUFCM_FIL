@@ -37,15 +37,13 @@ class VISUAL:
         self.date = '20240625_channel'
         self.date = '20240618'
         self.dir = f"data/regular_wall_sim/{self.date}/"
-        
 
         
-        
-        self.date = '20240620'
-        self.date = '20240703'
+        self.date = '20240620_symplectic'
+        # self.date = '20240703_diaplectic'
         self.dir = f"data/IVP159_flowfield/{self.date}/"
 
-        # self.date = '20240311_1'
+        # self.date = '20240311_2'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = '20240626_ishikawa'
@@ -103,7 +101,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 2985
+        self.plot_end_frame_setting = 2995
         self.frames_setting = 31
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -840,7 +838,7 @@ class VISUAL:
                     #     fil_angles_str = fil_angles_f.readline()
                     frame += 1
                 
-            # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
     def phi_dot(self):
@@ -2690,11 +2688,13 @@ class VISUAL:
         # z_list = np.arange(z_lower, z_upper, 5)
 
         # sphere 
-        r_ratio = 3.
+        r_ratio = 5.
+        x_lower, x_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
 
         flow_spacing = 20
+        speed_limit = 40
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
         # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -2705,7 +2705,7 @@ class VISUAL:
         # y_mesh = y_mesh.swapaxes(0, 1)
         # z_mesh = z_mesh.swapaxes(0, 1)
 
-        x_mesh, y_mesh, z_mesh = np.mgrid[y_lower:y_upper:flow_spacing, y_lower:y_upper:flow_spacing, y_lower:y_upper:flow_spacing ]
+        x_mesh, y_mesh, z_mesh = np.mgrid[x_lower:x_upper:flow_spacing, y_lower:y_upper:flow_spacing, z_lower:z_upper:flow_spacing ]
 
         print(x_mesh.shape)
 
@@ -2783,9 +2783,9 @@ class VISUAL:
 
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
-                    if(seg_data[0, 2]>0):
-                        ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100)
-                        # ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100)
+                    if(seg_data[0, 0]>0):
+                        # ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100)
+                        ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100)
 
             # compute the flow field
             if not read_flow_field:
@@ -2820,30 +2820,30 @@ class VISUAL:
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
-            np.clip(speed_list, None, 60, speed_list)
+            np.clip(speed_list, None, speed_limit, speed_list)
 
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
 
             speed_mesh = speed_list.reshape(y_mesh.shape)
             ur_mesh = ur_list.reshape(y_mesh.shape)
 
-            
-            speed_mesh_2D = speed_mesh[:,:,25]
+            half_plane_index = int(x_mesh.shape[0]/2)
+            speed_mesh_2D = speed_mesh[half_plane_index,:,:]
 
             vx_mesh = v_list[:,0].reshape(y_mesh.shape)
             vy_mesh = v_list[:,1].reshape(y_mesh.shape)
             vz_mesh = v_list[:,2].reshape(y_mesh.shape)
 
-            x_mesh_2D = x_mesh[:,:,25]
-            y_mesh_2D = y_mesh[:,:,25]
-            z_mesh_2D = z_mesh[:,:,25]
-            vx_mesh_2D = vx_mesh[:,:,25]
-            vy_mesh_2D = vy_mesh[:,:,25]
-            vz_mesh_2D = vz_mesh[:,:,25]
+            x_mesh_2D = x_mesh[half_plane_index,:,:]
+            y_mesh_2D = y_mesh[half_plane_index,:,:]
+            z_mesh_2D = z_mesh[half_plane_index,:,:]
+            vx_mesh_2D = vx_mesh[half_plane_index,:,:]
+            vy_mesh_2D = vy_mesh[half_plane_index,:,:]
+            vz_mesh_2D = vz_mesh[half_plane_index,:,:]
 
 
             # phi_var_plot = ax.imshow(ur_mesh, cmap='jet', origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 20, vmin=-20)
-            phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 65, vmin=0)
+            phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)
             
             
             # Colorbars
@@ -2862,7 +2862,7 @@ class VISUAL:
             # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=3.)
             
             # ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
-            ax.streamplot(x_mesh_2D.T, y_mesh_2D.T, vx_mesh_2D.T, vy_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
+            ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
 
             np.save(f'{self.dir}/vx_mesh_index{self.index}_{frame}.npy', vx_mesh)
             np.save(f'{self.dir}/vy_mesh_index{self.index}_{frame}.npy', vy_mesh)
@@ -2897,6 +2897,7 @@ class VISUAL:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i==self.plot_end_frame-1):
+                    frame = i
                     animation_func(i)
                 else:
                     seg_forces_str = seg_forces_f.readline()
@@ -5359,11 +5360,11 @@ class VISUAL:
 
         k_string = 'k0.030'
         iteration_string = 'iteration1_1e-7'
-        edge_section = f'section10'
+        edge_section = f'section11'
 
         k_string = 'k0.020'
         iteration_string = 'iteration1_1e-7'
-        edge_section = f'section14'
+        edge_section = f'section15'
 
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"
 
@@ -5374,7 +5375,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 10000
+        self.plot_end_frame_setting = 6800
         self.frames_setting = 100000
         window_size = 1
 
