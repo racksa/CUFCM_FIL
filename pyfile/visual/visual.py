@@ -43,8 +43,8 @@ class VISUAL:
         # self.date = '20240703_diaplectic'
         self.dir = f"data/IVP159_flowfield/{self.date}/"
 
-        # self.date = '20240311_2'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_10'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
@@ -101,8 +101,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 2995
-        self.frames_setting = 31
+        self.plot_end_frame_setting = 1200000
+        self.frames_setting = 1200000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -948,10 +948,10 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1,1,1)
-        fig4 = plt.figure()
-        ax4 = fig4.add_subplot(1,1,1)
+        # fig3 = plt.figure()
+        # ax3 = fig3.add_subplot(1,1,1)
+        # fig4 = plt.figure()
+        # ax4 = fig4.add_subplot(1,1,1)
         fig5 = plt.figure()
         ax5 = fig5.add_subplot(1,1,1)
 
@@ -1038,15 +1038,15 @@ class VISUAL:
         ax2.set_xlim(time_array[0], time_array[-1])
         ax2.set_ylim(0)
         
-        ax3.scatter(azim_array_sorted, polar_array_sorted, c = cluster_assignments)
-        ax3.set_xlabel(r'$\phi$')
-        ax3.set_ylabel(r'$\theta$')
+        # ax3.scatter(azim_array_sorted, polar_array_sorted, c = cluster_assignments)
+        # ax3.set_xlabel(r'$\phi$')
+        # ax3.set_ylabel(r'$\theta$')
 
-        ax4.plot(time_array, corr_array_angle)
-        ax4.set_xlabel('t/T')
-        ax4.set_ylabel('Coordination number 2 (angle)')
-        ax4.set_xlim(time_array[0], time_array[-1])
-        ax4.set_ylim(0)
+        # ax4.plot(time_array, corr_array_angle)
+        # ax4.set_xlabel('t/T')
+        # ax4.set_ylabel('Coordination number 2 (angle)')
+        # ax4.set_xlim(time_array[0], time_array[-1])
+        # ax4.set_ylim(0)
 
         ax5.plot(time_array, r_array)
         ax5.set_ylim(0)
@@ -3123,7 +3123,7 @@ class VISUAL:
         spring_factor = self.pars_list['spring_factor'][0]
 
         
-        fig, axs = plt.subplots(nrow, ncol, figsize=(18, 72), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrow, ncol, figsize=(18, 18), sharex=True, sharey=True)
         # cax = fig.add_axes([0.92, 0.1, 0.02, 0.8])  # [left, bottom, width, height] for the colorbar
 
         axs_flat = axs.ravel()
@@ -3913,19 +3913,27 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure()
+        fig3 = plt.figure(figsize=(20, 12),)
         ax3 = fig3.add_subplot(1,1,1)
+
+        print(self.pars_list['spring_factor'])
+
+        colormap = 'tab20'
+        cmap = mpl.colormaps[colormap]
 
         for ind in range(self.num_sim):
             try:
                 self.index = ind
                 self.select_sim()
 
-                fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+                fil_states_f = open(self.simName + '_true_states.dat', "r")
+                # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
 
                 time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
                 corr_array = np.zeros(self.frames)
                 corr_array2 = np.zeros(self.frames)
+                corr_array_angle = np.zeros(self.frames)
+                r_array = np.zeros(self.frames)
 
                 fil_references_sphpolar = np.zeros((self.nfil,3))
                 for fil in range(self.nfil):
@@ -3944,6 +3952,7 @@ class VISUAL:
                 # Specify the number of clusters you want
                 n_clusters = int(self.nfil/10) 
                 variance_array = np.zeros(n_clusters) # correlation within each cluster
+                variance_array_angle = np.zeros(n_clusters)
 
                 # Create and fit a K-Means model
                 kmeans = KMeans(n_clusters=n_clusters)
@@ -3953,14 +3962,19 @@ class VISUAL:
 
                 for i in range(self.plot_end_frame):
                     print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                    fil_phases_str = fil_phases_f.readline()
+                    fil_states_str = fil_states_f.readline()
 
                     if(i>=self.plot_start_frame):
-                        fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
+                        fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                        fil_phases = fil_states[:self.nfil]
+                        fil_angles = fil_states[self.nfil:]
+
+                        '''
+                        fil_angles_sorted = fil_angles[sorted_indices]
                         fil_phases_sorted = fil_phases[sorted_indices]
                         sin_phases_sorted = np.sin(fil_phases_sorted)
                         
-                         # Coordination number 1
+                        # Coordination number 1
                         phase_diff = np.diff(sin_phases_sorted, prepend=sin_phases_sorted[-1])
                         corr = np.abs(phase_diff[:-1]) + np.abs(phase_diff[1:])
                         corr_array[i-self.plot_start_frame] = np.mean(corr)
@@ -3969,33 +3983,53 @@ class VISUAL:
                         for m in range(n_clusters):
                             phases_in_group = sin_phases_sorted[np.where(cluster_assignments==m)]
                             variance_array[m] = np.var(phases_in_group)
-                        
                         corr_array2[i-self.plot_start_frame] = np.mean(variance_array)
+                        '''
 
-                ax.plot(time_array, corr_array, label=f"index={self.index}")
-                ax2.plot(time_array, corr_array2, label=f"index={self.index}")
+                        # Coordination number for angle
+                        # for m in range(n_clusters):
+                        #     angles_in_group = fil_angles_sorted[np.where(cluster_assignments==m)]
+                        #     variance_array_angle[m] = np.var(angles_in_group)
+                        
+                        # corr_array_angle[i-self.plot_start_frame] = np.mean(variance_array_angle)
+                        r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
+
+                        # wavenumber_array[i-self.plot_start_frame] = fil_phases_sorted[0] - fil_phases_sorted[-1]
+
+                color = cmap(self.index/self.num_sim)
+                ax.plot(time_array, corr_array, color=color, label=f"index={self.index}")
+                ax2.plot(time_array, corr_array2, color=color, label=f"index={self.index}")
+                ax3.plot(time_array, r_array, color=color, label=f"index={self.index}")
                 
                 
             except:
                 print("WARNING: " + self.simName + " not found.")
-
+        
         ax.set_xlabel('t/T')
         ax.set_ylabel('Coordination number')
-        ax.set_xlim(0)
+        ax.set_xlim(time_array[0], time_array[-1])
         ax.set_ylim(0)
 
         ax2.set_xlabel('t/T')
         ax2.set_ylabel('Coordination number 2')
-        ax2.set_xlim(0)
+        ax2.set_xlim(time_array[0], time_array[-1])
         ax2.set_ylim(0)
+
+        
+        ax3.set_ylim(0)
+        ax3.set_xlabel('t/T')
+        ax3.set_ylabel('<r>')
+        ax3.set_xlim(time_array[0], time_array[-1])
+
 
         fig.legend()
         fig2.legend()
         fig3.legend()
-        fig.savefig(f'fig/multi_coordination_parameter_one.pdf', bbox_inches = 'tight', format='pdf')
-        fig2.savefig(f'fig/multi_coordination_parameter_two.pdf', bbox_inches = 'tight', format='pdf')
-        # fig3.savefig(f'fig/multi_efficiency.pdf', bbox_inches = 'tight', format='pdf')
-        plt.show()
+        plt.tight_layout()
+        # fig.savefig(f'fig/multi_coordination_parameter_one.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/multi_coordination_parameter_two.pdf', bbox_inches = 'tight', format='pdf')
+        fig3.savefig(f'fig/multi_order_parameter_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        # plt.show()
 
     def multi_timing(self):
         # Plotting
@@ -5359,12 +5393,12 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration2_1e-7'
-        edge_section = f'section11'
+        iteration_string = 'iteration1_1e-7'
+        edge_section = f'section13'
 
-        # k_string = 'k0.020'
-        # iteration_string = 'iteration2_1e-7'
-        # edge_section = f'section15'
+        k_string = 'k0.020'
+        iteration_string = 'iteration1_1e-7'
+        edge_section = f'section16'
 
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"
 
@@ -5375,7 +5409,7 @@ class VISUAL:
         ncol = 4
         nrow = -(-num_sim//ncol)
 
-        self.plot_end_frame_setting = 6800
+        self.plot_end_frame_setting = 12000
         self.frames_setting = 100000
         window_size = 1
 
