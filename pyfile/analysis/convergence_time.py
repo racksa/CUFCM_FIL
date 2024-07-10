@@ -49,9 +49,11 @@ symplectic_array = np.array([True, True, False, False, True, True, True, True, F
         True, True, True, False, True, True, True, False, False, False, False, False, False, False, False, False,\
     ])
 
-color_array = np.empty(symplectic_array.shape, dtype='object')
-color_array[symplectic_array] = 'r'
-color_array[~symplectic_array] = 'b'
+# color_array = np.empty(symplectic_array.shape, dtype='object')
+# color_array[symplectic_array] = 'r'
+# color_array[~symplectic_array] = 'b'
+
+print(type(symplectic_array[16:16*2]))
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)

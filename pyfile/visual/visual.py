@@ -31,20 +31,20 @@ class VISUAL:
 
 
         self.date = '20240608'
-        self.dir = f"data/tilt_test/{self.date}/"
-        self.dir = f"data/IVP159/{self.date}/"
+        # self.dir = f"data/IVP159/{self.date}/"
 
-        self.date = '20240625_channel'
-        self.date = '20240618'
-        self.dir = f"data/regular_wall_sim/{self.date}/"
+        # self.date = '20240618'
+        # self.dir = f"data/regular_wall_sim/{self.date}/"
+
+        self.date = '20240710_free'
+        self.dir = f"data/tilt_test/{self.date}/"
 
         
-        self.date = '20240620_symplectic'
-        # self.date = '20240703_diaplectic'
-        self.dir = f"data/IVP159_flowfield/{self.date}/"
+        # self.date = '20240620_symplectic'
+        # self.dir = f"data/IVP159_flowfield/{self.date}/"
 
-        self.date = '20240311_10'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.date = '20240311_10'
+        # self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
@@ -66,6 +66,7 @@ class VISUAL:
                      "nblob": [],
                      "ar": [],
                      "spring_factor": [],
+                     "tilt_angle": [],
                      "force_mag": [],
                      "seg_sep": [],
                      "period": [],
@@ -89,10 +90,10 @@ class VISUAL:
         
 
         self.show_poles = True
-        self.big_sphere = False
+        self.big_sphere = True
         self.noblob = False
 
-        self.planar = True
+        self.planar = False
 
         if(self.planar):
             self.big_sphere = False
@@ -156,8 +157,6 @@ class VISUAL:
             for key, value in self.pars_list.items():
                 if(key in sim["Parameter list"]):
                     self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')]
-                    # self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')][0::num_elst]
-                    # self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')][num_per_elst*select_elst:num_per_elst*(select_elst+1)]
             self.num_sim = len(self.pars_list["nfil"])
             # print(self.pars_list['nfil'])
         except:
@@ -175,8 +174,17 @@ class VISUAL:
         self.ar = self.pars_list['ar'][self.index]
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
-        self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
+
+
+        try:
+            self.tilt_angle = self.pars_list['tilt_angle'][self.index]
+            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
+        except:
+            self.tilt_angle = 0.
+            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
         
+
+
         try:
             self.fil_spacing = self.pars_list['fil_spacing'][self.index]
             self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
@@ -5251,12 +5259,11 @@ class VISUAL:
 
         free = False
         path = "data/ic_hpc_sim/"
-        path = "data/IVP159/"
+        # path = "data/IVP159/"
         # path = 'data/tilt_test/'
 
-        # free = True
-        # path = "data/ic_hpc_sim_free/"
-        # path = "data/free_sim_rerun/"
+        free = True
+        path = "data/ic_hpc_sim_free_continue/"
 
         
 
@@ -5264,12 +5271,20 @@ class VISUAL:
         if free:
             free_string = 'free'
 
-
-        folders = util.list_folders(path)
+        import re
+        def sort_key(s):
+            # Split the string by the underscore and convert the second part to an integer
+            return int(s.split('_')[1])
+        folders = sorted(util.list_folders(path), key=sort_key)
         print(folders)
 
         self.plot_end_frame_setting = 3000000
         self.frames_setting = 600
+
+        r_data = np.zeros((len(folders), 16))
+        k_data = np.zeros((len(folders), 16))
+        v_data = np.zeros((len(folders), 16))
+        eff_data = np.zeros((len(folders), 16))
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -5278,6 +5293,20 @@ class VISUAL:
             ax2 = fig2.add_subplot(1,1,1)
             fig3 = plt.figure()
             ax3 = fig3.add_subplot(1,1,1)
+
+        # Below array is for testing and should be removed
+        symplectic_array = np.array([True, True, False, False, True, True, True, True, False, False, False, False, False, False, False, False,\
+                True, False, True, True, True, True, True, True, False, False, False, False, False, False, False, False,\
+                True, True, True, True, False, True, False, False, True, False, False, False, False, False, False, False,\
+                True, True, True, False, True, False, True, True, False, False, False, False, False, False, False, False,\
+                True, False, True, False, True, False, True, False, False, False, False, False, False, False, False, False,\
+                False, True, True, True, False, True, True, True, False, False, False, False, False, False, False, False,\
+                True, True, True, True, True, True, False, True, False, False, False, False, False, False, False, False,\
+                True, False, True, True, True, True, True, False, False, False, False, False, False, False, False, False,\
+                True, True, True, False, False, True, True, True, True, False, False, False, False, False, False, False,\
+                True, True, True, False, True, True, True, False, False, False, False, False, False, False, False, False,\
+            ])
+        
 
         for fi, folder in enumerate(folders):
             self.dir = path + folder + '/'
@@ -5356,15 +5385,30 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
+            symp = np.array(symplectic_array[16*fi: 16*(fi+1)])
+            # color_array = np.empty(symplectic_array.shape, dtype='object')
+            # color_array[symp] = 'r'
+            # color_array[~symp] = 'b'
+
+            ax.scatter(np.array(k_arrays)[symp], r_arrays[symp], marker='x', c='r')
+            ax.scatter(np.array(k_arrays)[~symp], r_arrays[~symp], marker='x', c='b')
+
+            r_data[fi] = r_arrays
+            k_data[fi] = k_arrays
+
+            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c=color_array)
             # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
                 ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
                 ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
 
+                v_data[fi] = v_arrays
+                eff_data[fi] = eff_arrays
+
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
+        
 
         if free:
             ax2.set_ylim(0)
@@ -5377,6 +5421,11 @@ class VISUAL:
 
         # ax.legend()
         # ax2.legend()
+        np.save(f"{path}r_data.npy", r_data)
+        np.save(f"{path}k_data.npy", k_data)
+        np.save(f"{path}v_data.npy", v_data)
+        np.save(f"{path}eff_data.npy", eff_data)
+
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.png', bbox_inches = 'tight', format='png', transparent=True)
@@ -5393,11 +5442,11 @@ class VISUAL:
         # colormap = 'hsv'
 
         k_string = 'k0.030'
-        iteration_string = 'iteration1_1e-7'
+        iteration_string = 'iteration2_1e-7'
         edge_section = f'section13'
 
         k_string = 'k0.020'
-        iteration_string = 'iteration1_1e-7'
+        iteration_string = 'iteration3_1e-7'
         edge_section = f'section16'
 
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"

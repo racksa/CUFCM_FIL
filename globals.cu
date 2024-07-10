@@ -20,6 +20,7 @@ Real SIM_LENGTH = 1.0;
 Real PERIOD = 1.0;
 Real DT = PERIOD/STEPS_PER_PERIOD;
 int TOTAL_TIME_STEPS = 1;
+Real TILT_ANGLE = 0.0;
 
 std::string SIMULATION_DIR = "data/expr_sims/global/";
 std::string SIMULATION_FILE = "cilia";

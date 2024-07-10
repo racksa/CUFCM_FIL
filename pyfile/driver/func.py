@@ -9,11 +9,12 @@ class DRIVER:
         self.afix = ''
         # self.category = 'regular_wall_sim/'
         self.category = 'IVP159_flowfield/'
+        self.category = 'tilt_test/'
 
-        self.exe_name = 'cilia_1e-4_30_with_force'
+        self.exe_name = 'cilia_1e-4_free'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240703_highres'
+        self.date = '20240710_free'
         
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -35,6 +36,7 @@ class DRIVER:
                      "nblob": [],
                      "ar": [],
                      "spring_factor": [],
+                     "tilt_angle": [],
                      "force_mag": [],
                      "seg_sep": [],
                      "period": [],
@@ -51,7 +53,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (4, 1, 1, 1)
+        self.sweep_shape = (40, 11, 1, 1)
 
         self.num_sim = 0
 
@@ -95,6 +97,7 @@ class DRIVER:
                         seg_sep = 2.6
                         nseg = 20
                         force_mag = 1
+                        tilt_angle = 0
 
                         # # planar triangle
                         nfil = int(256*(i+1))
@@ -124,12 +127,17 @@ class DRIVER:
 
 
                         # # IVP sim
-                        nfil = int(159 + 480*i)
-                        nblob = int((9000 + 31961*i)*3)
-                        ar = round(8.00 + 7*i, 2)
-                        spring_factor = round(0.005 + 0.00, 3)
+                        nfil = int(159 + 480*1)
+                        nblob = int(9000 + 31961*1)
+                        ar = round(8.00 + 7*1, 2)
+                        spring_factor = round(0.005 + 0.002*i, 3)
                         period = 1
-                        sim_length = 10
+                        sim_length = 0.1
+                        tilt_angle = 0.1*0.5*3.141592653*j
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=8000
 
                         # nfil = int(639 + 0*i)
                         # nblob = int(40961 + 0*i)
@@ -174,10 +182,6 @@ class DRIVER:
                         # nseg = 40
 
 
-                        if(self.exe_name == 'cilia_ref'):
-                            nfil = 1
-                            nblob = 0
-                            
                         self.pars_list["index"].append(index)
                         self.pars_list["nswim"].append(1)
                         self.pars_list["nseg"].append(nseg)
@@ -189,6 +193,7 @@ class DRIVER:
                         self.pars_list["seg_sep"].append(seg_sep)
                         self.pars_list["period"].append(period)
                         self.pars_list["sim_length"].append(sim_length)
+                        self.pars_list["tilt_angle"].append(tilt_angle)
                         self.pars_list["nx"].append(nx)
                         self.pars_list["ny"].append(ny)
                         self.pars_list["nz"].append(nz)
@@ -253,7 +258,7 @@ class DRIVER:
             
             for key, value in self.pars_list.items():
                 self.write_ini("Parameters", key, float(self.pars_list[key][i]))
-            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion"
+            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
