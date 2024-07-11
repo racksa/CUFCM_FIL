@@ -25,9 +25,13 @@
 
 # And we should be done!
 
-q=8
+# q=9
+# command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
 
-command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
+q=21
+nq=40
+command="python3 pyfile/driver/driver.py run ${q} ${nq} 1"
+
 
 # cp --attributes-only "run_cilia_sim.pbs" "pbs/run_cilia_sim${q}.pbs"
 sed -e "\$a\\$command" "run_cilia_sim.pbs" > "pbs/run_cilia_sim${q}.pbs"
@@ -38,4 +42,4 @@ JOB_ID=${JOB_ID:0:-4}
 echo "Using the normal queue..."
 echo "Job submitted!"
 echo $JOB_ID
-# tail -n 1 pbs/run_cilia_sim${q}.pbs
+tail -n 1 pbs/run_cilia_sim${q}.pbs

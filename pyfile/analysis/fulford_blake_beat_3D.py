@@ -41,7 +41,7 @@ Bx = np.array([[0, 0, 0], \
             [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
             [1.2311e-02, 1.4157e-01, -1.1695e-01]])
 
-s_ref_filename = 's_ref.dat'
+s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
 s_ref = np.loadtxt(s_ref_filename)
 num_ref_phase = s_ref[0]
 num_seg = int(s_ref[1])

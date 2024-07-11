@@ -20,7 +20,7 @@ else ifeq ($(MOBILITY_TYPE), 3) # FCM using UAMMD
 MOBILITY_OPTS = -std=c++14 -I src/cilia/mobility/UAMMD/src -I src/cilia/mobility/UAMMD/src/third_party -DDOUBLE_PRECISION -lcufft -D_USE_MATH_DEFINES -include ciso646
 MOBILITY_SOURCE = 
 else ifeq ($(MOBILITY_TYPE), 4) # cuFCM
-MOBILITY_OPTS = -arch=sm_75 -std=c++14 -O3 -I../include -lcufft -lcblas -lcurand -lineinfo
+MOBILITY_OPTS = -arch=sm_75 -std=c++14 -O3 -I../include -lcufft -lcurand -lineinfo
 MOBILITY_SOURCE = fcm_mobility_solver.cu $(CUFCM_ROOT)CUFCM_CELLLIST.cu $(CUFCM_ROOT)CUFCM_FCM.cu $(CUFCM_ROOT)CUFCM_DATA.cu $(CUFCM_ROOT)CUFCM_SOLVER.cu $(CUFCM_ROOT)CUFCM_CORRECTION.cu
 endif
 
@@ -106,7 +106,7 @@ flow_field_pc: $(FLOW_FIELD_CPP) $(FLOW_FIELD_CUDA)
 NVCC_FLAGS=-arch=sm_75 -std=c++17 -O3 -I../include -Xcompiler -fopenmp
 
 LINK= -lcufft -lcurand -llapack -lopenblas -llapacke -lineinfo
-HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8 -l:libcblas.so.3.8 
+HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8
 
 cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-8_30

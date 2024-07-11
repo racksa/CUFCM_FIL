@@ -45,8 +45,7 @@ s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP
 s_ref = np.loadtxt(s_ref_filename)
 num_ref_phase = s_ref[0]
 num_seg = int(s_ref[1])
-num_frame = 15
-num_points = 30 # blob surface points
+num_frame = 30
 radius = 1
 L = (num_seg-1)*2.6
 
@@ -95,8 +94,8 @@ for p in range(num_frame):
     ax1.plot(y_array, x_array, color=fil_color, zorder=p)
 
     # Add circles
-    for seg in range(num_seg):
-        ax1.add_patch(plt.Circle((y_array[seg], x_array[seg]), 1, facecolor=fil_color, edgecolor=None, zorder=p, alpha = 0.3))
+    # for seg in range(num_seg):
+    #     ax1.add_patch(plt.Circle((y_array[seg], x_array[seg]), 1, facecolor=fil_color, edgecolor=None, zorder=p, alpha = 0.3))
 
 origin = np.array([12, 2])
 axisl = 8

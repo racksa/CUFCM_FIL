@@ -14,7 +14,7 @@ class DRIVER:
         self.exe_name = 'cilia_1e-4_free'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240710_free'
+        self.date = '20240710_free_test'
         
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -53,7 +53,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (40, 11, 1, 1)
+        self.sweep_shape = (10, 10, 1, 1)
 
         self.num_sim = 0
 
@@ -130,14 +130,14 @@ class DRIVER:
                         nfil = int(159 + 480*1)
                         nblob = int(9000 + 31961*1)
                         ar = round(8.00 + 7*1, 2)
-                        spring_factor = round(0.005 + 0.002*i, 3)
+                        spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1
-                        sim_length = 0.1
-                        tilt_angle = 0.1*0.5*3.141592653*j
+                        sim_length = 200
+                        tilt_angle = (1./9.)*0.5*3.141592653*j
                         nx=400
                         ny=400
                         nz=400
-                        boxsize=8000
+                        boxsize=4000
 
                         # nfil = int(639 + 0*i)
                         # nblob = int(40961 + 0*i)
@@ -274,7 +274,7 @@ class DRIVER:
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name}"
+                        ./bin/{self.exe_name} > temp.out"
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \

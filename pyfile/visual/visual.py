@@ -103,7 +103,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 1200000
-        self.frames_setting = 1200000
+        self.frames_setting = 300000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
