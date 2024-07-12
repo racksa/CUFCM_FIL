@@ -11,7 +11,7 @@ class DRIVER:
         self.category = 'IVP159_flowfield/'
         self.category = 'tilt_test/'
 
-        self.exe_name = 'cilia_1e-4_free'
+        self.exe_name = 'cilia_1e-4_free_test_with_force'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
         self.date = '20240710_free_test'

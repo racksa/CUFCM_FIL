@@ -157,14 +157,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #define BODY_OR_SURFACE_TYPE 2
 // Valid options:
-// 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below).
+// 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). //only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
 // 2 = Surface-of-revolution bodies. This choice has some sub-types (see below).
 // 3 = Toroidal bodies (partially implemented)
 // 4 = Rigid Rod
 // 5 = Filament on rigid wall
 
-#if BODY_OR_SURFACE_TYPE==0
+#if BODY_OR_SURFACE_TYPE==0 //only compatible with RPY
 
   #define SEEDING_TYPE 2
   // Valid options:

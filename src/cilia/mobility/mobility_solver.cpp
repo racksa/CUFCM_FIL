@@ -3060,29 +3060,11 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
   #endif
 
   #if !INFINITE_PLANE_WALL
-
     std::ofstream body_vel_file(SIMULATION_BODY_VEL_NAME, std::ios::app);
-    // body_vel_file << nt << " ";
+    body_vel_file << nt << " ";
     body_vel_file << std::scientific << std::setprecision(10);
 
-    std::ofstream blob_forces_file(SIMULATION_BLOB_FORCES_NAME, std::ios::app);
-    blob_forces_file << nt << " ";
-    blob_forces_file << std::scientific << std::setprecision(10);
-
-  #endif
-
-  std::ofstream seg_vel_file(SIMULATION_SEG_VEL_NAME, std::ios::app);
-  seg_vel_file << nt << " ";
-  seg_vel_file << std::scientific << std::setprecision(10);
-
-  std::ofstream seg_forces_file(SIMULATION_SEG_FORCES_NAME, std::ios::app);
-  seg_forces_file << nt << " ";
-  seg_forces_file << std::scientific << std::setprecision(10);
-
-  for (int n = 0; n < NSWIM; n++){
-
-    #if !INFINITE_PLANE_WALL
-
+    for (int n = 0; n < NSWIM; n++){
       #if USE_BROYDEN_FOR_EVERYTHING
 
         Real v[3], omega[3];
@@ -3112,7 +3094,7 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
 
             const Real w[3] = {(1.5*swimmers[n].body.u[0] - 0.5*swimmers[n].body.um1[0])/DT,
                                   (1.5*swimmers[n].body.u[1] - 0.5*swimmers[n].body.um1[1])/DT,
-                                   (1.5*swimmers[n].body.u[2] - 0.5*swimmers[n].body.um1[2])/DT};
+                                  (1.5*swimmers[n].body.u[2] - 0.5*swimmers[n].body.um1[2])/DT};
 
             dexp(omega, swimmers[n].body.u, w);
 
@@ -3130,45 +3112,63 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
         body_vel_file << v_bodies(6*n) << " " << v_bodies(6*n + 1) << " " << v_bodies(6*n + 2) << " " << v_bodies(6*n + 3) << " " << v_bodies(6*n + 4) << " " << v_bodies(6*n + 5) << " ";
 
       #endif
-
-      for (int i = 0; i < NBLOB; i++){
-
-        const int id = 3*(i + n*NBLOB);
-
-        blob_forces_file << f_blobs_host[id] << " " << f_blobs_host[id + 1] << " " << f_blobs_host[id + 2] << " ";
-
-      }
-
-    #endif
-
-    for (int i = 0; i < NFIL; i++){
-      for (int j = 0; j < NSEG; j++){
-
-        const int id = 6*(j + NSEG*(i + n*NFIL));
-
-        seg_vel_file << v_segs_host[id] << " " << v_segs_host[id + 1] << " " << v_segs_host[id + 2] << " " << v_segs_host[id + 3] << " " << v_segs_host[id + 4] << " " << v_segs_host[id + 5] << " ";
-
-        seg_forces_file << f_segs_host[id] << " " << f_segs_host[id + 1] << " " << f_segs_host[id + 2] << " " << f_segs_host[id + 3] << " " << f_segs_host[id + 4] << " " << f_segs_host[id + 5] << " ";
-
-      }
     }
-
-  }
-
-  #if !INFINITE_PLANE_WALL
 
     body_vel_file << std::endl;
     body_vel_file.close();
 
-    blob_forces_file << std::endl;
-    blob_forces_file.close();
-
   #endif
 
-  seg_vel_file << std::endl;
-  seg_vel_file.close();
+  #if OUTPUT_FORCES
+    #if !INFINITE_PLANE_WALL
+      std::ofstream blob_forces_file(SIMULATION_BLOB_FORCES_NAME, std::ios::app);
+      blob_forces_file << nt << " ";
+      blob_forces_file << std::scientific << std::setprecision(10);
+    #endif
 
-  seg_forces_file << std::endl;
-  seg_forces_file.close();
+    std::ofstream seg_vel_file(SIMULATION_SEG_VEL_NAME, std::ios::app);
+    seg_vel_file << nt << " ";
+    seg_vel_file << std::scientific << std::setprecision(10);
 
+    std::ofstream seg_forces_file(SIMULATION_SEG_FORCES_NAME, std::ios::app);
+    seg_forces_file << nt << " ";
+    seg_forces_file << std::scientific << std::setprecision(10);
+
+    for (int n = 0; n < NSWIM; n++){
+
+        for (int i = 0; i < NBLOB; i++){
+
+          const int id = 3*(i + n*NBLOB);
+
+          blob_forces_file << f_blobs_host[id] << " " << f_blobs_host[id + 1] << " " << f_blobs_host[id + 2] << " ";
+
+        }
+
+      for (int i = 0; i < NFIL; i++){
+        for (int j = 0; j < NSEG; j++){
+
+          const int id = 6*(j + NSEG*(i + n*NFIL));
+
+          seg_vel_file << v_segs_host[id] << " " << v_segs_host[id + 1] << " " << v_segs_host[id + 2] << " " << v_segs_host[id + 3] << " " << v_segs_host[id + 4] << " " << v_segs_host[id + 5] << " ";
+
+          seg_forces_file << f_segs_host[id] << " " << f_segs_host[id + 1] << " " << f_segs_host[id + 2] << " " << f_segs_host[id + 3] << " " << f_segs_host[id + 4] << " " << f_segs_host[id + 5] << " ";
+
+        }
+      }
+
+    }
+
+    #if !INFINITE_PLANE_WALL
+
+      blob_forces_file << std::endl;
+      blob_forces_file.close();
+
+    #endif
+
+    seg_vel_file << std::endl;
+    seg_vel_file.close();
+
+    seg_forces_file << std::endl;
+    seg_forces_file.close();
+  #endif
 }

@@ -36,7 +36,7 @@ class VISUAL:
         # self.date = '20240618'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240710_free'
+        self.date = '20240710_free_test'
         self.dir = f"data/tilt_test/{self.date}/"
 
         
@@ -103,7 +103,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 1200000
-        self.frames_setting = 300000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1914,7 +1914,8 @@ class VISUAL:
             if(i>=self.plot_start_frame):
 
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
-                body_vels = np.array(body_vels_str.split(), dtype=float)
+                print(body_vels_str.split())
+                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
 
                 # body_pos_array[i-self.plot_start_frame] = body_states[0:3]
                 body_vel_array[i-self.plot_start_frame] = body_vels
@@ -5360,7 +5361,11 @@ class VISUAL:
                                 seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                                 seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                                 blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                                body_vels= np.array(body_vels_str.split(), dtype=float)
+                                # Need to patch this for diffeent output format....
+                                if(len(body_vels_str.split())==6):
+                                    body_vels= np.array(body_vels_str.split(), dtype=float)
+                                else:
+                                    body_vels= np.array(body_vels_str.split()[1:], dtype=float)
 
                                 seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
                                 seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
