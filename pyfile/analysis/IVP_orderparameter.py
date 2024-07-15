@@ -34,9 +34,9 @@ for fi in range(n_folder_heldfixed):
     indices_diaplectic = np.where((plot_y  < .4) & (plot_y > 0.04))[0]
     indices_diaplectic_k2 = np.where(plot_y  < 0.04)[0]
 
-    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='x', c='r')
+    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='+', c='r')
     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='r')
-    ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=100, marker='P', c='r')
+    ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=100, marker='+', c='r')
 
 for fi in range(n_folder_free):
     plot_x = k_data_free[fi] 
@@ -44,7 +44,7 @@ for fi in range(n_folder_free):
     indices_symplectic = np.where(plot_y > .4)[0]
     indices_diaplectic = np.where(plot_y  < .4)[0]
 
-    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='x', c='b')
+    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='+', c='b')
     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='b')
 
 # ax.scatter(-1, -1, marker='+', c='r', label='Held fixed - Symplectic')
@@ -53,9 +53,9 @@ for fi in range(n_folder_free):
 # ax.scatter(-1, -1, marker='+', c='b', label='Free - Symplectic')
 # ax.scatter(-1, -1, marker='x', c='b', label='Free - Diaplectic')
 
-ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
-ax.scatter(-1, -1, marker='+', c='black', s=100, label='Diaplectic')
-ax.scatter(-1, -1, marker='P', c='black', s=100, label='Diaplectic(#k=2)')
+# ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
+# ax.scatter(-1, -1, marker='+', c='black', s=100, label='Diaplectic')
+# ax.scatter(-1, -1, marker='P', c='black', s=100, label='Diaplectic(#k=2)')
 ax.scatter(-1, -1, marker='s', c='r', s=100, label='Held fixed')
 ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 

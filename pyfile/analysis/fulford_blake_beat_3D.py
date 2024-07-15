@@ -18,6 +18,8 @@ mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
+plt.rcParams.update({'font.size': 24})
+
 cmap_name = 'hsv'
 
 # Fourier coeffs for the shape
@@ -78,7 +80,7 @@ def fitted_shape(s, phase):
 
 
 # Plotting
-fig = plt.figure()
+fig = plt.figure(figsize=(10, 4), dpi=600)
 ax = fig.add_subplot(projection='3d')
 ax.set_proj_type('ortho')
 fig2 = plt.figure()
@@ -113,9 +115,9 @@ for i in range(num_frame):
     for seg in range(num_seg):
         seg_pos = np.array(fitted_shape(s[seg], fil_phases[i]))*L
         fil_data[seg] = seg_pos
-        ax.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
+        ax.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5, zorder = i*1000)
 
-    ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+    ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, alpha = 1.0, zorder = i)
 
 colors = ['r', 'g', 'b']
 for j in range(num_angle):
@@ -143,7 +145,7 @@ for j in range(num_angle):
         seg_pos = np.array(fitted_shape(s[seg], phase))*L
         seg_pos = np.dot(rotation_matrix, seg_pos)
         fil_data[seg] = seg_pos
-        ax2.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
+        # ax2.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
 
     ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = 1.0)
 
@@ -155,46 +157,21 @@ for j in range(num_angle):
     edge[2] = np.dot(rotation_matrix, np.array([edge_h,edge_l,0]))
     edge[3] = np.dot(rotation_matrix, np.array([edge_h,-edge_l,0]))
     edge[4] = np.dot(rotation_matrix, np.array([0,-edge_l,0]))
-    # ax2.plot(edge[:,0], edge[:,1], edge[:,2],  c=fil_color)
 
     normal[1] = np.dot(rotation_matrix, np.array([edge_l,0,0]))
     tangent[1] = np.dot(rotation_matrix, np.array([0,edge_l,0]))
 
-    # ax2.plot(normal[:,0], normal[:,1], normal[:,2],  c=fil_color)
-    # ax2.plot(tangent[:,0], tangent[:,1], tangent[:,2],  c=fil_color)
-
-    # ax2.quiver(np.array([0]), np.array([0]), np.array([0]), normal[1][0], normal[1][1], normal[1][2], color=fil_color, arrow_length_ratio = 0.3)
-    # ax2.quiver(np.array([0]), np.array([0]), np.array([0]), tangent[1][0], tangent[1][1], tangent[1][2], color=fil_color, arrow_length_ratio = 0.3)
-
-
-# for i in range(num_frame):
-#     # color
-#     cmap = plt.get_cmap(cmap_name)
-#     fil_color = cmap(fil_phases[i]/(2*np.pi))
-
-#     # s for this phase
-#     s = fitted_shape_s(fil_phases[i])
-
-#     # alpha
-#     alpha=0.1 + 0.9*i/num_frame
-
-#     for j in range(num_angle):
-#         fil_data = np.zeros((num_seg, 3))
-
-#         # rotation angle
-#         rotation_matrix = np.array([
-#             [np.cos(fil_angles[j]), -np.sin(fil_angles[j]), 0],
-#             [np.sin(fil_angles[j]), np.cos(fil_angles[j]), 0],
-#             [0, 0, 1]
-#         ])
-
-#         for seg in range(num_seg):
-#             seg_pos = np.array(fitted_shape(s[seg], fil_phases[i]))*L
-#             seg_pos = np.dot(rotation_matrix, seg_pos)
-#             fil_data[seg] = seg_pos
-#             ax.plot_surface(x+seg_pos[0], y+seg_pos[1], z+seg_pos[2], color=fil_color, alpha=0.5)
-
-#         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+from matplotlib.colors import Normalize
+from matplotlib.cm import ScalarMappable
+vmin = 0
+vmax = 2*np.pi
+norm = Normalize(vmin=vmin, vmax=vmax)
+sm = ScalarMappable(cmap=cmap_name, norm=norm)
+sm.set_array([])
+cax = fig.add_axes([ax.get_position().x1+0.01,ax.get_position().y0,0.02,ax.get_position().height])
+cbar =plt.colorbar(sm, cax=cax)
+cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+cbar.set_label(r"phase")
 
 ax2.set_ylim(-30, 30)
 ax2.set_xlim(0, 60)
@@ -202,8 +179,9 @@ ax2.set_xlim(0, 60)
 ax.axis('off')
 ax.set_aspect('equal')
 ax.view_init(elev=100000., azim=0)
+ax.dist=7
 fig.tight_layout()
-# fig.savefig(f'single_fil.png', bbox_inches = 'tight', format='png', transparent=True)
+fig.savefig(f'fig/single_fil.png', bbox_inches = 'tight', format='png', transparent=True)
 
 ax2.axis('off')
 ax2.set_aspect('equal')

@@ -132,7 +132,7 @@ class DRIVER:
                         ar = round(8.00 + 7*1, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1
-                        sim_length = 200
+                        sim_length = 1
                         tilt_angle = (1./9.)*0.5*3.141592653*j
                         nx=400
                         ny=400

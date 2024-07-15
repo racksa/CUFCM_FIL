@@ -3059,67 +3059,69 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
 
   #endif
 
-  #if !INFINITE_PLANE_WALL
-    std::ofstream body_vel_file(SIMULATION_BODY_VEL_NAME, std::ios::app);
-    body_vel_file << nt << " ";
-    body_vel_file << std::scientific << std::setprecision(10);
+  #if OUTPUT_FORCES
 
-    for (int n = 0; n < NSWIM; n++){
-      #if USE_BROYDEN_FOR_EVERYTHING
+    #if !INFINITE_PLANE_WALL
+      std::ofstream body_vel_file(SIMULATION_BODY_VEL_NAME, std::ios::app);
+      body_vel_file << nt << " ";
+      body_vel_file << std::scientific << std::setprecision(10);
 
-        Real v[3], omega[3];
+      for (int n = 0; n < NSWIM; n++){
+        #if USE_BROYDEN_FOR_EVERYTHING
 
-        #if PRESCRIBED_BODY_VELOCITIES
+          Real v[3], omega[3];
 
-          swimmers[n].body.prescribed_translational_velocity(v, DT*(nt + 1.0), n);
-          swimmers[n].body.prescribed_rotational_velocity(omega, DT*(nt + 1.0), n);
+          #if PRESCRIBED_BODY_VELOCITIES
+
+            swimmers[n].body.prescribed_translational_velocity(v, DT*(nt + 1.0), n);
+            swimmers[n].body.prescribed_rotational_velocity(omega, DT*(nt + 1.0), n);
+
+          #else
+
+            if (nt < NUM_EULER_STEPS){
+
+              v[0] = (swimmers[n].body.x[0] - swimmers[n].body.xm1[0])/DT;
+              v[1] = (swimmers[n].body.x[1] - swimmers[n].body.xm1[1])/DT;
+              v[2] = (swimmers[n].body.x[2] - swimmers[n].body.xm1[2])/DT;
+
+              omega[0] = swimmers[n].body.u[0]/DT; // = dexp(swimmers[n].u, swimmers[n].u)/DT
+              omega[1] = swimmers[n].body.u[1]/DT;
+              omega[2] = swimmers[n].body.u[2]/DT;
+
+            } else {
+
+              v[0] = 0.5*(3.0*swimmers[n].body.x[0] - 4.0*swimmers[n].body.xm1[0] + swimmers[n].body.xm2[0])/DT;
+              v[1] = 0.5*(3.0*swimmers[n].body.x[1] - 4.0*swimmers[n].body.xm1[1] + swimmers[n].body.xm2[1])/DT;
+              v[2] = 0.5*(3.0*swimmers[n].body.x[2] - 4.0*swimmers[n].body.xm1[2] + swimmers[n].body.xm2[2])/DT;
+
+              const Real w[3] = {(1.5*swimmers[n].body.u[0] - 0.5*swimmers[n].body.um1[0])/DT,
+                                    (1.5*swimmers[n].body.u[1] - 0.5*swimmers[n].body.um1[1])/DT,
+                                    (1.5*swimmers[n].body.u[2] - 0.5*swimmers[n].body.um1[2])/DT};
+
+              dexp(omega, swimmers[n].body.u, w);
+
+            }
+
+          #endif
+          if(n == 0){
+            body_vel_file << v[0] << ", ";
+          }
+          
+          // body_vel_file << v[0] << " " << v[1] << " " << v[2] << " " << omega[0] << " " << omega[1] << " " << omega[2] << " ";
 
         #else
 
-          if (nt < NUM_EULER_STEPS){
-
-            v[0] = (swimmers[n].body.x[0] - swimmers[n].body.xm1[0])/DT;
-            v[1] = (swimmers[n].body.x[1] - swimmers[n].body.xm1[1])/DT;
-            v[2] = (swimmers[n].body.x[2] - swimmers[n].body.xm1[2])/DT;
-
-            omega[0] = swimmers[n].body.u[0]/DT; // = dexp(swimmers[n].u, swimmers[n].u)/DT
-            omega[1] = swimmers[n].body.u[1]/DT;
-            omega[2] = swimmers[n].body.u[2]/DT;
-
-          } else {
-
-            v[0] = 0.5*(3.0*swimmers[n].body.x[0] - 4.0*swimmers[n].body.xm1[0] + swimmers[n].body.xm2[0])/DT;
-            v[1] = 0.5*(3.0*swimmers[n].body.x[1] - 4.0*swimmers[n].body.xm1[1] + swimmers[n].body.xm2[1])/DT;
-            v[2] = 0.5*(3.0*swimmers[n].body.x[2] - 4.0*swimmers[n].body.xm1[2] + swimmers[n].body.xm2[2])/DT;
-
-            const Real w[3] = {(1.5*swimmers[n].body.u[0] - 0.5*swimmers[n].body.um1[0])/DT,
-                                  (1.5*swimmers[n].body.u[1] - 0.5*swimmers[n].body.um1[1])/DT,
-                                  (1.5*swimmers[n].body.u[2] - 0.5*swimmers[n].body.um1[2])/DT};
-
-            dexp(omega, swimmers[n].body.u, w);
-
-          }
+          body_vel_file << v_bodies(6*n) << " " << v_bodies(6*n + 1) << " " << v_bodies(6*n + 2) << " " << v_bodies(6*n + 3) << " " << v_bodies(6*n + 4) << " " << v_bodies(6*n + 5) << " ";
 
         #endif
-        if(n == 0){
-          body_vel_file << v[0] << ", ";
-        }
-        
-        // body_vel_file << v[0] << " " << v[1] << " " << v[2] << " " << omega[0] << " " << omega[1] << " " << omega[2] << " ";
+      }
 
-      #else
+      body_vel_file << std::endl;
+      body_vel_file.close();
 
-        body_vel_file << v_bodies(6*n) << " " << v_bodies(6*n + 1) << " " << v_bodies(6*n + 2) << " " << v_bodies(6*n + 3) << " " << v_bodies(6*n + 4) << " " << v_bodies(6*n + 5) << " ";
+    #endif
 
-      #endif
-    }
-
-    body_vel_file << std::endl;
-    body_vel_file.close();
-
-  #endif
-
-  #if OUTPUT_FORCES
+  
     #if !INFINITE_PLANE_WALL
       std::ofstream blob_forces_file(SIMULATION_BLOB_FORCES_NAME, std::ios::app);
       blob_forces_file << nt << " ";

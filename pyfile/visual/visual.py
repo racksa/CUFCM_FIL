@@ -36,15 +36,15 @@ class VISUAL:
         # self.date = '20240618'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240710_free_test'
+        self.date = '20240710_free'
         self.dir = f"data/tilt_test/{self.date}/"
 
         
         # self.date = '20240620_symplectic'
         # self.dir = f"data/IVP159_flowfield/{self.date}/"
 
-        # self.date = '20240311_10'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_10'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
@@ -103,7 +103,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 1200000
-        self.frames_setting = 300
+        self.frames_setting = 900
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -115,8 +115,9 @@ class VISUAL:
         self.Lz = 1000
 
         self.ncol = 4
+        self.num_sim = 0
 
-        self.plot_interval = 1
+        self.plot_interval = 3
         
         self.index = 0
 
@@ -1770,7 +1771,7 @@ class VISUAL:
         z = self.radius * np.outer(np.ones(np.size(u)), np.cos(v))
 
         # Plotting
-        fig = plt.figure()
+        fig = plt.figure(dpi=600)
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
@@ -1805,18 +1806,19 @@ class VISUAL:
                 # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
                 body_pos = body_states[7*swim : 7*swim+3]
                 R = np.identity(3)
-                # R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
-
+                R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
                 
                 # Plot the sphere
                 if(t==self.plot_end_frame-1):
                     ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
+                body_axis = np.matmul(R, np.array([0,0,2*self.radius]))
+                # ax.plot([0, body_axis[0]]+body_pos[0], [0, body_axis[1]]+body_pos[1], [0, body_axis[2]]+body_pos[2])
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
                     fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
                     fil_data = np.zeros((self.nseg, 3))
-                    # WRITE A FUNCTION FOR THIS!!
+
                     cmap_name = 'hsv'
                     # cmap_name = 'twilight_shifted'
                     cmap = plt.get_cmap(cmap_name)
@@ -1837,11 +1839,11 @@ class VISUAL:
 
                     # Show only one side of the sphere
                     if(fil_base[0]>0):
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color , zorder = 100)
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=0.5, zorder = 100)
 
         if(self.video):
             plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-            ani = animation.FuncAnimation(fig, animation_func, frames=500, interval=10, repeat=False)
+            ani = animation.FuncAnimation(fig, animation_func, frames=self.frame, interval=10, repeat=False)
             plt.show()
             # FFwriter = animation.FFMpegWriter(fps=10)
             # ani.save(f'fig/ciliate_{nfil}fil_anim.mp4', writer=FFwriter)
@@ -1858,9 +1860,9 @@ class VISUAL:
             
             ax.set_aspect('equal')
             fig.tight_layout()
-            fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            # fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
-            # plt.show()
+            plt.show()
 
     def ciliate_traj(self):
         self.select_sim()
@@ -1914,7 +1916,6 @@ class VISUAL:
             if(i>=self.plot_start_frame):
 
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
-                print(body_vels_str.split())
                 body_vels = np.array(body_vels_str.split()[1:], dtype=float)
 
                 # body_pos_array[i-self.plot_start_frame] = body_states[0:3]
@@ -1951,7 +1952,74 @@ class VISUAL:
         ax2.plot(time_array, body_vel_array[:,2]/self.fillength)
         ax2.set_ylabel(r"$V_zT/L$")
         ax2.set_xlabel(r"$t/T$")
-        fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+
+        plt.tight_layout()
+        # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        
+        plt.show()
+
+    def ciliate_speed_eco(self):
+        self.select_sim()
+
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+
+        # Plotting
+        fig1 = plt.figure()
+        ax1 = fig1.add_subplot(1,1,1)
+        # fig2 = plt.figure()
+        # ax2 = fig2.add_subplot(1,1,1)
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        
+        body_pos_array = np.zeros((len(time_array), 3))
+        body_axis_array = np.zeros((len(time_array), 3))
+
+        # body_vel_array = np.zeros((len(time_array), 6))
+        # body_speed_array = np.zeros(len(time_array))
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            body_states_str = body_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+
+                body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                body_pos_array[i-self.plot_start_frame] = body_states[0:3]
+
+
+                R = util.rot_mat(body_states[3:7])
+                body_axis_array[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,self.radius]))
+
+
+                # body_vel_array[i-self.plot_start_frame] = body_vels
+                # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+
+            # pos += body_vels[0:3]
+            # body_vel_array[i][0:3] = pos*self.dt
+
+        
+        body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
+        body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+
+    
+        avg_speed = np.mean(body_speed_array)/self.fillength
+        print(f'index={self.index} avg speed={avg_speed}')
+        
+        ax1.set_title(f'index={self.index} avg speed={avg_speed}')
+        ax1.set_xlim(time_array[0], time_array[-1])
+        ax1.plot(time_array[:-1], body_speed_array/self.fillength)
+        ax1.set_ylabel(r"$|V|T/L$")
+        ax1.set_xlabel(r"$t/T$")
+
+        # ax2.set_xlim(time_array[0], time_array[-1])
+        # ax2.plot(time_array, body_vel_array[:,2]/self.fillength)
+        # ax2.set_ylabel(r"$V_zT/L$")
+        # ax2.set_xlabel(r"$t/T$")
+
+        plt.tight_layout()
+        # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
 
@@ -5260,11 +5328,10 @@ class VISUAL:
 
         free = False
         path = "data/ic_hpc_sim/"
-        # path = "data/IVP159/"
-        # path = 'data/tilt_test/'
+        path = 'data/tilt_test/'
 
-        free = True
-        path = "data/ic_hpc_sim_free_continue/"
+        # free = True
+        # path = "data/ic_hpc_sim_free_continue/"
 
         
 
@@ -5272,20 +5339,27 @@ class VISUAL:
         if free:
             free_string = 'free'
 
-        import re
-        def sort_key(s):
-            # Split the string by the underscore and convert the second part to an integer
-            return int(s.split('_')[1])
-        folders = sorted(util.list_folders(path), key=sort_key)
+        # import re
+        # def sort_key(s):
+        #     # Split the string by the underscore and convert the second part to an integer
+        #     return int(s.split('_')[1])
+        # folders = sorted(util.list_folders(path), key=sort_key)
+
+        folders = util.list_folders(path)
         print(folders)
 
         self.plot_end_frame_setting = 3000000
         self.frames_setting = 600
 
-        r_data = np.zeros((len(folders), 16))
-        k_data = np.zeros((len(folders), 16))
-        v_data = np.zeros((len(folders), 16))
-        eff_data = np.zeros((len(folders), 16))
+        # Extract num_sim from the first folder
+        # All folders should have the same num_sim!
+        self.dir = path + folders[0] + '/'
+        self.read_rules()
+        r_data = np.zeros((len(folders), self.num_sim))
+        k_data = np.zeros((len(folders), self.num_sim))
+        tilt_data = np.zeros((len(folders), self.num_sim))
+        v_data = np.zeros((len(folders), self.num_sim))
+        eff_data = np.zeros((len(folders), self.num_sim))
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -5295,26 +5369,13 @@ class VISUAL:
             fig3 = plt.figure()
             ax3 = fig3.add_subplot(1,1,1)
 
-        # Below array is for testing and should be removed
-        symplectic_array = np.array([True, True, False, False, True, True, True, True, False, False, False, False, False, False, False, False,\
-                True, False, True, True, True, True, True, True, False, False, False, False, False, False, False, False,\
-                True, True, True, True, False, True, False, False, True, False, False, False, False, False, False, False,\
-                True, True, True, False, True, False, True, True, False, False, False, False, False, False, False, False,\
-                True, False, True, False, True, False, True, False, False, False, False, False, False, False, False, False,\
-                False, True, True, True, False, True, True, True, False, False, False, False, False, False, False, False,\
-                True, True, True, True, True, True, False, True, False, False, False, False, False, False, False, False,\
-                True, False, True, True, True, True, True, False, False, False, False, False, False, False, False, False,\
-                True, True, True, False, False, True, True, True, True, False, False, False, False, False, False, False,\
-                True, True, True, False, True, True, True, False, False, False, False, False, False, False, False, False,\
-            ])
-        
-
         for fi, folder in enumerate(folders):
             self.dir = path + folder + '/'
             print(self.dir)
             self.read_rules()
 
             k_arrays = self.pars_list['spring_factor']
+            tilt_arrays = self.pars_list['tilt_angle']
             r_arrays = np.zeros(np.shape(k_arrays))
             v_arrays = np.zeros(np.shape(k_arrays))
             dis_arrays = np.zeros(np.shape(k_arrays))
@@ -5390,18 +5451,19 @@ class VISUAL:
                     print("Something went wrong")
                     pass
             
-            symp = np.array(symplectic_array[16*fi: 16*(fi+1)])
+            # symp = np.array(symplectic_array[16*fi: 16*(fi+1)])
             # color_array = np.empty(symplectic_array.shape, dtype='object')
             # color_array[symp] = 'r'
             # color_array[~symp] = 'b'
 
-            ax.scatter(np.array(k_arrays)[symp], r_arrays[symp], marker='x', c='r')
-            ax.scatter(np.array(k_arrays)[~symp], r_arrays[~symp], marker='x', c='b')
+            # ax.scatter(np.array(k_arrays)[symp], r_arrays[symp], marker='x', c='r')
+            # ax.scatter(np.array(k_arrays)[~symp], r_arrays[~symp], marker='x', c='b')
 
             r_data[fi] = r_arrays
             k_data[fi] = k_arrays
+            tilt_data[fi] = tilt_arrays
 
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c=color_array)
+            ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
             # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
             if free:
                 ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
@@ -5410,11 +5472,18 @@ class VISUAL:
                 v_data[fi] = v_arrays
                 eff_data[fi] = eff_arrays
 
+        # save data
+        np.save(f"{path}r_data.npy", r_data)
+        np.save(f"{path}k_data.npy", k_data)
+        np.save(f"{path}tilt_data.npy", tilt_data)
+        np.save(f"{path}v_data.npy", v_data)
+        np.save(f"{path}eff_data.npy", eff_data)
+
+
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
         
-
         if free:
             ax2.set_ylim(0)
             ax2.set_xlabel(r'$k$')
@@ -5426,11 +5495,7 @@ class VISUAL:
 
         # ax.legend()
         # ax2.legend()
-        np.save(f"{path}r_data.npy", r_data)
-        np.save(f"{path}k_data.npy", k_data)
-        np.save(f"{path}v_data.npy", v_data)
-        np.save(f"{path}eff_data.npy", eff_data)
-
+        
         fig.tight_layout()
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         fig.savefig(f'fig/IVP_order_parameters_{free_string}.png', bbox_inches = 'tight', format='png', transparent=True)
