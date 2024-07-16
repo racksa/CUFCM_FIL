@@ -43,7 +43,7 @@ class VISUAL:
         # self.date = '20240620_symplectic'
         # self.dir = f"data/IVP159_flowfield/{self.date}/"
 
-        self.date = '20240311_10'
+        self.date = '20240311_8'
         self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = '20240626_ishikawa'
@@ -102,8 +102,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1200000
-        self.frames_setting = 900
+        self.plot_end_frame_setting = 86
+        self.frames_setting = 9000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1062,11 +1062,16 @@ class VISUAL:
         ax5.set_xlabel('t/T')
         ax5.set_ylabel('<r>')
         ax5.set_xlim(time_array[0], time_array[-1])
-        
+        ax5.set_xticks(np.linspace(0, 40, 5))
+
+        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
         
         # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig5.tight_layout()
+        fig5.savefig(f'fig/oder_parameter_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
 
     def footpath(self):
@@ -1839,7 +1844,7 @@ class VISUAL:
 
                     # Show only one side of the sphere
                     if(fil_base[0]>0):
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=0.5, zorder = 100)
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
 
         if(self.video):
             plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
@@ -1862,7 +1867,7 @@ class VISUAL:
             fig.tight_layout()
             # fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
-            plt.show()
+            # plt.show()
 
     def ciliate_traj(self):
         self.select_sim()

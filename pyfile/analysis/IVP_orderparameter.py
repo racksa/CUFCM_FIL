@@ -10,7 +10,7 @@ mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
-plt.rcParams.update({'font.size': 16})
+plt.rcParams.update({'font.size': 24})
 
 path_heldfixed = "data/ic_hpc_sim/"
 path_free = "data/ic_hpc_sim_free_continue/"
@@ -20,12 +20,18 @@ k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
 
 r_data_free = np.load(f"{path_free}r_data.npy")
 k_data_free = np.load(f"{path_free}k_data.npy")
+v_data_free = np.load(f"{path_free}v_data.npy")
+eff_data_free = np.load(f"{path_free}eff_data.npy")
 
 n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder_free = r_data_free.shape[0]
 
-fig = plt.figure()
+fig = plt.figure(dpi=200)
 ax = fig.add_subplot(1,1,1)
+fig2 = plt.figure(dpi=200)
+ax2 = fig2.add_subplot(1,1,1)
+fig3 = plt.figure(dpi=200)
+ax3 = fig3.add_subplot(1,1,1)
 
 for fi in range(n_folder_heldfixed):
     plot_x = k_data_heldfixed[fi] 
@@ -47,6 +53,12 @@ for fi in range(n_folder_free):
     ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='+', c='b')
     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='b')
 
+    speed = v_data_free[fi]
+    ax2.scatter(plot_x, speed)
+
+    efficiency = eff_data_free[fi]
+    ax3.scatter(plot_x, efficiency)
+
 # ax.scatter(-1, -1, marker='+', c='r', label='Held fixed - Symplectic')
 # ax.scatter(-1, -1, marker='x', c='r', label='Held fixed - Diaplectic')
 # ax.scatter(-1, -1, marker='X', c='r', label='Held fixed - Diaplectic(#k=2)')
@@ -66,6 +78,11 @@ ax.set_xlim(0, 0.09)
 ax.legend()
 
 
+
+
 plt.tight_layout()
-fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf')
+fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+# fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
+fig2.savefig(f'fig/IVP_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+fig3.savefig(f'fig/IVP_efficiencies_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 plt.show()
