@@ -16,23 +16,34 @@ cmap_name = 'bwr'
 
 path = "data/ic_hpc_sim/20240311_8/"
 
-time_array = np.load(f"{path}time_array_index0.npy")
-r_array = np.load(f"{path}r_array_index0.npy")
+time_array_symplectic = np.load(f"{path}time_array_index0.npy")
+r_array_symplectic = np.load(f"{path}r_array_index0.npy")
 
-stamp_index = np.array([0, 85, 350, 584, 905])
-stamp_x = time_array[stamp_index]
-stamp_y = r_array[stamp_index]
+time_array_diaplectic = np.load(f"{path}time_array_index1.npy")
+r_array_diaplectic = np.load(f"{path}r_array_index1.npy")
+
+stamp_index_symplectic = np.array([0, 85, 350, 584, 905])
+stamp_x_symplectic = time_array_symplectic[stamp_index_symplectic]
+stamp_y_symplectic = r_array_symplectic[stamp_index_symplectic]
+
+stamp_index_diaplectic = np.array([0, 105, 194, 366, 918])
+stamp_x_diaplectic = time_array_diaplectic[stamp_index_diaplectic]
+stamp_y_diaplectic = r_array_diaplectic[stamp_index_diaplectic]
+roman_symbols = ['I', 'II', 'III', 'IV', 'V']
 
 fig = plt.figure(figsize=(6,3), dpi=200)
 ax = fig.add_subplot(1,1,1)
 
-ax.plot(time_array, r_array, c='black')
-ax.scatter(stamp_x, stamp_y, marker='^', s= 100, color='black')
+ax.plot(time_array_symplectic, r_array_symplectic, c='black')
+ax.plot(time_array_diaplectic, r_array_diaplectic, c='blue')
+ax.scatter(stamp_x_symplectic, stamp_y_symplectic, marker='^', s= 100, color='black')
+ax.scatter(stamp_x_diaplectic, stamp_y_diaplectic, marker='s', s= 100, color='black')
 ax.set_xticks(np.linspace(0, 40, 5))
 ax.set_yticks(np.linspace(0, 0.7, 3))
 
-for si, x in enumerate(stamp_x):
-    ax.annotate(rf'{si+1}', (stamp_x[si]-1, stamp_y[si]+0.1), fontsize=25, va='center')
+for si, x in enumerate(stamp_x_symplectic):
+    ax.annotate(rf'{si+1}', (stamp_x_symplectic[si]-1, stamp_y_symplectic[si]+0.1), fontsize=22, va='center')
+    ax.annotate(roman_symbols[si], (stamp_x_diaplectic[si]+1.3, stamp_y_diaplectic[si]), fontsize=22, va='center')
 
 
 # for fi in range(n_folder_free):
@@ -72,7 +83,7 @@ for si, x in enumerate(stamp_x):
 ax.set_xlabel(r'$t/T_0$')
 ax.set_ylabel(r'$r$')
 ax.set_ylim(0,0.7)
-# ax.set_xlim(0, 0.06)
+ax.set_xlim(None, 40)
 # ax.legend()
 
 plt.tight_layout()

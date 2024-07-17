@@ -33,8 +33,8 @@ class VISUAL:
         self.date = '20240608'
         # self.dir = f"data/IVP159/{self.date}/"
 
-        # self.date = '20240618'
-        # self.dir = f"data/regular_wall_sim/{self.date}/"
+        self.date = '20240717_rpy_get_drag'
+        self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.date = '20240710_free'
         self.dir = f"data/tilt_test/{self.date}/"
@@ -43,8 +43,8 @@ class VISUAL:
         # self.date = '20240620_symplectic'
         # self.dir = f"data/IVP159_flowfield/{self.date}/"
 
-        self.date = '20240311_8'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.date = '20240311_8'
+        # self.dir = f"data/ic_hpc_sim/{self.date}/"
 
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
@@ -102,7 +102,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 86
+        self.plot_end_frame_setting = 195
         self.frames_setting = 9000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -117,7 +117,7 @@ class VISUAL:
         self.ncol = 4
         self.num_sim = 0
 
-        self.plot_interval = 3
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -1062,7 +1062,7 @@ class VISUAL:
         ax5.set_xlabel('t/T')
         ax5.set_ylabel('<r>')
         ax5.set_xlim(time_array[0], time_array[-1])
-        ax5.set_xticks(np.linspace(0, 40, 5))
+        # ax5.set_xticks(np.linspace(0, 40, 5))
 
         np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
         np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)

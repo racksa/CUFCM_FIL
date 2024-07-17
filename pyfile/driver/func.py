@@ -7,14 +7,15 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        # self.category = 'regular_wall_sim/'
-        self.category = 'IVP159_flowfield/'
-        self.category = 'tilt_test/'
+        self.category = 'regular_wall_sim/'
+        # self.category = 'IVP159_flowfield/'
+        # self.category = 'tilt_test/'
 
         self.exe_name = 'cilia_1e-4_free_test_with_force'
+        self.exe_name = 'cilia_1e-4_rpy_get_drag'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240710_free_test'
+        self.date = '20240717_rpy_get_drag'
         
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -117,27 +118,27 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
                         sim_length = 400
 
-                        # nfil = int(1*(i+1))
-                        # nblob = int(4096*(i+1))
-                        # fil_spacing=256.0
-                        # blob_spacing=4.0
-                        # fil_x_dim=2
-                        # blob_x_dim=64
-                        # sim_length = 3
+                        nfil = int(1*(i+1))
+                        nblob = int(4096*(i+1))
+                        fil_spacing=256.0
+                        blob_spacing=4.0
+                        fil_x_dim=2
+                        blob_x_dim=64
+                        sim_length = 3
 
 
                         # # IVP sim
-                        nfil = int(159 + 480*1)
-                        nblob = int(9000 + 31961*1)
-                        ar = round(8.00 + 7*1, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = (1./9.)*0.5*3.141592653*j
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
+                        # nfil = int(159 + 480*1)
+                        # nblob = int(9000 + 31961*1)
+                        # ar = round(8.00 + 7*1, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = (1./9.)*0.5*3.141592653*j
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000
 
                         # nfil = int(639 + 0*i)
                         # nblob = int(40961 + 0*i)
@@ -274,7 +275,7 @@ class DRIVER:
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} > temp.out"
+                        ./bin/{self.exe_name} "
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \

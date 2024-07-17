@@ -15,9 +15,6 @@ L = 2.6*(20-1)
 phase_forcing_filename = 'input/forcing/fulford_and_blake_reference_phase_generalised_forces_NSEG=20_SEP=2.600000.dat'
 angle_forcing_filename = 'input/forcing/fulford_and_blake_reference_angle_generalised_forces_NSEG=20_SEP=2.600000.dat'
 
-# angle_forcing = np.load(angle_forcing_filename)
-# phase_forcing = np.load(phase_forcing_filename)
-
 phase_forcing_f = open(phase_forcing_filename)
 angle_forcing_f = open(angle_forcing_filename)
 

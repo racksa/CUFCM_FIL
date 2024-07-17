@@ -20,6 +20,25 @@ def remove_last_line(file_path):
     except Exception as e:
         print("An error occurred:", e)
 
+def write_last_n_lines(file_A, file_B, n):
+    try:
+        # Read all lines from file A
+        with open(file_A, 'r') as file_a:
+            lines = file_a.readlines()
+
+        # Get the last n lines
+        last_n_lines = lines[-n:]
+
+        # Write the last n lines to file B
+        with open(file_B, 'w') as file_b:
+            file_b.writelines(last_n_lines)
+
+        print(f"The last {n} lines from '{file_A}' have been written to '{file_B}' successfully.")
+    
+    except FileNotFoundError:
+        print(f"File '{file_A}' not found.")
+    except Exception as e:
+        print("An error occurred:", e)
 
 def append_file_contents(file_a, file_b):
     try:
@@ -40,7 +59,8 @@ def append_file_contents(file_a, file_b):
 
 
 # Example usage
-path = f"data/tilt_test/20240710_free_test"
+path = f"data/tilt_test/20240710_free"
+output_path = f"data/tilt_test/output"
 
 def list_files_with_suffix(directory, suffixes):
     # Ensure suffixes is a tuple to work with str.endswith
@@ -52,30 +72,14 @@ def list_files_with_suffix(directory, suffixes):
     return [f for f in os.listdir(directory) if f.endswith(suffixes)]
 
 # Example usage
-suffixes = ('_body_states.dat', '_seg_states.dat', '_true_states.dat')  # List of suffixes
+suffixes = ('_body_states.dat', '_true_states.dat')  # List of suffixes
 files = list_files_with_suffix(path, suffixes)
 
 print(len(files))
 
 for file_name in files:
     print(path + '/' + file_name)
-    remove_last_line(path + '/' + file_name)
 
-# file_a_prefix = f"data/IVP159/20240608/"
-# file_b_prefix = f"data/IVP159_continue/20240608_continue1/"
-# file_prefix = "ciliate_159fil_9000blob_8.00R_0.0830torsion"
+    # write_last_n_lines(path + '/' + file_name, output_path + '/' + file_name, 120)
 
-# file_a = f"{file_a_prefix}{file_prefix}_body_states.dat"
-# file_b = f"{file_b_prefix}{file_prefix}_body_states.dat"
-# remove_last_line(file_a)
-# append_file_contents(file_a, file_b)
-
-# file_a = f"{file_a_prefix}{file_prefix}_seg_states.dat"
-# file_b = f"{file_b_prefix}{file_prefix}_seg_states.dat"
-# remove_last_line(file_a)
-# append_file_contents(file_a, file_b)
-
-# file_a = f"{file_a_prefix}{file_prefix}_true_states.dat"
-# file_b = f"{file_b_prefix}{file_prefix}_true_states.dat"
-# remove_last_line(file_a)
-# append_file_contents(file_a, file_b)
+    # remove_last_line(path + '/' + file_name)
