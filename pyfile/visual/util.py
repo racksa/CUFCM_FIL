@@ -227,4 +227,51 @@ def get_member_functions(obj):
         print(f"Error: {e}")
         return []
 
+def normalize_quaternions(quaternions):
+    """Normalize an array of quaternions."""
+    norms = np.linalg.norm(quaternions, axis=1)
+    return quaternions / norms[:, np.newaxis]
+
+def quaternion_conjugate(q):
+    """Compute the conjugate of a quaternion."""
+    return np.array([q[0], -q[1], -q[2], -q[3]])
+
+def quaternion_multiply(q, r):
+    """Quaternion multiplication (q * r)."""
+    w1, x1, y1, z1 = q
+    w2, x2, y2, z2 = r
+    return np.array([
+        w1*w2 - x1*x2 - y1*y2 - z1*z2,
+        w1*x2 + x1*w2 + y1*z2 - z1*y2,
+        w1*y2 - x1*z2 + y1*w2 + z1*x2,
+        w1*z2 + x1*y2 - y1*x2 + z1*w2
+    ])
+
+def compute_angular_velocity(quaternions, dt):
+    """Compute angular velocity from an array of quaternions."""
+    # Ensure quaternions are normalized
+    quaternions = normalize_quaternions(quaternions)
+
+    # Number of quaternions
+    n = quaternions.shape[0]
+    
+    # Initialize angular velocity array
+    angular_velocity = np.zeros((n-1, 3))
+    
+    # Compute angular velocity
+    for i in range(n-1):        
+        # Quaternion difference
+        dq = quaternion_multiply(quaternions[i+1], quaternion_conjugate(quaternions[i]))
+        
+        # Quaternion derivative
+        dq_dt = dq / dt
+        
+        # Angular velocity (extract vector part and multiply by 2)
+        omega = 2 * dq_dt[1:4]
+        
+        # Store angular velocity
+        angular_velocity[i, :] = omega
+    
+    return angular_velocity
+
 #

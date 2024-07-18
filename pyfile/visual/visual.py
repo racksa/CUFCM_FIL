@@ -102,8 +102,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 195
-        self.frames_setting = 9000
+        self.plot_end_frame_setting = 100000
+        self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -114,7 +114,7 @@ class VISUAL:
         self.Ly = 1000
         self.Lz = 1000
 
-        self.ncol = 4
+        self.ncol = 10
         self.num_sim = 0
 
         self.plot_interval = 1
@@ -1971,13 +1971,13 @@ class VISUAL:
         # Plotting
         fig1 = plt.figure()
         ax1 = fig1.add_subplot(1,1,1)
-        # fig2 = plt.figure()
-        # ax2 = fig2.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
 
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
         
         body_pos_array = np.zeros((len(time_array), 3))
-        body_axis_array = np.zeros((len(time_array), 3))
+        body_q_array = np.zeros((len(time_array), 4))
 
         # body_vel_array = np.zeros((len(time_array), 6))
         # body_speed_array = np.zeros(len(time_array))
@@ -1992,32 +1992,31 @@ class VISUAL:
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
 
                 body_pos_array[i-self.plot_start_frame] = body_states[0:3]
+                body_q_array[i-self.plot_start_frame] = body_states[3:7]
 
-
-                R = util.rot_mat(body_states[3:7])
-                body_axis_array[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,self.radius]))
+                # R = util.rot_mat(body_states[3:7])
+                # body_axis_array[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,self.radius]))
 
 
                 # body_vel_array[i-self.plot_start_frame] = body_vels
                 # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
-
-            # pos += body_vels[0:3]
-            # body_vel_array[i][0:3] = pos*self.dt
-
         
         body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
         body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+        body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
+        body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
 
-    
-        avg_speed = np.mean(body_speed_array)/self.fillength
-        print(f'index={self.index} avg speed={avg_speed}')
-        
+        avg_speed = np.mean(body_speed_array)
+        avg_rot_speed = np.mean(body_rot_speed_array)
+        print(f'index={self.index} avg speed={avg_speed/self.fillength} avg rot speed={avg_rot_speed}')
+
+        ax1.plot(time_array[:-1], body_speed_array/self.fillength)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
-        ax1.plot(time_array[:-1], body_speed_array/self.fillength)
         ax1.set_ylabel(r"$|V|T/L$")
         ax1.set_xlabel(r"$t/T$")
 
+        ax2.plot(time_array[:-1], body_rot_speed_array)
         # ax2.set_xlim(time_array[0], time_array[-1])
         # ax2.plot(time_array, body_vel_array[:,2]/self.fillength)
         # ax2.set_ylabel(r"$V_zT/L$")
@@ -3206,9 +3205,17 @@ class VISUAL:
 
         
         fig, axs = plt.subplots(nrow, ncol, figsize=(18, 18), sharex=True, sharey=True)
-        # cax = fig.add_axes([0.92, 0.1, 0.02, 0.8])  # [left, bottom, width, height] for the colorbar
 
         axs_flat = axs.ravel()
+        # Row-major, bottom-to-top indices
+        row_indices = np.arange(nrow - 1, -1, -1)
+        col_indices = np.arange(ncol)
+        row_major_bottom_top_indices = np.array([
+            row + nrow * col for row in row_indices for col in col_indices
+        ])
+        print(row_major_bottom_top_indices)
+
+
         import scipy.interpolate
 
         # fig.supxlabel(r"Azimuth position")
@@ -3216,13 +3223,15 @@ class VISUAL:
         # plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
         # plt.ylabel(r"$\theta$")
         # plt.xlabel(r"$\phi$")
+        
         plt.xlim(-np.pi, np.pi)
         plt.ylim(0, np.pi)
         plt.xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
         plt.yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
         plt.gca().invert_yaxis()
 
-        for ind, ax in enumerate(axs_flat):
+        for ind, ax in zip(row_major_bottom_top_indices, axs_flat):
+        # for ind, ax in enumerate(axs_flat):
             ax.invert_yaxis()
             if (ind < self.num_sim):
                 try:
@@ -3263,13 +3272,9 @@ class VISUAL:
                             else:
                             # Individual filaments
                                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
-                    # ax.set_ylabel(r"$\theta$")
-                    # ax.set_xlabel(r"$\phi$")
-                    # ax.set_xlim(-np.pi, np.pi)
-                    # ax.set_ylim(0, np.pi)
-                    # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
-                    # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
-                    ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
+
+                    # ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
+                    # ax.set_title(f"ind={self.index}")
                 except:
                     print("WARNING: " + self.simName + " not found.")
         for ax in axs_flat:
@@ -4240,61 +4245,7 @@ class VISUAL:
         # plt.savefig(f'fig/multi_svd.png', bbox_inches = 'tight', format='png')
         # plt.savefig(f'fig/multi_svd.pdf', bbox_inches = 'tight', format='pdf')
         # plt.show()
-    
-    def multi_output_phase(self):
-        for ind in range(self.num_sim):
-            try:
-                self.index = ind
-                self.select_sim()
-
-                fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-                fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
-
-                X = np.zeros((self.nfil, self.frames))
-                X_angle = np.zeros((self.nfil, self.frames))
-
-                fil_references_sphpolar = np.zeros((self.nfil,3))
-                for fil in range(self.nfil):
-                    fil_references_sphpolar[fil] = util.cartesian_to_spherical(self.fil_references[3*fil: 3*fil+3])
-                azim_array = fil_references_sphpolar[:,1]
-                polar_array = fil_references_sphpolar[:,2]
-                sorted_indices = np.argsort(azim_array)
-                azim_array_sorted = azim_array[sorted_indices]
-                polar_array_sorted = polar_array[sorted_indices]
-
-                for i in range(self.plot_end_frame):
-                    print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                    fil_phases_str = fil_phases_f.readline()
-                    fil_angles_str = fil_angles_f.readline()
-                    
-                    if(i>=self.plot_start_frame):
-                        fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                        fil_phases_sorted = fil_phases[sorted_indices]
-                        fil_phases_sorted = util.box(fil_phases_sorted, 2*np.pi)
-
-                        fil_phases_sorted = np.sin(fil_phases_sorted)
-
-                        fil_angles = np.array(fil_angles_str.split()[1:], dtype=float)
-                        fil_angles_sorted = fil_angles[sorted_indices]
-
-                        X[:,i-self.plot_start_frame] = fil_phases_sorted[:self.nfil]
-                        X_angle[:,i-self.plot_start_frame] = fil_angles_sorted[:self.nfil]
-                
-                fname = 'phase_data_20230104_held_fixed'
-                fname = 'phase_data_20231231_free'
-                fname = 'phase_data_20240114_readphase_free_diaplectic'
-                fname = f'phase_data_{self.date}'
-                if not os. path. exists(fname):
-                    print("Creating folder")
-                    os.system(f"mkdir {fname}")
-                np.savetxt(f'{fname}/X_phase_index{self.index}.txt', X, delimiter=', ')
-                # np.savetxt(f'phase_data_20231107/by_index/spring_constant{spring_factor}/X_rotation_angle_index{self.index}.txt', X_angle, delimiter=', ')
-                np.savetxt(f'{fname}/azim_pos_index{self.index}.txt', azim_array_sorted, delimiter=', ')
-                np.savetxt(f'{fname}/polar_pos_index{self.index}.txt', polar_array_sorted, delimiter=', ')
-
-            except:
-                print("WARNING: " + self.simName + " not found.")
-                
+           
     def multi_copy_phases(self):
         for ind in range(self.num_sim):
             self.index = ind
@@ -5331,18 +5282,14 @@ class VISUAL:
 
         plt.rcParams.update({'font.size': 27})
 
-        free = False
-        path = "data/ic_hpc_sim/"
-        path = 'data/tilt_test/'
+        # force = False
+        # path = "data/ic_hpc_sim/"
 
-        # free = True
+        # force = True
         # path = "data/ic_hpc_sim_free_continue/"
 
-        
-
-        free_string = 'held_fixed'
-        if free:
-            free_string = 'free'
+        force = False
+        path = 'data/tilt_test/'
 
         # import re
         # def sort_key(s):
@@ -5354,7 +5301,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 3000000
-        self.frames_setting = 600
+        # self.frames_setting = 600
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!
@@ -5363,16 +5310,12 @@ class VISUAL:
         r_data = np.zeros((len(folders), self.num_sim))
         k_data = np.zeros((len(folders), self.num_sim))
         tilt_data = np.zeros((len(folders), self.num_sim))
-        v_data = np.zeros((len(folders), self.num_sim))
+        avg_speed_data = np.zeros((len(folders), self.num_sim))
+        avg_rot_speed_data = np.zeros((len(folders), self.num_sim))
         eff_data = np.zeros((len(folders), self.num_sim))
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
-        if free:
-            fig2 = plt.figure()
-            ax2 = fig2.add_subplot(1,1,1)
-            fig3 = plt.figure()
-            ax3 = fig3.add_subplot(1,1,1)
 
         for fi, folder in enumerate(folders):
             self.dir = path + folder + '/'
@@ -5382,12 +5325,17 @@ class VISUAL:
             k_arrays = self.pars_list['spring_factor']
             tilt_arrays = self.pars_list['tilt_angle']
             r_arrays = np.zeros(np.shape(k_arrays))
-            v_arrays = np.zeros(np.shape(k_arrays))
+            avg_speed_arrays = np.zeros(np.shape(k_arrays))
+            avg_rot_speed_arrays = np.zeros(np.shape(k_arrays))
             dis_arrays = np.zeros(np.shape(k_arrays))
             eff_arrays = np.zeros(np.shape(k_arrays))
             
             for ind in range(self.num_sim):
                 self.index = ind
+
+                body_pos_array = np.zeros((self.frames, 3))
+                body_q_array = np.zeros((self.frames, 4))
+
                 try:
                     self.select_sim()
 
@@ -5395,13 +5343,13 @@ class VISUAL:
                     for i in range(self.nfil):
                         fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
+                    body_states_f = open(self.simName + '_body_states.dat', "r")
                     fil_states_f = open(self.simName + '_true_states.dat', "r")
-                    if free:
+                    if force:
                         seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
                         seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
                         blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
                         blob_references_f = open(self.simName + '_blob_references.dat', "r")
-                        body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
                         blob_references_str = blob_references_f.readline()
                         blob_references= np.array(blob_references_str.split(), dtype=float)
@@ -5409,21 +5357,24 @@ class VISUAL:
 
                     print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
                     for t in range(self.plot_end_frame):
+                        body_states_str = body_states_f.readline()
                         fil_states_str = fil_states_f.readline()
-                        if free:
+                        if force:
                             seg_forces_str = seg_forces_f.readline()
                             seg_vels_str = seg_vels_f.readline()
                             blob_forces_str = blob_forces_f.readline()
-                            body_vels_str = body_vels_f.readline()
                         if(t>=self.plot_start_frame):
+                            body_states = np.array(body_states_str.split()[1:], dtype=float)
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-                            # fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
-                            phases = fil_states[:self.nfil]
 
+                            phases = fil_states[:self.nfil]
                             r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
                             r_arrays[ind] += r
 
-                            if free:
+                            body_pos_array[t-self.plot_start_frame] = body_states[0:3]
+                            body_q_array[t-self.plot_start_frame] = body_states[3:7]
+
+                            if force:
                                 seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                                 seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                                 blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
@@ -5446,50 +5397,46 @@ class VISUAL:
                                 dis_arrays[ind] += dis
                                 eff_arrays[ind] += eff
                     
+                    body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
+                    body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+                    body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
+                    body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
+
+                    avg_speed_arrays[ind] = np.mean(body_speed_array)/self.fillength
+                    avg_rot_speed_arrays[ind] = np.mean(body_rot_speed_array)
                     r_arrays[ind] /= self.frames
-                    if free:
-                        v_arrays[ind] /= self.frames
+                    if force:
+                        
                         dis_arrays[ind] /= self.frames
                         eff_arrays[ind] /= self.frames
                 
                 except:
                     print("Something went wrong")
                     pass
-            
-            # symp = np.array(symplectic_array[16*fi: 16*(fi+1)])
-            # color_array = np.empty(symplectic_array.shape, dtype='object')
-            # color_array[symp] = 'r'
-            # color_array[~symp] = 'b'
-
-            # ax.scatter(np.array(k_arrays)[symp], r_arrays[symp], marker='x', c='r')
-            # ax.scatter(np.array(k_arrays)[~symp], r_arrays[~symp], marker='x', c='b')
 
             r_data[fi] = r_arrays
             k_data[fi] = k_arrays
             tilt_data[fi] = tilt_arrays
+            avg_speed_data[fi] = avg_speed_arrays
+            avg_rot_speed_data[fi] = avg_rot_speed_arrays
 
             ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
-            # ax.scatter(k_arrays, r_arrays, marker='x', label = folder)
-            if free:
-                ax2.scatter(k_arrays, v_arrays/49.4, marker='x', label = folder, c='black')
-                ax3.scatter(k_arrays, eff_arrays, marker='x', label = folder, c='black')
-
-                v_data[fi] = v_arrays
-                eff_data[fi] = eff_arrays
 
         # save data
         np.save(f"{path}r_data.npy", r_data)
         np.save(f"{path}k_data.npy", k_data)
         np.save(f"{path}tilt_data.npy", tilt_data)
-        np.save(f"{path}v_data.npy", v_data)
-        np.save(f"{path}eff_data.npy", eff_data)
+        np.save(f"{path}avg_speed_data.npy", avg_speed_data)
+        np.save(f"{path}avg_rot_speed_data.npy", avg_rot_speed_data)
+        if force:
+            np.save(f"{path}eff_data.npy", eff_data)
 
 
         ax.set_ylim(0)
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<r>$')
         
-        if free:
+        if force:
             ax2.set_ylim(0)
             ax2.set_xlabel(r'$k$')
             ax2.set_ylabel(r'$<v/L>$')
@@ -5502,14 +5449,9 @@ class VISUAL:
         # ax2.legend()
         
         fig.tight_layout()
-        fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        fig.savefig(f'fig/IVP_order_parameters_{free_string}.png', bbox_inches = 'tight', format='png', transparent=True)
-        if free:
-            fig2.tight_layout()
-            fig2.savefig(f'fig/IVP_velocities_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-            fig3.tight_layout()
-            fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
-        
+        # fig.savefig(f'fig/IVP_order_parameters_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/IVP_order_parameters_{free_string}.png', bbox_inches = 'tight', format='png', transparent=True)
+
         plt.show()
 
     def view_bisection(self):
@@ -5804,5 +5746,56 @@ class VISUAL:
         fig3.tight_layout()
         # fig3.savefig(f'fig/IVP_efficiencies_{free_string}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
+
+    def compute_avg(self):
+        k_array = self.pars_list['spring_factor']
+        tilt_array = self.pars_list['tilt_angle']
+        avg_speed = np.zeros(self.num_sim)
+        avg_rot_speed = np.zeros(self.num_sim)
+        
+        save_dir = f'{self.dir}/avg_quantities/'
+        os.system(f'mkdir -p {save_dir}')
+
+        for ind in range(self.num_sim):
+            try:
+                self.index = ind
+                self.select_sim()
+
+                body_states_f = open(self.simName + '_body_states.dat', "r")
+
+                time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        
+                body_pos_array = np.zeros((len(time_array), 3))
+                body_q_array = np.zeros((len(time_array), 4))
+
+                for i in range(self.plot_end_frame):
+                    print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                    body_states_str = body_states_f.readline()
+
+                    if(i>=self.plot_start_frame):
+                        body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                        body_pos_array[i-self.plot_start_frame] = body_states[0:3]
+                        body_q_array[i-self.plot_start_frame] = body_states[3:7]
+
+                body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
+                body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+                body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
+                body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
+
+                avg_speed[ind] = np.mean(body_speed_array)
+                avg_rot_speed[ind] = np.mean(body_rot_speed_array)
+
+                # ax.plot(time_array, body_speed_array/self.fillength, label=f"{self.index}) nblob={self.nblob}")
+            except:
+                print("WARNING: " + self.simName + " not found.")
+
+        afix = ''
+        np.save(f'{save_dir}/k_array{afix}.npy', k_array)
+        np.save(f'{save_dir}/tilt_array{afix}.npy', tilt_array)
+        np.save(f'{save_dir}/avg_speed{afix}.npy', avg_speed)
+        np.save(f'{save_dir}/avg_rot_speed{afix}.npy', avg_rot_speed)
+        print(f'index={self.index} avg speed={avg_speed/self.fillength} avg rot speed={avg_rot_speed}')
+        
 
 #
