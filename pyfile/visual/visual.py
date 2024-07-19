@@ -102,8 +102,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 100000
-        self.frames_setting = 600
+        self.plot_end_frame_setting = 5700 - 600
+        self.frames_setting = 2400
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -117,7 +117,7 @@ class VISUAL:
         self.ncol = 10
         self.num_sim = 0
 
-        self.plot_interval = 1
+        self.plot_interval = 6
         
         self.index = 0
 
@@ -154,12 +154,13 @@ class VISUAL:
             num_elst = len(np.unique([float(s) for s in sim["Parameter list"]['spring_factor'].split(', ')]))
             num_per_elst = int(num_fil*num_ar)
             select_elst = min(num_elst-1, self.select_elst)
-
             for key, value in self.pars_list.items():
                 if(key in sim["Parameter list"]):
                     self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')]
             self.num_sim = len(self.pars_list["nfil"])
-            # print(self.pars_list['nfil'])
+            if(len(self.pars_list['tilt_angle'])==0):
+                self.pars_list['tilt_angle'] = np.zeros(np.shape(self.pars_list['nfil']))
+           
         except:
             print("WARNING: " + self.dir + "rules.ini not found.")
 
@@ -176,15 +177,17 @@ class VISUAL:
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
 
-
+        
         try:
             self.tilt_angle = self.pars_list['tilt_angle'][self.index]
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
+            open(self.simName + '_fil_references.dat')
         except:
             self.tilt_angle = 0.
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
-        
 
+
+        print(self.simName, '---------------------')
 
         try:
             self.fil_spacing = self.pars_list['fil_spacing'][self.index]
@@ -192,14 +195,14 @@ class VISUAL:
         except:
             pass
 
-        try:
-            open(self.simName + '_fil_references.dat')
-        except:
-            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
-        try:
-            open(self.simName + '_fil_references.dat')
-        except:
-            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
+        # try:
+        #     open(self.simName + '_fil_references.dat')
+        # except:
+        #     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
+        # try:
+        #     open(self.simName + '_fil_references.dat')
+        # except:
+        #     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
         
         self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
         try:
@@ -1730,6 +1733,7 @@ class VISUAL:
         
             
         s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
+        
         s_ref = np.loadtxt(s_ref_filename)
         num_ref_phase = s_ref[0]
         num_seg = int(s_ref[1])
@@ -1776,11 +1780,12 @@ class VISUAL:
         z = self.radius * np.outer(np.ones(np.size(u)), np.cos(v))
 
         # Plotting
-        fig = plt.figure(dpi=600)
+        # fig = plt.figure(dpi=600)
+        fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        ax.view_init(elev=0., azim=0)
+        ax.view_init(elev=90., azim=0)
         ax.dist=5.8
         ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
         ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -1789,7 +1794,11 @@ class VISUAL:
         ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
         ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
 
+        global frame
+        frame = 0
+
         def animation_func(t):
+            global frame
             if(self.video):
                 ax.cla()
             ax.axis('off')
@@ -1816,8 +1825,13 @@ class VISUAL:
                 # Plot the sphere
                 if(t==self.plot_end_frame-1):
                     ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
-                body_axis = np.matmul(R, np.array([0,0,2*self.radius]))
-                # ax.plot([0, body_axis[0]]+body_pos[0], [0, body_axis[1]]+body_pos[1], [0, body_axis[2]]+body_pos[2])
+                body_axis_x = np.matmul(R, np.array([2*self.radius,0,0]))
+                body_axis_y = np.matmul(R, np.array([0,2*self.radius,0]))
+                body_axis_z = np.matmul(R, np.array([0,0,2*self.radius]))
+
+                ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
+                ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
+                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2])
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1847,11 +1861,19 @@ class VISUAL:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
 
         if(self.video):
-            plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-            ani = animation.FuncAnimation(fig, animation_func, frames=self.frame, interval=10, repeat=False)
-            plt.show()
-            # FFwriter = animation.FFMpegWriter(fps=10)
-            # ani.save(f'fig/ciliate_{nfil}fil_anim.mp4', writer=FFwriter)
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i>=self.plot_start_frame):
+                    frame = i
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
+                    plt.show()
+                    # FFwriter = animation.FFMpegWriter(fps=10)
+                    # ani.save(f'fig/ciliate_{nfil}fil_anim.mp4', writer=FFwriter)
+                else:
+                    body_states_str = body_states_f.readline()
+                    seg_states_str = seg_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -1862,12 +1884,13 @@ class VISUAL:
                     body_states_str = body_states_f.readline()
                     seg_states_str = seg_states_f.readline()
                     fil_states_str = fil_states_f.readline()
+                    frame += 1
             
             ax.set_aspect('equal')
             fig.tight_layout()
             # fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
-            # plt.show()
+            plt.show()
 
     def ciliate_traj(self):
         self.select_sim()
@@ -1977,6 +2000,7 @@ class VISUAL:
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
         
         body_pos_array = np.zeros((len(time_array), 3))
+        body_axis_array = np.zeros((len(time_array), 3))
         body_q_array = np.zeros((len(time_array), 4))
 
         # body_vel_array = np.zeros((len(time_array), 6))
@@ -1992,17 +2016,21 @@ class VISUAL:
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
 
                 body_pos_array[i-self.plot_start_frame] = body_states[0:3]
+                R = util.rot_mat(body_states[3:7])
+                body_axis_array[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,1]))
                 body_q_array[i-self.plot_start_frame] = body_states[3:7]
 
-                # R = util.rot_mat(body_states[3:7])
-                # body_axis_array[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,self.radius]))
-
+                
+                
 
                 # body_vel_array[i-self.plot_start_frame] = body_vels
                 # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
         
         body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
-        body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+
+        body_speed_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
+        # body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+
         body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
         body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
 
@@ -5311,7 +5339,9 @@ class VISUAL:
         k_data = np.zeros((len(folders), self.num_sim))
         tilt_data = np.zeros((len(folders), self.num_sim))
         avg_speed_data = np.zeros((len(folders), self.num_sim))
+        avg_speed_along_axis_data = np.zeros((len(folders), self.num_sim))
         avg_rot_speed_data = np.zeros((len(folders), self.num_sim))
+        avg_rot_speed_along_axis_data = np.zeros((len(folders), self.num_sim))
         eff_data = np.zeros((len(folders), self.num_sim))
 
         fig = plt.figure()
@@ -5326,7 +5356,9 @@ class VISUAL:
             tilt_arrays = self.pars_list['tilt_angle']
             r_arrays = np.zeros(np.shape(k_arrays))
             avg_speed_arrays = np.zeros(np.shape(k_arrays))
+            avg_speed_along_axis_arrays = np.zeros(np.shape(k_arrays))
             avg_rot_speed_arrays = np.zeros(np.shape(k_arrays))
+            avg_rot_speed_along_axis_arrays = np.zeros(np.shape(k_arrays))
             dis_arrays = np.zeros(np.shape(k_arrays))
             eff_arrays = np.zeros(np.shape(k_arrays))
             
@@ -5334,91 +5366,104 @@ class VISUAL:
                 self.index = ind
 
                 body_pos_array = np.zeros((self.frames, 3))
+                body_axis_array = np.zeros((self.frames, 3))
                 body_q_array = np.zeros((self.frames, 4))
 
-                try:
-                    self.select_sim()
+                # try:
+                self.select_sim()
 
-                    fil_references_sphpolar = np.zeros((self.nfil,3))
-                    for i in range(self.nfil):
-                        fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+                fil_references_sphpolar = np.zeros((self.nfil,3))
+                for i in range(self.nfil):
+                    fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
-                    body_states_f = open(self.simName + '_body_states.dat', "r")
-                    fil_states_f = open(self.simName + '_true_states.dat', "r")
+                body_states_f = open(self.simName + '_body_states.dat', "r")
+                fil_states_f = open(self.simName + '_true_states.dat', "r")
+                if force:
+                    seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+                    seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
+                    blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+                    blob_references_f = open(self.simName + '_blob_references.dat', "r")
+
+                    blob_references_str = blob_references_f.readline()
+                    blob_references= np.array(blob_references_str.split(), dtype=float)
+                    blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+
+                print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
+                for t in range(self.plot_end_frame):
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
                     if force:
-                        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
-                        seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
-                        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
-                        blob_references_f = open(self.simName + '_blob_references.dat', "r")
+                        seg_forces_str = seg_forces_f.readline()
+                        seg_vels_str = seg_vels_f.readline()
+                        blob_forces_str = blob_forces_f.readline()
+                    if(t>=self.plot_start_frame):
+                        body_states = np.array(body_states_str.split()[1:], dtype=float)
+                        fil_states = np.array(fil_states_str.split()[2:], dtype=float)
 
-                        blob_references_str = blob_references_f.readline()
-                        blob_references= np.array(blob_references_str.split(), dtype=float)
-                        blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+                        phases = fil_states[:self.nfil]
+                        r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
+                        r_arrays[ind] += r
 
-                    print(f"[{self.plot_start_frame} - {self.plot_end_frame}]")
-                    for t in range(self.plot_end_frame):
-                        body_states_str = body_states_f.readline()
-                        fil_states_str = fil_states_f.readline()
+                        body_pos_array[t-self.plot_start_frame] = body_states[0:3]
+                        body_q_array[t-self.plot_start_frame] = body_states[3:7]
+
+                        R = util.rot_mat(body_states[3:7])
+                        body_axis = np.matmul(R, np.array([0,0,1]))
+                        print(body_axis)
+                        body_axis_array[t-self.plot_start_frame] = body_axis
+
                         if force:
-                            seg_forces_str = seg_forces_f.readline()
-                            seg_vels_str = seg_vels_f.readline()
-                            blob_forces_str = blob_forces_f.readline()
-                        if(t>=self.plot_start_frame):
-                            body_states = np.array(body_states_str.split()[1:], dtype=float)
-                            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                            seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                            seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
+                            blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                            # Need to patch this for diffeent output format....
+                            if(len(body_vels_str.split())==6):
+                                body_vels= np.array(body_vels_str.split(), dtype=float)
+                            else:
+                                body_vels= np.array(body_vels_str.split()[1:], dtype=float)
 
-                            phases = fil_states[:self.nfil]
-                            r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
-                            r_arrays[ind] += r
+                            seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                            seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                            blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
+                            body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
+                            blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
 
-                            body_pos_array[t-self.plot_start_frame] = body_states[0:3]
-                            body_q_array[t-self.plot_start_frame] = body_states[3:7]
-
-                            if force:
-                                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
-                                seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
-                                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                                # Need to patch this for diffeent output format....
-                                if(len(body_vels_str.split())==6):
-                                    body_vels= np.array(body_vels_str.split(), dtype=float)
-                                else:
-                                    body_vels= np.array(body_vels_str.split()[1:], dtype=float)
-
-                                seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
-                                seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
-                                blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
-                                body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
-                                blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
-
-                                speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
-                                dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
-                                eff = 6*np.pi*self.radius*speed**2/dis
-                                v_arrays[ind] += speed
-                                dis_arrays[ind] += dis
-                                eff_arrays[ind] += eff
-                    
-                    body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
-                    body_speed_array = np.linalg.norm(body_vel_array, axis=1)
-                    body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
-                    body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
-
-                    avg_speed_arrays[ind] = np.mean(body_speed_array)/self.fillength
-                    avg_rot_speed_arrays[ind] = np.mean(body_rot_speed_array)
-                    r_arrays[ind] /= self.frames
-                    if force:
-                        
-                        dis_arrays[ind] /= self.frames
-                        eff_arrays[ind] /= self.frames
+                            speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                            dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+                            eff = 6*np.pi*self.radius*speed**2/dis
+                            v_arrays[ind] += speed
+                            dis_arrays[ind] += dis
+                            eff_arrays[ind] += eff
                 
-                except:
-                    print("Something went wrong")
-                    pass
+                
+                body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
+                body_speed_along_axis_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
+                body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+                body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
+                body_rot_speed_along_axis_array = np.sum(body_rot_vel_array * body_axis_array[:-1], axis=1)
+                body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
+
+                avg_speed_arrays[ind] = np.mean(body_speed_array)/self.fillength
+                avg_speed_along_axis_arrays[ind] = np.mean(body_speed_along_axis_array)/self.fillength
+                avg_rot_speed_arrays[ind] = np.mean(body_rot_speed_array)
+                avg_rot_speed_along_axis_arrays[ind] = np.mean(body_rot_speed_along_axis_array)
+                r_arrays[ind] /= self.frames
+                if force:
+                    
+                    dis_arrays[ind] /= self.frames
+                    eff_arrays[ind] /= self.frames
+            
+                # except:
+                #     print("Something went wrong")
+                #     pass
 
             r_data[fi] = r_arrays
             k_data[fi] = k_arrays
             tilt_data[fi] = tilt_arrays
             avg_speed_data[fi] = avg_speed_arrays
+            avg_speed_along_axis_data[fi] = avg_speed_along_axis_arrays
             avg_rot_speed_data[fi] = avg_rot_speed_arrays
+            avg_rot_speed_along_axis_data[fi] = avg_rot_speed_along_axis_arrays
 
             ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
 
@@ -5427,7 +5472,10 @@ class VISUAL:
         np.save(f"{path}k_data.npy", k_data)
         np.save(f"{path}tilt_data.npy", tilt_data)
         np.save(f"{path}avg_speed_data.npy", avg_speed_data)
+        np.save(f"{path}avg_speed_along_axis_data.npy", avg_speed_along_axis_data)
         np.save(f"{path}avg_rot_speed_data.npy", avg_rot_speed_data)
+        np.save(f"{path}avg_rot_speed_along_axis_data.npy", avg_rot_speed_along_axis_data)
+        
         if force:
             np.save(f"{path}eff_data.npy", eff_data)
 

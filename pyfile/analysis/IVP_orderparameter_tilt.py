@@ -24,9 +24,9 @@ r_data = np.load(f"{path}r_data.npy")
 k_data = np.load(f"{path}k_data.npy")
 tilt_data = np.load(f"{path}tilt_data.npy")
 avg_speed_data = np.load(f"{path}avg_speed_data.npy")
+avg_speed_along_axis_data = np.load(f"{path}avg_speed_along_axis_data.npy")
 avg_rot_speed_data = np.load(f"{path}avg_rot_speed_data.npy")
-
-print(r_data.shape)
+avg_rot_speed_along_axis_data = np.load(f"{path}avg_rot_speed_along_axis_data.npy")
 
 # n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder = r_data.shape[0]
@@ -49,6 +49,8 @@ ax3 = fig3.add_subplot(1,1,1)
 #     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='r')
 #     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=100, marker='P', c='r')
 
+
+
 for fi in range(n_folder):
     plot_x = k_data[fi]
     plot_y = tilt_data[fi]
@@ -56,20 +58,31 @@ for fi in range(n_folder):
     cmap = plt.get_cmap(cmap_name)
     color_data = r_data[fi]
     color = cmap(color_data/max(color_data))
+    indices_meridional = np.where(r_data[fi][:] > .4)
+    indices_zonal = np.where(r_data[fi][:] < .4)
 
-    color_data2 = avg_speed_data[fi]
-    color2 = cmap(color_data2/max(color_data2))
+    # color_data2 = avg_speed_along_axis_data[fi]
+    color_data2 = avg_rot_speed_along_axis_data[fi]
+    vmin2 = np.min(avg_rot_speed_along_axis_data)
+    vmax2 = np.max(avg_rot_speed_along_axis_data)
+    # vmax2 = np.sort(avg_rot_speed_along_axis_data[0])[::-1][5]
+    color2 = cmap((color_data2-vmin2)/(vmax2-vmin2))
 
-    color_data3 = avg_rot_speed_data[fi]
-    color3 = cmap(color_data2/max(color_data3))
+    # color_data3 = avg_rot_speed_data[fi]
+    # color3 = cmap(color_data2/max(color_data3))
 
-    print(plot_x)
-    print(avg_rot_speed_data[fi])
+    # print(plot_x)
+    # print(avg_rot_speed_data[fi])
 
+    print(color_data2)
     
     ax.scatter(plot_x, plot_y, s=100, marker='+', c=color)
     ax2.scatter(plot_x, plot_y, s=100, marker='+', c=color2)
-    ax3.scatter(plot_x, plot_y, s=100, marker='+', c=color3)
+
+
+    ax3.scatter(tilt_data[fi][:][indices_meridional], avg_rot_speed_along_axis_data[fi][:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
+    ax3.scatter(tilt_data[fi][:][indices_zonal], avg_rot_speed_along_axis_data[fi][:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
+    # ax3.scatter(plot_x, plot_y, s=100, marker='+', c=color3)
 
     # indices_symplectic = np.where(plot_y > .4)[0]
     # indices_diaplectic = np.where(plot_y  < .4)[0]
@@ -80,22 +93,20 @@ for fi in range(n_folder):
 # colorbar
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
-vmin = 0
-vmax = np.max(r_data)
-norm = Normalize(vmin=vmin, vmax=vmax)
-sm = ScalarMappable(cmap=cmap_name, norm=norm)
-sm.set_array([])
-cbar = fig.colorbar(sm)
-# cbar.ax.set_yticks(np.linspace(vmin, vmax, 3), ['0', 'π/4', 'π/2'])
-cbar.set_label(r"<r>")    
+# vmin = 0
+# vmax = np.max(r_data)
+# norm = Normalize(vmin=vmin, vmax=vmax)
+# sm = ScalarMappable(cmap=cmap_name, norm=norm)
+# sm.set_array([])
+# cbar = fig.colorbar(sm)
+# # cbar.ax.set_yticks(np.linspace(vmin, vmax, 3), ['0', 'π/4', 'π/2'])
+# cbar.set_label(r"<r>")    
 
-vmin = 0
-vmax = np.max(avg_speed_data)
-norm = Normalize(vmin=vmin, vmax=vmax)
+norm = Normalize(vmin=vmin2, vmax=vmax2)
 sm = ScalarMappable(cmap=cmap_name, norm=norm)
 sm.set_array([])
 cbar = fig2.colorbar(sm)
-cbar.set_label(r"<|V|>/L")   
+cbar.set_label(r"<Ω⋅e>/L")   
 
 # legend
 # ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
@@ -113,8 +124,14 @@ ax.set_ylabel(r'tilt angle')
 ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r'tilt angle')
 
+ax3.set_xlabel(r'tilt angle')
+ax3.set_ylabel(r"<Ω⋅e>/L")  
+ax3.legend()
+
 fig.tight_layout()
 fig2.tight_layout()
+fig3.tight_layout()
 fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/avg_speed_tilt.pdf', bbox_inches = 'tight', format='pdf')
+fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
+fig3.savefig(f'fig/rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

@@ -21,6 +21,7 @@ k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
 r_data_free = np.load(f"{path_free}r_data.npy")
 k_data_free = np.load(f"{path_free}k_data.npy")
 v_data_free = np.load(f"{path_free}v_data.npy")
+v_data_free = np.load(f"{path_free}avg_speed_data.npy")
 eff_data_free = np.load(f"{path_free}eff_data.npy")
 
 n_folder_heldfixed = r_data_heldfixed.shape[0]
