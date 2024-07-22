@@ -46,6 +46,9 @@ class VISUAL:
         # self.date = '20240311_8'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
 
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
 
@@ -102,8 +105,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 5700 - 600
-        self.frames_setting = 2400
+        self.plot_end_frame_setting = 6000
+        self.frames_setting = 31
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -117,7 +120,7 @@ class VISUAL:
         self.ncol = 10
         self.num_sim = 0
 
-        self.plot_interval = 6
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -186,8 +189,6 @@ class VISUAL:
             self.tilt_angle = 0.
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
 
-
-        print(self.simName, '---------------------')
 
         try:
             self.fil_spacing = self.pars_list['fil_spacing'][self.index]
@@ -850,7 +851,7 @@ class VISUAL:
                     #     fil_angles_str = fil_angles_f.readline()
                     frame += 1
                 
-            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
     def phi_dot(self):
@@ -966,9 +967,9 @@ class VISUAL:
         # ax4 = fig4.add_subplot(1,1,1)
         fig5 = plt.figure()
         ax5 = fig5.add_subplot(1,1,1)
+        fig6 = plt.figure()
+        ax6 = fig6.add_subplot(1,1,1)
 
-        # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
-        # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
@@ -977,6 +978,7 @@ class VISUAL:
         corr_array_angle = np.zeros(self.frames)
         r_array = np.zeros(self.frames)
         wavenumber_array = np.zeros(self.frames)
+        effective_beat_array = np.zeros(self.frames)
 
         fil_references_sphpolar = np.zeros((self.nfil,3))
         for fil in range(self.nfil):
@@ -1011,6 +1013,7 @@ class VISUAL:
             if(i>=self.plot_start_frame):
                 fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                 fil_phases = fil_states[:self.nfil]
+                fil_phases = util.box(fil_phases, 2*np.pi)
                 fil_angles = fil_states[self.nfil:]
 
                 fil_angles_sorted = fil_angles[sorted_indices]
@@ -1037,6 +1040,7 @@ class VISUAL:
                 corr_array_angle[i-self.plot_start_frame] = np.mean(variance_array_angle)
                 r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
                 wavenumber_array[i-self.plot_start_frame] = fil_phases_sorted[0] - fil_phases_sorted[-1]
+                effective_beat_array[i-self.plot_start_frame] = len([phase for phase in fil_phases if 0.1 <= phase <= 1.3])
 
         ax.plot(time_array, corr_array)
         ax.set_xlabel('t/T')
@@ -1067,14 +1071,22 @@ class VISUAL:
         ax5.set_xlim(time_array[0], time_array[-1])
         # ax5.set_xticks(np.linspace(0, 40, 5))
 
+        ax6.plot(time_array, effective_beat_array)
+        ax6.set_xlabel('t/T')
+        ax6.set_ylabel('No. of effective strokes')
+
         np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
         np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
         
         # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.tight_layout()
+        fig2.tight_layout()
         fig5.tight_layout()
-        fig5.savefig(f'fig/oder_parameter_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig6.tight_layout()
+        fig5.savefig(f'fig/oder_parameter_index{self.index}.png', bbox_inches = 'tight', format='png')
+        fig6.savefig(f'fig/num_effective_stroke_index{self.index}.png', bbox_inches = 'tight', format='png')
         plt.show()
 
     def footpath(self):
@@ -1944,7 +1956,7 @@ class VISUAL:
             if(i>=self.plot_start_frame):
 
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
-                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+                body_vels = np.array(body_vels_str.split(), dtype=float)
 
                 # body_pos_array[i-self.plot_start_frame] = body_states[0:3]
                 body_vel_array[i-self.plot_start_frame] = body_vels
@@ -2020,28 +2032,26 @@ class VISUAL:
                 body_axis_array[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,1]))
                 body_q_array[i-self.plot_start_frame] = body_states[3:7]
 
-                
-                
 
                 # body_vel_array[i-self.plot_start_frame] = body_vels
                 # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
         
-        body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
+        body_vel_array = np.diff(body_pos_array, axis=0)/self.dt/self.fillength
 
-        body_speed_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
-        # body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+        body_speed_array = np.linalg.norm(body_vel_array, axis=1)
+        body_speed_along_axis_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
 
         body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
         body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
 
-        avg_speed = np.mean(body_speed_array)
+        avg_speed = np.mean(body_speed_along_axis_array)
         avg_rot_speed = np.mean(body_rot_speed_array)
-        print(f'index={self.index} avg speed={avg_speed/self.fillength} avg rot speed={avg_rot_speed}')
+        print(f'index={self.index} avg speed={avg_speed} avg rot speed={avg_rot_speed}')
 
-        ax1.plot(time_array[:-1], body_speed_array/self.fillength)        
+        ax1.plot(time_array[:-1], body_speed_along_axis_array)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
-        ax1.set_ylabel(r"$|V|T/L$")
+        ax1.set_ylabel(r"$<V⋅e>/L$")
         ax1.set_xlabel(r"$t/T$")
 
         ax2.plot(time_array[:-1], body_rot_speed_array)
@@ -2050,8 +2060,9 @@ class VISUAL:
         # ax2.set_ylabel(r"$V_zT/L$")
         # ax2.set_xlabel(r"$t/T$")
 
-        plt.tight_layout()
-        # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig1.tight_layout()
+        fig2.tight_layout()
+        fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
 
@@ -5313,11 +5324,11 @@ class VISUAL:
         # force = False
         # path = "data/ic_hpc_sim/"
 
-        # force = True
-        # path = "data/ic_hpc_sim_free_continue/"
+        force = False
+        path = "data/ic_hpc_sim_free_continue/"
 
         force = False
-        path = 'data/tilt_test/'
+        # path = 'data/tilt_test/'
 
         # import re
         # def sort_key(s):
@@ -5338,6 +5349,7 @@ class VISUAL:
         r_data = np.zeros((len(folders), self.num_sim))
         k_data = np.zeros((len(folders), self.num_sim))
         tilt_data = np.zeros((len(folders), self.num_sim))
+        avg_vz_data = np.zeros((len(folders), self.num_sim))
         avg_speed_data = np.zeros((len(folders), self.num_sim))
         avg_speed_along_axis_data = np.zeros((len(folders), self.num_sim))
         avg_rot_speed_data = np.zeros((len(folders), self.num_sim))
@@ -5355,6 +5367,7 @@ class VISUAL:
             k_arrays = self.pars_list['spring_factor']
             tilt_arrays = self.pars_list['tilt_angle']
             r_arrays = np.zeros(np.shape(k_arrays))
+            avg_vz_arrays = np.zeros(np.shape(k_arrays))
             avg_speed_arrays = np.zeros(np.shape(k_arrays))
             avg_speed_along_axis_arrays = np.zeros(np.shape(k_arrays))
             avg_rot_speed_arrays = np.zeros(np.shape(k_arrays))
@@ -5365,12 +5378,14 @@ class VISUAL:
             for ind in range(self.num_sim):
                 self.index = ind
 
+                # try:
+                self.select_sim()
+
                 body_pos_array = np.zeros((self.frames, 3))
                 body_axis_array = np.zeros((self.frames, 3))
                 body_q_array = np.zeros((self.frames, 4))
 
-                # try:
-                self.select_sim()
+                
 
                 fil_references_sphpolar = np.zeros((self.nfil,3))
                 for i in range(self.nfil):
@@ -5409,7 +5424,6 @@ class VISUAL:
 
                         R = util.rot_mat(body_states[3:7])
                         body_axis = np.matmul(R, np.array([0,0,1]))
-                        print(body_axis)
                         body_axis_array[t-self.plot_start_frame] = body_axis
 
                         if force:
@@ -5436,18 +5450,22 @@ class VISUAL:
                             eff_arrays[ind] += eff
                 
                 
-                body_vel_array = np.diff(body_pos_array, axis=0)/self.dt
+                body_vel_array = np.diff(body_pos_array, axis=0)/self.dt/self.fillength
+                body_vz_array = body_vel_array[:,0]
                 body_speed_along_axis_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
                 body_speed_array = np.linalg.norm(body_vel_array, axis=1)
                 body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
                 body_rot_speed_along_axis_array = np.sum(body_rot_vel_array * body_axis_array[:-1], axis=1)
                 body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
 
-                avg_speed_arrays[ind] = np.mean(body_speed_array)/self.fillength
-                avg_speed_along_axis_arrays[ind] = np.mean(body_speed_along_axis_array)/self.fillength
+                
+                avg_vz_arrays[ind] = np.mean(body_vz_array)
+                avg_speed_arrays[ind] = np.mean(body_speed_array)
+                avg_speed_along_axis_arrays[ind] = np.mean(body_speed_along_axis_array)
                 avg_rot_speed_arrays[ind] = np.mean(body_rot_speed_array)
                 avg_rot_speed_along_axis_arrays[ind] = np.mean(body_rot_speed_along_axis_array)
                 r_arrays[ind] /= self.frames
+                print(avg_speed_arrays[ind])
                 if force:
                     
                     dis_arrays[ind] /= self.frames
@@ -5460,6 +5478,7 @@ class VISUAL:
             r_data[fi] = r_arrays
             k_data[fi] = k_arrays
             tilt_data[fi] = tilt_arrays
+            avg_vz_data[fi] = avg_vz_arrays
             avg_speed_data[fi] = avg_speed_arrays
             avg_speed_along_axis_data[fi] = avg_speed_along_axis_arrays
             avg_rot_speed_data[fi] = avg_rot_speed_arrays
@@ -5471,6 +5490,7 @@ class VISUAL:
         np.save(f"{path}r_data.npy", r_data)
         np.save(f"{path}k_data.npy", k_data)
         np.save(f"{path}tilt_data.npy", tilt_data)
+        np.save(f"{path}avg_vz_data.npy", avg_vz_data)
         np.save(f"{path}avg_speed_data.npy", avg_speed_data)
         np.save(f"{path}avg_speed_along_axis_data.npy", avg_speed_along_axis_data)
         np.save(f"{path}avg_rot_speed_data.npy", avg_rot_speed_data)

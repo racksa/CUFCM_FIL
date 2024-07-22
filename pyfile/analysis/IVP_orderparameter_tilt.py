@@ -17,12 +17,11 @@ cmap_name = 'coolwarm'
 # path_heldfixed = "data/ic_hpc_sim/"
 path = "data/tilt_test/"
 
-# r_data_heldfixed = np.load(f"{path_heldfixed}r_data.npy")
-# k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
 
 r_data = np.load(f"{path}r_data.npy")
 k_data = np.load(f"{path}k_data.npy")
 tilt_data = np.load(f"{path}tilt_data.npy")
+avg_vz_data = np.load(f"{path}avg_vz_data.npy")
 avg_speed_data = np.load(f"{path}avg_speed_data.npy")
 avg_speed_along_axis_data = np.load(f"{path}avg_speed_along_axis_data.npy")
 avg_rot_speed_data = np.load(f"{path}avg_rot_speed_data.npy")
@@ -61,28 +60,20 @@ for fi in range(n_folder):
     indices_meridional = np.where(r_data[fi][:] > .4)
     indices_zonal = np.where(r_data[fi][:] < .4)
 
-    # color_data2 = avg_speed_along_axis_data[fi]
-    color_data2 = avg_rot_speed_along_axis_data[fi]
-    vmin2 = np.min(avg_rot_speed_along_axis_data)
-    vmax2 = np.max(avg_rot_speed_along_axis_data)
-    # vmax2 = np.sort(avg_rot_speed_along_axis_data[0])[::-1][5]
-    color2 = cmap((color_data2-vmin2)/(vmax2-vmin2))
+    variable = avg_rot_speed_along_axis_data[fi]
+    variable = avg_speed_along_axis_data[fi]
+    vmin2 = np.min(variable)
+    vmax2 = np.max(variable)
+    color2 = cmap((variable-vmin2)/(vmax2-vmin2))
 
-    # color_data3 = avg_rot_speed_data[fi]
-    # color3 = cmap(color_data2/max(color_data3))
 
-    # print(plot_x)
-    # print(avg_rot_speed_data[fi])
-
-    print(color_data2)
-    
     ax.scatter(plot_x, plot_y, s=100, marker='+', c=color)
     ax2.scatter(plot_x, plot_y, s=100, marker='+', c=color2)
 
 
-    ax3.scatter(tilt_data[fi][:][indices_meridional], avg_rot_speed_along_axis_data[fi][:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
-    ax3.scatter(tilt_data[fi][:][indices_zonal], avg_rot_speed_along_axis_data[fi][:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
-    # ax3.scatter(plot_x, plot_y, s=100, marker='+', c=color3)
+    ax3.scatter(tilt_data[fi][:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
+    ax3.scatter(tilt_data[fi][:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
+
 
     # indices_symplectic = np.where(plot_y > .4)[0]
     # indices_diaplectic = np.where(plot_y  < .4)[0]

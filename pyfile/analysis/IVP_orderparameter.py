@@ -20,8 +20,10 @@ k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
 
 r_data_free = np.load(f"{path_free}r_data.npy")
 k_data_free = np.load(f"{path_free}k_data.npy")
-v_data_free = np.load(f"{path_free}v_data.npy")
-v_data_free = np.load(f"{path_free}avg_speed_data.npy")
+avg_speed_data_free = np.load(f"{path_free}avg_speed_data.npy")
+avg_speed_along_axis_data_free = np.load(f"{path_free}avg_speed_along_axis_data.npy")
+avg_rot_speed_along_axis_data_free = np.load(f"{path_free}avg_rot_speed_along_axis_data.npy")
+avg_vz_data_free = np.load(f"{path_free}avg_vz_data.npy")
 eff_data_free = np.load(f"{path_free}eff_data.npy")
 
 n_folder_heldfixed = r_data_heldfixed.shape[0]
@@ -54,11 +56,14 @@ for fi in range(n_folder_free):
     ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='+', c='b')
     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='b')
 
-    speed = v_data_free[fi]
-    ax2.scatter(plot_x, speed)
+    plot_y2 = avg_speed_along_axis_data_free[fi]
+    ax2.scatter(plot_x[indices_symplectic], plot_y2[indices_symplectic], s=100, marker='+', c='r')
+    ax2.scatter(plot_x[indices_diaplectic], plot_y2[indices_diaplectic], s=100, marker='+', c='b')
+    
+    plot_y3 = avg_rot_speed_along_axis_data_free[fi]
+    ax3.scatter(plot_x[indices_symplectic], plot_y3[indices_symplectic], s=100, marker='+', c='r')
+    ax3.scatter(plot_x[indices_diaplectic], plot_y3[indices_diaplectic], s=100, marker='+', c='b')
 
-    efficiency = eff_data_free[fi]
-    ax3.scatter(plot_x, efficiency)
 
 # ax.scatter(-1, -1, marker='+', c='r', label='Held fixed - Symplectic')
 # ax.scatter(-1, -1, marker='x', c='r', label='Held fixed - Diaplectic')
@@ -81,7 +86,9 @@ ax.legend()
 
 
 
-plt.tight_layout()
+fig.tight_layout()
+fig2.tight_layout()
+fig3.tight_layout()
 fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 # fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
 fig2.savefig(f'fig/IVP_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
