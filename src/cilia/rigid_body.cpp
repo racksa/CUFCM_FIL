@@ -192,15 +192,27 @@ void rigid_body::initial_setup(const int id, Real *const f_address, const Real *
     #if !READ_INITIAL_CONDITIONS_FROM_BACKUP
 
       #if SURFACE_OF_REVOLUTION_BODIES
-        const Real body_spacing = 3.0*(AXIS_DIR_BODY_LENGTH + FIL_LENGTH);
 
-        Real sep;
-        std::ifstream in("separation.dat"); // input
-        in >> sep;
+        std::ifstream input_file(SIMULATION_BODYSTATE_NAME);
+          if (input_file.is_open()) {
+            input_file >> x[0];
+            input_file >> x[1];
+            input_file >> x[2];
+            input_file >> q.scalar_part;
+            input_file >> q.vector_part[0];
+            input_file >> q.vector_part[1];
+            input_file >> q.vector_part[2];
+            input_file.close();
+          }else{
+            if(id == 0){
+              std::cout << "No body_states file found: " << SIMULATION_BODYSTATE_NAME << std::endl;
+            }
+            x[0] = 0.0;
+            x[1] = 0.0;
+            x[2] = 0.0;
+            q = quaternion(1.0, 0.0, 0.0, 0.0);
+          }
 
-        x[0] = id*sep;
-        x[1] = 0.0;
-        x[2] = 0.0;
         xm1[0] = x[0];
         xm1[1] = x[1];
         xm1[2] = x[2];
@@ -215,7 +227,6 @@ void rigid_body::initial_setup(const int id, Real *const f_address, const Real *
         um1[1] = 0.0;
         um1[2] = 0.0;
 
-        q = quaternion(1.0, 0.0, 0.0, 0.0);
         qm1 = q;
         
       #elif ROD

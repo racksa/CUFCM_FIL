@@ -7,15 +7,14 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
-        self.category = 'regular_wall_sim/'
+        # self.category = 'regular_wall_sim/'
         # self.category = 'IVP159_flowfield/'
-        # self.category = 'tilt_test/'
+        self.category = 'tilt_test/'
 
-        self.exe_name = 'cilia_1e-4_free_test_with_force'
-        self.exe_name = 'cilia_1e-4_rpy_get_drag'
+        self.exe_name = 'cilia_1e-4_free_with_force'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240717_rpy_get_drag'
+        self.date = '20240724_free'
         
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -118,27 +117,27 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
                         sim_length = 400
 
-                        nfil = int(1*(i+1))
-                        nblob = int(4096*(i+1))
-                        fil_spacing=256.0
-                        blob_spacing=4.0
-                        fil_x_dim=2
-                        blob_x_dim=64
-                        sim_length = 3
+                        # nfil = int(1*(i+1))
+                        # nblob = int(4096*(i+1))
+                        # fil_spacing=256.0
+                        # blob_spacing=4.0
+                        # fil_x_dim=2
+                        # blob_x_dim=64
+                        # sim_length = 3
 
 
                         # # IVP sim
-                        # nfil = int(159 + 480*1)
-                        # nblob = int(9000 + 31961*1)
-                        # ar = round(8.00 + 7*1, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = (1./9.)*0.5*3.141592653*j
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=4000
+                        nfil = int(159 + 480*1)
+                        nblob = int(9000 + 31961*1)
+                        ar = round(8.00 + 7*1, 2)
+                        spring_factor = round(0.005 + 0.005*i, 3)
+                        period = 1
+                        sim_length = 30
+                        tilt_angle = (1./9.)*0.5*3.141592653*j
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
 
                         # nfil = int(639 + 0*i)
                         # nblob = int(40961 + 0*i)
@@ -265,6 +264,7 @@ class DRIVER:
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
+            self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 
             

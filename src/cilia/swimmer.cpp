@@ -385,8 +385,19 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
       #else
         const Real *const dir = &normal_refs[3*i];
       #endif
-      // force to use normal
+      // force to use normal from seeding
       // const Real *const dir = &normal_refs[3*i];
+
+      // dir assumes the body.q is in the default position upright.
+      // if body.q is not pointing the default position, say, read from a file, then we need to rotate dir accordingly,
+      // eventually the rotated dir, called dir_in, is passed to initialise filaments.
+      matrix dir_matrix(3,1);
+      dir_matrix(0,0) = dir[0];
+      dir_matrix(1,0) = dir[1];
+      dir_matrix(2,0) = dir[2];
+      dir_matrix = body.q.rot_mat()*dir_matrix;
+      Real dir_in[3] = {dir_matrix(0,0), dir_matrix(1,0), dir_matrix(2,0)}; 
+
 
       const Real pos[3] = {body.x[0] + filament_references[3*i], body.x[1] + filament_references[3*i + 1], body.x[2] + filament_references[3*i + 2]};
       
@@ -396,7 +407,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
       #else
 
-        filaments[i].initial_setup(pos, dir, strain_twist, data_from_file, fil_x_address, fil_f_address, i);
+        filaments[i].initial_setup(pos, dir, strain_twist, data_from_file, fil_x_address, fil_f_address, i, body.q);
 
       #endif
 
@@ -1119,11 +1130,15 @@ void swimmer::write_data(std::ofstream& seg_state_file, std::ofstream& body_stat
 
   body.write_data(body_state_file);
 
-  for (int n = 0; n < NFIL; n++){
+  #if OUTPUT_FORCES
 
-    filaments[n].write_data(seg_state_file);
+    for (int n = 0; n < NFIL; n++){
 
-  }
+      filaments[n].write_data(seg_state_file);
+
+    }
+
+  #endif
 
 }
 

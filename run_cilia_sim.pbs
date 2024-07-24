@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=24:00:00
+#PBS -l walltime=71:00:00
 #PBS -l select=1:ncpus=1:mem=8gb:ngpus=1:gpu_type=RTX6000
 
 module load cuda/11.4.2

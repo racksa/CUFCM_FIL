@@ -14,8 +14,8 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
-# path_heldfixed = "data/ic_hpc_sim/"
 path = "data/tilt_test/"
+path = "data/tilt_test/move/"
 
 
 r_data = np.load(f"{path}r_data.npy")
@@ -60,8 +60,10 @@ for fi in range(n_folder):
     indices_meridional = np.where(r_data[fi][:] > .4)
     indices_zonal = np.where(r_data[fi][:] < .4)
 
-    variable = avg_rot_speed_along_axis_data[fi]
+    # variable = avg_rot_speed_along_axis_data[fi]
+    # variable_label = r"$<Ω⋅e_1>/L$"
     variable = avg_speed_along_axis_data[fi]
+    variable_label = r"$<V⋅e_1>/L$"
     vmin2 = np.min(variable)
     vmax2 = np.max(variable)
     color2 = cmap((variable-vmin2)/(vmax2-vmin2))
@@ -97,7 +99,7 @@ norm = Normalize(vmin=vmin2, vmax=vmax2)
 sm = ScalarMappable(cmap=cmap_name, norm=norm)
 sm.set_array([])
 cbar = fig2.colorbar(sm)
-cbar.set_label(r"<Ω⋅e>/L")   
+cbar.set_label(variable_label)   
 
 # legend
 # ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
@@ -116,7 +118,7 @@ ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r'tilt angle')
 
 ax3.set_xlabel(r'tilt angle')
-ax3.set_ylabel(r"<Ω⋅e>/L")  
+ax3.set_ylabel(variable_label)  
 ax3.legend()
 
 fig.tight_layout()

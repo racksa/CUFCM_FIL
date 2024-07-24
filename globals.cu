@@ -46,3 +46,4 @@ std::string SIMULATION_FILPLACEMENT_NAME = "input/icosahedron/icosa_d3_N640.dat"
 std::string SIMULATION_BLOBPLACEMENT_NAME = "input/icosahedron/icosa_d6_N40962.dat";
 std::string CUFCM_CONFIG_FILE_NAME = "input/simulation_info_cilia";
 std::string SIMULATION_ICSTATE_NAME = "input/psi.dat";
+std::string SIMULATION_BODYSTATE_NAME = "input/bodystate.dat";

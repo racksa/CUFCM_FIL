@@ -28,8 +28,8 @@
 # q=9
 # command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
 
-q=21
-nq=40
+q=19
+nq=20
 command="python3 pyfile/driver/driver.py run ${q} ${nq} 1"
 
 

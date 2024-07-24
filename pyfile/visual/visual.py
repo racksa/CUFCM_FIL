@@ -36,7 +36,7 @@ class VISUAL:
         self.date = '20240717_rpy_get_drag'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240710_free'
+        self.date = '20240724_free'
         self.dir = f"data/tilt_test/{self.date}/"
 
         
@@ -105,8 +105,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 6000
-        self.frames_setting = 31
+        self.plot_end_frame_setting = 6015
+        self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -392,7 +392,7 @@ class VISUAL:
         superpuntoDatafileName = f"{self.simName}_superpunto_{self.date}.dat"
         myIo.clean_file(superpuntoDatafileName)
 
-        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        # seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
         if (self.pars['PRESCRIBED_CILIA'] == 1):
             fil_states_f = open(self.simName + '_true_states.dat', "r")
@@ -405,7 +405,7 @@ class VISUAL:
                 
             body_states_str = body_states_f.readline()
             if(self.pars['NFIL']>0):
-                seg_states_str = seg_states_f.readline()
+                # seg_states_str = seg_states_f.readline()
                 if (self.pars['PRESCRIBED_CILIA'] == 1):
                     fil_states_str = fil_states_f.readline()
 
@@ -417,8 +417,8 @@ class VISUAL:
 
             if(i%self.plot_interval==0 and i>=self.plot_start_frame):
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
-                if(self.pars['NFIL']>0):
-                    seg_states = np.array(seg_states_str.split()[1:], dtype=float)                
+                # if(self.pars['NFIL']>0):
+                #     seg_states = np.array(seg_states_str.split()[1:], dtype=float)                
                 
                 myIo.write_line('#', superpuntoDatafileName)
                 for swim in range(int(self.pars['NSWIM'])):
@@ -1075,8 +1075,8 @@ class VISUAL:
         ax6.set_xlabel('t/T')
         ax6.set_ylabel('No. of effective strokes')
 
-        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-        np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
+        # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        # np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
         
         # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
@@ -2048,7 +2048,7 @@ class VISUAL:
         avg_rot_speed = np.mean(body_rot_speed_array)
         print(f'index={self.index} avg speed={avg_speed} avg rot speed={avg_rot_speed}')
 
-        ax1.plot(time_array[:-1], body_speed_along_axis_array)        
+        ax1.plot(time_array[:-1], body_speed_array)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
         ax1.set_ylabel(r"$<V⋅e>/L$")
@@ -2492,12 +2492,13 @@ class VISUAL:
 
         input_filenames = [self.simName + '_filament_phases.dat',
                            self.simName + '_filament_shape_rotation_angles.dat',
-                           self.simName + '_true_states.dat']
+                           self.simName + '_true_states.dat',
+                           self.simName + '_body_states.dat']
         afix = int(self.index)
         output_filenames = [self.dir + f"phases{afix}.dat",
                             self.dir + f"angles{afix}.dat",
                             self.dir + f"psi{afix}.dat",
-                            # f"data/slow_converge_sims2/{self.date}/psi{afix}.dat"
+                            self.dir + f"bodystate{afix}.dat",
                             ]
 
         for i, name in enumerate(input_filenames):
@@ -2514,13 +2515,9 @@ class VISUAL:
                         # Extract the last line
                         first_line = lines[0]
                         last_line = lines[-1]
-                        # ispsi = 1
-                        # if name == self.simName + '_true_states.dat':
-                        #     ispsi = 0
 
-                        data_start = np.array(first_line.split()[1:], dtype=float)
                         data = np.array(last_line.split()[1:], dtype=float)
-                        data[:self.nfil] = util.box(data[:self.nfil], 2*np.pi)
+                        # data[:self.nfil] = util.box(data[:self.nfil], 2*np.pi)
 
                         if name == self.simName + '_true_states.dat':
                             data = np.concatenate(([self.spring_factor], data))
@@ -5324,11 +5321,11 @@ class VISUAL:
         # force = False
         # path = "data/ic_hpc_sim/"
 
-        force = False
-        path = "data/ic_hpc_sim_free_continue/"
+        # force = False
+        # path = "data/ic_hpc_sim_free_continue/"
 
         force = False
-        # path = 'data/tilt_test/'
+        path = 'data/tilt_test/'
 
         # import re
         # def sort_key(s):
@@ -5339,7 +5336,7 @@ class VISUAL:
         folders = util.list_folders(path)
         print(folders)
 
-        self.plot_end_frame_setting = 3000000
+        self.plot_end_frame_setting = 60000
         # self.frames_setting = 600
 
         # Extract num_sim from the first folder

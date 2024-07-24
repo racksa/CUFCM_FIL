@@ -59,7 +59,7 @@ def append_file_contents(file_a, file_b):
 
 
 # Example usage
-path = f"data/tilt_test/20240710_free"
+path = f"data/tilt_test/20240724_free"
 output_path = f"data/tilt_test/output"
 
 def list_files_with_suffix(directory, suffixes):
@@ -72,7 +72,8 @@ def list_files_with_suffix(directory, suffixes):
     return [f for f in os.listdir(directory) if f.endswith(suffixes)]
 
 # Example usage
-suffixes = ('_body_states.dat', '_true_states.dat')  # List of suffixes
+suffixes = ('_body_states.dat', '_true_states.dat', '_seg_states.dat')  # List of suffixes
+
 files = list_files_with_suffix(path, suffixes)
 
 print(len(files))
@@ -82,4 +83,4 @@ for file_name in files:
 
     # write_last_n_lines(path + '/' + file_name, output_path + '/' + file_name, 120)
 
-    # remove_last_line(path + '/' + file_name)
+    remove_last_line(path + '/' + file_name)

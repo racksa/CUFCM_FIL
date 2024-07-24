@@ -65,7 +65,8 @@ void filament::initial_setup(const Real *const base_pos,
                               const Real *const data_from_file,
                               Real *const x_address,
                               Real *const f_address,
-                              const int fil_id){
+                              const int fil_id,
+                              quaternion rigidbody_q){
 
   segments = std::vector<segment>(NSEG);
 
@@ -383,6 +384,8 @@ void filament::initial_setup(const Real *const base_pos,
       q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;
       
       body_qm1 = q2*qtemp;
+      // rotate to get the correct body_q if the rigidbody_q is not default {1, 0, 0, 0}
+      body_qm1 = rigidbody_q*body_qm1;
       body_q = body_qm1;
 
       // DEBUGGING BEGINS

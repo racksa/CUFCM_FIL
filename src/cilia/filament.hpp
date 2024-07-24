@@ -50,7 +50,8 @@ public:
                       const Real *const data_from_file,
                       Real *const x_address,
                       Real *const f_address,
-                      const int fil_id);
+                      const int fil_id,
+                      quaternion rigidbody_q);
   void robot_arm();
   void accept_state_from_rigid_body(const Real *const x_in, const Real *const u_in);
   void initial_guess(const int nt, const Real *const x_in, const Real *const u_in);

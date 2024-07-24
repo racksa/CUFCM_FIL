@@ -32,6 +32,7 @@ extern std::string SIMULATION_TRUESTATE_NAME;
 extern std::string SIMULATION_FILPLACEMENT_NAME;
 extern std::string SIMULATION_BLOBPLACEMENT_NAME;
 extern std::string SIMULATION_ICSTATE_NAME;
+extern std::string SIMULATION_BODYSTATE_NAME;
 extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #define GLOBAL_FILE_NAME "input/globals.ini"
@@ -89,7 +90,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES true
+#define PRESCRIBED_BODY_VELOCITIES false
 
 #define OUTPUT_FORCES false
 #if CILIA_TYPE==0
@@ -128,7 +129,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
 
-  #define WRITE_GENERALISED_FORCES true
+  #define WRITE_GENERALISED_FORCES false
   // If true, this simulation will save its generalised forces to file for use as the reference values.
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
@@ -155,7 +156,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 5
+#define BODY_OR_SURFACE_TYPE 2
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -183,7 +184,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 3
+  #define SEEDING_TYPE 7
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -204,11 +205,6 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define GENERATRIX_FILE_NAME FOURIER_DIR "sphere"
   #endif
 
-  
-
-  
-
-
   // #define GENERATRIX_FILE_NAME FOURIER_DIR "avg_shape_plus_1.5_first_mode"
   // #define GENERATRIX_FILE_NAME FOURIER_DIR "rod_mode"
 
@@ -221,7 +217,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).

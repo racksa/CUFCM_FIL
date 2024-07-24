@@ -71,6 +71,7 @@ int main(int argc, char** argv){
   SIMULATION_BLOBPLACEMENT_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "blobplacement_file_name");
   CUFCM_CONFIG_FILE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "cufcm_config_file_name");
   SIMULATION_ICSTATE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_icstate_name");
+  SIMULATION_BODYSTATE_NAME = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_bodystate_name");
 
   #if INFINITE_PLANE_WALL
     NSWIM = 1;
