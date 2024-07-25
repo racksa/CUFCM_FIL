@@ -13,7 +13,7 @@ mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 plt.rcParams.update({'font.size': 24})
 
 path_heldfixed = "data/ic_hpc_sim/"
-path_free = "data/ic_hpc_sim_free_continue/"
+path_free = "data/ic_hpc_sim_free/"
 
 r_data_heldfixed = np.load(f"{path_heldfixed}r_data.npy")
 k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
@@ -24,7 +24,7 @@ avg_speed_data_free = np.load(f"{path_free}avg_speed_data.npy")
 avg_speed_along_axis_data_free = np.load(f"{path_free}avg_speed_along_axis_data.npy")
 avg_rot_speed_along_axis_data_free = np.load(f"{path_free}avg_rot_speed_along_axis_data.npy")
 avg_vz_data_free = np.load(f"{path_free}avg_vz_data.npy")
-eff_data_free = np.load(f"{path_free}eff_data.npy")
+# eff_data_free = np.load(f"{path_free}eff_data.npy")
 
 n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder_free = r_data_free.shape[0]
@@ -35,6 +35,10 @@ fig2 = plt.figure(dpi=200)
 ax2 = fig2.add_subplot(1,1,1)
 fig3 = plt.figure(dpi=200)
 ax3 = fig3.add_subplot(1,1,1)
+fig4 = plt.figure(dpi=200)
+ax4 = fig4.add_subplot(1,1,1)
+fig5 = plt.figure(dpi=200)
+ax5 = fig5.add_subplot(1,1,1)
 
 for fi in range(n_folder_heldfixed):
     plot_x = k_data_heldfixed[fi] 
@@ -83,7 +87,11 @@ ax.set_ylim(0)
 ax.set_xlim(0, 0.09)
 ax.legend()
 
+ax2.set_xlabel(r'$k$')
+ax2.set_ylabel(r"$<V⋅e_1>/L$")
 
+ax3.set_xlabel(r'$k$')
+ax3.set_ylabel(r"$<Ω⋅e_1>$")
 
 
 fig.tight_layout()

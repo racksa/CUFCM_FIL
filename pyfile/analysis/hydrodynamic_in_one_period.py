@@ -14,7 +14,7 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
-path = "data/tilt_test/"
+path = "data/ic_hpc_free/"
 
 
 r_data = np.load(f"{path}r_data.npy")
@@ -109,23 +109,23 @@ cbar.set_label(variable_label)
 # ax.scatter(-1, -1, marker='s', c='r', s=100, label='Held fixed')
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
-ax.set_xlabel(r'$k$')
+ax.set_xlabel(r'$t/T$')
 ax.set_ylabel(r'tilt angle')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
-ax2.set_xlabel(r'$k$')
+ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'tilt angle')
 
-ax3.set_xlabel(r'tilt angle')
+ax3.set_xlabel(r't/T')
 ax3.set_ylabel(variable_label)  
 ax3.legend()
 
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
-fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig3.savefig(f'fig/rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
+# fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
+# fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
+# fig3.savefig(f'fig/rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

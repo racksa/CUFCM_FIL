@@ -4,8 +4,8 @@
 
 module load cuda/11.4.2
 module load tools/prod
-# need this if bisection
-module load SciPy-bundle/2022.05-foss-2022a
+# need this if running bisection, however, when compile the binary, this needs to be turned off
+# module load SciPy-bundle/2022.05-foss-2022a
 
 # CODE_LOC=$PBS_O_WORKDIR
 # OUTPUT_LOC=$CODE_LOC/${PBS_JOBID:0: -4}

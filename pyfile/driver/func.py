@@ -11,10 +11,10 @@ class DRIVER:
         # self.category = 'IVP159_flowfield/'
         self.category = 'tilt_test/'
 
-        self.exe_name = 'cilia_1e-4_free_with_force'
+        self.exe_name = 'cilia_1e-4_free'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240724_free'
+        self.date = '20240724_diaplectic'
         
 
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -53,7 +53,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (10, 10, 1, 1)
+        self.sweep_shape = (12, 5, 1, 1)
 
         self.num_sim = 0
 
@@ -132,7 +132,7 @@ class DRIVER:
                         ar = round(8.00 + 7*1, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1
-                        sim_length = 30
+                        sim_length = 200
                         tilt_angle = (1./9.)*0.5*3.141592653*j
                         nx=400
                         ny=400
@@ -263,7 +263,7 @@ class DRIVER:
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 

@@ -36,7 +36,8 @@ class VISUAL:
         self.date = '20240717_rpy_get_drag'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240724_free'
+        self.date = '20240724_symplectic'
+        # self.date = '20240710_free'
         self.dir = f"data/tilt_test/{self.date}/"
 
         
@@ -45,9 +46,10 @@ class VISUAL:
 
         # self.date = '20240311_8'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
@@ -105,7 +107,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 6015
+        self.plot_end_frame_setting = 6015000
         self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1075,8 +1077,9 @@ class VISUAL:
         ax6.set_xlabel('t/T')
         ax6.set_ylabel('No. of effective strokes')
 
-        # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-        # np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
+        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
+        np.save(f'{self.dir}/num_eff_beat_array_index{self.index}.npy', effective_beat_array)
         
         # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
@@ -2042,6 +2045,7 @@ class VISUAL:
         body_speed_along_axis_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
 
         body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
+        body_rot_speed_along_axis_array = np.sum(body_rot_vel_array * body_axis_array[:-1], axis=1)
         body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
 
         avg_speed = np.mean(body_speed_along_axis_array)
@@ -2051,18 +2055,23 @@ class VISUAL:
         ax1.plot(time_array[:-1], body_speed_array)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
-        ax1.set_ylabel(r"$<V⋅e>/L$")
+        ax1.set_ylabel(r"$<V⋅e_1>/L$")
         ax1.set_xlabel(r"$t/T$")
 
-        ax2.plot(time_array[:-1], body_rot_speed_array)
+        ax2.plot(time_array[:-1], body_rot_speed_along_axis_array)
         # ax2.set_xlim(time_array[0], time_array[-1])
         # ax2.plot(time_array, body_vel_array[:,2]/self.fillength)
-        # ax2.set_ylabel(r"$V_zT/L$")
-        # ax2.set_xlabel(r"$t/T$")
+        ax2.set_ylabel(r"$<Ω⋅e_1>$")
+        ax2.set_xlabel(r"$t/T$")
+
+        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_array)
+        np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_array)
 
         fig1.tight_layout()
         fig2.tight_layout()
         fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/ciliate_rot_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
 
@@ -5321,11 +5330,11 @@ class VISUAL:
         # force = False
         # path = "data/ic_hpc_sim/"
 
-        # force = False
-        # path = "data/ic_hpc_sim_free_continue/"
-
         force = False
-        path = 'data/tilt_test/'
+        path = "data/ic_hpc_sim_free/"
+
+        # force = False
+        # path = 'data/tilt_test/'
 
         # import re
         # def sort_key(s):
