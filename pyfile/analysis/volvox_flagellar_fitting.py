@@ -9,6 +9,10 @@ mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
 cmap_name = 'hsv'
 
+data_for_fitting = np.array([[],
+                             []
+                             ])
+
 
 # Fourier coeffs for the shape
 Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
@@ -44,6 +48,7 @@ def fitted_shape(s, phase):
     z = np.zeros(np.shape(x))
 
     return x, y, z
+
 
 
 fig1 = plt.figure()

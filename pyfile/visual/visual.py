@@ -51,6 +51,10 @@ class VISUAL:
         self.date = '20240311_1'
         self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
+        
+
         # self.date = '20240626_ishikawa'
         # self.dir = f"data/ishikawa/{self.date}/"
 
@@ -107,7 +111,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 6015000
+        self.plot_end_frame_setting = 46
         self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -2049,10 +2053,10 @@ class VISUAL:
         body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
 
         avg_speed = np.mean(body_speed_along_axis_array)
-        avg_rot_speed = np.mean(body_rot_speed_array)
+        avg_rot_speed = np.mean(body_rot_speed_along_axis_array)
         print(f'index={self.index} avg speed={avg_speed} avg rot speed={avg_rot_speed}')
 
-        ax1.plot(time_array[:-1], body_speed_array)        
+        ax1.plot(time_array[:-1], body_speed_along_axis_array)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
         ax1.set_ylabel(r"$<V⋅e_1>/L$")
@@ -2065,8 +2069,8 @@ class VISUAL:
         ax2.set_xlabel(r"$t/T$")
 
         np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-        np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_array)
-        np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_array)
+        np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
+        np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
 
         fig1.tight_layout()
         fig2.tight_layout()
@@ -2120,6 +2124,7 @@ class VISUAL:
         seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
         blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
         blob_references_f = open(self.simName + '_blob_references.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
         body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
         # Plotting
@@ -2127,7 +2132,12 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
 
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        body_speed_array = np.zeros(self.frames)
+        body_speed_along_axis_array = np.zeros(self.frames)
+        body_rot_speed_array = np.zeros(self.frames)
+        body_rot_speed_along_axis_array = np.zeros(self.frames)
         dissipation_array = np.zeros(self.frames)
+        efficiency_array = np.zeros(self.frames)
 
         blob_references_str = blob_references_f.readline()
         blob_references= np.array(blob_references_str.split(), dtype=float)
@@ -2139,27 +2149,51 @@ class VISUAL:
             seg_vels_str = seg_vels_f.readline()
             blob_forces_str = blob_forces_f.readline()
             body_vels_str = body_vels_f.readline()
+            body_states_str = body_states_f.readline()
 
             if(i>=self.plot_start_frame):
                 seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                 seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                 blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                body_vels= np.array(body_vels_str.split(), dtype=float)
+                body_vels= np.array(body_vels_str.split()[1:], dtype=float)
+                body_states = np.array(body_states_str.split()[1:], dtype=float)
 
                 seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
                 seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
                 blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
                 body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
                 blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
+                
+                R = util.rot_mat(body_states[3:7])
+                body_axis = np.matmul(R, np.array([0,0,1]))
+                
+
+                body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                body_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[0:3]*body_axis)
+
+                
+                body_rot_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[3:6]*body_vels[3:6], 0))
+                body_rot_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[3:6]*body_axis)
 
                 dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+
+        efficiency_array = 6*np.pi*self.radius*body_speed_along_axis_array**2/dissipation_array
+        body_speed_along_axis_array /= self.fillength
+        body_speed_array /= self.fillength
+        dissipation_array /= self.fillength**3
+
+        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
+        np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
+        np.save(f'{self.dir}/dissipation_array_index{self.index}.npy', dissipation_array)
+        np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
 
         ax.set_xlim(time_array[0], time_array[-1])
         ax.plot(time_array, dissipation_array/self.fillength**3)
         ax.set_xlabel(r'$t/T$')
         ax.set_ylabel(r'$PT^2/\mu L^3$')
-        fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        plt.show()
+        # fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # plt.show()
 
     def ciliate_dmd(self):
         self.select_sim()
@@ -3606,7 +3640,6 @@ class VISUAL:
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
                 time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
-        
                 body_speed_array = np.zeros(self.frames)
                 dissipation_array = np.zeros(self.frames)
                 efficiency_array = np.zeros(self.frames)
@@ -3627,7 +3660,6 @@ class VISUAL:
                         seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                         blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
                         body_vels= np.array(body_vels_str.split(), dtype=float)
-                        body_vels = np.array(body_vels_str.split(), dtype=float)
 
                         seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
                         seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
@@ -3713,7 +3745,6 @@ class VISUAL:
                         seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                         blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
                         body_vels= np.array(body_vels_str.split(), dtype=float)
-                        body_vels = np.array(body_vels_str.split(), dtype=float)
 
                         seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
                         seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
@@ -4296,35 +4327,45 @@ class VISUAL:
             self.index = ind
             try:
                 self.select_sim()
-                input_filename = self.simName + '_true_states.dat'
-                output_filename = self.dir + f"psi{int(ind)}.dat"
+                afix = int(self.index)
 
-                # output_filename = f"data/IVP159/20240608_continue1/psi{self.index}.dat"
+                input_filenames = [self.simName + '_true_states.dat',
+                                self.simName + '_body_states.dat']
+                
+                # output_filenames = [self.dir + f"psi{afix}.dat",
+                #                     self.dir + f"bodystate{afix}.dat",
+                #                     ]
+                output_filenames = [f"data/ic_hpc_sim_free_with_force/{self.date}/" + f"psi{afix}.dat",
+                                    f"data/ic_hpc_sim_free_with_force/{self.date}/" + f"bodystate{afix}.dat",
+                                    ]
+        
+                for i, name in enumerate(input_filenames):
+                    input_filename = name
+                    output_filename = output_filenames[i]
+                    try:
+                        # Open the input file in read mode
+                        with open(input_filename, 'r') as input_file:
+                            # Read all lines from the file
+                            lines = input_file.readlines()
 
-                try:
-                    # Open the input file in read mode
-                    with open(input_filename, 'r') as input_file:
-                        # Read all lines from the file
-                        lines = input_file.readlines()
+                            # Check if the file is not empty
+                            if lines:
+                                # Extract the last line
+                                last_line = lines[-1]
 
-                        # Check if the file is not empty
-                        if lines:
-                            # Extract the last line
-                            last_line = lines[-1]
+                                data = np.array(last_line.split()[1:], dtype=float)
+                                # data[:self.nfil] = util.box(data[:self.nfil], 2*np.pi)
 
-                            data = np.array(last_line.split()[1:], dtype=float)
-                            data[:self.nfil] = util.box(data[:self.nfil], 2*np.pi)
+                                if input_filename == self.simName + '_true_states.dat':
+                                    data = np.concatenate(([self.spring_factor], data))
 
-                            if input_filename == self.simName + '_true_states.dat':
-                                data = np.concatenate(([self.spring_factor], data))
+                                np.savetxt(output_filename, data, delimiter=' ', newline=' ')
 
-                            np.savetxt(output_filename, data, delimiter=' ', newline=' ')
-
-                            print(f"Success: last line copied from '{input_filename}' to '{output_filename}'.")
-                        else:
-                            print(f"The file '{input_filename}' is empty.")
-                except FileNotFoundError:
-                    print(f"Error: The file '{input_filename}' does not exist.")
+                                print(f"Success: last line copied from '{input_filename}' to '{output_filename}'.")
+                            else:
+                                print(f"The file '{input_filename}' is empty.")
+                    except FileNotFoundError:
+                        print(f"Error: The file '{input_filename}' does not exist.")
             except:
                 print("WARNING: " + self.simName + " not found.")
 

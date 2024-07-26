@@ -10,13 +10,18 @@ class DRIVER:
         # self.category = 'regular_wall_sim/'
         # self.category = 'IVP159_flowfield/'
         self.category = 'tilt_test/'
+        
 
         self.exe_name = 'cilia_1e-4_free'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
         self.date = '20240724_diaplectic'
         
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'ic_hpc_sim_free_with_force/'
+        self.exe_name = 'cilia_1e-4_free_with_force'
+        self.date = '20240311_1'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.inputfile = f""
@@ -53,7 +58,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (12, 5, 1, 1)
+        self.sweep_shape = (16, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -127,6 +132,11 @@ class DRIVER:
 
 
                         # # IVP sim
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
+
                         nfil = int(159 + 480*1)
                         nblob = int(9000 + 31961*1)
                         ar = round(8.00 + 7*1, 2)
@@ -134,17 +144,15 @@ class DRIVER:
                         period = 1
                         sim_length = 200
                         tilt_angle = (1./9.)*0.5*3.141592653*j
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
+                        
 
-                        # nfil = int(639 + 0*i)
-                        # nblob = int(40961 + 0*i)
-                        # ar = round(15.00, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # period = 1.0
-                        # sim_length = 12
+                        nfil = int(639)
+                        nblob = int(40961)
+                        ar = round(15.00, 2)
+                        spring_factor = round(0.005 + 0.005*i, 3)
+                        period = 1.0
+                        sim_length = 3
+                        tilt_angle = 0
 
 
                         # # icosahedral
@@ -263,7 +271,7 @@ class DRIVER:
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 
