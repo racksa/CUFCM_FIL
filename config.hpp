@@ -104,11 +104,12 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 1
+  #define SHAPE_SEQUENCE 3
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
   // 2 = Coral larvae beat pattern. Data fitting done by me, in the same way as Blake (1972).
+  // 3 = Volvox beat
 
   #if SHAPE_SEQUENCE==0
 
@@ -167,11 +168,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #if BODY_OR_SURFACE_TYPE==0 //only compatible with RPY
 
-  #define SEEDING_TYPE 2
+  #define SEEDING_TYPE 0
   // Valid options:
   // 0 = Filaments are placed on a rectangular grid.
   // 1 = Filaments are placed on a hexagonal grid.
-  // 2 = Filaments are placed on a rectangular grid compatable with cuFCM.
+  // 2 = Filaments are placed on a rectangular grid only compatable with cuFCM.
   // 3 = Filaments are placed on a lattice compatable with cuFCM.
 
   // Define one lattice size and leave the other blank to have it automatically calculated to fit the number of filaments.
@@ -434,7 +435,6 @@ extern Real TILT_ANGLE;
     #define PRESCRIBED_BODY_VELOCITIES true
     #define DYNAMIC_PHASE_EVOLUTION false
     #define DYNAMIC_SHAPE_ROTATION false
-    #define INITIAL_CONDITIONS_TYPE 0
 
   #endif
 
@@ -443,6 +443,7 @@ extern Real TILT_ANGLE;
   #define FIT_TO_DATA_BEAT (SHAPE_SEQUENCE != 0)
   #define FULFORD_AND_BLAKE_BEAT (SHAPE_SEQUENCE==1)
   #define CORAL_LARVAE_BEAT (SHAPE_SEQUENCE==2)
+  #define VOLVOX_BEAT (SHAPE_SEQUENCE==3)
 
 #endif
 

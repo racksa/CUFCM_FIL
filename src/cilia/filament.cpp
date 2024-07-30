@@ -703,6 +703,63 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Bx(1,2) = -3.3547e-01;
         Bx(2,2) = -1.1695e-01;
 
+      #elif VOLVOX_BEAT
+
+        // Same as Fulford-Blake beat but with newly fitted coefficients
+
+        Ay = matrix(4,3);
+        Ay(0,0) = -0.12976344;
+        Ay(1,0) = 0.33439406;
+        Ay(2,0) = -0.12225036;
+        Ay(3,0) = 0.07363446;
+        Ay(0,1) = 0.31682798;
+        Ay(1,1) = 0.14278687;
+        Ay(2,1) = -0.11733462;
+        Ay(3,1) = -0.28748887;
+        Ay(0,2) = 0.04327197;
+        Ay(1,2) = -0.45113358;
+        Ay(2,2) = 0.25484148;
+        Ay(3,2) = 0.20300811;
+
+        Ax = matrix(4,3);
+        Ax(0,0) = 0.95534374;
+        Ax(1,0) = -0.03581209;
+        Ax(2,0) = -0.08485814;
+        Ax(3,0) = 0.09879333;
+        Ax(0,1) = -0.26374759;
+        Ax(1,1) = -0.02028078;
+        Ax(2,1) = 0.52085811;
+        Ax(3,1) = -0.35331103;
+        Ax(0,2) = -0.02617945;
+        Ax(1,2) = 0.34962849;
+        Ax(2,2) = -0.51462698;
+        Ax(3,2) = 0.28038996;
+        
+
+        By = matrix(3,3);
+        By(0,0) = -1.12640968e-01;
+        By(1,0) = 2.70130207e-01;
+        By(2,0) = -1.12109891e-01;
+        By(0,1) = 1.37834100e+00;
+        By(1,1) = -9.21773512e-01;
+        By(2,1) = 3.18070021e-01;
+        By(0,2) = -8.70990233e-01;
+        By(1,2) = 5.88787402e-01;
+        By(2,2) = -2.44371888e-01;
+        
+
+        Bx = matrix(3,3);
+        Bx(0,0) = 1.37871205e-01;
+        Bx(1,0) = -1.57841512e-01;
+        Bx(2,0) = 1.07804448e-01;
+        Bx(0,1) = -6.68026916e-01;
+        Bx(1,1) = 3.41188565e-01;
+        Bx(2,1) = -1.09523509e-01;
+        Bx(0,2) = 3.58504868e-01;
+        Bx(1,2) = -1.22047232e-01;
+        Bx(2,2) = -1.59764909e-02;
+
+
       #elif CORAL_LARVAE_BEAT
 
         // These coefficients are scaled so that the average cilium length over a period is 1.
@@ -2006,6 +2063,10 @@ void filament::write_backup(std::ofstream& data_file) const {
     #elif CORAL_LARVAE_BEAT
 
       return std::string("coral_larvae_reference_") + std::string(file_type) + std::string(".dat");
+
+    #elif VOLVOX_BEAT 
+
+      return std::string("input/forcing/volvox_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
 
     #elif BUILD_A_BEAT
 

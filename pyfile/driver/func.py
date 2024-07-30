@@ -12,17 +12,17 @@ class DRIVER:
         self.category = 'tilt_test/'
         
 
-        self.exe_name = 'cilia_1e-4_free'
+        self.exe_name = 'cilia_1e-4_newbeat'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240724_diaplectic'
+        self.date = '20240730_newbeat'
         
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'ic_hpc_sim_free_with_force/'
-        self.exe_name = 'cilia_1e-4_free_with_force'
-        self.date = '20240311_1'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'ic_hpc_sim_free_with_force/'
+        # self.exe_name = 'cilia_1e-4_free_with_force'
+        # self.date = '20240311_1'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.inputfile = f""
 
@@ -122,13 +122,13 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
                         sim_length = 400
 
-                        # nfil = int(1*(i+1))
-                        # nblob = int(4096*(i+1))
-                        # fil_spacing=256.0
-                        # blob_spacing=4.0
-                        # fil_x_dim=2
-                        # blob_x_dim=64
-                        # sim_length = 3
+                        nfil = int(1*(i+1))
+                        nblob = int(4096*(i+1))
+                        fil_spacing=256.0
+                        blob_spacing=4.0
+                        fil_x_dim=2
+                        blob_x_dim=64
+                        sim_length = 1
 
 
                         # # IVP sim
@@ -140,20 +140,11 @@ class DRIVER:
                         nfil = int(159 + 480*1)
                         nblob = int(9000 + 31961*1)
                         ar = round(8.00 + 7*1, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
+                        spring_factor = round(0.005 + 0.02*i, 3)
                         period = 1
-                        sim_length = 200
+                        sim_length = 500
                         tilt_angle = (1./9.)*0.5*3.141592653*j
                         
-
-                        nfil = int(639)
-                        nblob = int(40961)
-                        ar = round(15.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        period = 1.0
-                        sim_length = 3
-                        tilt_angle = 0
-
 
                         # # icosahedral
                         # nfil = int(640)
@@ -283,7 +274,7 @@ class DRIVER:
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} "
+                        ./bin/{self.exe_name} > temp.out"
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \

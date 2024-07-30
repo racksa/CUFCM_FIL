@@ -126,10 +126,6 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
           const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x))));
           const int fil_grid_dim_z = 1;
 
-          // const int fil_grid_dim_x = int(ceil(sqrt(Real(NFIL))));
-          // const int fil_grid_dim_y = 1;
-          // const int fil_grid_dim_z = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x))));
-        
         #endif
         
         Real fil_grid_step_x;
@@ -204,11 +200,11 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
             #if READ_INITIAL_CONDITIONS_FROM_BACKUP
 
-              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id);
+              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id, body.q);
 
             #else
 
-              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id);
+              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id, body.q);
 
             #endif
 
@@ -239,11 +235,11 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
             #if READ_INITIAL_CONDITIONS_FROM_BACKUP
 
-              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id);
+              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id, body.q);
 
             #else
 
-              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id);
+              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id, body.q);
 
             #endif
 
@@ -274,11 +270,11 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
               #if READ_INITIAL_CONDITIONS_FROM_BACKUP
 
-                filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id);
+                filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id, body.q);
 
               #else
 
-                filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id);
+                filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id, body.q);
 
               #endif
             }
@@ -403,7 +399,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
       
       #if READ_INITIAL_CONDITIONS_FROM_BACKUP
 
-        filaments[i].initial_setup(pos, dir, strain_twist, &data_from_file[i*data_per_fil], fil_x_address, fil_f_address, i);
+        filaments[i].initial_setup(pos, dir, strain_twist, &data_from_file[i*data_per_fil], fil_x_address, fil_f_address, i, body.q);
 
       #else
 

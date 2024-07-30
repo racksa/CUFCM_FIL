@@ -36,23 +36,24 @@ class VISUAL:
         self.date = '20240717_rpy_get_drag'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240724_symplectic'
-        # self.date = '20240710_free'
+        self.date = '20240724_diaplectic'
+        self.date = '20240710_free'
+        self.dir = f"data/tilt_test/{self.date}/"
+
+        self.date = '20240730_newbeat'
         self.dir = f"data/tilt_test/{self.date}/"
 
         
-        # self.date = '20240620_symplectic'
-        # self.dir = f"data/IVP159_flowfield/{self.date}/"
 
         # self.date = '20240311_8'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
         
 
         # self.date = '20240626_ishikawa'
@@ -111,8 +112,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 46
-        self.frames_setting = 30
+        self.plot_end_frame_setting = 1500000
+        self.frames_setting = 60
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -123,7 +124,7 @@ class VISUAL:
         self.Ly = 1000
         self.Lz = 1000
 
-        self.ncol = 10
+        self.ncol = 12
         self.num_sim = 0
 
         self.plot_interval = 1
@@ -3353,7 +3354,7 @@ class VISUAL:
                                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
 
                     # ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
-                    # ax.set_title(f"ind={self.index}")
+                    ax.set_title(f"ind={self.plot_end_frame}")
                 except:
                     print("WARNING: " + self.simName + " not found.")
         for ax in axs_flat:

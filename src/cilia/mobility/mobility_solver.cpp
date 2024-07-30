@@ -3123,9 +3123,11 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
 
   
     #if !INFINITE_PLANE_WALL
+
       std::ofstream blob_forces_file(SIMULATION_BLOB_FORCES_NAME, std::ios::app);
       blob_forces_file << nt << " ";
       blob_forces_file << std::scientific << std::setprecision(10);
+      
     #endif
 
     std::ofstream seg_vel_file(SIMULATION_SEG_VEL_NAME, std::ios::app);
@@ -3138,13 +3140,17 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
 
     for (int n = 0; n < NSWIM; n++){
 
-        for (int i = 0; i < NBLOB; i++){
+        #if !INFINITE_PLANE_WALL
 
-          const int id = 3*(i + n*NBLOB);
+          for (int i = 0; i < NBLOB; i++){
 
-          blob_forces_file << f_blobs_host[id] << " " << f_blobs_host[id + 1] << " " << f_blobs_host[id + 2] << " ";
+            const int id = 3*(i + n*NBLOB);
 
-        }
+            blob_forces_file << f_blobs_host[id] << " " << f_blobs_host[id + 1] << " " << f_blobs_host[id + 2] << " ";
+
+          }
+
+        #endif
 
       for (int i = 0; i < NFIL; i++){
         for (int j = 0; j < NSEG; j++){
