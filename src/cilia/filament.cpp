@@ -286,10 +286,11 @@ void filament::initial_setup(const Real *const base_pos,
                                                     
           Real k = 0.0;
           Real v = 0.0;
-          std::ifstream in("ishikawa.dat"); // input
+          std::ifstream in("input/ishikawa_wave/ishikawa.dat"); // input
           in >> k;
           in >> v;
           phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
+          in.close();
 
         #elif (CILIA_IC_TYPE==5)
           std::random_device rd{};
@@ -769,7 +770,6 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Ay(1,0) = 3.091205e-01; Ay(1,1) = -1.993712e+00; Ay(1,2) = 1.091847e+00;
         Ay(2,0) = -2.952120e-01; Ay(2,1) = 7.189021e-01; Ay(2,2) = -6.328589e-01;
         Ay(3,0) = -9.868018e-02; Ay(3,1) = 3.312812e-01; Ay(3,2) = -2.578206e-01;
-
 
         Ax = matrix(4,3);
         Ax(0,0) = 9.034276e-01; Ax(0,1) = -6.634681e-01; Ax(0,2) = 2.016123e-01;

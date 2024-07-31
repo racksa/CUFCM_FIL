@@ -53,6 +53,7 @@ if(sys.argv[1] in methods):
             visualiser.show_poles = False
 
         if('blob' in sys.argv):
+            visualiser.big_sphere = False
             visualiser.noblob = False
         
     if hasattr(visualiser, sys.argv[1]):

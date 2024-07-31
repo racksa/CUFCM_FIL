@@ -40,8 +40,8 @@ class VISUAL:
         self.date = '20240710_free'
         self.dir = f"data/tilt_test/{self.date}/"
 
-        self.date = '20240730_newbeat'
-        self.dir = f"data/tilt_test/{self.date}/"
+        # self.date = '20240730_newbeat'
+        # self.dir = f"data/tilt_test/{self.date}/"
 
         
 
@@ -56,8 +56,8 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
         
 
-        # self.date = '20240626_ishikawa'
-        # self.dir = f"data/ishikawa/{self.date}/"
+        self.date = '20240731_jfm'
+        self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -113,7 +113,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 60
+        self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
