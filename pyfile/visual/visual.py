@@ -56,8 +56,11 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
         
 
-        self.date = '20240731_jfm'
+        self.date = '20240731_pnas'
+        self.date = '20240802_length_variation'
         self.dir = f"data/ishikawa/{self.date}/"
+
+
 
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
@@ -113,7 +116,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 1500000
-        self.frames_setting = 600
+        self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -127,7 +130,7 @@ class VISUAL:
         self.ncol = 12
         self.num_sim = 0
 
-        self.plot_interval = 1
+        self.plot_interval = 3
         
         self.index = 0
 
@@ -389,6 +392,7 @@ class VISUAL:
             fourier_dim = np.shape(Ax)[0]
             cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
             sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
+            cosvec[0] *= 0.5
 
             x = (cosvec@Ax + sinvec@Bx)@svec
             y = (cosvec@Ay + sinvec@By)@svec
@@ -1780,6 +1784,7 @@ class VISUAL:
             fourier_dim = np.shape(Ax)[0]
             cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
             sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
+            cosvec[0] *= 0.5
 
             x = (cosvec@Ax + sinvec@Bx)@svec
             y = (cosvec@Ay + sinvec@By)@svec
@@ -2190,7 +2195,7 @@ class VISUAL:
         np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
 
         ax.set_xlim(time_array[0], time_array[-1])
-        ax.plot(time_array, dissipation_array/self.fillength**3)
+        ax.plot(time_array, dissipation_array)
         ax.set_xlabel(r'$t/T$')
         ax.set_ylabel(r'$PT^2/\mu L^3$')
         # fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')

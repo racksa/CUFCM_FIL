@@ -74,13 +74,15 @@ for indi, ind in enumerate(img_indices):
 
     ax1.plot(out[1], out[0], marker="+", label='Interpolated path', c='blue')
 
-def ksi(s, A, B, phase, degree):
-    fourier_dim = np.shape(A)[0]
+def ksi(s, A, B, phase):
+    fourier_dim, degree = np.shape(A)
     # svec = np.array([s, s**2, s**3])
     svec = np.array([s**d for d in range(1, degree + 1)])
 
     cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
     sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
+    cosvec[0] *= 0.5
+    
     return (cosvec@A + sinvec@B)@svec
 
 def calculate_arc_length(path):
@@ -103,7 +105,7 @@ def fourier_design_matrix(S, psi, fourier_dim):
         design_matrix[:, (fourier_dim + n)*basis_size:(fourier_dim + n + 1)*basis_size] = sin_term
     return design_matrix
 
-degree = 6  # Degree of the polynomial basis
+degree = 5  # Degree of the polynomial basis
 s_values = [calculate_arc_length(path) for path in data]
 S_values = [construct_S(s, degree) for s in s_values]
 
@@ -116,7 +118,7 @@ x_flat = np.concatenate([path[:, 0] for path in data])
 y_flat = np.concatenate([path[:, 1] for path in data])
 
 S_flat = np.concatenate(S_values)
-fourier_dim = 6 # Number of Fourier terms
+fourier_dim = 4 # Number of Fourier terms
 
 X_design = fourier_design_matrix(S_flat, psi_flat, fourier_dim)
 
@@ -138,12 +140,12 @@ print("Ay matrix:\n", A_y)
 print("By matrix:\n", B_y)
 
 
-num_recon_phase = num_phases
+num_recon_phase = num_phases*2
 for p in range(num_recon_phase):
     s_value = np.linspace(0, 1, num_s)
     psi = 2*np.pi/num_recon_phase*p
-    plot_x = ksi(s_value, A_x, B_x, psi, degree)
-    plot_y = ksi(s_value, A_y, B_y, psi, degree)
+    plot_x = ksi(s_value, A_x, B_x, psi)
+    plot_y = ksi(s_value, A_y, B_y, psi)
     ax2.plot(plot_y, plot_x, c='black', alpha = 0.1+0.9*p/num_recon_phase)
 
 ax1.set_aspect('equal')

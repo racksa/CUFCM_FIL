@@ -760,6 +760,61 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Bx(1,2) = -1.22047232e-01;
         Bx(2,2) = -1.59764909e-02;
 
+      #elif FULFORD_AND_BLAKE_BEAT_ORIGINAL
+
+        // Same as Fulford-Blake beat but with unaltered coefficients
+
+        Ay = matrix(4,3);
+        Ay(0,0) = -0.654;
+        Ay(1,0) = 0.393;
+        Ay(2,0) = -0.097;
+        Ay(3,0) = 0.079;
+        Ay(0,1) = 0.787;
+        Ay(1,1) = -1.516;
+        Ay(2,1) = 0.032;
+        Ay(3,1) = -0.302;
+        Ay(0,2) = 0.202;
+        Ay(1,2) = 0.716;
+        Ay(2,2) = -0.118;
+        Ay(3,2) = 0.142;
+
+        Ax = matrix(4,3);
+        Ax(0,0) = 1.895;
+        Ax(1,0) = -0.018;
+        Ax(2,0) = 0.158;
+        Ax(3,0) = 0.010;
+        Ax(0,1) = -0.552;
+        Ax(1,1) = -0.126;
+        Ax(2,1) = -0.341;
+        Ax(3,1) = 0.035;
+        Ax(0,2) = 0.096;
+        Ax(1,2) = 0.263;
+        Ax(2,2) = 0.186;
+        Ax(3,2) = -0.067;
+        
+
+        By = matrix(3,3);
+        By(0,0) = 0.284;
+        By(1,0) = 0.006;
+        By(2,0) = -0.059;
+        By(0,1) = 1.045;
+        By(1,1) = 0.317;
+        By(2,1) = 0.226;
+        By(0,2) = -1.017;
+        By(1,2) = -0.276;
+        By(2,2) = -0.196;
+        
+
+        Bx = matrix(3,3);
+        Bx(0,0) = 0.192;
+        Bx(1,0) = -0.050;
+        Bx(2,0) = 0.012;
+        Bx(0,1) = -0.499;
+        Bx(1,1) = 0.423;
+        Bx(2,1) = 0.138;
+        Bx(0,2) = 0.339;
+        Bx(1,2) = -0.327;
+        Bx(2,2) = -0.114;
 
       #elif CORAL_LARVAE_BEAT
 
@@ -802,6 +857,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix cos_vec(1, num_fourier_modes);
       matrix sin_vec(1, num_fourier_modes-1);
       cos_vec(0) = 1.0;
+      #if FULFORD_AND_BLAKE_BEAT_ORIGINAL
+        cos_vec(0) = 0.5;
+      #endif
       for (int n = 1; n < num_fourier_modes; n++){
         cos_vec(n) = std::cos(n*phase);
         sin_vec(n-1) = std::sin(n*phase);
@@ -826,6 +884,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix cos_vec(1, num_fourier_modes);
       matrix sin_vec(1, num_fourier_modes-1);
       cos_vec(0) = 1.0;
+      #if FULFORD_AND_BLAKE_BEAT_ORIGINAL
+        cos_vec(0) = 0.5;
+      #endif
       for (int n = 1; n < num_fourier_modes; n++){
         cos_vec(n) = std::cos(n*phase);
         sin_vec(n-1) = std::sin(n*phase);
@@ -2067,6 +2128,10 @@ void filament::write_backup(std::ofstream& data_file) const {
     #elif VOLVOX_BEAT 
 
       return std::string("input/forcing/volvox_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
+    
+    #elif FULFORD_AND_BLAKE_BEAT_ORIGINAL
+
+      return std::string("input/forcing/fulford_and_blake_original_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
 
     #elif BUILD_A_BEAT
 

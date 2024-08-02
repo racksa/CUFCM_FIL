@@ -29,8 +29,8 @@ class DRIVER:
 
 
         self.category = 'ishikawa/'
-        self.exe_name = 'cilia_1e-4_ishikawa'
-        self.date = '20240731_jfm'
+        self.exe_name = 'cilia_1e-4_ishikawa_length_variation'
+        self.date = '20240802_length_variation'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         
@@ -60,7 +60,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (6, 1, 1, 1)
+        self.sweep_shape = (3, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -150,35 +150,35 @@ class DRIVER:
                         
 
                         # # icosahedral
-                        # nfil = [160, 640, 2520][i]
-                        # nblob = [10242, 40962, 655362][i]
-                        # ar = [6, 20, 40][i]
-                        # nseg = 40
-                        # nseg = 40
-
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0
-
-
-                        nfil = 160
-                        nblob = 10242
-                        ar = 6
+                        nfil = [160, 640, 2560][i]
+                        nblob = 40962
+                        ar = 20
+                        nseg = 40
                         nseg = 40
 
                         nx=400
                         ny=400
                         nz=400
                         boxsize=8000
-                        spring_factor = [-1, 0, 0.5, 1, 1.5, 2][i]
+                        spring_factor = round(0)
                         period = 1
                         sim_length = 1
                         tilt_angle = 0
+
+
+                        # nfil = 160
+                        # nblob = 10242
+                        # ar = 6
+                        # nseg = 40
+
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = [-1, 0, 0.5, 1, 1.5, 2][i]
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0
 
 
                         # # centric
@@ -274,10 +274,10 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
-            self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d5_N10242.dat")
+            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
-            # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
+            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
+            self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")

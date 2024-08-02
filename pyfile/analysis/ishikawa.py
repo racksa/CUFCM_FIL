@@ -18,14 +18,7 @@ for i, filename in enumerate(files):
     data = df.to_numpy()
     x, y = data[:,0], data[:,1]
 
-    # yhat = savgol_filter(y, 3, 2)
     ax.plot(x, y, ls = 'dotted', alpha=0.5, label=f'{i}')
-
-    # cs = CubicSpline(data[:,0], data[:,1])
-    # xs = np.arange(0, 1, 0.01)
-    # ax.plot(xs, cs(xs))
-
-
 
 legend1 = ax.legend()
 line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label='data' )
