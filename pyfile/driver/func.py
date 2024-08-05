@@ -29,8 +29,8 @@ class DRIVER:
 
 
         self.category = 'ishikawa/'
-        self.exe_name = 'cilia_1e-4_ishikawa_length_variation'
-        self.date = '20240802_length_variation'
+        self.exe_name = 'cilia_1e-4_ishikawa_volvox_beat'
+        self.date = '20240805_volvox_beat'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         
@@ -134,7 +134,7 @@ class DRIVER:
                         sim_length = 1
 
 
-                        # # # IVP sim
+                        # # IVP sim
                         # nx=400
                         # ny=400
                         # nz=400
@@ -149,21 +149,20 @@ class DRIVER:
                         # tilt_angle = (1./9.)*0.5*3.141592653*j
                         
 
-                        # # # icosahedral
-                        # nfil = [160, 640, 2560][i]
-                        # nblob = 40962
-                        # ar = 20
-                        # nseg = 40
-                        # nseg = 40
+                        # # icosahedral
+                        nfil = [160, 640, 2560][i]
+                        nblob = 40962
+                        ar = 20
+                        nseg = 40
 
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=8000
+                        spring_factor = round(0)
+                        period = 1
+                        sim_length = 1
+                        tilt_angle = 0
 
 
                         # nfil = 160
@@ -291,7 +290,7 @@ class DRIVER:
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} "
+                        ./bin/{self.exe_name} > temp.out "
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \

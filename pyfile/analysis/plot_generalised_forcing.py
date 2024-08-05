@@ -12,8 +12,8 @@ omega0 = 2*np.pi
 viscosity = 1
 L = 2.6*(20-1)
 
-phase_forcing_filename = 'input/forcing/fulford_and_blake_reference_phase_generalised_forces_NSEG=40_SEP=2.600000.dat'
-angle_forcing_filename = 'input/forcing/fulford_and_blake_reference_angle_generalised_forces_NSEG=40_SEP=2.600000.dat'
+phase_forcing_filename = 'input/forcing/fulford_and_blake_reference_phase_generalised_forces_NSEG=20_SEP=2.600000.dat'
+angle_forcing_filename = 'input/forcing/fulford_and_blake_reference_angle_generalised_forces_NSEG=20_SEP=2.600000.dat'
 
 phase_forcing_f = open(phase_forcing_filename)
 angle_forcing_f = open(angle_forcing_filename)
@@ -60,9 +60,9 @@ ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], phase_forcing, label=r'$Q_\psi
 ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], angle_forcing, label=r'$Q_\theta$')
 # ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], reconstructed_signal+phase_mean, label=r'$Q_\theta$')
 
-
-# phase_forcing_filename = 'input/forcing/fulford_and_blake_original_reference_phase_generalised_forces_NSEG=40_SEP=2.600000.dat'
-# angle_forcing_filename = 'input/forcing/fulford_and_blake_original_reference_angle_generalised_forces_NSEG=40_SEP=2.600000.dat'
+# Add comparison with another forcing data file.
+# phase_forcing_filename = 'input/forcing/fulford_and_blake_original_reference_phase_generalised_forces_NSEG=20_SEP=2.600000.dat'
+# angle_forcing_filename = 'input/forcing/fulford_and_blake_original_reference_angle_generalised_forces_NSEG=20_SEP=2.600000.dat'
 # phase_forcing_f = open(phase_forcing_filename)
 # angle_forcing_f = open(angle_forcing_filename)
 # phase_forcing_str = phase_forcing_f.readline()

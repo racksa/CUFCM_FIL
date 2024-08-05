@@ -98,9 +98,7 @@ def real_fillength2(phase):
     return arc_length
 
 
-path = "data/ishikawa/20240731_pnas/"
-path = 'data/ishikawa/20240802_length_variation/'
-
+path = 'data/ishikawa/20240802_pnas_original_beat/'
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)

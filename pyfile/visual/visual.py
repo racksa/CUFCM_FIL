@@ -57,7 +57,7 @@ class VISUAL:
         
 
         # self.date = '20240731_pnas'
-        self.date = '20240802_length_variation'
+        self.date = '20240805_volvox_beat'
         self.dir = f"data/ishikawa/{self.date}/"
 
 
