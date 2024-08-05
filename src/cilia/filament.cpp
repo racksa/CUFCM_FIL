@@ -692,6 +692,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         By(0,2) = -1.0433e+00;
         By(1,2) = -2.8315e-01;
         By(2,2) = -2.0108e-01;
+        
 
         Bx = matrix(3,3);
         Bx(0,0) = 1.9697e-01;
@@ -764,7 +765,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
         // Same as Fulford-Blake beat but with unaltered coefficients
 
-        Ay = matrix(4,3);
+        Ay = matrix(4,5);
         Ay(0,0) = -0.654;
         Ay(1,0) = 0.393;
         Ay(2,0) = -0.097;
@@ -778,7 +779,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Ay(2,2) = -0.118;
         Ay(3,2) = 0.142;
 
-        Ax = matrix(4,3);
+        Ax = matrix(4,5);
         Ax(0,0) = 1.895;
         Ax(1,0) = -0.018;
         Ax(2,0) = 0.158;
@@ -793,7 +794,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Ax(3,2) = -0.067;
         
 
-        By = matrix(3,3);
+        By = matrix(3,5);
         By(0,0) = 0.284;
         By(1,0) = 0.006;
         By(2,0) = -0.059;
@@ -805,7 +806,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         By(2,2) = -0.196;
         
 
-        Bx = matrix(3,3);
+        Bx = matrix(3,5);
         Bx(0,0) = 0.192;
         Bx(1,0) = -0.050;
         Bx(2,0) = 0.012;
@@ -848,12 +849,22 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     void filament::fitted_shape_tangent(Real& tx, Real& ty, const Real s) const {
 
-      matrix svec(3,1);
-      svec(0) = 1.0;
-      svec(1) = 2.0*s;
-      svec(2) = 3.0*s*s;
-
+      const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
+
+      matrix svec(num_degrees,1);
+      for(int i = 0; i < num_degrees; i++){
+        svec(i) = pow(s, i+1);
+      }
+
+      // matrix svec(5,1);
+      // svec(0) = s;
+      // svec(1) = s*s;
+      // svec(2) = s*s*s;
+      // svec(3) = s*s*s*s;
+      // svec(4) = s*s*s*s*s;
+
+      // const int num_fourier_modes = Ax.num_rows;
       matrix cos_vec(1, num_fourier_modes);
       matrix sin_vec(1, num_fourier_modes-1);
       cos_vec(0) = 1.0;
@@ -875,12 +886,22 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix pos(3,1);
       pos(2) = 0.0;
 
-      matrix svec(3,1);
-      svec(0) = s;
-      svec(1) = s*s;
-      svec(2) = s*s*s;
-
+      const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
+
+      matrix svec(num_degrees,1);
+      for(int i = 0; i < num_degrees; i++){
+        svec(i) = pow(s, i+1);
+      }
+
+      // matrix svec(5,1);
+      // svec(0) = s;
+      // svec(1) = s*s;
+      // svec(2) = s*s*s;
+      // svec(3) = s*s*s*s;
+      // svec(4) = s*s*s*s*s;
+
+      // const int num_fourier_modes = Ax.num_rows;
       matrix cos_vec(1, num_fourier_modes);
       matrix sin_vec(1, num_fourier_modes-1);
       cos_vec(0) = 1.0;
@@ -904,12 +925,21 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix dir(3,1);
       dir(2) = 0.0;
 
-      matrix svec(3,1);
-      svec(0) = s;
-      svec(1) = s*s;
-      svec(2) = s*s*s;
-
+      const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
+
+      matrix svec(num_degrees,1);
+      for(int i = 0; i < num_degrees; i++){
+        svec(i) = pow(s, i+1);
+      }
+
+      // matrix svec(5,1);
+      // svec(0) = s;
+      // svec(1) = s*s;
+      // svec(2) = s*s*s;
+      // svec(3) = s*s*s*s;
+      // svec(4) = s*s*s*s*s;
+
       matrix cos_vec(1, num_fourier_modes-1);
       matrix sin_vec(1, num_fourier_modes);
       sin_vec(0) = 0.0;
@@ -1013,6 +1043,10 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
             curr_frac_estimate = fitted_curve_length(curr_s_estimate)/total_length;
 
           }
+          // force to use uniform s
+          // curr_s_estimate = target_fraction;
+
+          std::cout << n << "  " << curr_s_estimate << std::endl;
 
           s_to_use[n] = curr_s_estimate;
 

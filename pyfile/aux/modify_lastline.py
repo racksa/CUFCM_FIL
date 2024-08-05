@@ -59,7 +59,7 @@ def append_file_contents(file_a, file_b):
 
 
 # Example usage
-path = f"data/tilt_test/20240724_free"
+path = f"data/tilt_test/move/20240724_symplectic"
 output_path = f"data/tilt_test/output"
 
 def list_files_with_suffix(directory, suffixes):

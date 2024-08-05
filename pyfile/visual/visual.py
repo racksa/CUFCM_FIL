@@ -37,8 +37,8 @@ class VISUAL:
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.date = '20240724_diaplectic'
-        self.date = '20240710_free'
-        self.dir = f"data/tilt_test/{self.date}/"
+        # self.date = '20240710_free'
+        self.dir = f"data/tilt_test/move/{self.date}/"
 
         # self.date = '20240730_newbeat'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -56,7 +56,7 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
         
 
-        self.date = '20240731_pnas'
+        # self.date = '20240731_pnas'
         self.date = '20240802_length_variation'
         self.dir = f"data/ishikawa/{self.date}/"
 
@@ -115,7 +115,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1500000
+        self.plot_end_frame_setting = 100000
         self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting

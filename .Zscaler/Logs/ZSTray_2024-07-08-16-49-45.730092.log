@@ -1,0 +1,56 @@
+Redirected stderr
+2024-07-08 16:49:45.730561(+0100)[ 1928: 1928] INF Timezone: BST, Offset: 0, Standard Name: GMT
+2024-07-08 16:49:45.730822(+0100)[ 1928: 1928] INF CLI key value unable to understand , skipping wait = false
+2024-07-08 16:49:45.730836(+0100)[ 1928: 1928] INF CLI key value unable to understand , skipping externalRedirect = false
+2024-07-08 16:49:45.918320(+0100)[ 1928: 1928] DBG directory : /home/hsu/.Zscaler/DB 
+2024-07-08 16:49:45.918524(+0100)[ 1928: 1928] DBG notificationDB : /home/hsu/.Zscaler/DB/ZscalerApp.db
+2024-07-08 16:49:45.973620(+0100)[ 1928: 1928] INF ZSATrayRpcServer startServer called!
+2024-07-08 16:49:45.973736(+0100)[ 1928: 1941] INF ZSATrayRpcServer run function called!
+2024-07-08 16:49:45.973738(+0100)[ 1928: 1928] INF startTrayLogMonitor called!
+2024-07-08 16:49:45.973919(+0100)[ 1928: 1942] INF [LogMon] Log tag
+2024-07-08 16:49:45.973937(+0100)[ 1928: 1942] INF [LogMon] Logger monitor started
+2024-07-08 16:49:45.988375(+0100)[ 1928: 1928] INF createSAMLauthenticationDialog called! 
+2024-07-08 16:49:45.989053(+0100)[ 1928: 1943] INF system UUID : 582aaccc1e9b11b2a85ccedde3b9dd2d
+2024-07-08 16:49:45.989083(+0100)[ 1928: 1943] INF Baseboard Serial Number : L1HF162028V
+2024-07-08 16:49:45.989099(+0100)[ 1928: 1943] INF disk ID : 33cf49ab8997479f9fc153f31a9347a0
+2024-07-08 16:49:45.989113(+0100)[ 1928: 1943] INF legacy disk ID : 93872DAC766A4AD0BE24B9111652EB00
+2024-07-08 16:49:45.989131(+0100)[ 1928: 1943] DBG Running cmd: [grep PRETTY_NAME  /etc/os-release |awk -F= '{print $2}']
+2024-07-08 16:49:45.989723(+0100)[ 1928: 1928] INF Tray WorkerThread Started...!
+2024-07-08 16:49:45.991037(+0100)[ 1928: 1947] DBG Tray proxy monitor thread started the monitor command (PID 1948)
+2024-07-08 16:49:45.991082(+0100)[ 1928: 1943] DBG Output: "Ubuntu 20.04.6 LTS"
+2024-07-08 16:49:45.991778(+0100)[ 1928: 1943] INF Config read hash: d0ma8B4rnwm/jRl/SFzUE5nMqNA=
+2024-07-08 16:49:45.992128(+0100)[ 1928: 1943] DBG decryptConfig: using old password
+2024-07-08 16:49:45.997449(+0100)[ 1928: 1943] INF Auth::Crypto::decrypt: Exception: I/O error: error:06065064:digital envelope routines:EVP_DecryptFinal_ex:bad decrypt
+2024-07-08 16:49:45.997487(+0100)[ 1928: 1943] INF ZSAAuth::useNewDecryptPasswd = true
+2024-07-08 16:49:46.001134(+0100)[ 1928: 1943] INF addHardwareIdToClientConfiguration: ZSAAuth::clientConfiguration.hardwareId is NOT empty
+2024-07-08 16:49:46.001401(+0100)[ 1928: 1943] INF ZSDR: Converting Disaster Recovery Policy
+2024-07-08 16:49:46.002857(+0100)[ 1928: 1943] DBG directory : /home/hsu/.Zscaler 
+2024-07-08 16:49:46.002874(+0100)[ 1928: 1943] DBG Create Config File : /home/hsu/.Zscaler/c78OEbQIY+O6hOk5bxZlQDMpJc=+config.dat
+2024-07-08 16:49:46.002974(+0100)[ 1928: 1943] INF Config save hash: Td0iU5wIFGprp5EhbM2WGFdwIak=
+2024-07-08 16:49:46.002985(+0100)[ 1928: 1943] INF Initializing auth library. FIPS: 0
+2024-07-08 16:49:46.002997(+0100)[ 1928: 1943] INF Getting CA certificates in file: /etc/ssl/certs/ca-certificates.crt
+2024-07-08 16:49:46.003295(+0100)[ 1928: 1943] INF System Certs read from disc : 137
+2024-07-08 16:49:46.003308(+0100)[ 1928: 1943] INF System certificate count: 137
+2024-07-08 16:49:46.003315(+0100)[ 1928: 1943] INF Auth::Lib::initializeAuthenticationLibrary: Called: 137
+2024-07-08 16:49:46.003333(+0100)[ 1928: 1943] INF Auth::Lib:loadSSLCerts: Called: 146
+2024-07-08 16:49:46.010490(+0100)[ 1928: 1943] INF Auth::Lib::loadSSLCerts: Number of CA certs loaded: 142
+2024-07-08 16:49:46.010509(+0100)[ 1928: 1943] INF Auth::Lib::initializeAuthenticationLibrary: Finish
+2024-07-08 16:49:46.010711(+0100)[ 1928: 1943] DBG Running cmd: [gsettings get org.gnome.system.proxy mode]
+2024-07-08 16:49:46.013758(+0100)[ 1928: 1943] DBG Output: 'manual'
+2024-07-08 16:49:46.013792(+0100)[ 1928: 1943] DBG Running cmd: [gsettings get org.gnome.system.proxy.http host]
+2024-07-08 16:49:46.016255(+0100)[ 1928: 1943] DBG Output: ''
+2024-07-08 16:49:46.016283(+0100)[ 1928: 1943] DBG Running cmd: [gsettings get org.gnome.system.proxy.http port]
+2024-07-08 16:49:46.018639(+0100)[ 1928: 1943] DBG Output: 8080
+2024-07-08 16:49:46.018672(+0100)[ 1928: 1943] INF externalProxy :http://:8080
+2024-07-08 16:49:46.018681(+0100)[ 1928: 1943] INF External Proxy: http://:8080
+2024-07-08 16:49:46.018687(+0100)[ 1928: 1943] INF Auth::Lib::setAuthenticationLibraryProxy: Called: http://:8080
+2024-07-08 16:49:46.018696(+0100)[ 1928: 1943] INF Skip sending user creds to tunnel: 3
+2024-07-08 16:49:46.018703(+0100)[ 1928: 1943] ERR No posture profile to process
+2024-07-08 16:49:46.019854(+0100)[ 1928: 1943] ERR TrayMain Exception: www.google.com
+2024-07-08 16:49:46.023007(+0100)[ 1928: 1928] DBG initializeSystemTrayIcon: isSystemTrayAvailable: 0
+2024-07-08 16:49:46.024680(+0100)[ 1928: 1928] INF Seed domain not configured, proceeding with auth form
+2024-07-08 16:49:47.024872(+0100)[ 1928: 1928] INF toggleAllButtonsinTrayForm called with disable as 0
+2024-07-08 16:49:47.141387(+0100)[ 1928: 1928] DBG Opening UserName Form
+2024-07-08 16:49:50.379096(+0100)[ 1928: 1928] INF UI UserNameForm Window Close Button Clicked.
+ICE default IO error handler doing an exit(), pid = 1928, errno = 32
+QThread: Destroyed while thread is still running

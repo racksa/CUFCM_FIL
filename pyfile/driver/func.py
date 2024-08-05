@@ -134,36 +134,36 @@ class DRIVER:
                         sim_length = 1
 
 
-                        # # IVP sim
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
+                        # # # IVP sim
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000
 
-                        nfil = int(159 + 480*1)
-                        nblob = int(9000 + 31961*1)
-                        ar = round(8.00 + 7*1, 2)
-                        spring_factor = round(0.005 + 0.02*i, 3)
-                        period = 1
-                        sim_length = 500
-                        tilt_angle = (1./9.)*0.5*3.141592653*j
+                        # nfil = int(159 + 480*1)
+                        # nblob = int(9000 + 31961*1)
+                        # ar = round(8.00 + 7*1, 2)
+                        # spring_factor = round(0.005 + 0.02*i, 3)
+                        # period = 1
+                        # sim_length = 500
+                        # tilt_angle = (1./9.)*0.5*3.141592653*j
                         
 
-                        # # icosahedral
-                        nfil = [160, 640, 2560][i]
-                        nblob = 40962
-                        ar = 20
-                        nseg = 40
-                        nseg = 40
+                        # # # icosahedral
+                        # nfil = [160, 640, 2560][i]
+                        # nblob = 40962
+                        # ar = 20
+                        # nseg = 40
+                        # nseg = 40
 
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=8000
-                        spring_factor = round(0)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = 0
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0
 
 
                         # nfil = 160
@@ -291,7 +291,7 @@ class DRIVER:
 
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} > temp.out "
+                        ./bin/{self.exe_name} "
             
             # on ic hpc
             # command = f"export OPENBLAS_NUM_THREADS=1; \
