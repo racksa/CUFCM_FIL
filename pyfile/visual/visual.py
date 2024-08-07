@@ -38,7 +38,7 @@ class VISUAL:
 
         self.date = '20240724_diaplectic'
         # self.date = '20240710_free'
-        self.dir = f"data/tilt_test/move/{self.date}/"
+        self.dir = f"data/tilt_test/{self.date}/"
 
         # self.date = '20240730_newbeat'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -53,12 +53,16 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
         # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
-        
+        # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        # self.date = '20240731_pnas'
+        self.date = '20240731_pnas'
         self.date = '20240805_volvox_beat'
+        self.date = '20240802_pnas_original_beat'
+        self.date = '20240807_ishikawa_resolution5'
         self.dir = f"data/ishikawa/{self.date}/"
+
+        # self.date = '20240115_resolution'
+        # self.dir = f"data/resolution/{self.date}/"
 
 
 
@@ -115,7 +119,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 100000
+        self.plot_end_frame_setting = 150000
         self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -198,7 +202,15 @@ class VISUAL:
         except:
             self.tilt_angle = 0.
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
-
+            try:
+                open(self.simName + '_fil_references.dat')
+            except:
+                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
+            try:
+                open(self.simName + '_fil_references.dat')
+            except:
+                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
+        
 
         try:
             self.fil_spacing = self.pars_list['fil_spacing'][self.index]
@@ -206,14 +218,6 @@ class VISUAL:
         except:
             pass
 
-        # try:
-        #     open(self.simName + '_fil_references.dat')
-        # except:
-        #     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
-        # try:
-        #     open(self.simName + '_fil_references.dat')
-        # except:
-        #     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
         
         self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
         try:
@@ -2074,13 +2078,13 @@ class VISUAL:
         ax2.set_ylabel(r"$<Ω⋅e_1>$")
         ax2.set_xlabel(r"$t/T$")
 
-        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-        np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
-        np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
+        # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        # np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
+        # np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
 
         fig1.tight_layout()
         fig2.tight_layout()
-        fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/ciliate_rot_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
@@ -3324,8 +3328,9 @@ class VISUAL:
                     self.select_sim()
 
                     fil_references_sphpolar = np.zeros((self.nfil,3))
-                    # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
+                    
                     fil_states_f = open(self.simName + '_true_states.dat', "r")
+                    # fil_phases_f = open(self.simName + '_filament_phases.dat', "r")
                     # fil_angles_f = open(self.simName + '_filament_shape_rotation_angles.dat', "r")
                     for i in range(self.plot_end_frame):
                         print(" index ", self.index,  " frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -3334,14 +3339,14 @@ class VISUAL:
                         # fil_angles_str = fil_angles_f.readline()
                         if(i==self.plot_end_frame-1):
                             # fil_phases = np.array(fil_phases_str.split()[1:], dtype=float)
-                            # fil_phases = util.box(fil_phases, 2*np.pi)
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-                            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+                            fil_phases = fil_states[:self.nfil]
+                            fil_phases = util.box(fil_phases, 2*np.pi)
                             for i in range(self.nfil):
                                 fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
                             
                             cmap = mpl.colormaps[colormap]
-                            colors = cmap(fil_states[:self.nfil]/2/np.pi)
+                            colors = cmap(fil_phases/2/np.pi)
                             if (self.interpolate):
                                 n1, n2 = 64, 64
                                 offset = 0.2
@@ -5054,10 +5059,15 @@ class VISUAL:
             
             ax4.plot(nblob_list[i::ncol], error_list[i::ncol], marker='+', linestyle=linestyle_list[i], c='black')
             
-            np.savetxt(f'dis_data/speed_{self.date}.txt', (speed_list[i::ncol]/fillen_list[i::ncol])[:24], delimiter=', ')
-            np.savetxt(f'dis_data/dissipation_{self.date}.txt', (dissipation_list[i::ncol]/fillen_list[i::ncol]**3)[:24], delimiter=', ')
-            np.savetxt(f'dis_data/efficiency_{self.date}.txt', (efficiency_list[i::ncol])[:24], delimiter=', ')
-            np.savetxt(f'dis_data/k_{self.date}.txt', (k_list[i::ncol])[:24], delimiter=', ')
+            np.save(f"{self.dir}nblob_data_{i}.npy", nblob_list[i::ncol])
+            np.save(f"{self.dir}speed_data_{i}.npy", speed_list[i::ncol]/fillen_list[i::ncol])
+            np.save(f"{self.dir}dissipation_data_{i}.npy", dissipation_list[i::ncol]/fillen_list[i::ncol]**3)
+            np.save(f"{self.dir}efficiency_data_{i}.npy", efficiency_list[i::ncol])
+
+            # np.savetxt(f'dis_data/speed_{self.date}.txt', (speed_list[i::ncol]/fillen_list[i::ncol])[:24], delimiter=', ')
+            # np.savetxt(f'dis_data/dissipation_{self.date}.txt', (dissipation_list[i::ncol]/fillen_list[i::ncol]**3)[:24], delimiter=', ')
+            # np.savetxt(f'dis_data/efficiency_{self.date}.txt', (efficiency_list[i::ncol])[:24], delimiter=', ')
+            # np.savetxt(f'dis_data/k_{self.date}.txt', (k_list[i::ncol])[:24], delimiter=', ')
         
 
         # fig.legend()
@@ -5079,10 +5089,15 @@ class VISUAL:
         ax4.set_xlabel(r'$N_{blob}$')
         ax4.set_ylabel(r'$\% error in dissipation$')
 
+        fig.tight_layout()
+        fig2.tight_layout()
+        fig3.tight_layout()
+        fig4.tight_layout()
+
         fig.savefig(f'fig/ciliate_speed_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
         fig2.savefig(f'fig/ciliate_dissipation_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
         fig3.savefig(f'fig/ciliate_efficiency_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        fig4.savefig(f'fig/ciliate_dissipation_per_cilium_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        fig4.savefig(f'fig/ciliate_error_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
 
         plt.show()
 

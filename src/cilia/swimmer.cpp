@@ -339,7 +339,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
     
 
     // Force to overwrite the seeding file
-    #if RIGIDWALL or CILIA_IC_TYPE==3
+    #if RIGIDWALL or ICOSA_SEEDING
       seed_filaments(&filament_references[0], &polar_dir_refs[0], &azi_dir_refs[0], &normal_refs[0]);
     #endif
 

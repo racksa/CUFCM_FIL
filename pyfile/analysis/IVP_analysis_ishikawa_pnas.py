@@ -98,7 +98,7 @@ def real_fillength2(phase):
     return arc_length
 
 
-path = 'data/ishikawa/20240802_pnas_original_beat/'
+
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
@@ -114,6 +114,8 @@ ax4 = fig4.add_subplot(1,1,1)
 colors = ["black","red","green","blue","purple"]
 N_list = [160, 640, 2560]
 
+
+path = 'data/ishikawa/20240802_pnas_original_beat/'
 # plot sim data
 for ind in range(3):
     try:
@@ -127,15 +129,20 @@ for ind in range(3):
         for fili in range(len(fillength_array)):
             fillength_array[fili] = real_fillength(time_array[fili]*2*np.pi)
 
-        ax.plot(time_array, speed_array, label = rf'$k={N_list[ind]}$', alpha=1., c=colors[ind])
-        ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$k={N_list[ind]}$', c=colors[ind])
+        ax.plot(time_array, speed_array, label = rf'$M={N_list[ind]}$', alpha=1., c=colors[ind])
+        ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', c=colors[ind])
+        # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
         ax3.plot(time_array, efficiency_array, label = N_list[ind], c=colors[ind])
         ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
     except:
         pass
 
-path = "data/ishikawa/20240731_pnas/"
+
+
+
 # plot sim data
+path = "data/ishikawa/20240731_pnas/"
+# path = "data/ishikawa/20240805_volvox_beat/"
 for ind in range(3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
@@ -149,7 +156,8 @@ for ind in range(3):
             fillength_array[fili] = real_fillength2(time_array[fili]*2*np.pi)
 
         ax.plot(time_array, speed_array, ls = 'dashed', alpha=1., c=colors[ind])
-        ax2.plot(time_array, dissipation_array/fillength_array**3, ls = 'dashed', c=colors[ind])
+        ax2.plot(time_array, dissipation_array, ls = 'dashed', c=colors[ind])
+        # ax2.plot(time_array, dissipation_array/fillength_array**3, ls = 'dashed', c=colors[ind])
         ax3.plot(time_array, efficiency_array, ls = 'dashed', c=colors[ind])
         ax4.plot(time_array, fillength_array, ls = 'dashed', c='black')
     except:
@@ -200,6 +208,11 @@ ax2.set_xlim(0, 1)
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'$PT^2/\mu L^3$')
 
+line1, = ax4.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
+line2, = ax4.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
+legend42 = ax4.legend(handles = [line1, line2, line3])
+ax4.set_xlim(0, 1)
+ax4.set_ylim(0.92, 1.06)
 ax4.set_xlabel(r'$t/T$')
 ax4.set_ylabel(r'$L$')
 
