@@ -37,7 +37,8 @@ ax.set_ylabel(r'V/W')
 ax.set_xlim(0, 0.8)
 ax.legend()
 
-plt.savefig('fig/single_sphere.eps', format='eps')
+# plt.savefig('fig/single_sphere.eps', format='eps')
+plt.savefig('fig/sangani1982.pdf', format='pdf')
 plt.show()
 
 

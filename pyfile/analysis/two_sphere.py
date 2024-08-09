@@ -58,7 +58,7 @@ v_ognl_opposite_list = np.array([
     2.5940429351e-02, 2.6143556260e-02, 2.6312232538e-02, 2.6454574196e-02, 2.6576324411e-02])
 
 ########################################################################
-# Batchelor (1982)
+# Batchelor (1976)
 ########################################################################
 def A11(p, lam):
     return 1 - 60*lam**2/(1+lam)**4/p**4 - 192*lam**3*(5-22*lam**2+3*lam**4)/(1+lam)**8/p**8
@@ -91,10 +91,10 @@ ax.scatter(r_list/a, vw_prl_list, facecolors='none', edgecolors='r', label='Para
 ax.scatter(r_list/a, vw_ognl_list, facecolors='none', edgecolors='b', label='Othogonal alignment')
 ax.scatter(r_list/a, vw_prl_opposite_list, facecolors='none', edgecolors='r', label='Parallel (opposite) alignment')
 ax.scatter(r_list/a, vw_ognl_opposite_list, facecolors='none', edgecolors='b', label='Othogonal (opposite) alignment')
-ax.plot(ra_batchelor_list, vw_batchelor_prl_list, c='r', label='Parallel alignment Batchelor(1982)')
-ax.plot(ra_batchelor_list, vw_batchelor_ognl_list, c='b', label='Othogonal alignment Batchelor(1982)')
-ax.plot(ra_batchelor_list, vw_batchelor_prl_opposite_list, c='r', label='Parallel alignment (opposite) Batchelor(1982)')
-ax.plot(ra_batchelor_list, vw_batchelor_ognl_opposite_list, c='b', label='Othogonal alignment (opposite) Batchelor(1982)')
+ax.plot(ra_batchelor_list, vw_batchelor_prl_list, c='r', label='Parallel alignment Batchelor(1976)')
+ax.plot(ra_batchelor_list, vw_batchelor_ognl_list, c='b', label='Othogonal alignment Batchelor(1976)')
+ax.plot(ra_batchelor_list, vw_batchelor_prl_opposite_list, c='r', label='Parallel alignment (opposite) Batchelor(1976)')
+ax.plot(ra_batchelor_list, vw_batchelor_ognl_opposite_list, c='b', label='Othogonal alignment (opposite) Batchelor(1976)')
 ax.axhline(y=1.0, color='grey', linestyle='-.')
 ax.annotate('Force in same direction', (2.1, 1.02))
 ax.annotate('Force in opposite direction', (2.1, 0.93))
@@ -106,10 +106,11 @@ ax.set_ylim(0, 1.7)
 red_patch = mpatches.Patch(color='r', label='Parallel alignment')
 blue_patch = mpatches.Patch(color='b', label='Othogonal alignment')
 circle_legend = ax.scatter([], [], facecolors='none', edgecolors='black', label='Rigid sphere data')
-line_legend = mlines.Line2D([], [], c='black', label='Batchelor(1982)')
+line_legend = mlines.Line2D([], [], c='black', label='Batchelor(1976)')
 ax.legend(handles=[red_patch, blue_patch, circle_legend, line_legend])
 
-plt.savefig('fig/two_sphere.eps', format='eps')
+# plt.savefig('fig/two_sphere.eps', format='eps')
+plt.savefig('fig/batchelor1976.pdf', format='pdf')
 plt.show()
 
 

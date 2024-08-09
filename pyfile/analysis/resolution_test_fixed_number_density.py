@@ -4,7 +4,7 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.colors as mcolors
 import random
-from batchelor1982 import *
+from batchelor1976 import *
 
 # Fourier modes = 0.5 0
 a = 20.533623615045787
@@ -113,5 +113,5 @@ ax3.set_yscale('log')
 ax3.set_xlabel(r'$number\ of\ blobs$')
 ax3.set_ylabel(r'$\frac{|V/W - V/W_{exact}|}{V/W_{exact}}$')
 # ax3.set_title('Error for fixed number density')
-plt.savefig('fig/resolution_test_fixed_number_density_error_graph.eps', format='eps')
+# plt.savefig('fig/resolution_test_fixed_number_density_error_graph.eps', format='eps')
 plt.show()

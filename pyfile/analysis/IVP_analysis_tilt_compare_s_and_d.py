@@ -14,7 +14,7 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
-path = "data/tilt_test/IVP/"
+path = "data/tilt_test/makeup_pattern/"
 
 
 r_data = np.load(f"{path}r_data.npy")
@@ -28,6 +28,7 @@ avg_rot_speed_along_axis_data = np.load(f"{path}avg_rot_speed_along_axis_data.np
 
 # n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder = r_data.shape[0]
+colors = ['r', 'b']
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
@@ -50,32 +51,41 @@ ax3 = fig3.add_subplot(1,1,1)
 
 
 for fi in range(n_folder):
-    plot_x = k_data[fi]
-    plot_y = tilt_data[fi]
 
-    cmap = plt.get_cmap(cmap_name)
-    color_data = r_data[fi]
-    color = cmap(color_data/max(color_data))
-    indices_meridional = np.where(r_data[fi][:] > .4)
-    indices_zonal = np.where(r_data[fi][:] < .4)
+    n_tilt = 5
+    
+
+    for ti in range(n_tilt):
+
+        plot_x = k_data[fi][ti::n_tilt]
+        plot_y = avg_speed_along_axis_data[fi][ti::n_tilt]
+
+    # cmap = plt.get_cmap(cmap_name)
+    # color_data = r_data[fi]
+    # color = cmap(color_data/max(color_data))
+    # indices_meridional = np.where(r_data[fi][:] > .4)
+    # indices_zonal = np.where(r_data[fi][:] < .4)
 
     # variable = avg_rot_speed_along_axis_data[fi]
     # variable_label = r"$<Ω⋅e_1>/L$"
-    variable = avg_speed_along_axis_data[fi]
-    variable_label = r"$<V⋅e_1>/L$"
-    vmin2 = np.min(variable)
-    vmax2 = np.max(variable)
-    color2 = cmap((variable-vmin2)/(vmax2-vmin2))
+
+    # variable = avg_speed_along_axis_data[fi]
+    # variable_label = r"$<V⋅e_1>/L$"
+    # vmin2 = np.min(variable)
+    # vmax2 = np.max(variable)
+    # color2 = cmap((variable-vmin2)/(vmax2-vmin2))
 
 
-    ax.scatter(plot_x, plot_y, s=100, marker='+', c=color)
-    ax2.scatter(plot_x, plot_y, s=100, marker='+', c=color2)
+        ax.plot(plot_x, plot_y, marker='+', c=colors[fi])
+
+    
+    # ax2.scatter(plot_x, plot_y, s=100, marker='+', c=color2)
 
 
     # ax3.scatter(tilt_data[fi][:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
     # ax3.scatter(tilt_data[fi][:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
-    ax3.scatter(plot_x[:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
-    ax3.scatter(plot_x[:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
+    # ax3.scatter(plot_x[:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
+    # ax3.scatter(plot_x[:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
 
 
     # indices_symplectic = np.where(plot_y > .4)[0]
@@ -87,20 +97,12 @@ for fi in range(n_folder):
 # colorbar
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
-# vmin = 0
-# vmax = np.max(r_data)
-# norm = Normalize(vmin=vmin, vmax=vmax)
+
+# norm = Normalize(vmin=vmin2, vmax=vmax2)
 # sm = ScalarMappable(cmap=cmap_name, norm=norm)
 # sm.set_array([])
-# cbar = fig.colorbar(sm)
-# # cbar.ax.set_yticks(np.linspace(vmin, vmax, 3), ['0', 'π/4', 'π/2'])
-# cbar.set_label(r"<r>")    
-
-norm = Normalize(vmin=vmin2, vmax=vmax2)
-sm = ScalarMappable(cmap=cmap_name, norm=norm)
-sm.set_array([])
-cbar = fig2.colorbar(sm)
-cbar.set_label(variable_label)   
+# cbar = fig2.colorbar(sm)
+# cbar.set_label(variable_label)   
 
 # legend
 # ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
@@ -110,7 +112,7 @@ cbar.set_label(variable_label)
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'tilt angle')
+ax.set_ylabel(r'<V>')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
@@ -119,7 +121,7 @@ ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r'tilt angle')
 
 ax3.set_xlabel(r'tilt angle')
-ax3.set_ylabel(variable_label)  
+# ax3.set_ylabel(variable_label)  
 ax3.legend()
 
 fig.tight_layout()

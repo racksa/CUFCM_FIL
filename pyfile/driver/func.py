@@ -7,6 +7,7 @@ class DRIVER:
     def __init__(self):
         self.globals_name = 'input/globals.ini'
         self.afix = ''
+        self.inputfile = f""
         # self.category = 'regular_wall_sim/'
         # self.category = 'IVP159_flowfield/'
         self.category = 'tilt_test/'
@@ -25,7 +26,7 @@ class DRIVER:
         # self.date = '20240311_1'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.inputfile = f""
+        
 
 
         self.category = 'ishikawa/'
@@ -183,7 +184,7 @@ class DRIVER:
                         # ar = 6
                         # nseg = 40
                         nfil = 640
-                        nblob = int(19*3.**i)
+                        nblob = int(20 + (3*i)**3)
                         ar = 20
                         nseg = 40
                         nx=400

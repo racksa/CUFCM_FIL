@@ -4,7 +4,7 @@ import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 import matplotlib.colors as mcolors
 import random
-from batchelor1982 import *
+from batchelor1976 import *
 
 # Fourier modes = 0.5 0
 a = 20.533623615045787
@@ -105,6 +105,7 @@ def random_color(seed):
     
 vw_prl_list = v_prl_list/v_isolate
 vw_prl_batchelor_list = A11(ra_list, 1) + A12(ra_list,1)
+print(vw_prl_list)
 vw_prl_error_list = abs(vw_prl_list - vw_prl_batchelor_list) / vw_prl_batchelor_list
 
 fig2 = plt.figure()
@@ -116,7 +117,7 @@ ax2.set_xlabel(r'$r/a$')
 ax2.set_ylabel(r'$\frac{|V/W - V/W_{exact}|}{V/W_{exact}}$')
 # ax2.set_title('Fixed radius')
 ax2.set_xlim(2, 4.5)
-fig2.savefig('fig/resolution_test_fixed_radius.eps', format='eps')
+# fig2.savefig('fig/resolution_test_fixed_radius.eps', format='eps')
 ax2.legend(ncol=2)
 
 fig3 = plt.figure()
@@ -128,5 +129,6 @@ ax3.set_yscale('log')
 ax3.set_xlabel(r'$number\ of\ blobs$')
 ax3.set_ylabel(r'$\frac{|V/W - V/W_{exact}|}{V/W_{exact}}$')
 # ax3.set_title('Error for fixed sphere radius')
-plt.savefig('fig/resolution_test_fixed_radius_error_graph.eps', format='eps')
+# plt.savefig('fig/resolution_test_fixed_radius_error_graph.eps', format='eps')
+fig3.savefig('fig/batchelor1976_error.pdf', format='pdf')
 plt.show()

@@ -115,9 +115,9 @@ colors = ["black","red","green","blue","purple"]
 N_list = [160, 640, 2560]
 
 
-path = 'data/ishikawa/20240802_pnas_original_beat/'
+path = 'data/ishikawa/20240805_pnas_volvox_beat/'
 # plot sim data
-for ind in range(3):
+for ind in range(2,3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -130,6 +130,7 @@ for ind in range(3):
             fillength_array[fili] = real_fillength(time_array[fili]*2*np.pi)
 
         ax.plot(time_array, speed_array, label = rf'$M={N_list[ind]}$', alpha=1., c=colors[ind])
+        ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array))
         ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', c=colors[ind])
         # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
         ax3.plot(time_array, efficiency_array, label = N_list[ind], c=colors[ind])
@@ -141,9 +142,9 @@ for ind in range(3):
 
 
 # plot sim data
-path = "data/ishikawa/20240731_pnas/"
+path = "data/ishikawa/20240802_pnas_L0.975/"
 # path = "data/ishikawa/20240805_volvox_beat/"
-for ind in range(3):
+for ind in range(2, 3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -156,6 +157,7 @@ for ind in range(3):
             fillength_array[fili] = real_fillength2(time_array[fili]*2*np.pi)
 
         ax.plot(time_array, speed_array, ls = 'dashed', alpha=1., c=colors[ind])
+        ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array))
         ax2.plot(time_array, dissipation_array, ls = 'dashed', c=colors[ind])
         # ax2.plot(time_array, dissipation_array/fillength_array**3, ls = 'dashed', c=colors[ind])
         ax3.plot(time_array, efficiency_array, ls = 'dashed', c=colors[ind])
@@ -164,29 +166,29 @@ for ind in range(3):
         pass
 
 # plot extracted data
-directory = 'pyfile/analysis/ishikawa_data/'
-files = ['vel_k0.0N162.csv', 'vel_k0.0N636.csv', 'vel_k0.0N2520.csv']
+# directory = 'pyfile/analysis/ishikawa_data/'
+# files = ['vel_k0.0N162.csv', 'vel_k0.0N636.csv', 'vel_k0.0N2520.csv']
 
-# files = ['k0.0N162.csv', 'k0.0N636.csv', 'k0.0N2520.csv']
-for i, filename in enumerate(files):
-    file = open(directory + filename, mode='r')
-    df = pd.read_csv(directory + filename, header=None)
-    data = df.to_numpy()
-    x, y = data[:,0], data[:,1]
+# # files = ['k0.0N162.csv', 'k0.0N636.csv', 'k0.0N2520.csv']
+# for i, filename in enumerate(files):
+#     file = open(directory + filename, mode='r')
+#     df = pd.read_csv(directory + filename, header=None)
+#     data = df.to_numpy()
+#     x, y = data[:,0], data[:,1]
 
-    ax.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
+#     ax.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
 
-directory = 'pyfile/analysis/ishikawa_data/'
-files = ['dissipation_k0.0N162.csv', 'dissipation_k0.0N636.csv', 'dissipation_k0.0N2520.csv']
+# directory = 'pyfile/analysis/ishikawa_data/'
+# files = ['dissipation_k0.0N162.csv', 'dissipation_k0.0N636.csv', 'dissipation_k0.0N2520.csv']
 
-# files = ['k0.0N162.csv', 'k0.0N636.csv', 'k0.0N2520.csv']
-for i, filename in enumerate(files):
-    file = open(directory + filename, mode='r')
-    df = pd.read_csv(directory + filename, header=None)
-    data = df.to_numpy()
-    x, y = data[:,0], data[:,1]
+# # files = ['k0.0N162.csv', 'k0.0N636.csv', 'k0.0N2520.csv']
+# for i, filename in enumerate(files):
+#     file = open(directory + filename, mode='r')
+#     df = pd.read_csv(directory + filename, header=None)
+#     data = df.to_numpy()
+#     x, y = data[:,0], data[:,1]
 
-    ax2.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
+#     ax2.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
 
 legend11 = ax.legend(loc='center', frameon=False)
 line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
@@ -220,7 +222,7 @@ fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
-fig.savefig(f'fig/ishikawa_pnas_comparison_vel.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/ishikawa_pnas_comparison_dissipation.pdf', bbox_inches = 'tight', format='pdf')
-fig4.savefig(f'fig/ishikawa_pnas_comparison_real_length.pdf', bbox_inches = 'tight', format='pdf')
+# fig.savefig(f'fig/ishikawa_pnas_comparison_vel.pdf', bbox_inches = 'tight', format='pdf')
+# fig2.savefig(f'fig/ishikawa_pnas_comparison_dissipation.pdf', bbox_inches = 'tight', format='pdf')
+# fig4.savefig(f'fig/ishikawa_pnas_comparison_real_length.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

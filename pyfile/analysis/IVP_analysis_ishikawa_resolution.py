@@ -6,6 +6,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.integrate import quad
+from scipy.optimize import curve_fit
 
 import configparser
 
@@ -99,6 +100,10 @@ cmap_name = 'coolwarm'
 #     arc_length, _ = quad(integrand2, 0, 1, args=(phase))
 #     return arc_length
 
+def fit_func(x, a, b, c):
+    return a/(1+b*x)+c
+    return a*(1/x**b) +c
+    return a*np.exp(b*x) + c
 
 
 fig = plt.figure()
@@ -109,6 +114,8 @@ fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
 fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
+fig5 = plt.figure()
+ax5 = fig5.add_subplot(1,1,1)
 
 # k_list = [-1, 0, 0.5, 1.0, 1.5, 2.0]
 # labels = [r"$k=-1$",r"$k=0$",r"$k=0.5$",r"$k=1$",r"$k=1.5$",r"$k=2$",]
@@ -118,7 +125,7 @@ N_list = [160, 640, 2560]
 
 
 
-path = 'data/ishikawa/20240807_ishikawa_resolution2/'
+path = 'data/ishikawa/20240807_ishikawa_resolution5/'
 sim = configparser.ConfigParser()
 sim.read(path+"rules.ini")
 nblob_list = np.array([float(s) for s in sim["Parameter list"]['nblob'].split(', ')])
@@ -126,7 +133,7 @@ avg_speed_list = np.zeros(nblob_list.shape)
 speed_error_list = np.zeros(nblob_list.shape)
 nsim = len(nblob_list)
 
-ref_speed_array = np.load(f"{path}body_speed_array_index{7}.npy")
+ref_speed_array = np.load(f"{path}body_speed_array_index{15}.npy")
 
 # plot sim data
 for ind in range(nsim):
@@ -136,10 +143,9 @@ for ind in range(nsim):
         rot_speed_array = np.load(f"{path}body_rot_speed_array_index{ind}.npy")
         dissipation_array = np.load(f"{path}dissipation_array_index{ind}.npy")
         efficiency_array = np.load(f"{path}efficiency_array_index{ind}.npy")
-        print(ind)
 
         avg_speed_list[ind] = np.mean(np.abs(speed_array))
-        speed_error_list[ind] = np.mean((speed_array - ref_speed_array)**2/ref_speed_array**2)**.5
+        speed_error_list[ind] = np.mean(np.square((speed_array - ref_speed_array)/ref_speed_array))**.5
 
         # fillength_array = np.zeros(np.shape(time_array))
         # for fili in range(len(fillength_array)):
@@ -204,17 +210,34 @@ ax2.set_ylabel(r'$PT^2/\mu L^3$')
 # legend42 = ax4.legend(handles = [line1, line2, line3])
 # ax4.set_xlim(0, 1)
 # ax4.set_ylim(0.92, 1.06)
-ax4.plot(nblob_list, speed_error_list, marker = '+')
+
+# cutoff = 2
+# popt, pcov = curve_fit(fit_func, nblob_list[cutoff:], avg_speed_list[cutoff:])
+# a, b, c = popt
+# print(f"Fitted parameters: a = {a}, b = {b}, c = {c}")
+# ax4.plot(nblob_list[cutoff:], fit_func(nblob_list[cutoff:], a, b, c), marker = '+')
+
+ax4.plot(nblob_list, avg_speed_list, marker = '+')
 ax4.set_xscale('log')
 ax4.set_yscale('log')
-ax4.set_xlabel(r'Number of rigid blobs')
-ax4.set_ylabel(r'$<\frac{|V-V_{ref}|^2}{V_{ref}}>$')
+ax4.set_xlabel(r'$Number\ of\ rigid\ blobs$')
+ax4.set_ylabel(r'$V$')
+# ax4.set_ylabel(r'$\sqrt{\frac{|V-V_{ref}|^2}{|V_{ref}|^2}}$')
+
+
+
+ax5.plot(nblob_list, speed_error_list, marker = '+')
+ax5.set_xscale('log')
+ax5.set_yscale('log')
+ax5.set_xlabel(r'$Number\ of\ rigid\ blobs$')
+ax5.set_ylabel(r'$RMSPE\ in\ swimming\ speed$')
+
 
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
-# fig.savefig(f'fig/ishikawa_pnas_comparison_vel.pdf', bbox_inches = 'tight', format='pdf')
-# fig2.savefig(f'fig/ishikawa_pnas_comparison_dissipation.pdf', bbox_inches = 'tight', format='pdf')
-# fig4.savefig(f'fig/ishikawa_pnas_comparison_real_length.pdf', bbox_inches = 'tight', format='pdf')
+fig5.tight_layout()
+
+fig5.savefig(f'fig/single_ciliated_swimmer.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

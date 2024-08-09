@@ -1,3 +1,7 @@
+# Batchelor GK. Brownian diffusion of particles with hydrodynamic interaction.
+# Journal of Fluid Mechanics. 1976;74(1):1-29. doi:10.1017/S0022112076001663
+
+
 def A11(p, lam):
     return 1 - 60*lam**3/(1+lam)**4/p**4 + 32*lam**3*(15-4*lam**2)/(1+lam)**6/p**6 - 192*lam**3*(5-22*lam**2+3*lam**4)/(1+lam)**8/p**8
 
@@ -9,3 +13,4 @@ def B11(p, lam):
 
 def B12(p, lam):
     return 0.75/p + (1+lam**2)/(1+lam)**2/p**3
+

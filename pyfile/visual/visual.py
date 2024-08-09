@@ -36,9 +36,8 @@ class VISUAL:
         self.date = '20240717_rpy_get_drag'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240724_diaplectic'
-        # self.date = '20240710_free'
-        self.dir = f"data/tilt_test/{self.date}/"
+        self.date = '20240724_symplectic'
+        self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
         # self.date = '20240730_newbeat'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -55,11 +54,11 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        self.date = '20240731_pnas'
-        self.date = '20240805_volvox_beat'
-        self.date = '20240802_pnas_original_beat'
-        self.date = '20240807_ishikawa_resolution5'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.date = '20240731_pnas'
+        # self.date = '20240805_volvox_beat'
+        # self.date = '20240802_pnas_original_beat'
+        # self.date = '20240807_ishikawa_resolution6'
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -4343,11 +4342,11 @@ class VISUAL:
                 input_filenames = [self.simName + '_true_states.dat',
                                 self.simName + '_body_states.dat']
                 
-                # output_filenames = [self.dir + f"psi{afix}.dat",
-                #                     self.dir + f"bodystate{afix}.dat",
-                #                     ]
-                output_filenames = [f"data/ic_hpc_sim_free_with_force/{self.date}/" + f"psi{afix}.dat",
-                                    f"data/ic_hpc_sim_free_with_force/{self.date}/" + f"bodystate{afix}.dat",
+                output_filenames = [self.dir + f"psi{afix}.dat",
+                                    self.dir + f"bodystate{afix}.dat",
+                                    ]
+                output_filenames = [f"data/tilt_test/output/{self.date}/" + f"psi{afix}.dat",
+                                    f"data/tilt_test/output/{self.date}/" + f"bodystate{afix}.dat",
                                     ]
         
                 for i, name in enumerate(input_filenames):
@@ -5395,8 +5394,8 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim_free/"
 
-        # force = False
-        # path = 'data/tilt_test/'
+        force = False
+        path = 'data/tilt_test//makeup_pattern/'
 
         # import re
         # def sort_key(s):
@@ -5408,7 +5407,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        # self.frames_setting = 600
+        self.frames_setting = 600
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!
