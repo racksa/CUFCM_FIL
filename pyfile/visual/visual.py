@@ -54,11 +54,11 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        # self.date = '20240731_pnas'
-        # self.date = '20240805_volvox_beat'
+        # self.date = '20240731_pnas_L1'
+        self.date = '20240813_pnas_volvox_beat'
         # self.date = '20240802_pnas_original_beat'
         # self.date = '20240807_ishikawa_resolution6'
-        # self.dir = f"data/ishikawa/{self.date}/"
+        self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -867,6 +867,89 @@ class VISUAL:
                 
             plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
+
+    def wavenumber(self):
+
+        self.select_sim()
+        
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        colormap = 'twilight_shifted'
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        vmin = 0
+        vmax = 2*np.pi
+        
+        import scipy.interpolate
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        avg_posterior_phase_array = np.zeros(self.frames)
+        avg_anterior_phase_array = np.zeros(self.frames)
+        fil_phases_ref = np.zeros(self.nfil)
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+            # if(i==self.plot_end_frame-1):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                fil_phases_boxed = util.box(fil_phases, 2*np.pi)
+
+                if(i==self.plot_start_frame):
+                    fil_phases_ref = fil_phases - fil_phases_boxed
+                
+                fil_phases -= fil_phases_ref
+                
+
+                cmap = mpl.colormaps[colormap]
+                colors = cmap(fil_phases_boxed/vmax)
+
+                n1, n2 = 128, 128
+                offset = 0.2
+                azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
+                polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
+                xx, yy = np.meshgrid(azim_grid, polar_grid)
+                xx, yy = xx.ravel(), yy.ravel()
+
+                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
+                # ax.scatter(xx, yy, c=colors_inter)
+
+                phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), fil_phases, (xx, yy), method='nearest')
+                phases_inter_boxed = util.box(phases_inter, 2*np.pi)
+                colors_new = cmap(phases_inter_boxed/vmax)
+                # ax.scatter(xx, yy, c=colors_new)
+
+                avg_posterior_phase = np.mean(phases_inter[:128])
+                avg_anterior_phase = np.mean(phases_inter[-128:])
+                print(i, avg_posterior_phase, avg_anterior_phase)
+                avg_posterior_phase_array[i-self.plot_start_frame] = avg_posterior_phase
+                avg_anterior_phase_array[i-self.plot_start_frame] = avg_anterior_phase
+
+        wavenumber_array = np.abs(avg_anterior_phase_array - avg_posterior_phase_array)
+        ax2.plot(time_array, wavenumber_array, c='black')
+        # ax2.plot(time_array, avg_anterior_phase_array, c='r')
+        # ax2.plot(time_array, avg_posterior_phase_array, c='b')
+
+        np.save(f'{self.dir}/time_array_fil{self.index}.npy', time_array)
+        np.save(f'{self.dir}/wavenumber_array_fil{self.index}.npy', wavenumber_array)
+
+        ax.set_xlim(-np.pi, np.pi)
+        ax.set_ylim(0, np.pi)
+            
+        plt.show()
 
     def phi_dot(self):
         self.select_sim()
