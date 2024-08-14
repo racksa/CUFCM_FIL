@@ -6,6 +6,14 @@ import matplotlib.colors as mcolors
 import random
 from batchelor1976 import *
 
+import matplotlib as mpl
+mpl.rcParams['mathtext.fontset'] = 'stix'
+mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+
+plt.rcParams.update({'font.size': 16})
+
 # Fourier modes = 0.5 0
 a = 20.533623615045787
 c = 4.*np.pi*a**2/1400
@@ -110,6 +118,9 @@ vw_prl_error_list = abs(vw_prl_list - vw_prl_batchelor_list) / vw_prl_batchelor_
 
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(1,1,1)
+fig3 = plt.figure()
+ax3 = fig3.add_subplot(1,1,1)
+
 for i, nb in enumerate(num_blob_list):
     ax2.plot(ra_list, vw_prl_error_list[i], marker='+', color=random_color(i), label=r'$N_{blob}$' + f'$={nb}$')
 ax2.set_yscale('log')
@@ -120,15 +131,21 @@ ax2.set_xlim(2, 4.5)
 # fig2.savefig('fig/resolution_test_fixed_radius.eps', format='eps')
 ax2.legend(ncol=2)
 
-fig3 = plt.figure()
-ax3 = fig3.add_subplot(1,1,1)
+
+
+
 long_range_error_list = vw_prl_error_list[:, -1]
-ax3.plot(num_blob_list, long_range_error_list)
+ax3.plot(num_blob_list, long_range_error_list, marker = '+', color='black')
 ax3.set_xscale('log')
 ax3.set_yscale('log')
-ax3.set_xlabel(r'$number\ of\ blobs$')
+ax3.set_xlabel(r'$Number\ of\ rigid\ blobs$')
 ax3.set_ylabel(r'$\frac{|V/W - V/W_{exact}|}{V/W_{exact}}$')
-# ax3.set_title('Error for fixed sphere radius')
-# plt.savefig('fig/resolution_test_fixed_radius_error_graph.eps', format='eps')
-fig3.savefig('fig/batchelor1976_error.pdf', format='pdf')
+
+
+fig2.tight_layout()
+fig3.tight_layout()
+
+fig3.savefig('fig/resolution_batchelor.pdf', format='pdf')
+
+
 plt.show()

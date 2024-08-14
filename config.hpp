@@ -110,7 +110,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
   // 2 = Coral larvae beat pattern. Data fitting done by me, in the same way as Blake (1972).
   // 3 = Volvox beat
-  // 4 = Original 'Fulford and Blake' beat
+  // 4 = Original 'Fulford and Blake' beat - <L>=0.975
 
   #if SHAPE_SEQUENCE==0
 

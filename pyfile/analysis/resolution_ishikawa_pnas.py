@@ -2,7 +2,6 @@
 import numpy as np
 import os
 import sys
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.integrate import quad
@@ -10,6 +9,7 @@ from scipy.optimize import curve_fit
 
 import configparser
 
+import matplotlib as mpl
 mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
@@ -146,6 +146,7 @@ for ind in range(nsim):
 
         avg_speed_list[ind] = np.mean(np.abs(speed_array))
         speed_error_list[ind] = np.mean(np.square((speed_array - ref_speed_array)/ref_speed_array))**.5
+        # speed_error_list[ind] = np.mean(np.abs(speed_array - ref_speed_array)/np.abs(ref_speed_array))
 
         # fillength_array = np.zeros(np.shape(time_array))
         # for fili in range(len(fillength_array)):
@@ -226,7 +227,7 @@ ax4.set_ylabel(r'$V$')
 
 
 
-ax5.plot(nblob_list, speed_error_list, marker = '+')
+ax5.plot(nblob_list, speed_error_list, marker = '+', color='black')
 ax5.set_xscale('log')
 ax5.set_yscale('log')
 ax5.set_xlabel(r'$Number\ of\ rigid\ blobs$')
@@ -239,5 +240,5 @@ fig3.tight_layout()
 fig4.tight_layout()
 fig5.tight_layout()
 
-fig5.savefig(f'fig/single_ciliated_swimmer.pdf', bbox_inches = 'tight', format='pdf')
+fig5.savefig(f'fig/resolution_ishikawa.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

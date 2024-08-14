@@ -48,17 +48,20 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        self.date = '20240311_2'
+        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+
+        self.date = 'combined_analysis'
+        self.dir = f"data/giant_swimmer/{self.date}/"
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
         # self.date = '20240731_pnas_L1'
-        self.date = '20240813_pnas_volvox_beat'
+        # self.date = '20240813_pnas_volvox_beat'
         # self.date = '20240802_pnas_original_beat'
         # self.date = '20240807_ishikawa_resolution6'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -68,10 +71,11 @@ class VISUAL:
         # self.date = f'index1_alpha0.16326530612244897'
         # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
         
+        # self.date = 'index6_alpha0.875'
+        # self.dir = f"data/ic_hpc_bisection/k0.005/iteration1/{self.date}/"
 
 
-
-        # self.date = '20240508'
+        # self.date = '20240507'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.pars_list = {
@@ -119,7 +123,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 150000
-        self.frames_setting = 6000
+        self.frames_setting = 60
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -874,7 +878,7 @@ class VISUAL:
         
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
-        colormap = 'twilight_shifted'
+        colormap = 'Greys'
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -910,6 +914,7 @@ class VISUAL:
 
                 if(i==self.plot_start_frame):
                     fil_phases_ref = fil_phases - fil_phases_boxed
+                    
                 
                 fil_phases -= fil_phases_ref
                 
@@ -930,7 +935,9 @@ class VISUAL:
                 phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), fil_phases, (xx, yy), method='nearest')
                 phases_inter_boxed = util.box(phases_inter, 2*np.pi)
                 colors_new = cmap(phases_inter_boxed/vmax)
-                # ax.scatter(xx, yy, c=colors_new)
+                # if(i==self.plot_end_frame-1):
+                if(i==self.plot_start_frame):
+                    ax.scatter(xx, yy, c=colors_new)
 
                 avg_posterior_phase = np.mean(phases_inter[:128])
                 avg_anterior_phase = np.mean(phases_inter[-128:])
@@ -938,17 +945,19 @@ class VISUAL:
                 avg_posterior_phase_array[i-self.plot_start_frame] = avg_posterior_phase
                 avg_anterior_phase_array[i-self.plot_start_frame] = avg_anterior_phase
 
-        wavenumber_array = np.abs(avg_anterior_phase_array - avg_posterior_phase_array)
+        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) 
         ax2.plot(time_array, wavenumber_array, c='black')
         # ax2.plot(time_array, avg_anterior_phase_array, c='r')
         # ax2.plot(time_array, avg_posterior_phase_array, c='b')
 
-        np.save(f'{self.dir}/time_array_fil{self.index}.npy', time_array)
-        np.save(f'{self.dir}/wavenumber_array_fil{self.index}.npy', wavenumber_array)
+        np.save(f'{self.dir}/time_array_fil{self.nfil}.npy', time_array)
+        np.save(f'{self.dir}/wavenumber_array_fil{self.nfil}.npy', wavenumber_array)
 
         ax.set_xlim(-np.pi, np.pi)
         ax.set_ylim(0, np.pi)
-            
+        
+        fig.tight_layout()
+        fig2.tight_layout()
         plt.show()
 
     def phi_dot(self):
