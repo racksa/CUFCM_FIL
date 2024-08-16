@@ -945,7 +945,7 @@ class VISUAL:
                 avg_posterior_phase_array[i-self.plot_start_frame] = avg_posterior_phase
                 avg_anterior_phase_array[i-self.plot_start_frame] = avg_anterior_phase
 
-        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) 
+        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) +1 
         ax2.plot(time_array, wavenumber_array, c='black')
         # ax2.plot(time_array, avg_anterior_phase_array, c='r')
         # ax2.plot(time_array, avg_posterior_phase_array, c='b')
@@ -1852,6 +1852,10 @@ class VISUAL:
         
             
         s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
         
         s_ref = np.loadtxt(s_ref_filename)
         num_ref_phase = s_ref[0]
@@ -1905,7 +1909,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        ax.view_init(elev=90., azim=0)
+        ax.view_init(elev=00., azim=90)
         ax.dist=5.8
         ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
         ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -1949,9 +1953,10 @@ class VISUAL:
                 body_axis_y = np.matmul(R, np.array([0,2*self.radius,0]))
                 body_axis_z = np.matmul(R, np.array([0,0,2*self.radius]))
 
-                ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
-                ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
-                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2])
+                # Plot body axis
+                # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
+                # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
+                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2])
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1977,7 +1982,7 @@ class VISUAL:
                         fil_data[seg] = seg_pos
 
                     # Show only one side of the sphere
-                    if(fil_base[0]>0):
+                    if fil_references_sphpolar[fil][1] > 0:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
 
         if(self.video):

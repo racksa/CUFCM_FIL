@@ -17,30 +17,41 @@ cmap_name = 'coolwarm'
 
 path = "data/giant_swimmer/combined_analysis/"
 
-arrays = {'time_array_fil': [],
+
+keywords = ['time_array_fil', 'wavenumber_array_fil']
+
+arrays = {'fil_array': [],
+          'time_array_fil': [],
           'wavenumber_array_fil': []}
 
 filnumbers = []
 
 def sort_key_frame(s):
-        # Split the string by the underscore and convert the second part to an integer
-        return int(s[len(keyword):-4])
+    # Split the string by the underscore and convert the second part to an integer
+    return int(s[len(keyword):-4])
 
-for keyword in arrays:
-    # Regular expression pattern to extract the frame number
-    pattern = re.compile(rf"{keyword}(\d+)\.npy")
-    for filename in os.listdir(path):
-        match = pattern.match(filename)
-        if match:
-            data = np.load(f"{path}{filename}")
+
+
+
+# Regular expression pattern to extract the frame number
+pattern = re.compile(rf"time_array_fil(\d+)\.npy")
+for filename in os.listdir(path):
+    match = pattern.match(filename)
+    if match:
+        nfil = int(filename[len('time_array_fil'):-4])
+        for ki, keyword in enumerate(keywords):
+            data = np.load(f"{path}{keyword}{nfil}.npy")
             arrays[keyword].append(data)
 
-            if keyword == 'time_array_fil':
-                filnumbers.append(int(filename[len(keyword):-4]))
+            if keyword == 'wavenumber_array_fil':
+                print(ki, filename,  np.mean(arrays[keyword]))
+        filnumbers.append(nfil)
+        arrays['fil_array'].append(nfil)
+                
 
 L = 2.6*19
-cilia_array_length = 0.5*(np.array([8.0, 15, 30, 39])*L)*np.pi
-avg_wavenumbers = np.zeros(len(arrays['time_array_fil']))
+cilia_array_length = 0.5*(np.array([8.0, 15, 20, 30, 39])*L)*np.pi
+avg_wavenumbers = np.zeros(len(arrays['fil_array']))
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
@@ -49,21 +60,27 @@ ax2 = fig2.add_subplot(1,1,1)
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
 
+print(np.mean(arrays['wavenumber_array_fil'], axis=1))
+
 
 for si in range(len(arrays['time_array_fil'])):
+    nfil = arrays['fil_array'][si]
     time_array = arrays['time_array_fil'][si]
     wavenumber_array = arrays['wavenumber_array_fil'][si]
     time_array -= time_array[0]
     avg_wavenumbers[si] = np.mean(wavenumber_array)
+
+    print(si, nfil, np.mean(wavenumber_array))
     
     ax.plot(time_array, wavenumber_array)
 
 sorted_indices = np.argsort(filnumbers)
-print(sorted_indices)
 avg_wavenumbers = avg_wavenumbers[sorted_indices]
 filnumbers = np.array(filnumbers)[sorted_indices]
 
+
 ax2.plot(cilia_array_length, avg_wavenumbers, color='black', marker='+')
+
 
 
 from matplotlib.colors import Normalize
