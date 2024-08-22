@@ -26,14 +26,24 @@ class DRIVER:
         # self.date = '20240311_1'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'resolution/'
+        self.date = '20240822_sangani_boxsize2'
+        self.exe_name = 'cilia_1e-6_sangani'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
         
 
 
-        self.category = 'ishikawa/'
-        self.exe_name = 'cilia_1e-4_ishikawa_volvox_beat'
-        # self.date = '20240807_ishikawa_resolution6'
-        self.date = '20240813_pnas_volvox_beat'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'ishikawa/'
+        # self.exe_name = 'cilia_1e-6_ishikawa_resolution'
+        # self.date = '20240822_ishikawa_resolution6'
+        # # self.date = '20240813_pnas_volvox_beat'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        # self.category = 'giant_swimmer/'
+        # self.exe_name = 'cilia_1e-4_free_with_force_300'
+        # self.date = 'combined_analysis_force_rerun'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         
 
@@ -62,7 +72,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (3, 1, 1, 1)
+        self.sweep_shape = (16, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -105,7 +115,7 @@ class DRIVER:
 
                         seg_sep = 2.6
                         nseg = 20
-                        force_mag = 1
+                        force_mag = 0
                         tilt_angle = 0
 
                         # # planar triangle
@@ -142,6 +152,7 @@ class DRIVER:
                         # nz=400
                         # boxsize=4000
 
+                        # nseg = 20
                         # nfil = int(159 + 480*1)
                         # nblob = int(9000 + 31961*1)
                         # ar = round(8.00 + 7*1, 2)
@@ -152,18 +163,18 @@ class DRIVER:
                         
 
                         # ishikawa pnas
-                        nfil = [160, 640, 2560][i]
-                        nblob = 40962
-                        ar = 20
-                        nseg = 40
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=8000
-                        spring_factor = round(0)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = 0
+                        # nfil = [160, 640, 2560][i]
+                        # nblob = 40962
+                        # ar = 20
+                        # nseg = 40
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0
 
                         # ishikawa jfm
                         # nfil = 160
@@ -197,6 +208,40 @@ class DRIVER:
                         # period = 1
                         # sim_length = 1
                         # tilt_angle = 0
+
+                        # swimmer size trend
+                        # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
+                        # nblob = [9000, 40961, 72817, 113777, 163839, 276888][i]
+                        # ar = [8.0, 15.0, 20.0, 25.0, 30.0, 39.0][i]
+                        # nseg = 20
+                        # nx=512
+                        # ny=512
+                        # nz=512
+                        # boxsize=8000
+                        # spring_factor = round(0.005, 3)
+                        # period = 1
+                        # sim_length = 2
+                        # tilt_angle = 0
+
+                        # sangani resolution
+                        nx=400
+                        ny=400
+                        nz=400
+                        
+                        boxsize=1200+16*(i+1)**(3)
+                        nblob = int(40961)
+                        
+                        # boxsize=8000
+                        # nblob = int(20 + (3*i)**3)
+                        
+                        ar = round(20.00, 2)
+                        nfil = 0
+                        nseg = 20
+                        spring_factor = round(1*(i+1), 3)
+                        period = 1
+                        sim_length = 0.0034
+                        tilt_angle = 0
+                        force_mag = 10000.0
 
 
                         self.pars_list["index"].append(index)

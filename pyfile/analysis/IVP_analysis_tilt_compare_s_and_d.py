@@ -29,6 +29,7 @@ avg_rot_speed_along_axis_data = np.load(f"{path}avg_rot_speed_along_axis_data.np
 # n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder = r_data.shape[0]
 colors = ['r', 'b']
+labels = ['Meridional MCW', 'Zonal MCW']
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
@@ -36,6 +37,8 @@ fig2 = plt.figure()
 ax2 = fig2.add_subplot(1,1,1)
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
+fig4 = plt.figure()
+ax4 = fig4.add_subplot(1,1,1)
 
 # for fi in range(n_folder_heldfixed):
 #     plot_x = k_data_heldfixed[fi] 
@@ -48,17 +51,24 @@ ax3 = fig3.add_subplot(1,1,1)
 #     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='r')
 #     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=100, marker='P', c='r')
 
-
+n_tilt = 5
+tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
 
 for fi in range(n_folder):
 
-    n_tilt = 5
+    
+    avg_speed_over_angle = np.zeros(tilt_angle.shape)
+    avg_rot_speed_over_angle = np.zeros(tilt_angle.shape)
     
 
     for ti in range(n_tilt):
 
         plot_x = k_data[fi][ti::n_tilt]
-        plot_y = avg_speed_along_axis_data[fi][ti::n_tilt]
+        avg_speed = avg_speed_along_axis_data[fi][ti::n_tilt]
+        avg_rot_speed = avg_rot_speed_along_axis_data[fi][ti::n_tilt]
+
+        avg_speed_over_angle[ti] = np.mean(avg_speed)
+        avg_rot_speed_over_angle[ti] = np.mean(avg_rot_speed)
 
     # cmap = plt.get_cmap(cmap_name)
     # color_data = r_data[fi]
@@ -76,8 +86,13 @@ for fi in range(n_folder):
     # color2 = cmap((variable-vmin2)/(vmax2-vmin2))
 
 
-        ax.plot(plot_x, plot_y, marker='+', c=colors[fi])
+        ax.plot(plot_x, avg_speed, marker='+', c=colors[fi])
 
+        ax2.plot(plot_x, avg_rot_speed, marker='+', c=colors[fi])
+
+    ax3.plot(tilt_angle, avg_speed_over_angle, marker='+', c=colors[fi], label=labels[fi])
+
+    ax4.plot(tilt_angle, avg_rot_speed_over_angle, marker='+', c=colors[fi], label=labels[fi])
     
     # ax2.scatter(plot_x, plot_y, s=100, marker='+', c=color2)
 
@@ -112,22 +127,32 @@ from matplotlib.cm import ScalarMappable
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'<V>')
+ax.set_ylabel(r'$Tilt\ angle$')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r'tilt angle')
+ax2.set_ylabel(r'$Tilt\ angle$')
 
-ax3.set_xlabel(r'tilt angle')
-# ax3.set_ylabel(variable_label)  
+ax3.set_xlabel(r'$Tilt\ angle$')
+ax3.set_ylabel(r'$<V/L>$')
 ax3.legend()
+ax3.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
+ax3.set_xlim(tilt_angle[0], tilt_angle[-1])
+
+ax4.set_xlabel(r'$Tilt\ angle$')
+ax4.set_ylabel(r'$<\Omega>$')
+ax4.legend()
+ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
+ax4.set_xlim(tilt_angle[0], tilt_angle[-1])
 
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
-fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig3.savefig(f'fig/rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
+fig4.tight_layout()
+# fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
+# fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
+fig3.savefig(f'fig/tilt_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
+fig4.savefig(f'fig/tilt_rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

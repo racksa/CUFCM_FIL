@@ -426,6 +426,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           }
 
         #endif
+      
+        rhs(2) = GEN_FORCE_MAGNITUDE_FACTOR;
 
         // N.B. If there is a net external force or torque on the swimmer, then -F
         // should appear in the RHS instead of zeros in the rows corresponding to the force-
@@ -3103,11 +3105,8 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
             }
 
           #endif
-          if(n == 0){
-            body_vel_file << v[0] << ", ";
-          }
           
-          // body_vel_file << v[0] << " " << v[1] << " " << v[2] << " " << omega[0] << " " << omega[1] << " " << omega[2] << " ";
+          body_vel_file << v[0] << " " << v[1] << " " << v[2] << " " << omega[0] << " " << omega[1] << " " << omega[2] << " ";
 
         #else
 

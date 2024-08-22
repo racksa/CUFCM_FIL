@@ -504,8 +504,10 @@ void swimmer::forces_and_torques(const int nt, int id){
         f(0) += Real(NBLOB);
       #endif
       
+      f(2) += GEN_FORCE_MAGNITUDE_FACTOR;
 
       // Finally, add any external forces on the blobs, and the induced torques on body, to f.
+
 
     #endif
 
@@ -1105,16 +1107,20 @@ void swimmer::write_reference_positions() const {
   fil_ref_file << "\n";
   fil_ref_file.close();
 
-  std::ofstream fil_q_file(SIMULATION_NAME+std::string("_fil_q.dat"));
+  #if PRESCRIBED_CILIA
 
-  for (int n = 0; n < NFIL; n++){
+    std::ofstream fil_q_file(SIMULATION_NAME+std::string("_fil_q.dat"));
 
-    fil_q_file << filaments[n].body_q.scalar_part << " " << filaments[n].body_q.vector_part[0] << " " << filaments[n].body_q.vector_part[1] << " " << filaments[n].body_q.vector_part[2] << " " ;
+    for (int n = 0; n < NFIL; n++){
 
-  }
+      fil_q_file << filaments[n].body_q.scalar_part << " " << filaments[n].body_q.vector_part[0] << " " << filaments[n].body_q.vector_part[1] << " " << filaments[n].body_q.vector_part[2] << " " ;
 
-  fil_q_file << "\n";
-  fil_q_file.close();
+    }
+
+    fil_q_file << "\n";
+    fil_q_file.close();
+
+  #endif
 
 }
 

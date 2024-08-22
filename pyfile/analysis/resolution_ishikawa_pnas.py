@@ -116,6 +116,8 @@ fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
 fig5 = plt.figure()
 ax5 = fig5.add_subplot(1,1,1)
+fig6 = plt.figure()
+ax6 = fig6.add_subplot(1,1,1)
 
 # k_list = [-1, 0, 0.5, 1.0, 1.5, 2.0]
 # labels = [r"$k=-1$",r"$k=0$",r"$k=0.5$",r"$k=1$",r"$k=1.5$",r"$k=2$",]
@@ -131,9 +133,11 @@ sim.read(path+"rules.ini")
 nblob_list = np.array([float(s) for s in sim["Parameter list"]['nblob'].split(', ')])
 avg_speed_list = np.zeros(nblob_list.shape)
 speed_error_list = np.zeros(nblob_list.shape)
+dissipation_error_list = np.zeros(nblob_list.shape)
 nsim = len(nblob_list)
 
 ref_speed_array = np.load(f"{path}body_speed_array_index{15}.npy")
+ref_dissipation_array = np.load(f"{path}dissipation_array_index{15}.npy")
 
 # plot sim data
 for ind in range(nsim):
@@ -145,8 +149,10 @@ for ind in range(nsim):
         efficiency_array = np.load(f"{path}efficiency_array_index{ind}.npy")
 
         avg_speed_list[ind] = np.mean(np.abs(speed_array))
-        speed_error_list[ind] = np.mean(np.square((speed_array - ref_speed_array)/ref_speed_array))**.5
-        # speed_error_list[ind] = np.mean(np.abs(speed_array - ref_speed_array)/np.abs(ref_speed_array))
+        # speed_error_list[ind] = np.mean(np.square((speed_array - ref_speed_array)/ref_speed_array))**.5
+        speed_error_list[ind] = np.mean(np.abs(speed_array - ref_speed_array)/np.abs(ref_speed_array))
+        
+        dissipation_error_list[ind] = np.mean(np.abs(dissipation_array - ref_dissipation_array)/np.abs(ref_dissipation_array))
 
         # fillength_array = np.zeros(np.shape(time_array))
         # for fili in range(len(fillength_array)):
@@ -231,7 +237,13 @@ ax5.plot(nblob_list, speed_error_list, marker = '+', color='black')
 ax5.set_xscale('log')
 ax5.set_yscale('log')
 ax5.set_xlabel(r'$Number\ of\ rigid\ blobs$')
-ax5.set_ylabel(r'$RMSPE\ in\ swimming\ speed$')
+ax5.set_ylabel(r'$\% error\ in\ swimming\ speed$')
+
+ax6.plot(nblob_list, dissipation_error_list, marker = '+', color='black')
+ax6.set_xscale('log')
+ax6.set_yscale('log')
+ax6.set_xlabel(r'$Number\ of\ rigid\ blobs$')
+ax6.set_ylabel(r'$\% error\ in\ dissipation$')
 
 
 fig.tight_layout()
@@ -239,6 +251,8 @@ fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
 fig5.tight_layout()
+fig6.tight_layout()
 
 fig5.savefig(f'fig/resolution_ishikawa.pdf', bbox_inches = 'tight', format='pdf')
+fig6.savefig(f'fig/resolution_ishikawa_dissipation.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

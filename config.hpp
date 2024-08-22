@@ -42,7 +42,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #endif
 
 
-#define FIL_USE_DOUBLE_PRECISION false
+#define FIL_USE_DOUBLE_PRECISION true
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -81,7 +81,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Simulation type
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define CILIA_TYPE 3
+#define CILIA_TYPE 0
 // Valid options:
 // 0 = Instability-driven cilia. This choice has some sub-types (see below).
 // 1 = Geometrically-switching cilia (partially implemented)
@@ -104,7 +104,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 3
+  #define SHAPE_SEQUENCE 4
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -131,7 +131,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
 
-  #define WRITE_GENERALISED_FORCES true
+  #define WRITE_GENERALISED_FORCES false
   // If true, this simulation will save its generalised forces to file for use as the reference values.
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
@@ -158,7 +158,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 0
+#define BODY_OR_SURFACE_TYPE 2
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -186,7 +186,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 5
+  #define SEEDING_TYPE 7
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -203,7 +203,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
   #else
-    #define FOURIER_DIR "input/fourier_modes/"
+    #define FOURIER_DIR "input/fourier_modes_resolution_study/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "sphere"
   #endif
 
@@ -310,18 +310,20 @@ extern Real TILT_ANGLE;
 #define JACOBIAN_CONFIDENCE_FACTOR 0.1
 
 #define MAX_BROYDEN_ITER 400 // Maximum number of Broyden's method iterations per time-step.
-#define TOL 1e-4 // Tolerance to be reached by the Broyden's method solve.
+#define TOL 1e-7 // Tolerance to be reached by the Broyden's method solve.
 
-#define SOLVER_TYPE 1
+#define SOLVER_TYPE 0
 // Valid options:
 // 0: Use Broyden's method for absolutely everything. When there is a rigid body with forces (and velocities if they're not prescribed) to solve for,
 //    the associated linear system is embedded in the wider Broyden's solve, rather than being solved for the current iterate at each iteration.
 // 1: Use GMRES to solve the linear system at each iteration of Broyden's method.
 
+#define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
+#define LINEAR_SYSTEM_TOL 1e-6 // Relative tolerance in the linear system solves.
+
 #if SOLVER_TYPE==1
 
-  #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-  #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
+  
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,
@@ -413,7 +415,7 @@ extern Real TILT_ANGLE;
   
   // #define END_FORCE_MAGNITUDE (DIMENSIONLESS_FORCE*KB/(DL*DL*NSEG*NSEG))
   #define REPULSIVE_FORCE_FACTOR 2.0 // How much stronger is the barrier force than the driving force.
-  #define DT (36.3833/STEPS_PER_PERIOD) // Based on the period of a single DIMENSIONLESS_FORCE = 220.0 filament above a no-slip wall.
+  // #define DT (36.3833/STEPS_PER_PERIOD) // Based on the period of a single DIMENSIONLESS_FORCE = 220.0 filament above a no-slip wall.
 
 #elif CONSTANT_BASE_ROTATION
 

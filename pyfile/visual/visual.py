@@ -42,17 +42,20 @@ class VISUAL:
         # self.date = '20240730_newbeat'
         # self.dir = f"data/tilt_test/{self.date}/"
 
+
+
         
 
         # self.date = '20240311_8'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        self.date = '20240311_2'
-        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        # self.date = '20240311_2'
+        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        self.date = 'combined_analysis'
-        self.dir = f"data/giant_swimmer/{self.date}/"
+        # self.date = 'combined_analysis'
+        # self.date = 'combined_analysis_force_rerun'
+        # self.dir = f"data/giant_swimmer/{self.date}/"
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
@@ -65,6 +68,9 @@ class VISUAL:
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
+
+        self.date = '20240822_sangani_boxsize2'
+        self.dir = f"data/resolution/{self.date}/"
 
 
 
@@ -122,8 +128,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 150000
-        self.frames_setting = 60
+        self.plot_end_frame_setting = 60000
+        self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -735,6 +741,7 @@ class VISUAL:
         # colormap = 'cividis'
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
+        colormap = 'Greys'
 
         # colormap = 'binary'
 
@@ -938,20 +945,24 @@ class VISUAL:
                 # if(i==self.plot_end_frame-1):
                 if(i==self.plot_start_frame):
                     ax.scatter(xx, yy, c=colors_new)
+                    ax.invert_yaxis()
 
                 avg_posterior_phase = np.mean(phases_inter[:128])
                 avg_anterior_phase = np.mean(phases_inter[-128:])
-                print(i, avg_posterior_phase, avg_anterior_phase)
+                # print(i, avg_posterior_phase, avg_anterior_phase)
                 avg_posterior_phase_array[i-self.plot_start_frame] = avg_posterior_phase
                 avg_anterior_phase_array[i-self.plot_start_frame] = avg_anterior_phase
 
-        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) +1 
+        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) + 2
+
+        print(np.mean(wavenumber_array))
+
         ax2.plot(time_array, wavenumber_array, c='black')
         # ax2.plot(time_array, avg_anterior_phase_array, c='r')
         # ax2.plot(time_array, avg_posterior_phase_array, c='b')
 
-        np.save(f'{self.dir}/time_array_fil{self.nfil}.npy', time_array)
-        np.save(f'{self.dir}/wavenumber_array_fil{self.nfil}.npy', wavenumber_array)
+        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        np.save(f'{self.dir}/wavenumber_array_index{self.index}.npy', wavenumber_array)
 
         ax.set_xlim(-np.pi, np.pi)
         ax.set_ylim(0, np.pi)
@@ -1951,12 +1962,17 @@ class VISUAL:
                     ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
                 body_axis_x = np.matmul(R, np.array([2*self.radius,0,0]))
                 body_axis_y = np.matmul(R, np.array([0,2*self.radius,0]))
-                body_axis_z = np.matmul(R, np.array([0,0,2*self.radius]))
+                body_axis_z = np.matmul(R, np.array([0,0,1.2*self.radius]))
+                
+
+                # ax.scatter(anterior[0]+body_pos[0], anterior[1]+body_pos[1], anterior[2]+body_pos[2], s=20, c='black')
 
                 # Plot body axis
                 # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
                 # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
-                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2])
+                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
+                
+                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1971,7 +1987,7 @@ class VISUAL:
                     s = np.linspace(0, 1, 20)
                     Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
 
-                    Rtheta = rotation_matrix = np.array([
+                    Rtheta = np.array([
                         [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
                         [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
                         [0, 0, 1]
@@ -2070,6 +2086,7 @@ class VISUAL:
 
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
                 body_vels = np.array(body_vels_str.split(), dtype=float)
+                # body_vels = np.array(body_vels_str.split([1:]), dtype=float)
 
                 # body_pos_array[i-self.plot_start_frame] = body_states[0:3]
                 body_vel_array[i-self.plot_start_frame] = body_vels
@@ -2153,7 +2170,7 @@ class VISUAL:
 
         body_speed_array = np.linalg.norm(body_vel_array, axis=1)
         body_speed_along_axis_array = np.sum(body_vel_array * body_axis_array[:-1], axis=1)
-
+        
         body_rot_vel_array = util.compute_angular_velocity(body_q_array, self.dt)
         body_rot_speed_along_axis_array = np.sum(body_rot_vel_array * body_axis_array[:-1], axis=1)
         body_rot_speed_array = np.linalg.norm(body_rot_vel_array, axis=1)
@@ -2277,7 +2294,6 @@ class VISUAL:
                 body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
                 body_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[0:3]*body_axis)
 
-                
                 body_rot_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[3:6]*body_vels[3:6], 0))
                 body_rot_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[3:6]*body_axis)
 
@@ -3460,7 +3476,7 @@ class VISUAL:
                                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
 
                     # ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
-                    ax.set_title(f"ind={self.plot_end_frame}")
+                    ax.set_title(f"ind={self.index}")
                 except:
                     print("WARNING: " + self.simName + " not found.")
         for ax in axs_flat:
@@ -4442,9 +4458,9 @@ class VISUAL:
                 output_filenames = [self.dir + f"psi{afix}.dat",
                                     self.dir + f"bodystate{afix}.dat",
                                     ]
-                output_filenames = [f"data/tilt_test/output/{self.date}/" + f"psi{afix}.dat",
-                                    f"data/tilt_test/output/{self.date}/" + f"bodystate{afix}.dat",
-                                    ]
+                # output_filenames = [f"data/tilt_test/output/{self.date}/" + f"psi{afix}.dat",
+                                    # f"data/tilt_test/output/{self.date}/" + f"bodystate{afix}.dat",
+                                    # ]
         
                 for i, name in enumerate(input_filenames):
                     input_filename = name
