@@ -115,7 +115,7 @@ colors = ["black","red","green","blue","purple"]
 N_list = [160, 640, 2560]
 
 
-path = 'data/ishikawa/20240802_pnas_original_beat/'
+path = 'data/ishikawa/20240802_pnas_L0.975/'
 # plot sim data
 for ind in range(3):
     try:
@@ -129,9 +129,12 @@ for ind in range(3):
         for fili in range(len(fillength_array)):
             fillength_array[fili] = real_fillength(time_array[fili]*2*np.pi)
 
-        ax.plot(time_array, speed_array, label = rf'$M={N_list[ind]}$', alpha=1., c=colors[ind])
-        ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', c=colors[ind])
+        ax.plot(time_array, speed_array, label = rf'$M={N_list[ind]}$', ls = '-', alpha=1., c=colors[ind])
+        ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', ls = '-', c=colors[ind])
+
+        # ax.plot(time_array, speed_array/fillength_array, label = rf'$M={N_list[ind]}$', alpha=1., c=colors[ind])
         # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
+
         ax3.plot(time_array, efficiency_array, label = N_list[ind], c=colors[ind])
         ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
     except:
@@ -141,7 +144,7 @@ for ind in range(3):
 
 
 # plot sim data
-path = "data/ishikawa/20240731_pnas/"
+path = "data/ishikawa/20240731_pnas_L1/"
 # path = "data/ishikawa/20240805_volvox_beat/"
 for ind in range(3):
     try:
@@ -155,9 +158,12 @@ for ind in range(3):
         for fili in range(len(fillength_array)):
             fillength_array[fili] = real_fillength2(time_array[fili]*2*np.pi)
 
-        ax.plot(time_array, speed_array, ls = 'dashed', alpha=1., c=colors[ind])
-        ax2.plot(time_array, dissipation_array, ls = 'dashed', c=colors[ind])
-        # ax2.plot(time_array, dissipation_array/fillength_array**3, ls = 'dashed', c=colors[ind])
+        ax.plot(time_array, speed_array, ls = 'dashdot', alpha=1., c=colors[ind])
+        ax2.plot(time_array, dissipation_array, ls = 'dashdot', c=colors[ind])
+
+        ax.plot(time_array, speed_array/fillength_array, ls = 'dashed', alpha=1., c=colors[ind])
+        ax2.plot(time_array, dissipation_array/fillength_array**3, ls = 'dashed', c=colors[ind])
+
         ax3.plot(time_array, efficiency_array, ls = 'dashed', c=colors[ind])
         ax4.plot(time_array, fillength_array, ls = 'dashed', c='black')
     except:
@@ -189,22 +195,25 @@ for i, filename in enumerate(files):
     ax2.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
 
 legend11 = ax.legend(loc='center', frameon=False)
-line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
-line2, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
-line3, = ax.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
-legend21 = ax.legend(handles = [line1, line2, line3], loc='upper right')
+line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$L=0.975$' )
+line2, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashdot', c='black', label=r'$L=1$' )
+line3, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$Variable\ L$' )
+line4, = ax.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
+legend21 = ax.legend(handles = [line1, line2, line3, line4], loc='upper right')
 ax.add_artist(legend11)
 ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
 ax.set_ylabel(r'$V_z/L$')
 
 legend21 = ax2.legend(loc='center', frameon=False)
-line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
-line2, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
-line3, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
-legend22 = ax2.legend(handles = [line1, line2, line3], loc='upper right')
+line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$L=0.975$' )
+line2, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashdot', c='black', label=r'$L=1$' )
+line3, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$Variable\ L$' )
+line4, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
+legend22 = ax2.legend(handles = [line1, line2, line3, line4], loc='upper right')
 ax2.add_artist(legend21)
 ax2.set_xlim(0, 1)
+ax2.set_ylim(0)
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'$PT^2/\mu L^3$')
 

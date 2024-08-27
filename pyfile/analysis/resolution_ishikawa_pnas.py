@@ -128,6 +128,7 @@ N_list = [160, 640, 2560]
 
 
 path = 'data/ishikawa/20240807_ishikawa_resolution5/'
+path = 'data/ishikawa/20240822_ishikawa_resolution6/'
 sim = configparser.ConfigParser()
 sim.read(path+"rules.ini")
 nblob_list = np.array([float(s) for s in sim["Parameter list"]['nblob'].split(', ')])
@@ -136,8 +137,10 @@ speed_error_list = np.zeros(nblob_list.shape)
 dissipation_error_list = np.zeros(nblob_list.shape)
 nsim = len(nblob_list)
 
-ref_speed_array = np.load(f"{path}body_speed_array_index{15}.npy")
-ref_dissipation_array = np.load(f"{path}dissipation_array_index{15}.npy")
+ref_index = nsim - 4
+
+ref_speed_array = np.load(f"{path}body_speed_array_index{ref_index}.npy")
+ref_dissipation_array = np.load(f"{path}dissipation_array_index{ref_index}.npy")
 
 # plot sim data
 for ind in range(nsim):
