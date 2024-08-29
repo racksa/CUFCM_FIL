@@ -42,7 +42,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #endif
 
 
-#define FIL_USE_DOUBLE_PRECISION true
+#define FIL_USE_DOUBLE_PRECISION false
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -81,7 +81,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Simulation type
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define CILIA_TYPE 0
+#define CILIA_TYPE 3
 // Valid options:
 // 0 = Instability-driven cilia. This choice has some sub-types (see below).
 // 1 = Geometrically-switching cilia (partially implemented)
@@ -104,7 +104,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 4
+  #define SHAPE_SEQUENCE 3
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -186,7 +186,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 5
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -219,7 +219,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -312,14 +312,14 @@ extern Real TILT_ANGLE;
 #define MAX_BROYDEN_ITER 400 // Maximum number of Broyden's method iterations per time-step.
 #define TOL 1e-7 // Tolerance to be reached by the Broyden's method solve.
 
-#define SOLVER_TYPE 0
+#define SOLVER_TYPE 1
 // Valid options:
 // 0: Use Broyden's method for absolutely everything. When there is a rigid body with forces (and velocities if they're not prescribed) to solve for,
 //    the associated linear system is embedded in the wider Broyden's solve, rather than being solved for the current iterate at each iteration.
 // 1: Use GMRES to solve the linear system at each iteration of Broyden's method.
 
 #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-#define LINEAR_SYSTEM_TOL 1e-6 // Relative tolerance in the linear system solves.
+#define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
 
 #if SOLVER_TYPE==1
 
@@ -438,6 +438,7 @@ extern Real TILT_ANGLE;
     #define PRESCRIBED_BODY_VELOCITIES true
     #define DYNAMIC_PHASE_EVOLUTION false
     #define DYNAMIC_SHAPE_ROTATION false
+
 
   #endif
 

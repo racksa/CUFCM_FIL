@@ -39,17 +39,9 @@ fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
 fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
+fig5 = plt.figure()
+ax5 = fig5.add_subplot(1,1,1)
 
-# for fi in range(n_folder_heldfixed):
-#     plot_x = k_data_heldfixed[fi] 
-#     plot_y = r_data_heldfixed[fi]
-#     indices_symplectic = np.where(plot_y > .4)[0]
-#     indices_diaplectic = np.where((plot_y  < .4) & (plot_y > 0.04))[0]
-#     indices_diaplectic_k2 = np.where(plot_y  < 0.04)[0]
-
-#     ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='x', c='r')
-#     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='r')
-#     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=100, marker='P', c='r')
 
 n_tilt = 5
 tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
@@ -63,7 +55,8 @@ for fi in range(n_folder):
 
     for ti in range(n_tilt):
 
-        plot_x = k_data[fi][ti::n_tilt]
+        k = k_data[fi][ti::n_tilt]
+        r = r_data[fi][ti::n_tilt]
         avg_speed = avg_speed_along_axis_data[fi][ti::n_tilt]
         avg_rot_speed = avg_rot_speed_along_axis_data[fi][ti::n_tilt]
 
@@ -86,28 +79,32 @@ for fi in range(n_folder):
     # color2 = cmap((variable-vmin2)/(vmax2-vmin2))
 
 
-        ax.plot(plot_x, avg_speed, marker='+', c=colors[fi])
+        ax.plot(k, avg_speed, marker='+', c=colors[fi])
 
-        ax2.plot(plot_x, avg_rot_speed, marker='+', c=colors[fi])
+        ax2.plot(k, avg_rot_speed, marker='+', c=colors[fi])
+
+        ax5.scatter(k, r, marker='+', c=colors[fi])
 
     ax3.plot(tilt_angle, avg_speed_over_angle, marker='+', c=colors[fi], label=labels[fi])
 
     ax4.plot(tilt_angle, avg_rot_speed_over_angle, marker='+', c=colors[fi], label=labels[fi])
+
+        
     
-    # ax2.scatter(plot_x, plot_y, s=100, marker='+', c=color2)
+    # ax2.scatter(k, plot_y, s=100, marker='+', c=color2)
 
 
     # ax3.scatter(tilt_data[fi][:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
     # ax3.scatter(tilt_data[fi][:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
-    # ax3.scatter(plot_x[:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
-    # ax3.scatter(plot_x[:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
+    # ax3.scatter(k[:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
+    # ax3.scatter(k[:][indices_zonal], variable[:][indices_zonal], color = 'b', label=r'$<r>$<0.4')
 
 
     # indices_symplectic = np.where(plot_y > .4)[0]
     # indices_diaplectic = np.where(plot_y  < .4)[0]
 
-    # ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='x', c='b')
-    # ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='b')
+    # ax.scatter(k[indices_symplectic], plot_y[indices_symplectic], s=100, marker='x', c='b')
+    # ax.scatter(k[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='b')
 
 # colorbar
 from matplotlib.colors import Normalize
@@ -147,12 +144,22 @@ ax4.legend()
 ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax4.set_xlim(tilt_angle[0], tilt_angle[-1])
 
+ax5.scatter(-.1, -.1, marker='+', c='red', label='Symplectic')
+ax5.scatter(-.1, -.1, marker='+', c='blue', label='Diaplectic')
+ax5.set_xlabel(r'$k$')
+ax5.set_ylabel(r'$<r>$')
+ax5.legend()
+ax5.set_ylim(0)
+ax5.set_xlim(0)
+
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
+fig5.tight_layout()
 # fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
 # fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
 fig3.savefig(f'fig/tilt_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
 fig4.savefig(f'fig/tilt_rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
+fig5.savefig(f'fig/tilt_order_parameter.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

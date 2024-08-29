@@ -39,7 +39,7 @@ class VISUAL:
         self.date = '20240724_symplectic'
         self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
-        # self.date = '20240730_newbeat'
+        # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
 
 
@@ -60,12 +60,12 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        self.date = '20240827_ishikawa_jfm2'
-        # self.date = '20240731_pnas_L1'
-        # self.date = '20240813_pnas_volvox_beat'
-        # self.date = '20240802_pnas_original_beat'
-        # self.date = '20240822_ishikawa_resolution6'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.date = '20240827_ishikawa_jfm2'
+        # # self.date = '20240731_pnas_L1'
+        # self.date = '20240829_pnas_volvox_beat'
+        # # self.date = '20240802_pnas_original_beat'
+        # # self.date = '20240822_ishikawa_resolution6'
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -1921,7 +1921,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        ax.view_init(elev=00., azim=90)
+        ax.view_init(elev=00., azim=-30)
         ax.dist=5.8
         ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
         ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -5509,7 +5509,8 @@ class VISUAL:
         path = "data/ic_hpc_sim_free/"
 
         force = False
-        path = 'data/tilt_test//makeup_pattern/'
+        path = 'data/tilt_test/makeup_pattern/'
+        path = 'data/tilt_test/IVP/'
 
         # import re
         # def sort_key(s):

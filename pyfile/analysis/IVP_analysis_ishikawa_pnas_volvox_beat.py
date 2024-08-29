@@ -113,11 +113,13 @@ ax4 = fig4.add_subplot(1,1,1)
 # labels = [r"$k=-1$",r"$k=0$",r"$k=0.5$",r"$k=1$",r"$k=1.5$",r"$k=2$",]
 colors = ["black","red","green","blue","purple"]
 N_list = [160, 640, 2560]
+avg_speed_original_list = np.zeros(len(N_list))
+avg_speed_volvox_list = np.zeros(len(N_list))
 
 
-path = 'data/ishikawa/20240805_pnas_volvox_beat/'
+path = 'data/ishikawa/20240829_pnas_volvox_beat/'
 # plot sim data
-for ind in range(2,3):
+for ind in range(3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -130,11 +132,11 @@ for ind in range(2,3):
             fillength_array[fili] = real_fillength(time_array[fili]*2*np.pi)
 
         ax.plot(time_array, speed_array, label = rf'$M={N_list[ind]}$', alpha=1., c=colors[ind])
-        ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array))
+        ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
+        avg_speed_volvox_list[ind] = np.mean(speed_array)
         ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', c=colors[ind])
         # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
-        ax3.plot(time_array, efficiency_array, label = N_list[ind], c=colors[ind])
-        ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
+        # ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
     except:
         pass
 
@@ -144,7 +146,7 @@ for ind in range(2,3):
 # plot sim data
 path = "data/ishikawa/20240802_pnas_L0.975/"
 # path = "data/ishikawa/20240805_volvox_beat/"
-for ind in range(2, 3):
+for ind in range(3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -156,12 +158,12 @@ for ind in range(2, 3):
         for fili in range(len(fillength_array)):
             fillength_array[fili] = real_fillength2(time_array[fili]*2*np.pi)
 
-        ax.plot(time_array, speed_array, ls = 'dashed', alpha=1., c=colors[ind])
-        ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array))
+        ax.plot(time_array, speed_array, label = rf'$M={N_list[ind]}$', ls = 'dashed', alpha=1., c=colors[ind])
+        ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), ls = 'dashed', alpha=1., c=colors[ind])
+        avg_speed_original_list[ind] = np.mean(speed_array)
         ax2.plot(time_array, dissipation_array, ls = 'dashed', c=colors[ind])
         # ax2.plot(time_array, dissipation_array/fillength_array**3, ls = 'dashed', c=colors[ind])
-        ax3.plot(time_array, efficiency_array, ls = 'dashed', c=colors[ind])
-        ax4.plot(time_array, fillength_array, ls = 'dashed', c='black')
+        # ax4.plot(time_array, fillength_array, ls = 'dashed', c='black')
     except:
         pass
 
@@ -190,25 +192,28 @@ for ind in range(2, 3):
 
 #     ax2.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
 
-legend11 = ax.legend(loc='center', frameon=False)
+# legend11 = ax.legend(loc='center', frameon=False)
 line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
 line2, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
 line3, = ax.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
 legend21 = ax.legend(handles = [line1, line2, line3], loc='upper right')
-ax.add_artist(legend11)
+# ax.add_artist(legend11)
 ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
 ax.set_ylabel(r'$V_z/L$')
 
-legend21 = ax2.legend(loc='center', frameon=False)
+# legend21 = ax2.legend(loc='center', frameon=False)
 line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
 line2, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
 line3, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
 legend22 = ax2.legend(handles = [line1, line2, line3], loc='upper right')
-ax2.add_artist(legend21)
+# ax2.add_artist(legend21)
 ax2.set_xlim(0, 1)
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'$PT^2/\mu L^3$')
+
+ax3.plot(N_list, avg_speed_original_list)
+ax3.plot(N_list, avg_speed_volvox_list)
 
 line1, = ax4.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
 line2, = ax4.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )

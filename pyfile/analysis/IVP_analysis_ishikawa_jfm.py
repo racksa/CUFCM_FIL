@@ -16,7 +16,7 @@ plt.rcParams.update({'font.size': 16})
 cmap_name = 'coolwarm'
 
 path = "data/ishikawa/20240731_jfm/"
-
+path = "data/ishikawa/20240827_ishikawa_jfm2/"
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
