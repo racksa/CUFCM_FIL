@@ -60,12 +60,13 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        # self.date = '20240827_ishikawa_jfm2'
-        # # self.date = '20240731_pnas_L1'
-        # self.date = '20240829_pnas_volvox_beat'
-        # # self.date = '20240802_pnas_original_beat'
-        # # self.date = '20240822_ishikawa_resolution6'
-        # self.dir = f"data/ishikawa/{self.date}/"
+        self.date = '20240827_ishikawa_jfm2'
+        # self.date = '20240731_pnas_L1'
+        self.date = '20240829_pnas_volvox_beat'
+        # self.date = '20240802_pnas_original_beat'
+        # self.date = '20240822_ishikawa_resolution6'
+        self.date = '20240902_real_volvox'
+        self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"

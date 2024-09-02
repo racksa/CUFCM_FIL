@@ -45,6 +45,7 @@ ax5 = fig5.add_subplot(1,1,1)
 
 n_tilt = 5
 tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
+tilt_angle = tilt_angle*180/np.pi
 
 for fi in range(n_folder):
 
@@ -135,13 +136,13 @@ ax2.set_ylabel(r'$Tilt\ angle$')
 ax3.set_xlabel(r'$Tilt\ angle$')
 ax3.set_ylabel(r'$<V/L>$')
 ax3.legend()
-ax3.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
+# ax3.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax3.set_xlim(tilt_angle[0], tilt_angle[-1])
 
 ax4.set_xlabel(r'$Tilt\ angle$')
 ax4.set_ylabel(r'$<\Omega>$')
 ax4.legend()
-ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
+# ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax4.set_xlim(tilt_angle[0], tilt_angle[-1])
 
 ax5.scatter(-.1, -.1, marker='+', c='red', label='Symplectic')
