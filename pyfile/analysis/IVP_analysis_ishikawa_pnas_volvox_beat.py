@@ -172,6 +172,8 @@ avg_speed_volvox_list = np.zeros(len(N_list))
 
 
 path = 'data/ishikawa/20240829_pnas_volvox_beat/'
+# path = 'data/ishikawa/20240902_real_volvox/'
+path = 'data/ishikawa/20240903_real_volvox_slender50/'
 # plot sim data
 for ind in range(2,3):
     try:
@@ -275,7 +277,7 @@ legend11 = ax.legend(frameon=False)
 ax.add_artist(legend11)
 ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
-ax.set_ylabel(r'$V_z/L$')
+ax.set_ylabel(r'$V_zT/L$')
 
 legend11 = ax1.legend(frameon=False)
 # line1, = ax1.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
@@ -285,7 +287,7 @@ legend11 = ax1.legend(frameon=False)
 ax1.add_artist(legend11)
 ax1.set_xlim(0, 1)
 ax1.set_xlabel(r'$t/T$')
-ax1.set_ylabel(r'$V_z/L$')
+ax1.set_ylabel(r'$V_zT/L$')
 
 
 # legend21 = ax2.legend(loc='center', frameon=False)
@@ -302,7 +304,7 @@ ax3.plot(N_list, avg_speed_original_list,  c='black', label='Lung cilia' )
 ax3.plot(N_list, avg_speed_volvox_list, ls='dashed', c='black', label='Volvox cilia')
 ax3.legend()
 ax3.set_xlabel(r'$M$')
-ax3.set_ylabel(r'$V/L$')
+ax3.set_ylabel(r'$VT/L$')
 
 
 line1, = ax4.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )

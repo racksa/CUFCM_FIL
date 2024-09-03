@@ -38,7 +38,7 @@ class DRIVER:
         self.exe_name = 'cilia_1e-4_ishikawa_volvox'
         # self.date = '20240829_pnas_volvox_beat'
         # self.date = '20240813_pnas_volvox_beat'
-        self.date = '20240902_real_volvox'
+        self.date = '20240903_real_volvox_slender50'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'giant_swimmer/'
@@ -167,7 +167,7 @@ class DRIVER:
                         nfil = [160, 640, 2560][i]
                         nblob = 40962
                         ar = 20
-                        nseg = 40
+                        nseg = 20
                         nx=400
                         ny=400
                         nz=400
@@ -325,8 +325,8 @@ class DRIVER:
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
-            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
-            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
+            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
+            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
             self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")

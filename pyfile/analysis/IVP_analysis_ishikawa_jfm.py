@@ -64,7 +64,7 @@ legend2 = ax.legend(handles = [line1, line2], loc='upper right')
 ax.add_artist(legend1)
 ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
-ax.set_ylabel(r'$V_z/L$')
+ax.set_ylabel(r'$V_zT/L$')
 
 
 fig.tight_layout()

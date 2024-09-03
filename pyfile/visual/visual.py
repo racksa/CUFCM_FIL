@@ -66,6 +66,7 @@ class VISUAL:
         # self.date = '20240802_pnas_original_beat'
         # self.date = '20240822_ishikawa_resolution6'
         self.date = '20240902_real_volvox'
+        self.date = '20240903_real_volvox_slender50'
         self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240115_resolution'

@@ -99,7 +99,7 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 
 ax.set_xlabel(r'$Semi-circumference\ of\ swimmer$')
-ax.set_ylabel(r'$V_z$')
+ax.set_ylabel(r'$V_zT/L$')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
