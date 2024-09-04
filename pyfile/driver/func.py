@@ -160,7 +160,7 @@ class DRIVER:
 
                         nseg = 20
                         nfil = int(639)
-                        nblob = int(40962)
+                        nblob = int(40961)
                         ar = round(15.00, 2)
                         spring_factor = round(0.005 + 0.001*i, 3)
                         period = 1
