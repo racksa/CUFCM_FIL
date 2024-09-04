@@ -12,10 +12,10 @@
 // Included dependencies
 #include "mobility_solver.hpp"
 #include "../../cufcm/config.hpp"
-#include "../../cufcm/src/CUFCM_DATA.cuh"
-#include "../../cufcm/src/CUFCM_SOLVER.cuh"
-#include "../../cufcm/src/util/cuda_util.hpp"
-#include "../../cufcm/src/CUFCM_CELLLIST.cuh"
+#include "../../cufcm/CUFCM_DATA.cuh"
+#include "../../cufcm/CUFCM_SOLVER.cuh"
+#include "../../cufcm/util/cuda_util.hpp"
+#include "../../cufcm/CUFCM_CELLLIST.cuh"
 #include "../../general/util.hpp"
 
 class fcm_mobility_solver : public mobility_solver{
