@@ -69,6 +69,9 @@ class VISUAL:
         self.date = '20240903_real_volvox_slender50'
         self.dir = f"data/ishikawa/{self.date}/"
 
+        self.date = '20240904_volvox_test'
+        self.dir = f"data/volvox/{self.date}/"
+
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
 
@@ -146,7 +149,7 @@ class VISUAL:
         self.ncol = 12
         self.num_sim = 0
 
-        self.plot_interval = 3
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -744,7 +747,7 @@ class VISUAL:
         # colormap = 'cividis'
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
-        colormap = 'Greys'
+        # colormap = 'Greys'
 
         # colormap = 'binary'
 

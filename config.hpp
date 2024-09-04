@@ -92,7 +92,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
 #define PRESCRIBED_BODY_VELOCITIES false
 
-#define OUTPUT_FORCES true
+#define OUTPUT_FORCES false
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -122,11 +122,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION false
+  #define DYNAMIC_PHASE_EVOLUTION true
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION false
+  #define DYNAMIC_SHAPE_ROTATION true
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -136,7 +136,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 3
+  #define CILIA_IC_TYPE 5
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase.
@@ -186,7 +186,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 5
+  #define SEEDING_TYPE 7
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -203,7 +203,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
   #else
-    #define FOURIER_DIR "input/fourier_modes_resolution_study/"
+    #define FOURIER_DIR "input/fourier_modes/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "sphere"
   #endif
 
@@ -310,7 +310,7 @@ extern Real TILT_ANGLE;
 #define JACOBIAN_CONFIDENCE_FACTOR 0.1
 
 #define MAX_BROYDEN_ITER 400 // Maximum number of Broyden's method iterations per time-step.
-#define TOL 1e-7 // Tolerance to be reached by the Broyden's method solve.
+#define TOL 1e-4 // Tolerance to be reached by the Broyden's method solve.
 
 #define SOLVER_TYPE 1
 // Valid options:
@@ -322,8 +322,6 @@ extern Real TILT_ANGLE;
 #define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
 
 #if SOLVER_TYPE==1
-
-  
 
   // GMRES preconditioner type.
   // Uses left preconditioning if set to false; if you don't want a preconditioner,
@@ -347,7 +345,7 @@ extern Real TILT_ANGLE;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 

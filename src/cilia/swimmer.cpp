@@ -504,7 +504,6 @@ void swimmer::forces_and_torques(const int nt, int id){
         f(0) += Real(NBLOB);
       #endif
       
-      f(2) += GEN_FORCE_MAGNITUDE_FACTOR;
 
       // Finally, add any external forces on the blobs, and the induced torques on body, to f.
 

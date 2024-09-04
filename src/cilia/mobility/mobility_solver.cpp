@@ -332,8 +332,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             // Scale if the natural frequency of this cilium differs from the reference case
             q_phase *= 0.5*swimmers[n].filaments[i].omega0/PI;
 
-            q_phase *= GEN_FORCE_MAGNITUDE_FACTOR;
-
             // Store minus the generalised force in the RHS
             #if PRESCRIBED_BODY_VELOCITIES
 
@@ -426,8 +424,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           }
 
         #endif
-      
-        rhs(2) = GEN_FORCE_MAGNITUDE_FACTOR;
 
         // N.B. If there is a net external force or torque on the swimmer, then -F
         // should appear in the RHS instead of zeros in the rows corresponding to the force-
