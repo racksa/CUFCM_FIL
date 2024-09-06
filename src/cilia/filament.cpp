@@ -323,6 +323,20 @@ void filament::initial_setup(const Real *const base_pos,
               std::cout << "No true_states file found: " << SIMULATION_ICSTATE_NAME << std::endl;
             }
           }
+        #elif (CILIA_IC_TYPE==6)
+          // WARNING this is only correct if a spherical body is initialised at the origin!!
+          const Real phi = atan2(base_pos[1], base_pos[0]);
+          const Real theta = acos(base_pos[2]/(sqrt(base_pos[0]*base_pos[0]+
+                                                    base_pos[1]*base_pos[1]+
+                                                    base_pos[2]*base_pos[2])));
+                                                    
+          Real k = 0.0;
+          Real v = 0.0;
+          std::ifstream in("input/prescribed_mcw/mcw.dat"); // input
+          in >> k;
+          // phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
+          phase = Real(2.0)*k*theta;
+          in.close();
 
         #endif
 

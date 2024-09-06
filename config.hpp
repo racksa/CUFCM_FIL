@@ -92,7 +92,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
 #define PRESCRIBED_BODY_VELOCITIES false
 
-#define OUTPUT_FORCES false
+#define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -122,11 +122,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION true
+  #define DYNAMIC_PHASE_EVOLUTION false
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION true
+  #define DYNAMIC_SHAPE_ROTATION false
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -136,14 +136,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 5
+  #define CILIA_IC_TYPE 6
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
-  // 1 = Cilia start with a (uniformly) random initial phase.
-  // 2 = A metachronal wave (MCW). Its wavelength and direction are defined below.
-  // 3 = Ishikawa MCW (deprecated)
+  // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
+  // 2 = A metachronal wave (MCW). Its wavelength and direction are defined below. (deprecated)
+  // 3 = Ishikawa MCW (deprecated) (the wavenumber k is incorrect if |k|>1)
   // 5 = Read from a file (default - we can define arbitrary initial conditions in python)
-
+  // 6 = prescribed MCW
 
   #if CILIA_IC_TYPE==2
 
@@ -345,7 +345,7 @@ extern Real TILT_ANGLE;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 30
+  #define SAVES_PER_PERIOD 300
 
 #endif
 

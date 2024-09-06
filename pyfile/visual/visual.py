@@ -15,6 +15,7 @@ import matplotlib as mpl
 import os
 from scipy.optimize import curve_fit
 from numba import cuda, float64
+from beat import *
 
 mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
@@ -62,14 +63,15 @@ class VISUAL:
 
         self.date = '20240827_ishikawa_jfm2'
         # self.date = '20240731_pnas_L1'
-        self.date = '20240829_pnas_volvox_beat'
-        # self.date = '20240802_pnas_original_beat'
+        # self.date = '20240802_pnas_L0.975'
+        # self.date = '20240829_pnas_volvox_beat'
         # self.date = '20240822_ishikawa_resolution6'
-        self.date = '20240902_real_volvox'
-        self.date = '20240903_real_volvox_slender50'
+        # self.date = '20240902_real_volvox'
+        self.date = '20240903_real_volvox_seg20'
         self.dir = f"data/ishikawa/{self.date}/"
 
-        self.date = '20240904_volvox_test'
+        # self.date = '20240904_volvox_test'
+        self.date = '20240906_volvox_prescribed'
         self.dir = f"data/volvox/{self.date}/"
 
         # self.date = '20240115_resolution'
@@ -134,8 +136,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 60000
-        self.frames_setting = 600
+        self.plot_end_frame_setting = 2
+        self.frames_setting = 1
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -149,7 +151,7 @@ class VISUAL:
         self.ncol = 12
         self.num_sim = 0
 
-        self.plot_interval = 1
+        self.plot_interval = 10
         
         self.index = 0
 
@@ -384,41 +386,7 @@ class VISUAL:
         cmap_name = 'hsv'
         # cmap_name = 'twilight_shifted'
 
-        # Fourier coeffs for the shape
-        Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
-                    [4.0318e-01, -1.5553e+00, 7.3455e-01], \
-                    [-9.9513e-02, 3.2829e-02, -1.2106e-01], \
-                    [8.1046e-02, -3.0982e-01, 1.4568e-01]])
-
-        Ax = np.array([[9.7204e-01, -2.8315e-01, 4.9243e-02], \
-                    [-1.8466e-02, -1.2926e-01, 2.6981e-01], \
-                    [1.6209e-01, -3.4983e-01, 1.9082e-01], \
-                    [1.0259e-02, 3.5907e-02, -6.8736e-02]])
-
-        By = np.array([[0, 0, 0], \
-                    [2.9136e-01, 1.0721e+00, -1.0433e+00], \
-                    [6.1554e-03, 3.2521e-01, -2.8315e-01], \
-                    [-6.0528e-02, 2.3185e-01, -2.0108e-01]])
-
-        Bx = np.array([[0, 0, 0], \
-                    [1.9697e-01, -5.1193e-01, 3.4778e-01], \
-                    [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
-                    [1.2311e-02, 1.4157e-01, -1.1695e-01]])
         
-        def fitted_shape(s, phase):
-            pos = np.zeros(3)
-            svec = np.array([s, s**2, s**3])
-            fourier_dim = np.shape(Ax)[0]
-            cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
-            sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
-            cosvec[0] *= 0.5
-
-            x = (cosvec@Ax + sinvec@Bx)@svec
-            y = (cosvec@Ay + sinvec@By)@svec
-            z = np.zeros(np.shape(x))
-
-            return x, y, z
-
         superpuntoDatafileName = f"{self.simName}_superpunto_{self.date}.dat"
         myIo.clean_file(superpuntoDatafileName)
 
@@ -499,7 +467,7 @@ class VISUAL:
                         ])
                         for seg in range(0, int(self.pars['NSEG'])):
                             
-                            ref = self.fillength*R@Rfil@Rtheta@np.array(fitted_shape(s[seg], fil_phases[fil]))
+                            ref = self.fillength*R@Rfil@Rtheta@np.array(volvox_cilia_shape(s[seg], fil_phases[fil]))
                             seg_pos = fil_base + ref
                             self.write_data(seg_pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
 
@@ -1845,28 +1813,6 @@ class VISUAL:
 
     def ciliate_eco(self):        
         self.select_sim()
-
-        # Fourier coeffs for the shape
-        Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \
-                    [4.0318e-01, -1.5553e+00, 7.3455e-01], \
-                    [-9.9513e-02, 3.2829e-02, -1.2106e-01], \
-                    [8.1046e-02, -3.0982e-01, 1.4568e-01]])
-
-        Ax = np.array([[9.7204e-01, -2.8315e-01, 4.9243e-02], \
-                    [-1.8466e-02, -1.2926e-01, 2.6981e-01], \
-                    [1.6209e-01, -3.4983e-01, 1.9082e-01], \
-                    [1.0259e-02, 3.5907e-02, -6.8736e-02]])
-
-        By = np.array([[0, 0, 0], \
-                    [2.9136e-01, 1.0721e+00, -1.0433e+00], \
-                    [6.1554e-03, 3.2521e-01, -2.8315e-01], \
-                    [-6.0528e-02, 2.3185e-01, -2.0108e-01]])
-
-        Bx = np.array([[0, 0, 0], \
-                    [1.9697e-01, -5.1193e-01, 3.4778e-01], \
-                    [-5.1295e-02, 4.3396e-01, -3.3547e-01], \
-                    [1.2311e-02, 1.4157e-01, -1.1695e-01]])
-        
             
         s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
 
@@ -1882,32 +1828,6 @@ class VISUAL:
         radius = 1
         L = (num_seg-1)*2.6
         
-        def fitted_shape_s(phase):
-            cycle = 0.5*phase/np.pi*num_ref_phase
-            sfloor = int(np.floor(cycle))
-            sceil = sfloor + 1 if sfloor < 299 else 0
-
-            floor_w = (cycle - sfloor)
-            ceil_w = (sceil - cycle) 
-
-            s = s_ref[2:][num_seg*sfloor:num_seg*sfloor+num_seg]*floor_w + s_ref[2:][num_seg*sceil:num_seg*sceil+num_seg]*ceil_w
-
-            return s
-
-        def fitted_shape(s, phase):
-            pos = np.zeros(3)
-            svec = np.array([s, s**2, s**3])
-            fourier_dim = np.shape(Ax)[0]
-            cosvec = np.array([ np.cos(n*phase) for n in range(fourier_dim)])
-            sinvec = np.array([ np.sin(n*phase) for n in range(fourier_dim)])
-            cosvec[0] *= 0.5
-
-            x = (cosvec@Ax + sinvec@Bx)@svec
-            y = (cosvec@Ay + sinvec@By)@svec
-            z = np.zeros(np.shape(x))
-
-            return x, y, z
-
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
@@ -1999,7 +1919,7 @@ class VISUAL:
                         [0, 0, 1]
                     ])
                     for seg in range(0, int(self.pars['NSEG'])):
-                        ref = self.fillength*R@Rfil@Rtheta@np.array(fitted_shape(s[seg], fil_phases[fil]))
+                        ref = self.fillength*R@Rfil@Rtheta@np.array(volvox_cilia_shape(s[seg], fil_phases[fil]))
                         seg_pos = fil_base + ref
                         fil_data[seg] = seg_pos
 
@@ -2914,6 +2834,8 @@ class VISUAL:
                 for si, source_pos in enumerate(source_pos_list):
                     source_force = source_force_list[si]
                     v_list[pi] += stokeslet(pos, source_pos, source_force)
+        
+        cuda.select_device(1)
 
         @cuda.jit(device=True)
         def stokeslet_device(x, x0, f0, result):
@@ -2961,6 +2883,7 @@ class VISUAL:
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
+        
 
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -2975,14 +2898,16 @@ class VISUAL:
         # y_list = np.arange(y_lower, y_upper, 5)
         # z_list = np.arange(z_lower, z_upper, 5)
 
-        # sphere 
-        r_ratio = 5.
+        # sphere
+
+        r_ratio = 1.5
         x_lower, x_upper = -r_ratio*self.radius, r_ratio*self.radius, 
+        x_lower, x_upper = 0, 1, 
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
 
         flow_spacing = 20
-        speed_limit = 40
+        speed_limit = 20
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
         # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -2994,8 +2919,6 @@ class VISUAL:
         # z_mesh = z_mesh.swapaxes(0, 1)
 
         x_mesh, y_mesh, z_mesh = np.mgrid[x_lower:x_upper:flow_spacing, y_lower:y_upper:flow_spacing, z_lower:z_upper:flow_spacing ]
-
-        print(x_mesh.shape)
 
 
         x_flat = x_mesh.flatten()
@@ -3013,7 +2936,7 @@ class VISUAL:
 
         def animation_func(t):
             global frame
-            print(frame)
+            
             ax.cla()
             ax.set_xlim(y_lower, y_upper)
             ax.set_ylim(z_lower, z_upper)
@@ -3024,6 +2947,15 @@ class VISUAL:
             body_states_str = body_states_f.readline()
             fil_states_str = fil_states_f.readline()
 
+            while(not frame % self.plot_interval == 0):
+                seg_forces_str = seg_forces_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+                fil_states_str = fil_states_f.readline()
+                frame += 1
+            print(f'frame={frame}')
+
             seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
             seg_states = np.array(seg_states_str.split()[1:], dtype=float)
@@ -3033,6 +2965,7 @@ class VISUAL:
             fil_phases = fil_states[:self.nfil]
 
             fil_plot_data = np.zeros((self.nfil, self.nseg, 3))
+            
 
             if read_flow_field:
                 v_list = np.load(f'{self.dir}/v_list_index{self.index}_{frame}.npy')
@@ -3072,9 +3005,11 @@ class VISUAL:
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
                     if(seg_data[0, 0]>0):
-                        # ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100)
                         ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100)
+                    if(seg_data[0, 0]<0):
+                        ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98)
 
+            
             # compute the flow field
             if not read_flow_field:
                 # using single core
@@ -3089,6 +3024,7 @@ class VISUAL:
                 # Define the grid and block dimensions
                 threads_per_block = 256
                 blocks_per_grid = (pos_list.shape[0] + threads_per_block - 1) // threads_per_block
+
                 # Launch the kernel
                 compute_v_list_kernel[blocks_per_grid, threads_per_block](d_pos_list, d_source_pos_list, d_source_force_list, d_v_list)
                 # Copy the result back to the host
@@ -3104,7 +3040,7 @@ class VISUAL:
                                     - v_list[:, 2] * np.sin(theta_flat)
 
             # Flow field
-            cmap_name2= 'seismic'
+            cmap_name2= 'Reds'
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
@@ -3149,17 +3085,17 @@ class VISUAL:
             # ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
             # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=3.)
             
-            # ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
             ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
 
-            np.save(f'{self.dir}/vx_mesh_index{self.index}_{frame}.npy', vx_mesh)
-            np.save(f'{self.dir}/vy_mesh_index{self.index}_{frame}.npy', vy_mesh)
-            np.save(f'{self.dir}/vz_mesh_index{self.index}_{frame}.npy', vz_mesh)
-            np.save(f'{self.dir}/x_mesh_index{self.index}_{frame}.npy', x_mesh)
-            np.save(f'{self.dir}/y_mesh_index{self.index}_{frame}.npy', y_mesh)
-            np.save(f'{self.dir}/z_mesh_index{self.index}_{frame}.npy', z_mesh)
-            np.save(f'{self.dir}/fil_data_index{self.index}_{frame}.npy', fil_plot_data)
-            np.save(f'{self.dir}/fil_phases_index{self.index}_{frame}.npy', fil_phases)
+            os.system(f'mkdir -p {self.dir}flowfield')
+            np.save(f'{self.dir}flowfield/vx_mesh_index{self.index}_{frame}.npy', vx_mesh)
+            np.save(f'{self.dir}flowfield/vy_mesh_index{self.index}_{frame}.npy', vy_mesh)
+            np.save(f'{self.dir}flowfield/vz_mesh_index{self.index}_{frame}.npy', vz_mesh)
+            np.save(f'{self.dir}flowfield/x_mesh_index{self.index}_{frame}.npy', x_mesh)
+            np.save(f'{self.dir}flowfield/y_mesh_index{self.index}_{frame}.npy', y_mesh)
+            np.save(f'{self.dir}flowfield/z_mesh_index{self.index}_{frame}.npy', z_mesh)
+            np.save(f'{self.dir}flowfield/fil_data_index{self.index}_{frame}.npy', fil_plot_data)
+            np.save(f'{self.dir}flowfield/fil_phases_index{self.index}_{frame}.npy', fil_phases)
 
             frame += 1
 
