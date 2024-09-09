@@ -2,18 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-n = 159
-r_ratio = 1.5
+n = 2560
+r_ratio = 1.3
 
-ur_data = np.load(f'data/IVP159_flowfield/20240620/ur_data_fil{n}_r{r_ratio}.npy')
-utheta_data = np.load(f'data/IVP159_flowfield/20240620/utheta_data_fil{n}_r{r_ratio}.npy')
-grid_shape = np.load(f'data/IVP159_flowfield/20240620/grid_shape_fil{n}_r{r_ratio}.npy')
+path = 'data/volvox/20240906_volvox_symplectic_k=2.35/'
 
-# ur_data = np.load(f'data/IVP159_flowfield/old_data/ur_data_fil{n}_r1.4.npy')
-# utheta_data = np.load(f'data/IVP159_flowfield/old_data/utheta_data_fil{n}_r1.4.npy')
-# grid_shape = np.load(f'data/IVP159_flowfield/old_data/grid_shape_fil{n}_r1.4.npy')
-
-
+ur_data = np.load(f'{path}ur_data_fil{n}_r{r_ratio}.npy')
+utheta_data = np.load(f'{path}utheta_data_fil{n}_r{r_ratio}.npy')
+grid_shape = np.load(f'{path}grid_shape_fil{n}_r{r_ratio}.npy')
 
 
 selected_t = 0
@@ -40,6 +36,9 @@ avg_utheta_data = reshaped_utheta_data.mean(axis=1)
 
 
 
+avg_ur_data = np.tile(avg_ur_data, (10,1))
+avg_utheta_data = np.tile(avg_utheta_data, (10,1))
+
 
 
 # print(avg_ur_data)
@@ -47,9 +46,9 @@ avg_utheta_data = reshaped_utheta_data.mean(axis=1)
 
 t = n_frame/30
 
-fig1 = plt.figure(figsize=(4,1))
+fig1 = plt.figure(figsize=(8,2))
 ax1 = fig1.add_subplot()
-fig2 = plt.figure(figsize=(4,1))
+fig2 = plt.figure(figsize=(8,2))
 ax2 = fig2.add_subplot()
 fig3 = plt.figure()
 ax3 = fig3.add_subplot()
@@ -87,9 +86,11 @@ ax3.set_xticks(ticks= np.linspace(0, 2*np.pi, 5), labels=ax3_x_labels)
 ax3.set_yticks(ticks= np.linspace(0, np.pi, 5), labels=ax3_y_labels)
 ax3.set_title(rf'$u_r$, $t={selected_t}$')
 
-plt.tight_layout()
+fig1.tight_layout()
+fig2.tight_layout()
+fig3.tight_layout()
 fig1.savefig(f'fig/ur_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
 fig2.savefig(f'fig/utheta_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
-fig3.savefig(f'fig/ur_variation_over_phi_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
+# fig3.savefig(f'fig/ur_variation_over_phi_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
 
 plt.show()

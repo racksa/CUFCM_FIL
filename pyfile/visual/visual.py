@@ -55,23 +55,23 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
         # self.date = 'combined_analysis'
-        # self.date = 'combined_analysis_force_rerun'
-        # self.dir = f"data/giant_swimmer/{self.date}/"
+        self.date = 'combined_analysis_force_rerun'
+        self.dir = f"data/giant_swimmer/{self.date}/"
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        self.date = '20240827_ishikawa_jfm2'
-        # self.date = '20240731_pnas_L1'
-        # self.date = '20240802_pnas_L0.975'
-        # self.date = '20240829_pnas_volvox_beat'
-        # self.date = '20240822_ishikawa_resolution6'
-        # self.date = '20240902_real_volvox'
-        self.date = '20240903_real_volvox_seg20'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.date = '20240827_ishikawa_jfm2'
+        # # self.date = '20240731_pnas_L1'
+        # # self.date = '20240802_pnas_L0.975'
+        # # self.date = '20240829_pnas_volvox_beat'
+        # # self.date = '20240822_ishikawa_resolution6'
+        # # self.date = '20240902_real_volvox'
+        # self.date = '20240903_real_volvox_seg20'
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240904_volvox_test'
-        self.date = '20240906_volvox_prescribed'
+        self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
         # self.date = '20240115_resolution'
@@ -136,8 +136,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 2
-        self.frames_setting = 1
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 3000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -2900,14 +2900,14 @@ class VISUAL:
 
         # sphere
 
-        r_ratio = 1.5
+        r_ratio = 2.0
         x_lower, x_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         x_lower, x_upper = 0, 1, 
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
 
         flow_spacing = 20
-        speed_limit = 20
+        speed_limit = 40
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
         # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -2927,9 +2927,16 @@ class VISUAL:
 
         pos_list = np.column_stack((x_flat, y_flat, z_flat))
 
+        # r_flat = np.sqrt(x_flat**2 + y_flat**2 + z_flat**2)
+        # theta_flat = np.arctan2(y_flat, x_flat)
+        # phi_flat = np.arccos(z_flat / r_flat)
+
         r_flat = np.sqrt(x_flat**2 + y_flat**2 + z_flat**2)
-        theta_flat = np.arctan2(y_flat, x_flat)
-        phi_flat = np.arccos(z_flat / r_flat)
+        # theta_flat = np.sign(y_flat)*np.arccos(x_flat/np.sqrt(x_flat**2 + y_flat**2))
+        # phi_flat = np.arccos(z_flat / r_flat)
+
+        phi_flat = np.arctan2(y_flat, x_flat)
+        theta_flat =  np.arccos(z_flat / r_flat)
 
         global frame
         frame = 0
@@ -2978,11 +2985,16 @@ class VISUAL:
 
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
-                circle=plt.Circle((body_pos[1], body_pos[2]), self.radius, color='Grey', zorder=99)
+                # lab frame
+                # circle=plt.Circle((body_pos[1], body_pos[2]), self.radius, color='Grey', zorder=99)
+
+                # make it in the swimmer frame
+                circle=plt.Circle((0, 0), self.radius, color='Grey', zorder=99)
+
                 ax.add_patch(circle)
 
                 for blob in range(self.nblob):
-                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
                     blob_force = blob_forces[3*blob : 3*blob+3]
                     # ax.scatter(blob_pos[1], blob_pos[2], c='black')
 
@@ -2994,7 +3006,7 @@ class VISUAL:
                     seg_data = np.zeros((self.nseg, 3))
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
                     for seg in range(self.nseg):
-                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
                         seg_data[seg] = seg_pos
                         seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                         seg_force = seg_force[:3]
@@ -3041,6 +3053,7 @@ class VISUAL:
 
             # Flow field
             cmap_name2= 'Reds'
+            # cmap_name2= 'seismic'
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
@@ -3049,7 +3062,8 @@ class VISUAL:
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
 
             speed_mesh = speed_list.reshape(y_mesh.shape)
-            ur_mesh = ur_list.reshape(y_mesh.shape)
+            speed_mesh = ur_list.reshape(y_mesh.shape)
+            speed_mesh = utheta_list.reshape(y_mesh.shape)
 
             half_plane_index = int(x_mesh.shape[0]/2)
             speed_mesh_2D = speed_mesh[half_plane_index,:,:]
@@ -3066,7 +3080,6 @@ class VISUAL:
             vz_mesh_2D = vz_mesh[half_plane_index,:,:]
 
 
-            # phi_var_plot = ax.imshow(ur_mesh, cmap='jet', origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = 20, vmin=-20)
             phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)
             
             
@@ -3200,10 +3213,10 @@ class VISUAL:
         # Flow field
         n_theta = 30
         n_r = 1
-        n_phi = 10
+        n_phi = 1
         n_field_point = n_theta*n_r*n_phi
 
-        r_ratio = 1.5
+        r_ratio = 1.3
         r_list = np.linspace(r_ratio, 2.6, n_r)*self.radius
         theta_list = np.linspace(0, np.pi, n_theta)
         phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1]
@@ -3249,16 +3262,18 @@ class VISUAL:
 
                 
                 for swim in range(int(self.pars['NSWIM'])):
+                    body_pos = body_states[7*swim : 7*swim+3]
+
                     for blob in range(self.nblob):
-                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
                         blob_force = blob_forces[3*blob : 3*blob+3]
-                        source_pos_list[blob] = blob_pos
+                        source_pos_list[blob] = blob_pos 
                         source_force_list[blob] = blob_force
                     for fil in range(self.nfil):
                         fil_i = int(3*fil*self.nseg)
                         seg_data = np.zeros((self.nseg, 3))
                         for seg in range(self.nseg):
-                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
                             seg_data[seg] = seg_pos
                             seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                             seg_force = seg_force[:3]
@@ -3315,18 +3330,18 @@ class VISUAL:
 
         t = ur_data.shape[0]/30
         
-        # ax.imshow(ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+        ax.imshow(ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
 
-        # y_ticks = np.linspace(0, 2*np.pi, 5)
-        # y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
-        # ax.set_yticks(ticks=y_ticks, labels=y_labels)
+        y_ticks = np.linspace(0, 2*np.pi, 5)
+        y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
+        ax.set_yticks(ticks=y_ticks, labels=y_labels)
 
-        # ax.set_xlabel(r'$t/T$')
-        # ax.set_ylabel(r'$\theta$')        
+        ax.set_xlabel(r'$t/T$')
+        ax.set_ylabel(r'$\theta$')        
 
-        # # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
-        # plt.show()
+        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
+        plt.show()
     
 # Multi sims
     def multi_phase(self):

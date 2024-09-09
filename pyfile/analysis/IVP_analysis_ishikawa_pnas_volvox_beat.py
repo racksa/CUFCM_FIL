@@ -173,7 +173,8 @@ avg_speed_volvox_list = np.zeros(len(N_list))
 
 path = 'data/ishikawa/20240829_pnas_volvox_beat/'
 # path = 'data/ishikawa/20240902_real_volvox/'
-path = 'data/ishikawa/20240903_real_volvox_slender50/'
+# path = 'data/ishikawa/20240903_real_volvox_seg20/'
+path = 'data/volvox/20240906_volvox_symplectic/'
 # plot sim data
 for ind in range(2,3):
     try:

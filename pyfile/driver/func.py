@@ -48,7 +48,7 @@ class DRIVER:
 
         self.category = 'volvox/'
         self.exe_name = 'cilia_1e-4_prescribed_mcw'
-        self.date = '20240906_volvox_prescribed'
+        self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -180,7 +180,7 @@ class DRIVER:
                         spring_factor = round(0)
                         period = 1
                         sim_length = 1
-                        tilt_angle = 0
+                        tilt_angle = 0.
 
                         # ishikawa jfm
                         # nfil = 160
