@@ -125,8 +125,8 @@ public:
 
       void fill_fourier_coeff_mats();
       void fitted_shape_tangent(Real& tx, Real& ty, const Real s) const;
-      matrix fitted_shape(const Real s) const;
-      matrix fitted_shape_velocity_direction(const Real s) const;
+      matrix fitted_shape(const Real s, const Real psi, const Real z_displacement) const;
+      matrix fitted_shape_velocity_direction(const Real s, const Real psi) const;
       Real fitted_curve_length(const Real s) const;
       void find_fitted_shape_s();
 

@@ -174,9 +174,12 @@ avg_speed_volvox_list = np.zeros(len(N_list))
 path = 'data/ishikawa/20240829_pnas_volvox_beat/'
 # path = 'data/ishikawa/20240902_real_volvox/'
 # path = 'data/ishikawa/20240903_real_volvox_seg20/'
-path = 'data/volvox/20240906_volvox_symplectic/'
+path = 'data/volvox/20240906_volvox_symplectic_k=2.35/'
+# path = 'data/volvox/20240906_volvox_antiplectic_k=4/'
+# path = 'data/volvox_bicilia/20240911_bicilia_test/'
+
 # plot sim data
-for ind in range(2,3):
+for ind in range(1):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -211,7 +214,7 @@ for ind in range(2,3):
 # plot sim data
 path = "data/ishikawa/20240802_pnas_L0.975/"
 # path = "data/ishikawa/20240805_volvox_beat/"
-for ind in range(2,3):
+for ind in range(1):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")

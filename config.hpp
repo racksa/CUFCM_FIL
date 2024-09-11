@@ -104,13 +104,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 3
+  #define SHAPE_SEQUENCE 5
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
   // 2 = Coral larvae beat pattern. Data fitting done by me, in the same way as Blake (1972).
   // 3 = Volvox beat
   // 4 = Original 'Fulford and Blake' beat - <L>=0.975
+  // 5 = Bi-cilia
 
   #if SHAPE_SEQUENCE==0
 
@@ -245,6 +246,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern int NSWIM;
 extern int NSEG;
+extern int NSEG_PER_CILIA;
 extern int NFIL;
 extern int NBLOB;
 extern Real AR;
@@ -447,6 +449,7 @@ extern Real TILT_ANGLE;
   #define CORAL_LARVAE_BEAT (SHAPE_SEQUENCE==2)
   #define VOLVOX_BEAT (SHAPE_SEQUENCE==3)
   #define FULFORD_AND_BLAKE_BEAT_ORIGINAL (SHAPE_SEQUENCE==4)
+  #define BICILIA (SHAPE_SEQUENCE==5)
 
 #endif
 
@@ -525,7 +528,7 @@ extern Real TILT_ANGLE;
 // (because nothing elastic happens outside of that part of the filament).
 #if PRESCRIBED_CILIA
 
-  #define FIL_LENGTH (DL*(NSEG-1))
+  #define FIL_LENGTH (DL*(NSEG_PER_CILIA-1))
 
 #else
 

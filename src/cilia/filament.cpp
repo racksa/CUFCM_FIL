@@ -946,7 +946,71 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Bx(1,0) = 8.146824e-02; Bx(1,1) = 3.472676e-01; Bx(1,2) = -2.744220e-01;
         Bx(2,0) = 3.615272e-02; Bx(2,1) = 8.619119e-02; Bx(2,2) = -6.122992e-02;
 
-      #endif
+      #elif BICILIA
+
+        // Same as Fulford-Blake beat but with newly fitted coefficients
+
+        Ay = matrix(4,4);
+        Ay(0,0) = -0.01359477;
+        Ay(1,0) = 0.17304993;
+        Ay(2,0) = -0.13139014;
+        Ay(3,0) = -0.16029509;
+        Ay(0,1) = -0.29332220;
+        Ay(1,1) = -2.07743633;
+        Ay(2,1) = 1.67275679;
+        Ay(3,1) = 0.86911573;
+        Ay(0,2) = 1.11787568;
+        Ay(1,2) = 1.96507494;
+        Ay(2,2) = -3.30501852;
+        Ay(3,2) = -1.43711565;
+        Ay(0,3) = -0.57979870;
+        Ay(1,3) = -0.48418322;
+        Ay(2,3) = 1.75899013;
+        Ay(3,3) = 0.70427363;
+        Ax = matrix(4,4);
+        Ax(0,0) = 1.00173453;
+        Ax(1,0) = 0.00177973;
+        Ax(2,0) = 0.18216075;
+        Ax(3,0) = -0.11814694;
+        Ax(0,1) = -0.19343779;
+        Ax(1,1) = -0.21951290;
+        Ax(2,1) = -1.19973029;
+        Ax(3,1) = 1.11157299;
+        Ax(0,2) = -0.20903225;
+        Ax(1,2) = 1.18549520;
+        Ax(2,2) = 1.85563800;
+        Ax(3,2) = -2.22516778;
+        Ax(0,3) = 0.10965722;
+        Ax(1,3) = -0.87560157;
+        Ax(2,3) = -0.73808804;
+        Ax(3,3) = 1.24886035;
+        By = matrix(3,4);
+        By(0,0) = -0.07161063;
+        By(1,0) = -0.28124133;
+        By(2,0) = 0.02784571;
+        By(0,1) = 2.20709826;
+        By(1,1) = 1.40574837;
+        By(2,1) = -0.37172265;
+        By(0,2) = -4.29445659;
+        By(1,2) = -1.48026680;
+        By(2,2) = 1.03114541;
+        By(0,3) = 2.11206054;
+        By(1,3) = 0.39648628;
+        By(2,3) = -0.71183106;
+        Bx = matrix(3,4);
+        Bx(0,0) = 0.09132704;
+        Bx(1,0) = -0.09932551;
+        Bx(2,0) = -0.15745604;
+        Bx(0,1) = -0.53597901;
+        Bx(1,1) = 1.16560579;
+        Bx(2,1) = 0.94043342;
+        Bx(0,2) = 1.37873237;
+        Bx(1,2) = -2.64682150;
+        Bx(2,2) = -1.39914889;
+        Bx(0,3) = -0.58397032;
+        Bx(1,3) = 1.58062759;
+        Bx(2,3) = 0.59588026;
+        #endif
 
     }
 
@@ -976,10 +1040,10 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     }
 
-    matrix filament::fitted_shape(const Real s) const {
+    matrix filament::fitted_shape(const Real s, const Real psi, const Real z_displacement) const {
 
       matrix pos(3,1);
-      pos(2) = 0.0;
+      pos(2) = z_displacement;
 
       const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
@@ -996,8 +1060,8 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         cos_vec(0) = 0.5;
       #endif
       for (int n = 1; n < num_fourier_modes; n++){
-        cos_vec(n) = std::cos(n*phase);
-        sin_vec(n-1) = std::sin(n*phase);
+        cos_vec(n) = std::cos(n*psi);
+        sin_vec(n-1) = std::sin(n*psi);
       }
 
       pos(0) = (cos_vec*Ax + sin_vec*Bx)*svec;
@@ -1007,7 +1071,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     }
 
-    matrix filament::fitted_shape_velocity_direction(const Real s) const {
+    matrix filament::fitted_shape_velocity_direction(const Real s, const Real psi) const {
 
       matrix dir(3,1);
       dir(2) = 0.0;
@@ -1024,8 +1088,8 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix sin_vec(1, num_fourier_modes);
       sin_vec(0) = 0.0;
       for (int n = 1; n < num_fourier_modes; n++){
-        cos_vec(n-1) = n*std::cos(n*phase);
-        sin_vec(n) = -n*std::sin(n*phase);
+        cos_vec(n-1) = n*std::cos(n*psi);
+        sin_vec(n) = -n*std::sin(n*psi);
       }
 
       dir(0) = (sin_vec*Ax + cos_vec*Bx)*svec;
@@ -1043,7 +1107,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
         Real tx, ty; // Components of shape tangent
 
-        const int num_traps = 10*NSEG;
+        const int num_traps = 10*NSEG_PER_CILIA;
         const Real dl = 1.0/Real(num_traps);
 
         // Start with the whole trapeziums
@@ -1083,10 +1147,10 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
     }
 
     void filament::find_fitted_shape_s(){
-
-      s_to_use = std::vector<Real>(NSEG);
+      
+      s_to_use = std::vector<Real>(NSEG_PER_CILIA);
       s_to_use[0] = 0.0;
-      s_to_use[NSEG-1] = 1.0;
+      s_to_use[NSEG_PER_CILIA-1] = 1.0;
 
       #if WRITE_GENERALISED_FORCES
 
@@ -1096,9 +1160,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
         const Real total_length = fitted_curve_length(1.0);
 
-        for (int n = 1; n < NSEG-1; n++){
+        for (int n = 1; n < NSEG_PER_CILIA-1; n++){
 
-          const Real target_fraction = Real(n)/Real(NSEG-1);
+          const Real target_fraction = Real(n)/Real(NSEG_PER_CILIA-1);
 
           Real s_lower_bound = s_to_use[n-1];
           Real s_upper_bound = 1.0;
@@ -1107,7 +1171,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
           Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
           Real curr_frac_estimate = fitted_curve_length(curr_s_estimate)/total_length;
 
-          while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG)){
+          while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG_PER_CILIA)){
 
             if (curr_frac_estimate > target_fraction){
 
@@ -1132,7 +1196,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
         }
 
-        s_values_file << s_to_use[NSEG-1] << " ";
+        s_values_file << s_to_use[NSEG_PER_CILIA-1] << " ";
         s_values_file.close();
 
       #else
@@ -1162,9 +1226,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
         }
 
-        for (int n = 1; n < NSEG-1; n++){
+        for (int n = 1; n < NSEG_PER_CILIA-1; n++){
 
-          Real s_index = ((*s_to_use_ref_ptr).num_cols - 1)*n/Real(NSEG-1);
+          Real s_index = ((*s_to_use_ref_ptr).num_cols - 1)*n/Real(NSEG_PER_CILIA-1);
           int s_index_lower_bound = int(s_index);
 
           s_to_use[n] = svec(s_index_lower_bound) + (s_index - s_index_lower_bound)*(svec(s_index_lower_bound+1) - svec(s_index_lower_bound));
@@ -1360,9 +1424,21 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
 
       #if FIT_TO_DATA_BEAT
 
+        #if BICILIA
+          Real s_to_use_n = s_to_use[n%NSEG_PER_CILIA];
+          int index_in_pair = floor(n/NSEG_PER_CILIA);
+          Real z_dis = index_in_pair*2.2*RSEG;
+          Real phase_this_cilia = phase + index_in_pair*PI/2.0;
+        #else
+          Real s_to_use_n = s_to_use[n];
+          int index_in_pair = 0;
+          Real z_dis = 0.0;
+          Real phase_this_cilia = phase;
+        #endif;
+
         #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
-          matrix ref = FIL_LENGTH*Rshape*fitted_shape(s_to_use[n]);
+          matrix ref = FIL_LENGTH*Rshape*fitted_shape(s_to_use_n, phase_this_cilia, z_dis/FIL_LENGTH);
 
           const matrix diff = R*ref;
 
@@ -1380,7 +1456,7 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
 
         #else
 
-          const matrix diff = FIL_LENGTH*R*fitted_shape(s_to_use[n]);
+          matrix diff = FIL_LENGTH*R*fitted_shape(s_to_use_n, phase_this_cilia, z_dis/FIL_LENGTH);
 
         #endif
 
@@ -1388,13 +1464,15 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
         segments[n].x[1] = segments[0].x[1] + diff(1);
         segments[n].x[2] = segments[0].x[2] + diff(2);
 
+        // std::cout << n << "   " <<  s_to_use_n << "    " << n%NSEG_PER_CILIA << std::endl;
+
         #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
-          const matrix dir = FIL_LENGTH*R*Rshape*fitted_shape_velocity_direction(s_to_use[n]);
+          const matrix dir = FIL_LENGTH*R*Rshape*fitted_shape_velocity_direction(s_to_use_n, phase_this_cilia);
 
         #else
 
-          const matrix dir = FIL_LENGTH*R*fitted_shape_velocity_direction(s_to_use[n]);
+          const matrix dir = FIL_LENGTH*R*fitted_shape_velocity_direction(s_to_use_n, phase_this_cilia);
 
         #endif
 
@@ -2266,6 +2344,10 @@ void filament::write_backup(std::ofstream& data_file) const {
 
       return filename_stringstream.str();
 
+     #elif BICILIA
+
+      return std::string("input/forcing/bicilia_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
+    
     #endif
 
   }

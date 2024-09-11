@@ -46,9 +46,9 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox/'
-        self.exe_name = 'cilia_1e-4_prescribed_mcw'
-        self.date = '20240906_volvox_symplectic_k=2.35'
+        self.category = 'volvox_bicilia/'
+        self.exe_name = 'cilia_1e-4_plane_bicilia'
+        self.date = '20240911_bicilia_test'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -142,14 +142,14 @@ class DRIVER:
                         # sim_length = 400
 
                         # callibration
-                        nfil = int(1*(i+1))
+                        nfil = int(4*(i+1))
                         nblob = int(4096*(i+1))
-                        nseg = 20
+                        nseg = 40
                         fil_spacing=256.0
                         blob_spacing=4.0
                         fil_x_dim=2
                         blob_x_dim=64
-                        sim_length = 1
+                        sim_length = 100
 
                         # # IVP sim
                         # nx=400
@@ -172,7 +172,7 @@ class DRIVER:
                         nfil = [160, 640, 2560][i]
                         nblob = 40962
                         ar = 20
-                        nseg = 20
+                        nseg = 40
                         nx=400
                         ny=400
                         nz=400

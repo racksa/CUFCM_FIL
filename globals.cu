@@ -7,6 +7,7 @@
 // Values here are not meaningful.
 int NSWIM = 1;
 int NSEG = 1;
+int NSEG_PER_CILIA = 1;
 int NFIL = 16;
 int NBLOB = 4000;
 Real AR = 5;

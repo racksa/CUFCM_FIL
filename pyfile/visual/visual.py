@@ -74,6 +74,9 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
+        self.date = '20240911_bicilia_test'
+        self.dir = f"data/volvox_bicilia/{self.date}/"
+
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
 

@@ -85,9 +85,14 @@ int main(int argc, char** argv){
   #endif
 
   // Derive other global variables
+  #if BICILIA
+    NSEG_PER_CILIA = NSEG/2;
+  #else
+    NSEG_PER_CILIA = NSEG;
+  #endif
   NTOTAL = (NSWIM*(NFIL*NSEG + NBLOB));
   AXIS_DIR_BODY_LENGTH = AR*FIL_LENGTH;
-  END_FORCE_MAGNITUDE = (DIMENSIONLESS_FORCE*KB/(DL*DL*NSEG*NSEG));
+  END_FORCE_MAGNITUDE = (DIMENSIONLESS_FORCE*KB/(DL*DL*NSEG_PER_CILIA*NSEG_PER_CILIA));
   DL = SEG_SEP*RSEG;
   DT = PERIOD/STEPS_PER_PERIOD;
   TOTAL_TIME_STEPS = SIM_LENGTH*STEPS_PER_PERIOD+1;
@@ -289,7 +294,7 @@ int main(int argc, char** argv){
 
       std::ofstream s_values_file(reference_s_values_file_name());
 
-      s_values_file << TOTAL_TIME_STEPS << " " << NSEG << " ";
+      s_values_file << TOTAL_TIME_STEPS << " " << NSEG_PER_CILIA << " ";
       s_values_file << std::scientific << std::setprecision(15);
 
       s_values_file.close(); // Unlike the force file, we close this one. We'll open it again with append permissions inside the filament class.
