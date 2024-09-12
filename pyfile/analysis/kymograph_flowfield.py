@@ -6,6 +6,7 @@ n = 2560
 r_ratio = 1.3
 
 path = 'data/volvox/20240906_volvox_symplectic_k=2.35/'
+path = 'data/volvox_bicilia/20240911_bicilia_test/'
 
 ur_data = np.load(f'{path}ur_data_fil{n}_r{r_ratio}.npy')
 utheta_data = np.load(f'{path}utheta_data_fil{n}_r{r_ratio}.npy')

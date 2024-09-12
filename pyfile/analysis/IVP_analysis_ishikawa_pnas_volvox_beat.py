@@ -176,10 +176,10 @@ path = 'data/ishikawa/20240829_pnas_volvox_beat/'
 # path = 'data/ishikawa/20240903_real_volvox_seg20/'
 path = 'data/volvox/20240906_volvox_symplectic_k=2.35/'
 # path = 'data/volvox/20240906_volvox_antiplectic_k=4/'
-# path = 'data/volvox_bicilia/20240911_bicilia_test/'
+path = 'data/volvox_bicilia/20240911_bicilia_test/'
 
 # plot sim data
-for ind in range(1):
+for ind in range(2,3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -204,7 +204,7 @@ for ind in range(1):
         # ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
         avg_speed_volvox_list[ind] = np.mean(speed_array)
 
-        # ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', c=colors[ind])
+        ax2.plot(time_array, dissipation_array, label = rf'$M={N_list[ind]}$', c=colors[ind])
         # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
         # ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
     except:
@@ -214,7 +214,7 @@ for ind in range(1):
 # plot sim data
 path = "data/ishikawa/20240802_pnas_L0.975/"
 # path = "data/ishikawa/20240805_volvox_beat/"
-for ind in range(1):
+for ind in range(2,3):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -295,10 +295,10 @@ ax1.set_ylabel(r'$V_zT/L$')
 
 
 # legend21 = ax2.legend(loc='center', frameon=False)
-line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
-line2, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
-line3, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
-legend22 = ax2.legend(handles = [line1, line2, line3], loc='upper right')
+# line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
+# line2, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
+# line3, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
+# legend22 = ax2.legend(handles = [line1, line2, line3], loc='upper right')
 # ax2.add_artist(legend21)
 ax2.set_xlim(0, 1)
 ax2.set_xlabel(r'$t/T$')
@@ -326,7 +326,7 @@ fig3.tight_layout()
 fig4.tight_layout()
 fig.savefig(f'fig/ishikawa_pnas_volvox_vel_area.pdf', bbox_inches = 'tight', format='pdf')
 fig1.savefig(f'fig/ishikawa_pnas_original_vel_area.pdf', bbox_inches = 'tight', format='pdf')
-# fig2.savefig(f'fig/ishikawa_pnas_comparison_dissipation.pdf', bbox_inches = 'tight', format='pdf')
+fig2.savefig(f'fig/dissipation.pdf', bbox_inches = 'tight', format='pdf')
 fig3.savefig(f'fig/ishikawa_pnas_volvox_speed.pdf', bbox_inches = 'tight', format='pdf')
 # fig4.savefig(f'fig/ishikawa_pnas_comparison_real_length.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

@@ -90,7 +90,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES false
+#define PRESCRIBED_BODY_VELOCITIES true
 
 #define OUTPUT_FORCES true
 #if CILIA_TYPE==0
@@ -123,11 +123,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION false
+  #define DYNAMIC_PHASE_EVOLUTION true
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION false
+  #define DYNAMIC_SHAPE_ROTATION true
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -137,7 +137,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 6
+  #define CILIA_IC_TYPE 5
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
@@ -347,7 +347,7 @@ extern Real TILT_ANGLE;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 

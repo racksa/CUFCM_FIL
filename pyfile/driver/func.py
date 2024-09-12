@@ -47,8 +47,8 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.category = 'volvox_bicilia/'
-        self.exe_name = 'cilia_1e-4_plane_bicilia'
-        self.date = '20240911_bicilia_test'
+        self.exe_name = 'cilia_1e-4_bicilia_fixed'
+        self.date = '20240912_bicilia_IVP'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -77,7 +77,7 @@ class DRIVER:
                      "reverse_fil_direction_ratio": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (3, 1, 1, 1)
+        self.sweep_shape = (16, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -142,7 +142,7 @@ class DRIVER:
                         # sim_length = 400
 
                         # callibration
-                        nfil = int(4*(i+1))
+                        nfil = int(1*(i+1))
                         nblob = int(4096*(i+1))
                         nseg = 40
                         fil_spacing=256.0
@@ -152,35 +152,38 @@ class DRIVER:
                         sim_length = 100
 
                         # # IVP sim
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-
-                        # nseg = 20
-                        # nfil = int(639)
-                        # nblob = int(40961)
-                        # ar = round(15.00, 2)
-                        # spring_factor = round(0.005 + 0.001*i, 3)
-                        # period = 1
-                        # sim_length = 500
-                        # # tilt_angle = (1./9.)*0.5*3.141592653*j
-                        # tilt_angle = 0
-                        
-
-                        # ishikawa pnas
-                        nfil = [160, 640, 2560][i]
-                        nblob = 40962
-                        ar = 20
-                        nseg = 40
                         nx=400
                         ny=400
                         nz=400
                         boxsize=8000
-                        spring_factor = round(0)
+
+                        nseg = 40
+                        # nfil = int(639)
+                        # nblob = int(40961)
+                        # ar = round(15.00, 2)
+                        nfil = int(159)
+                        nblob = int(9000)
+                        ar = round(8.00, 2)
+                        spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1
-                        sim_length = 1
-                        tilt_angle = 0.
+                        sim_length = 100
+                        # tilt_angle = (1./9.)*0.5*3.141592653*j
+                        tilt_angle = 0
+                        
+
+                        # ishikawa pnas
+                        # nfil = [160, 640, 2560][i]
+                        # nblob = 40962
+                        # ar = 20
+                        # nseg = 40
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0.
 
                         # ishikawa jfm
                         # nfil = 160

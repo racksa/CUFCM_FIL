@@ -74,7 +74,8 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20240911_bicilia_test'
+        self.date = '20240912_bicilia_IVP'
+        # self.date = '20240911_bicilia_test'
         self.dir = f"data/volvox_bicilia/{self.date}/"
 
         # self.date = '20240115_resolution'
@@ -140,7 +141,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 3000
-        self.frames_setting = 3000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -154,7 +155,7 @@ class VISUAL:
         self.ncol = 12
         self.num_sim = 0
 
-        self.plot_interval = 10
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -3066,7 +3067,7 @@ class VISUAL:
 
             speed_mesh = speed_list.reshape(y_mesh.shape)
             speed_mesh = ur_list.reshape(y_mesh.shape)
-            speed_mesh = utheta_list.reshape(y_mesh.shape)
+            # speed_mesh = utheta_list.reshape(y_mesh.shape)
 
             half_plane_index = int(x_mesh.shape[0]/2)
             speed_mesh_2D = speed_mesh[half_plane_index,:,:]
