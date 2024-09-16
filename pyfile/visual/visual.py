@@ -74,7 +74,7 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20240912_bicilia_IVP'
+        self.date = '20240916_bicilia_IVP'
         # self.date = '20240911_bicilia_test'
         self.dir = f"data/volvox_bicilia/{self.date}/"
 
@@ -118,7 +118,8 @@ class VISUAL:
                      "fil_x_dim": [],
                      "blob_x_dim": [],
                      "hex_num": [],
-                     "reverse_fil_direction_ratio": []}
+                     "reverse_fil_direction_ratio": [],
+                     "pair_dp": []}
         self.video = False
         self.interpolate = False
         self.angle = False
@@ -140,8 +141,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 30000
+        self.frames_setting = 60
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -784,7 +785,7 @@ class VISUAL:
                 xx, yy = xx.ravel(), yy.ravel()
 
                 
-                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='linear')
+                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='nearest')
                 ax.scatter(xx, yy, c=colors_inter)
 
                 # # Find the region that takes a certain color (say white)
@@ -3066,7 +3067,7 @@ class VISUAL:
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
 
             speed_mesh = speed_list.reshape(y_mesh.shape)
-            speed_mesh = ur_list.reshape(y_mesh.shape)
+            # speed_mesh = ur_list.reshape(y_mesh.shape)
             # speed_mesh = utheta_list.reshape(y_mesh.shape)
 
             half_plane_index = int(x_mesh.shape[0]/2)

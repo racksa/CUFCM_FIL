@@ -262,6 +262,7 @@ extern Real PERIOD;
 extern Real DT;
 extern int TOTAL_TIME_STEPS;
 extern Real TILT_ANGLE;
+extern Real PAIR_DP;
 
 
 #define MU 1.0 // Fluid viscosity.

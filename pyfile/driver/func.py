@@ -48,7 +48,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/'
         self.exe_name = 'cilia_1e-4_bicilia_fixed'
-        self.date = '20240912_bicilia_IVP'
+        self.date = '20240916_bicilia_IVP'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -74,7 +74,8 @@ class DRIVER:
                      "fil_x_dim": [],
                      "blob_x_dim": [],
                      "hex_num": [],
-                     "reverse_fil_direction_ratio": []}
+                     "reverse_fil_direction_ratio": [],
+                     "pair_dp": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
         self.sweep_shape = (16, 1, 1, 1)
@@ -121,6 +122,7 @@ class DRIVER:
                         seg_sep = 2.6
                         force_mag = 1
                         tilt_angle = 0
+                        pair_dp = 0.0
 
                         # # planar triangle
                         nfil = int(256*(i+1))
@@ -150,8 +152,9 @@ class DRIVER:
                         fil_x_dim=2
                         blob_x_dim=64
                         sim_length = 100
+                        pair_dp = 0.1
 
-                        # # IVP sim
+                        # # # IVP sim
                         nx=400
                         ny=400
                         nz=400
@@ -169,6 +172,7 @@ class DRIVER:
                         sim_length = 100
                         # tilt_angle = (1./9.)*0.5*3.141592653*j
                         tilt_angle = 0
+                        pair_dp = 0.1
                         
 
                         # ishikawa pnas
@@ -275,6 +279,7 @@ class DRIVER:
                         self.pars_list["blob_x_dim"].append(blob_x_dim)
                         self.pars_list["hex_num"].append(hex_num)
                         self.pars_list["reverse_fil_direction_ratio"].append(reverse_fil_direction_ratio)
+                        self.pars_list["pair_dp"].append(pair_dp)
 
                         index += 1
         # Write rules to sim list file

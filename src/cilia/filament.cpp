@@ -1480,7 +1480,7 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
           Real s_to_use_n = s_to_use[n%NSEG_PER_CILIA];
           int index_in_pair = floor(n/NSEG_PER_CILIA);
           Real z_dis = index_in_pair*2.2*RSEG;
-          Real phase_this_cilia = phase + 0*index_in_pair*PI/2.0;
+          Real phase_this_cilia = phase + index_in_pair*PAIR_DP*2.0*PI;
         #else
           Real s_to_use_n = s_to_use[n];
           int index_in_pair = 0;
@@ -2398,7 +2398,7 @@ void filament::write_backup(std::ofstream& data_file) const {
 
      #elif BICILIA
 
-      return std::string("input/forcing/bicilia_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
+      return std::string("input/forcing/bicilia_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
     
     #endif
 
@@ -2411,7 +2411,7 @@ void filament::write_backup(std::ofstream& data_file) const {
   }
 
   std::string reference_angle_generalised_force_file_name(){
-
+    
     return reference_file_name("angle_generalised_forces");
 
   }
