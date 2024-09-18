@@ -192,8 +192,8 @@ print(repr(B_y))
 print(repr(B_x))
 
 portion = 0.52
-num_eff_beat = 32
-num_rec_beat = 32
+num_eff_beat = 8
+num_rec_beat = 8
 recon_phases = np.linspace(0, 2*np.pi*portion, num_eff_beat)
 diff = recon_phases[1]-recon_phases[0]
 recon_phases = np.append(recon_phases, np.linspace(2*np.pi*portion + diff, 2*np.pi, num_rec_beat)[:-1])
@@ -207,6 +207,7 @@ for ind, psi in enumerate(recon_phases):
         color = 'b'
     # ax2.plot(plot_y, plot_x, c=color, marker="+",)
     ax2.plot(plot_y, plot_x, c='black', alpha=0.1+0.9*psi/np.pi/2.)
+    ax2.scatter(plot_y, plot_x)
 
     path = np.array([plot_y, plot_x]).T
 

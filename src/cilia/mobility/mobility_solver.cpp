@@ -1044,6 +1044,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
       const Real seg_mob_inv = 6.0*PI*MU*RSEG;
       const Real blob_mob_inv = 6.0*PI*MU*RBLOB;
 
+
+      // compute M^-1 r_1
       out.multiply_block(0, 3*NSWIM*NFIL*NSEG, seg_mob_inv);
       out.multiply_block(3*NSWIM*NFIL*NSEG, 3*NSWIM*NBLOB, blob_mob_inv);
 
@@ -1178,6 +1180,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
       #else
 
+        // compute ( - r_2 - K^T M^-1 r_1 )
         out.multiply_block(3*NSWIM*(NBLOB + NFIL*NSEG), 6*NSWIM, -1.0);
 
         for (int n = 0; n < NSWIM; n++){
@@ -1192,6 +1195,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
               const int seg_force_id = 3*(n*NFIL*NSEG + m*NSEG + k);
 
+              // - (K^T M^-1 r_1)_seg
               out(out_id) -= out(seg_force_id);
               out(out_id + 1) -= out(seg_force_id + 1);
               out(out_id + 2) -= out(seg_force_id + 2);
@@ -1210,7 +1214,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           for (int m = 0; m < NBLOB; m++){
 
             const int blob_force_id = 3*(NSWIM*NFIL*NSEG + n*NBLOB + m);
-
+            // - (K^T M^-1 r_1)_blob
             out(out_id) -= out(blob_force_id);
             out(out_id + 1) -= out(blob_force_id + 1);
             out(out_id + 2) -= out(blob_force_id + 2);

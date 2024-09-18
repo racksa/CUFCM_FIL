@@ -74,7 +74,7 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20240916_bicilia_IVP'
+        self.date = '20240918_bicilia_ishikawa'
         # self.date = '20240911_bicilia_test'
         self.dir = f"data/volvox_bicilia/{self.date}/"
 
@@ -138,7 +138,7 @@ class VISUAL:
             self.big_sphere = False
             self.show_poles = False
 
-        self.check_overlap = False
+        self.check_overlap = True
 
 
         self.plot_end_frame_setting = 30000
