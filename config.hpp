@@ -132,7 +132,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
 
-  #define WRITE_GENERALISED_FORCES true
+  #define WRITE_GENERALISED_FORCES false
   // If true, this simulation will save its generalised forces to file for use as the reference values.
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
@@ -159,7 +159,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 0
+#define BODY_OR_SURFACE_TYPE 2
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -220,7 +220,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -348,7 +348,7 @@ extern Real PAIR_DP;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 30
+  #define SAVES_PER_PERIOD 300
 
 #endif
 

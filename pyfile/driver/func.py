@@ -46,9 +46,10 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox_bicilia/'
-        self.exe_name = 'cilia_1e-4_bicilia_ref'
-        self.date = '20240918_bicilia_ishikawa'
+        self.category = 'volvox_bicilia/dp_sweep/'
+        self.exe_name = 'cilia_1e-4_bicilia'
+        # self.exe_name = 'cilia_1e-4_prescribed_mcw'
+        self.date = '20240919_bicilia_-2.35'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -78,7 +79,7 @@ class DRIVER:
                      "pair_dp": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (3, 1, 1, 1)
+        self.sweep_shape = (9, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -151,7 +152,7 @@ class DRIVER:
                         blob_spacing=4.0
                         fil_x_dim=2
                         blob_x_dim=64
-                        sim_length = 100
+                        sim_length = 1
                         pair_dp = 0.1
 
                         # # # IVP sim
@@ -221,6 +222,21 @@ class DRIVER:
                         # period = 1
                         # sim_length = 0.0034
                         # tilt_angle = 0
+
+                        # pair phase difference
+                        nfil = 160
+                        nblob = 40962
+                        ar = 20
+                        nseg = 40
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=8000
+                        spring_factor = round(0)
+                        period = 1
+                        sim_length = 1
+                        tilt_angle = 0.
+                        pair_dp = 0.1 + 0.1*i
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
@@ -334,7 +350,7 @@ class DRIVER:
             
             for key, value in self.pars_list.items():
                 self.write_ini("Parameters", key, float(self.pars_list[key][i]))
-            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt"
+            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")

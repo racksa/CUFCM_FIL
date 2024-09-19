@@ -236,7 +236,7 @@ void filament::initial_setup(const Real *const base_pos,
 
       #if WRITE_GENERALISED_FORCES
 
-        phase = 0.0; 
+        phase = 0.0;
 
       #else
 
@@ -340,7 +340,6 @@ void filament::initial_setup(const Real *const base_pos,
 
         #endif
 
-
         #if SURFACE_OF_REVOLUTION_BODIES
 
           //const Real phi = atan2(base_pos[1], base_pos[0]);
@@ -349,8 +348,10 @@ void filament::initial_setup(const Real *const base_pos,
           //omega0 = (phi >= 0.0) ? 2.0*PI/1.7262 : 2.0*PI; // Uses T = 1.
 
         #endif
-
+      
       #endif
+
+      phase2 = phase + PAIR_DP*2.0*PI;
 
       // qtemp maps x to the surface normal, which we want, but we also need to rotate about the surface normal to align
       // the 'normal-to-filament-centerline' vector at the base (i.e. the second frame vector) with the polar direction.
@@ -1001,70 +1002,72 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         // Bx(1,2) = -3.3547e-01;
         // Bx(2,2) = -1.1695e-01;
 
-        Ay = matrix(5,3);
-        Ay(0,0) = -0.12379155;
-        Ay(1,0) = 0.07920421;
-        Ay(2,0) = 0.20099055;
-        Ay(3,0) = -0.02468836;
-        Ay(4,0) = -0.02325178;
-        Ay(0,1) = 0.35418962;
-        Ay(1,1) = -1.53173108;
-        Ay(2,1) = -0.28321238;
-        Ay(3,1) = 0.07541784;
-        Ay(4,1) = 0.17569718;
-        Ay(0,2) = 0.00808933;
-        Ay(1,2) = 1.03321676;
-        Ay(2,2) = 0.05392443;
-        Ay(3,2) = -0.08216515;
-        Ay(4,2) = -0.17482606;
-        Ax = matrix(5,3);
-        Ax(0,0) = 1.02569020;
-        Ax(1,0) = -0.16381794;
-        Ax(2,0) = 0.03918631;
-        Ax(3,0) = 0.11856813;
-        Ax(4,0) = -0.00361569;
-        Ax(0,1) = -0.32160488;
-        Ax(1,1) = 0.75744564;
-        Ax(2,1) = -0.36363564;
-        Ax(3,1) = -0.27827634;
-        Ax(4,1) = 0.06633167;
-        Ax(0,2) = 0.00458103;
-        Ax(1,2) = -0.49002330;
-        Ax(2,2) = 0.43221268;
-        Ax(3,2) = 0.16039069;
-        Ax(4,2) = -0.06782862;
-        By = matrix(4,3);
-        By(0,0) = 0.32905548;
-        By(1,0) = -0.20328663;
-        By(2,0) = -0.10458779;
-        By(3,0) = -0.05433987;
-        By(0,1) = -0.14813084;
-        By(1,1) = 0.95334870;
-        By(2,1) = 0.41124736;
-        By(3,1) = 0.21435577;
-        By(0,2) = -0.25488346;
-        By(1,2) = -0.71183795;
-        By(2,2) = -0.32015830;
-        By(3,2) = -0.15583655;
-        Bx = matrix(4,3);
-        Bx(0,0) = -0.02342912;
-        Bx(1,0) = 0.20034188;
-        Bx(2,0) = -0.04053670;
-        Bx(3,0) = -0.03947500;
-        Bx(0,1) = 0.12582535;
-        Bx(1,1) = -0.59688220;
-        Bx(2,1) = 0.26090612;
-        Bx(3,1) = 0.09911412;
-        Bx(0,2) = 0.25343640;
-        Bx(1,2) = 0.37622689;
-        Bx(2,2) = -0.24659203;
-        Bx(3,2) = -0.05769623;
+        Ay = matrix(4,4);
+        Ay(0,0) = -0.01665535;
+        Ay(1,0) = 0.17505739;
+        Ay(2,0) = -0.12408600;
+        Ay(3,0) = -0.16672661;
+        Ay(0,1) = -0.27457190;
+        Ay(1,1) = -2.09412076;
+        Ay(2,1) = 1.62438155;
+        Ay(3,1) = 0.90896038;
+        Ay(0,2) = 1.08406999;
+        Ay(1,2) = 1.99556763;
+        Ay(2,2) = -3.21015214;
+        Ay(3,2) = -1.50867276;
+        Ay(0,3) = -0.56102820;
+        Ay(1,3) = -0.50179439;
+        Ay(2,3) = 1.70178281;
+        Ay(3,3) = 0.74387795;
+        Ax = matrix(4,4);
+        Ax(0,0) = 1.00490080;
+        Ax(1,0) = 0.00314934;
+        Ax(2,0) = 0.18942274;
+        Ax(3,0) = -0.11162123;
+        Ax(0,1) = -0.19958656;
+        Ax(1,1) = -0.22239636;
+        Ax(2,1) = -1.24525818;
+        Ax(3,1) = 1.07262966;
+        Ax(0,2) = -0.20422343;
+        Ax(1,2) = 1.18659976;
+        Ax(2,2) = 1.94063304;
+        Ax(3,2) = -2.15142914;
+        Ax(0,3) = 0.10887946;
+        Ax(1,3) = -0.87409016;
+        Ax(2,3) = -0.78632572;
+        Ax(3,3) = 1.20544741;
+        By = matrix(3,4);
+        By(0,0) = -0.06343445;
+        By(1,0) = -0.28828336;
+        By(2,0) = 0.02187088;
+        By(0,1) = 2.15509751;
+        By(1,1) = 1.45223183;
+        By(2,1) = -0.33070891;
+        By(0,2) = -4.19609063;
+        By(1,2) = -1.56580487;
+        By(2,2) = 0.94906955;
+        By(0,3) = 2.05489100;
+        By(1,3) = 0.44541361;
+        By(2,3) = -0.66157093;
+        Bx = matrix(3,4);
+        Bx(0,0) = 0.09140608;
+        Bx(1,0) = -0.09670739;
+        Bx(2,0) = -0.16451150;
+        Bx(0,1) = -0.54804089;
+        Bx(1,1) = 1.14634486;
+        Bx(2,1) = 0.98846449;
+        Bx(0,2) = 1.40643137;
+        Bx(1,2) = -2.60675971;
+        Bx(2,2) = -1.49147276;
+        Bx(0,3) = -0.60109684;
+        Bx(1,3) = 1.55525152;
+        Bx(2,3) = 0.64896090;
 
         #endif
 
     }
 
-    void filament::fitted_shape_tangent(Real& tx, Real& ty, const Real s) const {
+    void filament::fitted_shape_tangent(Real& tx, Real& ty, const Real s, const Real psi) const {
 
       const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
@@ -1081,8 +1084,8 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         cos_vec(0) = 0.5;
       #endif
       for (int n = 1; n < num_fourier_modes; n++){
-        cos_vec(n) = std::cos(n*phase);
-        sin_vec(n-1) = std::sin(n*phase);
+        cos_vec(n) = std::cos(n*psi);
+        sin_vec(n-1) = std::sin(n*psi);
       }
 
       tx = (cos_vec*Ax + sin_vec*Bx)*svec;
@@ -1149,7 +1152,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     }
 
-    Real filament::fitted_curve_length(const Real s) const {
+    Real filament::fitted_curve_length(const Real s, const Real psi) const {
 
       Real length = 0.0;
 
@@ -1161,13 +1164,13 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         const Real dl = 1.0/Real(num_traps);
 
         // Start with the whole trapeziums
-        fitted_shape_tangent(tx, ty, 0);
+        fitted_shape_tangent(tx, ty, 0, psi);
         Real f0 = sqrt(tx*tx + ty*ty);
         const Real floor_val = myfil_floor(s/dl);
 
         for (int n = 1; n <= floor_val; n++){
 
-          fitted_shape_tangent(tx, ty, n*dl);
+          fitted_shape_tangent(tx, ty, n*dl, psi);
           Real f1 = sqrt(tx*tx + ty*ty);
 
           length += 0.5*dl*(f0 + f1);
@@ -1183,7 +1186,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
         if (ceil_val > floor_val){
 
-          fitted_shape_tangent(tx, ty, myfil_ceil(s/dl)*dl);
+          fitted_shape_tangent(tx, ty, myfil_ceil(s/dl)*dl, psi);
           Real f1 = sqrt(tx*tx + ty*ty);
 
           length += ((s/dl - floor_val)/(ceil_val - floor_val))*0.5*dl*(f0 + f1);
@@ -1202,90 +1205,130 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       s_to_use[0] = 0.0;
       s_to_use[NSEG_PER_CILIA-1] = 1.0;
 
-      #if WRITE_GENERALISED_FORCES
+      #if BICILIA
 
-        std::ofstream s_values_file(reference_s_values_file_name(), std::ios::app);
+        s_to_use2 = std::vector<Real>(NSEG_PER_CILIA);
+        s_to_use2[0] = 0.0;
+        s_to_use2[NSEG_PER_CILIA-1] = 1.0;
 
-        s_values_file << s_to_use[0] << " ";
+      #endif
 
-        const Real total_length = fitted_curve_length(1.0);
+      for (int fp = 0; fp < (BICILIA ? 2 : 1); fp++){
 
-        for (int n = 1; n < NSEG_PER_CILIA-1; n++){
+        Real psi = (fp == 0 ? phase : phase2);
 
-          const Real target_fraction = Real(n)/Real(NSEG_PER_CILIA-1);
+        #if WRITE_GENERALISED_FORCES
 
-          Real s_lower_bound = s_to_use[n-1];
-          Real s_upper_bound = 1.0;
+          std::ofstream s_values_file(reference_s_values_file_name(), std::ios::app);
 
-          // Bisection method
-          Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
-          Real curr_frac_estimate = fitted_curve_length(curr_s_estimate)/total_length;
+          if (fp==0){
 
-          while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG_PER_CILIA)){
+            s_values_file << s_to_use[0] << " ";
 
-            if (curr_frac_estimate > target_fraction){
+          }
 
-              s_upper_bound = curr_s_estimate;
+          const Real total_length = fitted_curve_length(1.0, psi);
 
-            } else {
+          for (int n = 1; n < NSEG_PER_CILIA-1; n++){
 
-              s_lower_bound = curr_s_estimate;
+            const Real target_fraction = Real(n)/Real(NSEG_PER_CILIA-1);
+
+            Real s_lower_bound = (fp==0 ? s_to_use[n-1] : s_to_use2[n-1]);
+            Real s_upper_bound = 1.0;
+
+            // Bisection method
+            Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
+            Real curr_frac_estimate = fitted_curve_length(curr_s_estimate, psi)/total_length;
+
+            while (std::abs(curr_frac_estimate - target_fraction) > 0.001/Real(NSEG_PER_CILIA)){
+
+              if (curr_frac_estimate > target_fraction){
+
+                s_upper_bound = curr_s_estimate;
+
+              } else {
+
+                s_lower_bound = curr_s_estimate;
+
+              }
+
+              curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
+              curr_frac_estimate = fitted_curve_length(curr_s_estimate, psi)/total_length;
+
+            }
+            // force to use uniform s
+            // curr_s_estimate = target_fraction;
+
+            if (fp==0){
+
+              s_to_use[n] = curr_s_estimate;
+
+              s_values_file << curr_s_estimate << " ";
+
+            }
+            else if (fp==1) {
+
+              s_to_use2[n] = curr_s_estimate;
 
             }
 
-            curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
-            curr_frac_estimate = fitted_curve_length(curr_s_estimate)/total_length;
+          }
+
+          if (fp==0){
+
+            s_values_file << s_to_use[NSEG_PER_CILIA-1] << " ";
+            s_values_file.close();
 
           }
-          // force to use uniform s
-          // curr_s_estimate = target_fraction;
 
-          s_to_use[n] = curr_s_estimate;
+        #else
 
-          s_values_file << curr_s_estimate << " ";
+          // Bilinear interpolation
+          Real phi_index = 0.5*psi/PI; // = phase/(2*pi)
+          phi_index -= myfil_floor(phi_index); // Map this ratio into [0,1)
+          phi_index *= (*s_to_use_ref_ptr).num_rows;
 
-        }
+          int phi_index_int_lower_bound = int(phi_index); // Rounds towards 0.
 
-        s_values_file << s_to_use[NSEG_PER_CILIA-1] << " ";
-        s_values_file.close();
+          matrix svec;
 
-      #else
+          if (phi_index_int_lower_bound == (*s_to_use_ref_ptr).num_rows){
 
-        // Bilinear interpolation
-        Real phi_index = 0.5*phase/PI; // = phase/(2*pi)
-        phi_index -= myfil_floor(phi_index); // Map this ratio into [0,1)
-        phi_index *= (*s_to_use_ref_ptr).num_rows;
+            // This can only be true if phi_index == s_to_use_ref.num_rows
+            // I don't think we can ever actually enter here unless rounding error messes things up,
+            // but better safe than sorry.
+            svec = (*s_to_use_ref_ptr).get_row(0);
 
-        int phi_index_int_lower_bound = int(phi_index); // Rounds towards 0.
+          } else {
 
-        matrix svec;
+            // Otherwise, we're safely in the interior
+            const matrix lower = (*s_to_use_ref_ptr).get_row(phi_index_int_lower_bound);
+            const matrix upper = (phi_index_int_lower_bound == (*s_to_use_ref_ptr).num_rows - 1) ? (*s_to_use_ref_ptr).get_row(0) : (*s_to_use_ref_ptr).get_row(phi_index_int_lower_bound+1);
+            svec = lower + (upper - lower)*(phi_index - phi_index_int_lower_bound);
 
-        if (phi_index_int_lower_bound == (*s_to_use_ref_ptr).num_rows){
+          }
 
-          // This can only be true if phi_index == s_to_use_ref.num_rows
-          // I don't think we can ever actually enter here unless rounding error messes things up,
-          // but better safe than sorry.
-          svec = (*s_to_use_ref_ptr).get_row(0);
+          for (int n = 1; n < NSEG_PER_CILIA-1; n++){
 
-        } else {
+            Real s_index = ((*s_to_use_ref_ptr).num_cols - 1)*n/Real(NSEG_PER_CILIA-1);
+            int s_index_lower_bound = int(s_index);
 
-          // Otherwise, we're safely in the interior
-          const matrix lower = (*s_to_use_ref_ptr).get_row(phi_index_int_lower_bound);
-          const matrix upper = (phi_index_int_lower_bound == (*s_to_use_ref_ptr).num_rows - 1) ? (*s_to_use_ref_ptr).get_row(0) : (*s_to_use_ref_ptr).get_row(phi_index_int_lower_bound+1);
-          svec = lower + (upper - lower)*(phi_index - phi_index_int_lower_bound);
+            if (fp==0){
 
-        }
+              s_to_use[n] = svec(s_index_lower_bound) + (s_index - s_index_lower_bound)*(svec(s_index_lower_bound+1) - svec(s_index_lower_bound));
+            
+            }
+            else if (fp==1) {
 
-        for (int n = 1; n < NSEG_PER_CILIA-1; n++){
+              s_to_use2[n] = svec(s_index_lower_bound) + (s_index - s_index_lower_bound)*(svec(s_index_lower_bound+1) - svec(s_index_lower_bound));
+            
+            }
 
-          Real s_index = ((*s_to_use_ref_ptr).num_cols - 1)*n/Real(NSEG_PER_CILIA-1);
-          int s_index_lower_bound = int(s_index);
+          }
 
-          s_to_use[n] = svec(s_index_lower_bound) + (s_index - s_index_lower_bound)*(svec(s_index_lower_bound+1) - svec(s_index_lower_bound));
+        #endif
 
-        }
-
-      #endif
+      }
 
     }
 
@@ -1394,6 +1437,7 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
     if (nt > 0){
 
       phase += phase_dot*DT;
+      phase2 = phase + PAIR_DP*2.0*PI;
 
       #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
@@ -1475,10 +1519,10 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
       #if FIT_TO_DATA_BEAT
 
         #if BICILIA
-          Real s_to_use_n = s_to_use[n%NSEG_PER_CILIA];
           int index_in_pair = floor(n/NSEG_PER_CILIA);
           Real z_dis = index_in_pair*2.2*RSEG;
-          Real phase_this_cilia = phase + index_in_pair*PAIR_DP*2.0*PI;
+          Real s_to_use_n = index_in_pair ? s_to_use2[n%NSEG_PER_CILIA] : s_to_use[n%NSEG_PER_CILIA];
+          Real phase_this_cilia = index_in_pair ? phase2 : phase;
         #else
           Real s_to_use_n = s_to_use[n];
           int index_in_pair = 0;

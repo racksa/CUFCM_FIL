@@ -81,6 +81,12 @@ degree = 4  # Degree of the polynomial basis
 fourier_dim = 4 # Number of Fourier terms
 
 
+def calculate_arc_length(path):
+    distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))
+    s = np.insert(np.cumsum(distances), 0, 0)
+    s /= s[-1]  # Normalize to range [0, 1]
+    return s
+
 def calculate_real_length(path):
     distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))
     s = np.insert(np.cumsum(distances), 0, 0)
@@ -121,11 +127,62 @@ def ksi(s, A, B, phase):
 
     return (cosvec@A + sinvec@B)@svec
 
-def calculate_arc_length(path):
-    distances = np.sqrt(np.sum(np.diff(path, axis=0)**2, axis=1))
-    s = np.insert(np.cumsum(distances), 0, 0)
-    s /= s[-1]  # Normalize to range [0, 1]
-    return s
+def d_ksi_ds(s, A, B, phase):
+    fourier_dim, degree = np.shape(A)
+    svec = np.array([d * s**(d - 1) for d in range(1, degree + 1)])  # Derivative of s powers
+    cosvec = np.array([np.cos(n * phase) for n in range(fourier_dim)])
+    sinvec = np.array([np.sin(n * phase) for n in range(fourier_dim)])
+    return (cosvec @ A + sinvec @ B) @ svec  # Return derivative of ksi
+
+
+
+def fitted_curve_length(s, Ax, Bx, Ay, By, phase):
+    def integrand(s):
+        # dx_ds = np.gradient(ksi(s, Ax, Bx, phase), s)
+        # dy_ds = np.gradient(ksi(s, Ay, By, phase), s)
+
+        dx_ds = d_ksi_ds(s, Ax, Bx, phase)
+        dy_ds = d_ksi_ds(s, Ay, By, phase)
+        return np.sqrt(dx_ds**2 + dy_ds**2)
+    
+    arc_length, error = quad(integrand, 0, s)
+    return arc_length
+
+def find_fitted_shape_s(Ax, Bx, Ay, By, phase, n):
+    s_array = np.zeros(n)
+    s_array[0] = 0
+    s_array[-1] = 1
+
+    total_length = fitted_curve_length(1, Ax, Bx, Ay, By, phase)
+
+    for i in range(1, num_s-1):
+        target_fraction = i/(num_s-1)
+        s_lower_bound = s_array[i-1]
+        s_upper_bound = 1
+        curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
+        curr_frac_estimate = fitted_curve_length(curr_s_estimate, Ax, Bx, Ay, By, phase)/total_length;
+
+        while ( abs(curr_frac_estimate - target_fraction) > 0.001/num_s):
+            # print(f"------{curr_s_estimate}  {target_fraction} {s_lower_bound} {s_upper_bound}------")
+
+            if (curr_frac_estimate > target_fraction):
+
+              s_upper_bound = curr_s_estimate;
+
+            else:
+
+              s_lower_bound = curr_s_estimate;
+
+            curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
+            curr_frac_estimate = fitted_curve_length(curr_s_estimate, Ax, Bx, Ay, By, phase)/total_length;
+
+        s_array[i] = curr_s_estimate
+    return s_array
+
+        
+
+
+
 
 def construct_S(s, degree):
     return np.vstack([s**d for d in range(1, degree + 1)]).T
@@ -186,10 +243,10 @@ print_matrixA('Ax', A_x)
 print_matrixB('By', B_y)
 print_matrixB('Bx', B_x)
 
-print(repr(A_y))
-print(repr(A_x))
-print(repr(B_y))
-print(repr(B_x))
+# print(repr(A_y))
+# print(repr(A_x))
+# print(repr(B_y))
+# print(repr(B_x))
 
 portion = 0.52
 num_eff_beat = 8
@@ -198,16 +255,23 @@ recon_phases = np.linspace(0, 2*np.pi*portion, num_eff_beat)
 diff = recon_phases[1]-recon_phases[0]
 recon_phases = np.append(recon_phases, np.linspace(2*np.pi*portion + diff, 2*np.pi, num_rec_beat)[:-1])
 
+
 for ind, psi in enumerate(recon_phases):
-    s_value = np.linspace(0, 1, num_s)
+    s_value_smooth = np.linspace(0, 1, 100)
+    s_value = find_fitted_shape_s(A_x, B_x, A_y, B_y, psi, num_s)
+    # for s in s_value:
+    #     print(fitted_curve_length(s, A_x, A_y, B_x, B_y, psi))
     plot_x = ksi(s_value, A_x, B_x, psi)
     plot_y = ksi(s_value, A_y, B_y, psi)
+
+    plot_x_smooth = ksi(s_value_smooth, A_x, B_x, psi)
+    plot_y_smooth = ksi(s_value_smooth, A_y, B_y, psi)
     color = 'r'
     if psi > 2*np.pi*portion:
         color = 'b'
-    # ax2.plot(plot_y, plot_x, c=color, marker="+",)
-    ax2.plot(plot_y, plot_x, c='black', alpha=0.1+0.9*psi/np.pi/2.)
-    ax2.scatter(plot_y, plot_x)
+
+    ax2.plot(plot_y_smooth, plot_x_smooth, c='black', alpha=0.1+0.9*psi/np.pi/2.)
+    ax2.scatter(plot_y, plot_x, s=100)
 
     path = np.array([plot_y, plot_x]).T
 
@@ -233,15 +297,21 @@ def animation_func(t):
     ax4.set_ylim(0, 1.5)
     ax4.set_aspect('equal')
 
-    s_value = np.linspace(0, 1, num_s)
+    
+
     psi = recon_phases[t]
+
+    s_value = np.linspace(0, 1, num_s)
+
+    s_value = find_fitted_shape_s(A_x, B_x, A_y, B_y, psi, num_s)
+
     plot_x = ksi(s_value, A_x, B_x, psi)
     plot_y = ksi(s_value, A_y, B_y, psi)
     ax4.plot(plot_y, plot_x, c='black')
 
-for psi in recon_phases:
-    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-    ani = animation.FuncAnimation(fig4, animation_func, frames=len(recon_phases), interval=1, repeat=True)
-    plt.show()
+# for psi in recon_phases:
+#     plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+#     ani = animation.FuncAnimation(fig4, animation_func, frames=len(recon_phases), interval=1, repeat=True)
+#     plt.show()
 
 plt.show()

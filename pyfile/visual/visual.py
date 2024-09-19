@@ -74,9 +74,9 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20240918_bicilia_ishikawa'
+        self.date = '20240919_bicilia_-2.35'
         # self.date = '20240911_bicilia_test'
-        self.dir = f"data/volvox_bicilia/{self.date}/"
+        self.dir = f"data/volvox_bicilia/dp_sweep/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -138,7 +138,7 @@ class VISUAL:
             self.big_sphere = False
             self.show_poles = False
 
-        self.check_overlap = True
+        self.check_overlap = False
 
 
         self.plot_end_frame_setting = 30000
@@ -222,16 +222,21 @@ class VISUAL:
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
             open(self.simName + '_fil_references.dat')
         except:
-            self.tilt_angle = 0.
-            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
             try:
+                self.pair_dp = self.pars_list['pair_dp'][self.index]
+                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
                 open(self.simName + '_fil_references.dat')
             except:
-                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
-            try:
-                open(self.simName + '_fil_references.dat')
-            except:
-                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
+                self.tilt_angle = 0.
+                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
+                try:
+                    open(self.simName + '_fil_references.dat')
+                except:
+                    self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
+                try:
+                    open(self.simName + '_fil_references.dat')
+                except:
+                    self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
         
 
         try:
