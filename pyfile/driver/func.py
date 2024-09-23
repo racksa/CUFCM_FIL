@@ -49,7 +49,7 @@ class DRIVER:
         self.category = 'volvox_bicilia/dp_sweep/'
         self.exe_name = 'cilia_1e-4_bicilia'
         # self.exe_name = 'cilia_1e-4_prescribed_mcw'
-        self.date = '20240919_bicilia_-2.35'
+        self.date = '20240919_bicilia_-1'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 

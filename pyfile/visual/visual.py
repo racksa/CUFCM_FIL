@@ -74,7 +74,7 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20240919_bicilia_-2.35'
+        self.date = '20240919_bicilia_-3'
         # self.date = '20240911_bicilia_test'
         self.dir = f"data/volvox_bicilia/dp_sweep/{self.date}/"
 
@@ -142,7 +142,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 30000
-        self.frames_setting = 60
+        self.frames_setting = 3000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -2214,7 +2214,7 @@ class VISUAL:
                 seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                 seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                 blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                body_vels= np.array(body_vels_str.split()[1:], dtype=float)
+                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
 
                 seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
@@ -3719,18 +3719,21 @@ class VISUAL:
         some_dissipation = np.zeros(self.num_sim)
 
         for ind in range(self.num_sim):
+            self.index = ind
+            self.select_sim()
             try:
-                self.index = ind
-                self.select_sim()
-
                 seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
                 seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
                 blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
                 blob_references_f = open(self.simName + '_blob_references.dat', "r")
+                body_states_f = open(self.simName + '_body_states.dat', "r")
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
                 time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
                 body_speed_array = np.zeros(self.frames)
+                body_speed_along_axis_array = np.zeros(self.frames)
+                body_rot_speed_array = np.zeros(self.frames)
+                body_rot_speed_along_axis_array = np.zeros(self.frames)
                 dissipation_array = np.zeros(self.frames)
                 efficiency_array = np.zeros(self.frames)
 
@@ -3744,12 +3747,15 @@ class VISUAL:
                     seg_vels_str = seg_vels_f.readline()
                     blob_forces_str = blob_forces_f.readline()
                     body_vels_str = body_vels_f.readline()
+                    body_states_str = body_states_f.readline()
+                    
 
                     if(i>=self.plot_start_frame):
                         seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                         seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                         blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                        body_vels= np.array(body_vels_str.split(), dtype=float)
+                        body_vels= np.array(body_vels_str.split()[1:], dtype=float)
+                        body_states = np.array(body_states_str.split()[1:], dtype=float)
 
                         seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
                         seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
@@ -3757,16 +3763,38 @@ class VISUAL:
                         body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
                         blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
 
+                        R = util.rot_mat(body_states[3:7])
+                        body_axis = np.matmul(R, np.array([0,0,1]))
+
                         body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                        body_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[0:3]*body_axis)
+
+                        body_rot_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[3:6]*body_vels[3:6], 0))
+                        body_rot_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[3:6]*body_axis)
+
                         dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
 
-                efficiency_array = 6*np.pi*self.radius*body_speed_array**2/dissipation_array
-                ax.plot(time_array, body_speed_array/self.fillength, label=f"index={self.index}")
-                ax2.plot(time_array, dissipation_array/self.fillength**3, label=f"index={self.index}")
+                        # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                        # dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+
+                efficiency_array = 6*np.pi*self.radius*body_speed_along_axis_array**2/dissipation_array
+                body_speed_along_axis_array /= self.fillength
+                body_speed_array /= self.fillength
+                dissipation_array /= self.fillength**3
+
+                np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+                np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
+                np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
+                np.save(f'{self.dir}/dissipation_array_index{self.index}.npy', dissipation_array)
+                np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
+
+                
+                ax.plot(time_array,  body_speed_array, label=f"index={self.index}")
+                ax2.plot(time_array, dissipation_array, label=f"index={self.index}")
                 ax3.plot(time_array, efficiency_array, label=f"index={self.index}")
                 
-                max_speed[ind] = np.max(body_speed_array)
-                some_speed[ind] = body_speed_array[0]
+                max_speed[ind] = np.max(body_speed_along_axis_array)
+                some_speed[ind] = body_speed_along_axis_array[0]
                 max_dissipation[ind] = np.max(dissipation_array)
                 some_dissipation[ind] = dissipation_array[0]
             except:
