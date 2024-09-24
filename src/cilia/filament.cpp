@@ -330,13 +330,15 @@ void filament::initial_setup(const Real *const base_pos,
                                                     base_pos[1]*base_pos[1]+
                                                     base_pos[2]*base_pos[2])));
                                                     
-          Real k = 0.0;
-          Real v = 0.0;
-          std::ifstream in("input/prescribed_mcw/mcw.dat"); // input
-          in >> k;
-          // phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
-          phase = Real(2.0)*k*theta;
-          in.close();
+          // Real k = 0.0;
+          // Real v = 0.0;
+          // std::ifstream in("input/prescribed_mcw/mcw.dat"); // input
+          // in >> k;
+          // // phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
+          // phase = Real(2.0)*k*theta;
+          // in.close();
+
+          phase = Real(2.0)*WAVNUM*theta;
 
         #endif
 

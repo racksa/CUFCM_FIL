@@ -23,6 +23,7 @@ Real DT = PERIOD/STEPS_PER_PERIOD;
 int TOTAL_TIME_STEPS = 1;
 Real TILT_ANGLE = 0.0;
 Real PAIR_DP = 0.0;
+Real WAVNUM = 0.0;
 
 std::string SIMULATION_DIR = "data/expr_sims/global/";
 std::string SIMULATION_FILE = "cilia";

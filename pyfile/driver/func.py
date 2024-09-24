@@ -46,7 +46,7 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox_bicilia/dp_sweep/'
+        self.category = 'volvox_bicilia/dp_sweep2/'
         self.exe_name = 'cilia_1e-4_bicilia'
         # self.exe_name = 'cilia_1e-4_prescribed_mcw'
         self.date = '20240919_bicilia_-1'
@@ -76,10 +76,11 @@ class DRIVER:
                      "blob_x_dim": [],
                      "hex_num": [],
                      "reverse_fil_direction_ratio": [],
-                     "pair_dp": []}
+                     "pair_dp": [],
+                     "wavnum": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (9, 1, 1, 1)
+        self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -124,6 +125,7 @@ class DRIVER:
                         force_mag = 1
                         tilt_angle = 0
                         pair_dp = 0.0
+                        wavnum = 0.0
 
                         # # planar triangle
                         nfil = int(256*(i+1))
@@ -224,7 +226,7 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 160
+                        nfil = 2560
                         nblob = 40962
                         ar = 20
                         nseg = 40
@@ -236,7 +238,8 @@ class DRIVER:
                         period = 1
                         sim_length = 1
                         tilt_angle = 0.
-                        pair_dp = 0.1 + 0.1*i
+                        pair_dp = 0.1*i
+                        wavnum = -1
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
@@ -296,6 +299,7 @@ class DRIVER:
                         self.pars_list["hex_num"].append(hex_num)
                         self.pars_list["reverse_fil_direction_ratio"].append(reverse_fil_direction_ratio)
                         self.pars_list["pair_dp"].append(pair_dp)
+                        self.pars_list["wavnum"].append(wavnum)
 
                         index += 1
         # Write rules to sim list file

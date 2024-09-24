@@ -74,9 +74,11 @@ class VISUAL:
         self.date = '20240906_volvox_symplectic_k=2.35'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20240919_bicilia_-3'
-        # self.date = '20240911_bicilia_test'
-        self.dir = f"data/volvox_bicilia/dp_sweep/{self.date}/"
+        # self.date = '20240911_bicilia_ishikawa'
+        # self.dir = f"data/volvox_bicilia/{self.date}/"
+
+        self.date = '20240919_bicilia_-2.35'
+        self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -2021,7 +2023,7 @@ class VISUAL:
             if(i>=self.plot_start_frame):
 
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
-                body_vels = np.array(body_vels_str.split(), dtype=float)
+                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
                 # body_vels = np.array(body_vels_str.split([1:]), dtype=float)
 
                 # body_pos_array[i-self.plot_start_frame] = body_states[0:3]
@@ -3789,7 +3791,7 @@ class VISUAL:
                 np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
 
                 
-                ax.plot(time_array,  body_speed_array, label=f"index={self.index}")
+                ax.plot(time_array,  body_speed_along_axis_array, label=f"index={self.index}")
                 ax2.plot(time_array, dissipation_array, label=f"index={self.index}")
                 ax3.plot(time_array, efficiency_array, label=f"index={self.index}")
                 

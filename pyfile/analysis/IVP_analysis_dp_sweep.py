@@ -77,26 +77,6 @@ def real_fillength(phase):
     arc_length, _ = quad(integrand, 0, 1, args=(phase))
     return arc_length
 
-def original_shape_derivative2(s, phase):
-    svec = np.array([1, 2*s, 3*s**2])
-    fourier_dim = np.shape(Ax2)[0]
-    cosvec = np.array([np.cos(n*phase) for n in range(fourier_dim)])
-    sinvec = np.array([np.sin(n*phase) for n in range(fourier_dim)])
-
-    dx_ds = (cosvec @ Ax2 + sinvec @ Bx2) @ svec
-    dy_ds = (cosvec @ Ay2 + sinvec @ By2) @ svec
-    dz_ds = np.zeros(np.shape(dx_ds))
-
-    return dx_ds, dy_ds, dz_ds
-
-def integrand2(s, phase):
-    dx_ds, dy_ds, dz_ds = original_shape_derivative2(s, phase)
-    return np.sqrt(dx_ds**2 + dy_ds**2 + dz_ds**2)
-
-def real_fillength2(phase):
-    arc_length, _ = quad(integrand2, 0, 1, args=(phase))
-    return arc_length
-
 def calculate_enclosed_areas(x, y):
     """
     Calculate the areas enclosed by the curve and the x-axis
@@ -153,8 +133,8 @@ def calculate_enclosed_areas(x, y):
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
-fig1 = plt.figure()
-ax1 = fig1.add_subplot(1,1,1)
+# fig1 = plt.figure()
+# ax1 = fig1.add_subplot(1,1,1)
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(1,1,1)
 fig3 = plt.figure()
@@ -169,40 +149,52 @@ sim_n = len(dp_list)
 avg_speed_original_list = np.zeros(sim_n)
 avg_speed_volvox_list = np.zeros(sim_n)
 
-path = 'data/volvox_bicilia/dp_sweep/20240919_bicilia_-3/'
+wavnums = [-2.35, -1, 0, 1]
+paths = list()
+
+for wavnum in wavnums:
+    paths.append(f'data/volvox_bicilia/dp_sweep2/20240919_bicilia_{wavnum}/')
+
+# path = 'data/volvox_bicilia/dp_sweep/20240919_bicilia_-1/'
 
 # plot sim data
-for ind in range(sim_n):
-    try:
-        time_array = np.load(f"{path}time_array_index{ind}.npy")
-        speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
-        rot_speed_array = np.load(f"{path}body_rot_speed_array_index{ind}.npy")
-        dissipation_array = np.load(f"{path}dissipation_array_index{ind}.npy")
-        efficiency_array = np.load(f"{path}efficiency_array_index{ind}.npy")
+for pind, path in enumerate(paths):
+    cmap_name = 'hsv'
+    cmap = plt.get_cmap(cmap_name)
+    color = cmap(pind/len(wavnums))
+    for ind in range(sim_n):
+        try:
+            time_array = np.load(f"{path}time_array_index{ind}.npy")
+            speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
+            rot_speed_array = np.load(f"{path}body_rot_speed_array_index{ind}.npy")
+            dissipation_array = np.load(f"{path}dissipation_array_index{ind}.npy")
+            efficiency_array = np.load(f"{path}efficiency_array_index{ind}.npy")
 
-        fillength_array = np.zeros(np.shape(time_array))
-        for fili in range(len(fillength_array)):
-            fillength_array[fili] = real_fillength(time_array[fili]*2*np.pi)
+            fillength_array = np.zeros(np.shape(time_array))
+            for fili in range(len(fillength_array)):
+                fillength_array[fili] = real_fillength(time_array[fili]*2*np.pi)
 
-        # area_above, area_below = calculate_enclosed_areas(time_array, speed_array)
-        # print(f"Area above the x-axis (y > 0): {area_above}")
-        # print(f"Area below the x-axis (y < 0): {area_below}")
-        # ax.fill_between(time_array, speed_array, where=(speed_array > 0), interpolate=False, facecolor=None, hatch='/', alpha=0.3, label=f'Forward')
-        # ax.fill_between(time_array, speed_array, where=(speed_array < 0), interpolate=False, facecolor='b', hatch='\\', alpha=0.3, label=f'Backward')
-        # ax.annotate(rf'$A_1={area_above:.3f}$', (0.13, 0.25))
-        # ax.annotate(rf'$A_2={-area_below:.3f}$', (0.63, -0.2))
+            # area_above, area_below = calculate_enclosed_areas(time_array, speed_array)
+            # print(f"Area above the x-axis (y > 0): {area_above}")
+            # print(f"Area below the x-axis (y < 0): {area_below}")
+            # ax.fill_between(time_array, speed_array, where=(speed_array > 0), interpolate=False, facecolor=None, hatch='/', alpha=0.3, label=f'Forward')
+            # ax.fill_between(time_array, speed_array, where=(speed_array < 0), interpolate=False, facecolor='b', hatch='\\', alpha=0.3, label=f'Backward')
+            # ax.annotate(rf'$A_1={area_above:.3f}$', (0.13, 0.25))
+            # ax.annotate(rf'$A_2={-area_below:.3f}$', (0.63, -0.2))
 
-        # ax.plot(time_array, np.zeros(time_array.shape), alpha=1., c='black')
-        ax.plot(time_array, speed_array, alpha=1.)
-        # ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
-        avg_speed_volvox_list[ind] = np.mean(speed_array)
-        print(avg_speed_volvox_list[ind])
+            # ax.plot(time_array, np.zeros(time_array.shape), alpha=1., c='black')
+            ax.plot(time_array, speed_array, alpha=1., label=f"{ind}")
+            # ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
+            avg_speed_volvox_list[ind] = np.mean(speed_array)
+            print(avg_speed_volvox_list[ind])
 
-        ax2.plot(time_array, dissipation_array, label = rf'$dp={dp_list[ind]}$', c=colors[ind])
-        # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
-        # ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
-    except:
-        pass
+            ax2.plot(time_array, dissipation_array, label = rf'$dp={dp_list[ind]}$', c=colors[ind])
+            # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
+            # ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
+        except:
+            pass
+
+    ax3.plot(dp_list, avg_speed_volvox_list,  c=color, label=f'k={wavnums[pind]}')
 
 
 legend11 = ax.legend(frameon=False)
@@ -211,21 +203,22 @@ ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
 ax.set_ylabel(r'$V_zT/L$')
 
-legend11 = ax1.legend(frameon=False)
-ax1.add_artist(legend11)
-ax1.set_xlim(0, 1)
-ax1.set_xlabel(r'$t/T$')
-ax1.set_ylabel(r'$V_zT/L$')
+# legend11 = ax1.legend(frameon=False)
+# ax1.add_artist(legend11)
+# ax1.set_xlim(0, 1)
+# ax1.set_xlabel(r'$t/T$')
+# ax1.set_ylabel(r'$V_zT/L$')
 
 
 ax2.set_xlim(0, 1)
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'$PT^2/\mu L^3$')
 
-ax3.plot(dp_list, avg_speed_volvox_list,  c='black')
+
 ax3.set_xlabel(r'$\frac{\psi_1-\psi_2}{2\pi}$')
 ax3.set_ylabel(r'$<V>T/L$')
 ax3.set_xlim(0,1)
+ax3.legend()
 
 
 # line1, = ax4.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
@@ -237,7 +230,6 @@ ax3.set_xlim(0,1)
 # ax4.set_ylabel(r'$L$')
 
 fig.tight_layout()
-fig1.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 # fig.savefig(f'fig/ishikawa_pnas_volvox_vel_area.pdf', bbox_inches = 'tight', format='pdf')

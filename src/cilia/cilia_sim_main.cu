@@ -64,6 +64,8 @@ int main(int argc, char** argv){
   TORSIONAL_SPRING_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "spring_factor"));
   TILT_ANGLE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "tilt_angle"));
   PAIR_DP = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "pair_dp"));
+  WAVNUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "wavnum"));
+  
   GEN_FORCE_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_mag"));
   SIMULATION_DIR = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_dir");
   SIMULATION_FILE = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_file");
