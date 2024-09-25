@@ -144,7 +144,7 @@ ax3 = fig3.add_subplot(1,1,1)
 # k_list = [-1, 0, 0.5, 1.0, 1.5, 2.0]
 # labels = [r"$k=-1$",r"$k=0$",r"$k=0.5$",r"$k=1$",r"$k=1.5$",r"$k=2$",]
 colors = ["black","red","green","blue","purple"]
-dp_list = np.linspace(0.1, 0.9, 9)
+dp_list = np.linspace(0, 0.5, 6)
 sim_n = len(dp_list)
 avg_speed_original_list = np.zeros(sim_n)
 avg_speed_volvox_list = np.zeros(sim_n)
@@ -157,8 +157,10 @@ for wavnum in wavnums:
 
 # path = 'data/volvox_bicilia/dp_sweep/20240919_bicilia_-1/'
 
+paths.append('data/volvox_bicilia/dp_sweep/20240919_bicilia_-1/')
+
 # plot sim data
-for pind, path in enumerate(paths):
+for pind, path in enumerate(paths[-1:]):
     cmap_name = 'hsv'
     cmap = plt.get_cmap(cmap_name)
     color = cmap(pind/len(wavnums))
@@ -183,12 +185,12 @@ for pind, path in enumerate(paths):
             # ax.annotate(rf'$A_2={-area_below:.3f}$', (0.63, -0.2))
 
             # ax.plot(time_array, np.zeros(time_array.shape), alpha=1., c='black')
-            ax.plot(time_array, speed_array, alpha=1., label=f"{ind}")
+            ax.plot(time_array, speed_array, alpha=1., label = rf'$dp={dp_list[ind]}\cdot 2\pi$',)
             # ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
             avg_speed_volvox_list[ind] = np.mean(speed_array)
             print(avg_speed_volvox_list[ind])
 
-            ax2.plot(time_array, dissipation_array, label = rf'$dp={dp_list[ind]}$', c=colors[ind])
+            ax2.plot(time_array, dissipation_array, label = rf'$dp={dp_list[ind]}\cdot 2\pi$',)
             # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
             # ax4.plot(time_array, fillength_array, label = N_list[ind], c='black')
         except:

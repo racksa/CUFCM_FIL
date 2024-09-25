@@ -110,15 +110,15 @@ cbar.set_label(variable_label)
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'tilt angle')
+ax.set_ylabel(r'\chi')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r'tilt angle')
+ax2.set_ylabel(r'\chi')
 
-ax3.set_xlabel(r'tilt angle')
+ax3.set_xlabel(r'\chi')
 ax3.set_ylabel(variable_label)  
 ax3.legend()
 

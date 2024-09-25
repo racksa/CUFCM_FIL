@@ -236,7 +236,7 @@ arrow = patches.FancyArrowPatch(path=path,
                                 linewidth=1,       # Adjust thickness
                                 mutation_scale=20)
 ax1.add_patch(arrow)
-ax1.annotate(r'$\psi(t)$', (5, 40.0), fontsize=25, va='center')
+ax1.annotate(r'$\psi_1(t)$', (5, 40.0), fontsize=25, va='center')
 
 # theta
 start_t = np.array([0, 50])
@@ -259,7 +259,7 @@ arrow = patches.FancyArrowPatch(path=path,
                                 linewidth=1,       # Adjust thickness
                                 mutation_scale=20)
 ax2.add_patch(arrow)
-ax2.annotate(r'$\theta(t)$', (7, 45), fontsize=25, va='center')
+ax2.annotate(r'$\psi_2(t)$', (7, 45), fontsize=25, va='center')
 
 
 

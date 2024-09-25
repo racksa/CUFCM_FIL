@@ -60,8 +60,8 @@ for n in range(1, truncate):
 
 
 
-ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], phase_forcing, label=r'$Q_\psi$')
-ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], angle_forcing, label=r'$Q_\theta$')
+ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], phase_forcing, label=r'$Q_1$')
+ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], angle_forcing, label=r'$Q_2$')
 # ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], reconstructed_signal+phase_mean, label=r'$Q_\theta$')
 
 # Add comparison with another forcing data file.
@@ -79,8 +79,8 @@ ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], angle_forcing, label=r'$Q_\the
 # ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], phase_forcing, label=r'$Q_\psi$')
 # ax1.plot(np.linspace(0, 2*np.pi, n_phase+1)[:-1], angle_forcing, label=r'$Q_\theta$')
 
-ax1.set_xlabel(r'$\psi$')
-ax1.set_ylabel(r'$\frac{Q}{\omega \eta L^3}$')
+ax1.set_xlabel(r'$\psi_1$')
+ax1.set_ylabel(r'$Q/\omega \eta L^3$')
 
 ax1_x_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ]
 ax1.set_xticks(ticks= np.linspace(0, 2*np.pi, 5), labels=ax1_x_labels)
@@ -92,7 +92,7 @@ ax1.set_xticks(ticks= np.linspace(0, 2*np.pi, 5), labels=ax1_x_labels)
 
 ax1.set_xlim(0, 2*np.pi)
 ax1.legend()
-plt.tight_layout()
+fig1.tight_layout()
 fig1.savefig(f'fig/forcing.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()
 

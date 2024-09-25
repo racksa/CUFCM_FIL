@@ -137,13 +137,13 @@ speed_error_list = np.zeros(nblob_list.shape)
 dissipation_error_list = np.zeros(nblob_list.shape)
 nsim = len(nblob_list)
 
-ref_index = nsim - 4
+ref_index = nsim - 6
 
 ref_speed_array = np.load(f"{path}body_speed_array_index{ref_index}.npy")
 ref_dissipation_array = np.load(f"{path}dissipation_array_index{ref_index}.npy")
 
 # plot sim data
-for ind in range(nsim):
+for ind in range(nsim-6):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -230,7 +230,7 @@ ax2.set_ylabel(r'$PT^2/\mu L^3$')
 ax4.plot(nblob_list, avg_speed_list, marker = '+')
 ax4.set_xscale('log')
 ax4.set_yscale('log')
-ax4.set_xlabel(r'$Number\ of\ rigid\ blobs$')
+ax4.set_xlabel(r'$P$')
 ax4.set_ylabel(r'$V$')
 # ax4.set_ylabel(r'$\sqrt{\frac{|V-V_{ref}|^2}{|V_{ref}|^2}}$')
 
@@ -239,14 +239,14 @@ ax4.set_ylabel(r'$V$')
 ax5.plot(nblob_list, speed_error_list, marker = '+', color='black')
 ax5.set_xscale('log')
 ax5.set_yscale('log')
-ax5.set_xlabel(r'$Number\ of\ rigid\ blobs$')
-ax5.set_ylabel(r'$\% error\ in\ swimming\ speed$')
+ax5.set_xlabel(r'$P$')
+ax5.set_ylabel(r'$V\ \% error$')
 
 ax6.plot(nblob_list, dissipation_error_list, marker = '+', color='black')
 ax6.set_xscale('log')
 ax6.set_yscale('log')
-ax6.set_xlabel(r'$Number\ of\ rigid\ blobs$')
-ax6.set_ylabel(r'$\% error\ in\ dissipation$')
+ax6.set_xlabel(r'$P$')
+ax6.set_ylabel(r'$\mathcal{R}\ \% error$')
 
 
 fig.tight_layout()

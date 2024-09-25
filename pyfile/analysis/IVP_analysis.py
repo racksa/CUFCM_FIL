@@ -88,10 +88,10 @@ ax.set_xlim(0, 0.09)
 ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r"$<V⋅e_1>/L$")
+ax2.set_ylabel(r"$<V>/L$")
 
 ax3.set_xlabel(r'$k$')
-ax3.set_ylabel(r"$<Ω⋅e_1>$")
+ax3.set_ylabel(r"$<Ω>$")
 
 
 fig.tight_layout()

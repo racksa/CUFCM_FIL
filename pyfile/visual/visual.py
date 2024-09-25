@@ -51,10 +51,9 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        # self.date = '20240311_2'
+        # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        # self.date = 'combined_analysis'
         self.date = 'combined_analysis_force_rerun'
         self.dir = f"data/giant_swimmer/{self.date}/"
 
@@ -70,14 +69,13 @@ class VISUAL:
         # self.date = '20240903_real_volvox_seg20'
         # self.dir = f"data/ishikawa/{self.date}/"
 
-        # self.date = '20240904_volvox_test'
-        self.date = '20240906_volvox_symplectic_k=2.35'
-        self.dir = f"data/volvox/{self.date}/"
+        # self.date = '20240906_volvox_symplectic_k=2.35'
+        # self.dir = f"data/volvox/{self.date}/"
 
         # self.date = '20240911_bicilia_ishikawa'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
-        self.date = '20240919_bicilia_-2.35'
+        self.date = '20240919_bicilia_1'
         self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
@@ -143,8 +141,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 30000
-        self.frames_setting = 3000
+        self.plot_end_frame_setting = 460
+        self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1695,6 +1693,8 @@ class VISUAL:
         def animation_func(t):
             print(t)
             ax.cla()
+            ax.axis('off')
+            ax.set_aspect('equal')
             ax.set_xlabel('x')
             ax.set_ylabel('y')
             ax.set_zlabel('z')
@@ -1742,7 +1742,8 @@ class VISUAL:
                             for pi, pos in enumerate(pos_list):
                                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
                     
-                    ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+                    if (fil_data[0] - body_pos)[1]> 0:
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
 
                 if(show_flow_field):
                     for blob in range(int(self.pars['NBLOB'])):
@@ -1820,7 +1821,7 @@ class VISUAL:
             
             ax.set_aspect('equal')
             # plt.savefig(f'fig/ciliate_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.savefig(f'fig/ciliate_{self.nfil}fil_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
+            plt.savefig(f'fig/ciliate_{self.nfil}fil_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
     def ciliate_eco(self):        
@@ -1858,7 +1859,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        ax.view_init(elev=00., azim=-30)
+        ax.view_init(elev=00., azim=-90)
         ax.dist=5.8
         ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
         ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -1931,12 +1932,13 @@ class VISUAL:
                         [0, 0, 1]
                     ])
                     for seg in range(0, int(self.pars['NSEG'])):
-                        ref = self.fillength*R@Rfil@Rtheta@np.array(volvox_cilia_shape(s[seg], fil_phases[fil]))
+                        ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
                         seg_pos = fil_base + ref
                         fil_data[seg] = seg_pos
 
                     # Show only one side of the sphere
-                    if fil_references_sphpolar[fil][1] > 0:
+                    # if fil_references_sphpolar[fil][1] > 0:
+                    if (fil_base - body_pos)[1]> 0:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
 
         if(self.video):
@@ -2023,7 +2025,9 @@ class VISUAL:
             if(i>=self.plot_start_frame):
 
                 body_states = np.array(body_states_str.split()[1:], dtype=float)
-                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+                body_vels = np.array(body_vels_str.split(), dtype=float)
+                if(len(body_vels) == 7):
+                        body_vels = body_vels[1:]
                 # body_vels = np.array(body_vels_str.split([1:]), dtype=float)
 
                 # body_pos_array[i-self.plot_start_frame] = body_states[0:3]
@@ -3723,84 +3727,98 @@ class VISUAL:
         for ind in range(self.num_sim):
             self.index = ind
             self.select_sim()
-            try:
-                seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
-                seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
-                blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
-                blob_references_f = open(self.simName + '_blob_references.dat', "r")
-                body_states_f = open(self.simName + '_body_states.dat', "r")
-                body_vels_f = open(self.simName + '_body_vels.dat', "r")
+            # try:
+            fil_states_f = open(self.simName + '_true_states.dat', "r")
+            seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+            seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
+            blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+            blob_references_f = open(self.simName + '_blob_references.dat', "r")
+            body_states_f = open(self.simName + '_body_states.dat', "r")
+            body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
-                time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
-                body_speed_array = np.zeros(self.frames)
-                body_speed_along_axis_array = np.zeros(self.frames)
-                body_rot_speed_array = np.zeros(self.frames)
-                body_rot_speed_along_axis_array = np.zeros(self.frames)
-                dissipation_array = np.zeros(self.frames)
-                efficiency_array = np.zeros(self.frames)
 
-                blob_references_str = blob_references_f.readline()
-                blob_references= np.array(blob_references_str.split(), dtype=float)
-                blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+            time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+            body_speed_array = np.zeros(self.frames)
+            body_speed_along_axis_array = np.zeros(self.frames)
+            body_rot_speed_array = np.zeros(self.frames)
+            body_rot_speed_along_axis_array = np.zeros(self.frames)
+            dissipation_array = np.zeros(self.frames)
+            efficiency_array = np.zeros(self.frames)
+            r_array = np.zeros(self.frames)
 
-                for i in range(self.plot_end_frame):
-                    print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                    seg_forces_str = seg_forces_f.readline()
-                    seg_vels_str = seg_vels_f.readline()
-                    blob_forces_str = blob_forces_f.readline()
-                    body_vels_str = body_vels_f.readline()
-                    body_states_str = body_states_f.readline()
+
+            blob_references_str = blob_references_f.readline()
+            blob_references= np.array(blob_references_str.split(), dtype=float)
+            blob_references = np.reshape(blob_references, (int(self.pars['NBLOB']), 3))
+
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                fil_states_str = fil_states_f.readline()
+                seg_forces_str = seg_forces_f.readline()
+                seg_vels_str = seg_vels_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                body_vels_str = body_vels_f.readline()
+                body_states_str = body_states_f.readline()
+                
+
+                if(i>=self.plot_start_frame):
+                    fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                    phases = fil_states[:self.nfil]
+                    seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                    seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
+                    blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                    body_vels= np.array(body_vels_str.split(), dtype=float)
+                    if(len(body_vels) == 7):
+                        body_vels = body_vels[1:]
+                    body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                    seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                    seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
+                    blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
+                    body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
+                    blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
+
+                    R = util.rot_mat(body_states[3:7])
+                    body_axis = np.matmul(R, np.array([0,0,1]))
+
+                    body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                    body_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[0:3]*body_axis)
+
+                    body_rot_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[3:6]*body_vels[3:6], 0))
+                    body_rot_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[3:6]*body_axis)
+
+                    dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
                     
+                    r = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
+                    r_array[i-self.plot_start_frame] = r
 
-                    if(i>=self.plot_start_frame):
-                        seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
-                        seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
-                        blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                        body_vels= np.array(body_vels_str.split()[1:], dtype=float)
-                        body_states = np.array(body_states_str.split()[1:], dtype=float)
+                    # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                    # dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
 
-                        seg_forces = np.reshape(seg_forces, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
-                        seg_vels = np.reshape(seg_vels, (int(self.pars['NSEG']*self.pars['NFIL']), 6))
-                        blob_forces = np.reshape(blob_forces, (int(self.pars['NBLOB']), 3))
-                        body_vels_tile = np.tile(body_vels, (int(self.pars['NBLOB']), 1))
-                        blob_vels = body_vels_tile[:, 0:3] + np.cross(body_vels_tile[:, 3:6], blob_references)
+            efficiency_array = 6*np.pi*self.radius*body_speed_along_axis_array**2/dissipation_array
+            body_speed_along_axis_array /= self.fillength
+            body_speed_array /= self.fillength
+            dissipation_array /= self.fillength**3
 
-                        R = util.rot_mat(body_states[3:7])
-                        body_axis = np.matmul(R, np.array([0,0,1]))
+            np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+            np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
+            np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
+            np.save(f'{self.dir}/dissipation_array_index{self.index}.npy', dissipation_array)
+            np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
+            np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
+            np.save(f'{self.dir}/k_index{self.index}.npy', self.spring_factor)
 
-                        body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
-                        body_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[0:3]*body_axis)
-
-                        body_rot_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[3:6]*body_vels[3:6], 0))
-                        body_rot_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[3:6]*body_axis)
-
-                        dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
-
-                        # body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
-                        # dissipation_array[i-self.plot_start_frame] = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
-
-                efficiency_array = 6*np.pi*self.radius*body_speed_along_axis_array**2/dissipation_array
-                body_speed_along_axis_array /= self.fillength
-                body_speed_array /= self.fillength
-                dissipation_array /= self.fillength**3
-
-                np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-                np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
-                np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
-                np.save(f'{self.dir}/dissipation_array_index{self.index}.npy', dissipation_array)
-                np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
-
-                
-                ax.plot(time_array,  body_speed_along_axis_array, label=f"index={self.index}")
-                ax2.plot(time_array, dissipation_array, label=f"index={self.index}")
-                ax3.plot(time_array, efficiency_array, label=f"index={self.index}")
-                
-                max_speed[ind] = np.max(body_speed_along_axis_array)
-                some_speed[ind] = body_speed_along_axis_array[0]
-                max_dissipation[ind] = np.max(dissipation_array)
-                some_dissipation[ind] = dissipation_array[0]
-            except:
-                print("WARNING: " + self.simName + " not found.")
+            
+            ax.plot(time_array,  body_speed_along_axis_array, label=f"index={self.index}")
+            ax2.plot(time_array, dissipation_array, label=f"index={self.index}")
+            ax3.plot(time_array, efficiency_array, label=f"index={self.index}")
+            
+            max_speed[ind] = np.max(body_speed_along_axis_array)
+            some_speed[ind] = body_speed_along_axis_array[0]
+            max_dissipation[ind] = np.max(dissipation_array)
+            some_dissipation[ind] = dissipation_array[0]
+            # except:
+            #     print("WARNING: " + self.simName + " not found.")
         
         print(", ".join((max_speed/self.fillength).astype(str)))
         print(", ".join((some_speed/self.fillength).astype(str)))
@@ -3817,10 +3835,10 @@ class VISUAL:
         fig.legend()
         fig2.legend()
         fig3.legend()
-        fig.savefig(f'fig/multi_speed_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        fig2.savefig(f'fig/multi_dissipation_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        fig3.savefig(f'fig/multi_efficiency_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        plt.show()
+        # fig.savefig(f'fig/multi_speed_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/multi_dissipation_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig3.savefig(f'fig/multi_efficiency_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        # plt.show()
 
     def multi_ciliate_dissipation_generate(self):
          # Plotting
@@ -5501,12 +5519,12 @@ class VISUAL:
         # force = False
         # path = "data/ic_hpc_sim/"
 
-        force = False
-        path = "data/ic_hpc_sim_free/"
+        force = True
+        path = "data/ic_hpc_sim_free_with_force/"
 
-        force = False
-        path = 'data/tilt_test/makeup_pattern/'
-        path = 'data/tilt_test/IVP/'
+        # force = False
+        # path = 'data/tilt_test/makeup_pattern/'
+        # path = 'data/tilt_test/IVP/'
 
         # import re
         # def sort_key(s):
@@ -5518,7 +5536,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 600
+        self.frames_setting = 3000
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!
@@ -5532,6 +5550,7 @@ class VISUAL:
         avg_speed_along_axis_data = np.zeros((len(folders), self.num_sim))
         avg_rot_speed_data = np.zeros((len(folders), self.num_sim))
         avg_rot_speed_along_axis_data = np.zeros((len(folders), self.num_sim))
+        dis_data = np.zeros((len(folders), self.num_sim))
         eff_data = np.zeros((len(folders), self.num_sim))
 
         fig = plt.figure()
@@ -5550,6 +5569,7 @@ class VISUAL:
             avg_speed_along_axis_arrays = np.zeros(np.shape(k_arrays))
             avg_rot_speed_arrays = np.zeros(np.shape(k_arrays))
             avg_rot_speed_along_axis_arrays = np.zeros(np.shape(k_arrays))
+
             dis_arrays = np.zeros(np.shape(k_arrays))
             eff_arrays = np.zeros(np.shape(k_arrays))
             
@@ -5576,6 +5596,7 @@ class VISUAL:
                     seg_vels_f = open(self.simName + '_seg_vels.dat', "r")
                     blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
                     blob_references_f = open(self.simName + '_blob_references.dat', "r")
+                    body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
                     blob_references_str = blob_references_f.readline()
                     blob_references= np.array(blob_references_str.split(), dtype=float)
@@ -5589,6 +5610,7 @@ class VISUAL:
                         seg_forces_str = seg_forces_f.readline()
                         seg_vels_str = seg_vels_f.readline()
                         blob_forces_str = blob_forces_f.readline()
+                        body_vels_str = body_vels_f.readline()
                     if(t>=self.plot_start_frame):
                         body_states = np.array(body_states_str.split()[1:], dtype=float)
                         fil_states = np.array(fil_states_str.split()[2:], dtype=float)
@@ -5608,6 +5630,7 @@ class VISUAL:
                             seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                             seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+
                             # Need to patch this for diffeent output format....
                             if(len(body_vels_str.split())==6):
                                 body_vels= np.array(body_vels_str.split(), dtype=float)
@@ -5623,7 +5646,7 @@ class VISUAL:
                             speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
                             dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
                             eff = 6*np.pi*self.radius*speed**2/dis
-                            v_arrays[ind] += speed
+
                             dis_arrays[ind] += dis
                             eff_arrays[ind] += eff
                 
@@ -5647,7 +5670,7 @@ class VISUAL:
                 if force:
                     
                     dis_arrays[ind] /= self.frames
-                    eff_arrays[ind] /= self.frames
+                    # eff_arrays[ind] /= self.frames
             
                 # except:
                 #     print("Something went wrong")
@@ -5661,6 +5684,9 @@ class VISUAL:
             avg_speed_along_axis_data[fi] = avg_speed_along_axis_arrays
             avg_rot_speed_data[fi] = avg_rot_speed_arrays
             avg_rot_speed_along_axis_data[fi] = avg_rot_speed_along_axis_arrays
+            
+            if force:
+                dis_data[fi] = dis_arrays
 
             ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
 
@@ -5675,7 +5701,8 @@ class VISUAL:
         np.save(f"{path}avg_rot_speed_along_axis_data.npy", avg_rot_speed_along_axis_data)
         
         if force:
-            np.save(f"{path}eff_data.npy", eff_data)
+            np.save(f"{path}dis_data.npy", dis_data)
+            # np.save(f"{path}eff_data.npy", eff_data)
 
 
         ax.set_ylim(0)

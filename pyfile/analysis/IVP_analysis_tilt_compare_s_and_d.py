@@ -47,6 +47,7 @@ n_tilt = 5
 tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
 tilt_angle = tilt_angle*180/np.pi
 
+
 for fi in range(n_folder):
 
     
@@ -125,21 +126,21 @@ from matplotlib.cm import ScalarMappable
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'$Tilt\ angle$')
+ax.set_ylabel(r'$\chi$')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r'$Tilt\ angle$')
+ax2.set_ylabel(r'$\chi$')
 
-ax3.set_xlabel(r'$Tilt\ angle$')
-ax3.set_ylabel(r'$<VT/L>$')
+ax3.set_xlabel(r'$\chi$')
+ax3.set_ylabel(r'$<V>T/L$')
 ax3.legend()
 # ax3.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax3.set_xlim(tilt_angle[0], tilt_angle[-1])
 
-ax4.set_xlabel(r'$Tilt\ angle$')
+ax4.set_xlabel(r'$\chi$')
 ax4.set_ylabel(r'$<\Omega>$')
 ax4.legend()
 # ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
