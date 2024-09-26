@@ -47,15 +47,15 @@ class VISUAL:
 
         
 
-        # self.date = '20240311_8'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_10'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
-        self.date = 'combined_analysis_force_rerun'
-        self.dir = f"data/giant_swimmer/{self.date}/"
+        # self.date = 'combined_analysis_force_rerun'
+        # self.dir = f"data/giant_swimmer/{self.date}/"
 
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
@@ -75,8 +75,8 @@ class VISUAL:
         # self.date = '20240911_bicilia_ishikawa'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
-        self.date = '20240919_bicilia_1'
-        self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
+        # self.date = '20240919_bicilia_-1'
+        # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -141,8 +141,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 460
-        self.frames_setting = 30
+        self.plot_end_frame_setting = 1506
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1909,9 +1909,8 @@ class VISUAL:
                 # Plot body axis
                 # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
                 # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
-                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
-                
-                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
+                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
+                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -3378,7 +3377,7 @@ class VISUAL:
         spring_factor = self.pars_list['spring_factor'][0]
 
         
-        fig, axs = plt.subplots(nrow, ncol, figsize=(18, 18), sharex=True, sharey=True)
+        fig, axs = plt.subplots(nrow, ncol, sharex=True, sharey=True)
 
         axs_flat = axs.ravel()
         # Row-major, bottom-to-top indices

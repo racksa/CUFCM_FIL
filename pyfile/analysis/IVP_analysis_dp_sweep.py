@@ -157,10 +157,10 @@ for wavnum in wavnums:
 
 # path = 'data/volvox_bicilia/dp_sweep/20240919_bicilia_-1/'
 
-paths.append('data/volvox_bicilia/dp_sweep/20240919_bicilia_-1/')
+# paths.append('data/volvox_bicilia/dp_sweep/20240919_bicilia_-1/')
 
 # plot sim data
-for pind, path in enumerate(paths[-1:]):
+for pind, path in enumerate(paths):
     cmap_name = 'hsv'
     cmap = plt.get_cmap(cmap_name)
     color = cmap(pind/len(wavnums))
@@ -188,7 +188,7 @@ for pind, path in enumerate(paths[-1:]):
             ax.plot(time_array, speed_array, alpha=1., label = rf'$dp={dp_list[ind]}\cdot 2\pi$',)
             # ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
             avg_speed_volvox_list[ind] = np.mean(speed_array)
-            print(avg_speed_volvox_list[ind])
+            print(pind, avg_speed_volvox_list[ind])
 
             ax2.plot(time_array, dissipation_array, label = rf'$dp={dp_list[ind]}\cdot 2\pi$',)
             # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
@@ -196,7 +196,7 @@ for pind, path in enumerate(paths[-1:]):
         except:
             pass
 
-    ax3.plot(dp_list, avg_speed_volvox_list,  c=color, label=f'k={wavnums[pind]}')
+    ax3.plot(dp_list[:3], avg_speed_volvox_list[:3],  c=color, label=f'k={wavnums[pind]}')
 
 
 legend11 = ax.legend(frameon=False)
@@ -217,7 +217,7 @@ ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'$PT^2/\mu L^3$')
 
 
-ax3.set_xlabel(r'$\frac{\psi_1-\psi_2}{2\pi}$')
+ax3.set_xlabel(r'$\Delta\psi_1/2\pi$')
 ax3.set_ylabel(r'$<V>T/L$')
 ax3.set_xlim(0,1)
 ax3.legend()

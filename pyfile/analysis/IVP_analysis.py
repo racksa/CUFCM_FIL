@@ -57,16 +57,16 @@ for fi in range(n_folder_free):
     indices_symplectic = np.where(plot_y > .4)[0]
     indices_diaplectic = np.where(plot_y  < .4)[0]
 
-    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='+', c='b')
-    ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='b')
+    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=50, marker='x', c='b')
+    ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=50, marker='x', c='b')
 
     plot_y2 = avg_speed_along_axis_data_free[fi]
     ax2.scatter(plot_x[indices_symplectic], plot_y2[indices_symplectic], s=100, marker='+', c='r')
-    ax2.scatter(plot_x[indices_diaplectic], plot_y2[indices_diaplectic], s=100, marker='+', c='b')
+    ax2.scatter(plot_x[indices_diaplectic], plot_y2[indices_diaplectic], s=50, marker='x', c='b')
     
     plot_y3 = avg_rot_speed_along_axis_data_free[fi]
     ax3.scatter(plot_x[indices_symplectic], plot_y3[indices_symplectic], s=100, marker='+', c='r')
-    ax3.scatter(plot_x[indices_diaplectic], plot_y3[indices_diaplectic], s=100, marker='+', c='b')
+    ax3.scatter(plot_x[indices_diaplectic], plot_y3[indices_diaplectic], s=50, marker='x', c='b')
 
 
 # ax.scatter(-1, -1, marker='+', c='r', label='Held fixed - Symplectic')
@@ -78,8 +78,8 @@ for fi in range(n_folder_free):
 # ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
 # ax.scatter(-1, -1, marker='+', c='black', s=100, label='Diaplectic')
 # ax.scatter(-1, -1, marker='P', c='black', s=100, label='Diaplectic(#k=2)')
-ax.scatter(-1, -1, marker='s', c='r', s=100, label='Held fixed')
-ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
+ax.scatter(-1, -1, marker='+', c='r', s=100, label='Held fixed')
+ax.scatter(-1, -1, marker='x', c='b', s=50, label='Free')
 
 ax.set_xlabel(r'$k$')
 ax.set_ylabel(r'$<r>$')
@@ -98,7 +98,7 @@ fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
-# fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
+fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
 fig2.savefig(f'fig/IVP_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 fig3.savefig(f'fig/IVP_efficiencies_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 plt.show()
