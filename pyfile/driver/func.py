@@ -31,6 +31,10 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-6_sangani'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'tilt_test/makeup_pattern_with_force/'
+        self.exe_name = 'cilia_1e-4_free'
+        self.date = '20240724_diaplectic'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
 
@@ -46,11 +50,10 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox_bicilia/dp_sweep2/'
-        self.exe_name = 'cilia_1e-4_bicilia'
-        # self.exe_name = 'cilia_1e-4_prescribed_mcw'
-        self.date = '20240919_bicilia_-1'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'volvox_bicilia/dp_sweep2/'
+        # self.exe_name = 'cilia_1e-4_bicilia'
+        # self.date = '20240919_bicilia_-1'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -80,7 +83,7 @@ class DRIVER:
                      "wavnum": []}
 
         # self.sweep_shape = (1, 12, 4, 1)
-        self.sweep_shape = (6, 1, 1, 1)
+        self.sweep_shape = (12, 5, 1, 1)
 
         self.num_sim = 0
 
@@ -158,24 +161,23 @@ class DRIVER:
                         pair_dp = 0.1
 
                         # # # IVP sim
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
 
-                        # nseg = 40
-                        # # nfil = int(639)
-                        # # nblob = int(40961)
-                        # # ar = round(15.00, 2)
+                        nseg = 20
+                        nfil = int(639)
+                        nblob = int(40961)
+                        ar = round(15.00, 2)
                         # nfil = int(159)
                         # nblob = int(9000)
                         # ar = round(8.00, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # period = 1
-                        # sim_length = 200
-                        # # tilt_angle = (1./9.)*0.5*3.141592653*j
-                        # tilt_angle = 0
-                        # pair_dp = 0.1
+                        spring_factor = round(0.005 + 0.005*i, 3)
+                        period = 1
+                        sim_length = 2
+                        tilt_angle = (1./9.)*0.5*3.141592653*j
+                        pair_dp = 0.0
                         
 
                         # ishikawa pnas
@@ -226,20 +228,20 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 2560
-                        nblob = 40962
-                        ar = 20
-                        nseg = 40
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=8000
-                        spring_factor = round(0)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = 0.
-                        pair_dp = 0.1*i
-                        wavnum = -1
+                        # nfil = 2560
+                        # nblob = 40962
+                        # ar = 20
+                        # nseg = 40
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0.
+                        # pair_dp = 0.1*i
+                        # wavnum = -1
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]

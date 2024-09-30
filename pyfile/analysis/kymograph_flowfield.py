@@ -4,13 +4,15 @@ import matplotlib.pyplot as plt
 
 n = 2560
 r_ratio = 1.3
+index = 4
 
-path = 'data/volvox/20240906_volvox_symplectic_k=2.35/'
-path = 'data/volvox_bicilia/20240911_bicilia_test/'
+# path = 'data/volvox/20240906_volvox_symplectic_k=2.35/'
+# path = 'data/volvox_bicilia/20240911_bicilia_test/'
+path = 'data/volvox_bicilia/dp_sweep2/20240919_bicilia_-2.35/'
 
-ur_data = np.load(f'{path}ur_data_fil{n}_r{r_ratio}.npy')
-utheta_data = np.load(f'{path}utheta_data_fil{n}_r{r_ratio}.npy')
-grid_shape = np.load(f'{path}grid_shape_fil{n}_r{r_ratio}.npy')
+ur_data = np.load(f'{path}ur_data_fil{n}_r{r_ratio}_index{index}.npy')
+utheta_data = np.load(f'{path}utheta_data_fil{n}_r{r_ratio}_index{index}.npy')
+grid_shape = np.load(f'{path}grid_shape_fil{n}_r{r_ratio}_index{index}.npy')
 
 
 selected_t = 0
@@ -90,8 +92,8 @@ ax3.set_title(rf'$u_r$, $t={selected_t}$')
 fig1.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
-fig1.savefig(f'fig/ur_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/utheta_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
+fig1.savefig(f'fig/ur_fil{n}_r{r_ratio}_index{index}.pdf', bbox_inches = 'tight', format='pdf')
+fig2.savefig(f'fig/utheta_fil{n}_r{r_ratio}_index{index}.pdf', bbox_inches = 'tight', format='pdf')
 # fig3.savefig(f'fig/ur_variation_over_phi_fil{n}_r{r_ratio}.pdf', bbox_inches = 'tight', format='pdf')
 
 plt.show()

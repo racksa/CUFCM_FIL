@@ -139,6 +139,11 @@ fig2 = plt.figure()
 ax2 = fig2.add_subplot(1,1,1)
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
+fig4 = plt.figure()
+ax4 = fig4.add_subplot(1,1,1)
+fig5 = plt.figure()
+ax5 = fig5.add_subplot(1,1,1)
+
 
 
 # k_list = [-1, 0, 0.5, 1.0, 1.5, 2.0]
@@ -146,8 +151,9 @@ ax3 = fig3.add_subplot(1,1,1)
 colors = ["black","red","green","blue","purple"]
 dp_list = np.linspace(0, 0.5, 6)
 sim_n = len(dp_list)
-avg_speed_original_list = np.zeros(sim_n)
-avg_speed_volvox_list = np.zeros(sim_n)
+avg_speed_list = np.zeros(sim_n)
+avg_dissipation_list = np.zeros(sim_n)
+avg_efficiency_list = np.zeros(sim_n)
 
 wavnums = [-2.35, -1, 0, 1]
 paths = list()
@@ -187,8 +193,10 @@ for pind, path in enumerate(paths):
             # ax.plot(time_array, np.zeros(time_array.shape), alpha=1., c='black')
             ax.plot(time_array, speed_array, alpha=1., label = rf'$dp={dp_list[ind]}\cdot 2\pi$',)
             # ax.plot(time_array, np.ones(time_array.shape)*np.mean(speed_array), alpha=1., c=colors[ind])
-            avg_speed_volvox_list[ind] = np.mean(speed_array)
-            print(pind, avg_speed_volvox_list[ind])
+            avg_speed_list[ind] = np.mean(speed_array)
+            print(pind, avg_speed_list[ind])
+
+            avg_dissipation_list[ind] = np.mean(dissipation_array)
 
             ax2.plot(time_array, dissipation_array, label = rf'$dp={dp_list[ind]}\cdot 2\pi$',)
             # ax2.plot(time_array, dissipation_array/fillength_array**3, label = rf'$M={N_list[ind]}$', c=colors[ind])
@@ -196,14 +204,20 @@ for pind, path in enumerate(paths):
         except:
             pass
 
-    ax3.plot(dp_list[:3], avg_speed_volvox_list[:3],  c=color, label=f'k={wavnums[pind]}')
+    ax3.plot(dp_list, avg_speed_list,  c=color, label=f'k={wavnums[pind]}')
+    ax4.plot(dp_list, avg_dissipation_list,  c=color, label=f'k={wavnums[pind]}')
+
+    L = 19*2.6
+    radius = L*10. 
+    avg_efficiency_list = 6*np.pi*radius*avg_speed_list**2/avg_dissipation_list
+    ax5.plot(dp_list, avg_efficiency_list,  c=color, label=f'k={wavnums[pind]}')
 
 
 legend11 = ax.legend(frameon=False)
 ax.add_artist(legend11)
 ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
-ax.set_ylabel(r'$V_zT/L$')
+ax.set_ylabel(r'$VT/L$')
 
 # legend11 = ax1.legend(frameon=False)
 # ax1.add_artist(legend11)
@@ -214,28 +228,31 @@ ax.set_ylabel(r'$V_zT/L$')
 
 ax2.set_xlim(0, 1)
 ax2.set_xlabel(r'$t/T$')
-ax2.set_ylabel(r'$PT^2/\mu L^3$')
+ax2.set_ylabel(r'$\mathcal{R}T^2/\mu L^3$')
 
 
 ax3.set_xlabel(r'$\Delta\psi_1/2\pi$')
 ax3.set_ylabel(r'$<V>T/L$')
-ax3.set_xlim(0,1)
 ax3.legend()
 
+ax4.set_xlabel(r'$\Delta\psi_1/2\pi$')
+ax4.set_ylabel(r'$<\mathcal{R}>T^2/\mu L^3$')
+ax4.legend()
 
-# line1, = ax4.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$<L>=1$' )
-# line2, = ax4.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$<L>=0.975$' )
-# legend42 = ax4.legend(handles = [line1, line2])
-# ax4.set_xlim(0, 1)
-# ax4.set_ylim(0.92, 1.06)
-# ax4.set_xlabel(r'$t/T$')
-# ax4.set_ylabel(r'$L$')
+ax5.set_xlabel(r'$\Delta\psi_1/2\pi$')
+ax5.set_ylabel(r'$<efficiency>$')
+ax5.legend()
+
 
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
+fig4.tight_layout()
+fig5.tight_layout()
 # fig.savefig(f'fig/ishikawa_pnas_volvox_vel_area.pdf', bbox_inches = 'tight', format='pdf')
 # fig1.savefig(f'fig/ishikawa_pnas_original_vel_area.pdf', bbox_inches = 'tight', format='pdf')
 # fig2.savefig(f'fig/dissipation.pdf', bbox_inches = 'tight', format='pdf')
 fig3.savefig(f'fig/dp_speed.pdf', bbox_inches = 'tight', format='pdf')
+fig4.savefig(f'fig/dp_dissipation.pdf', bbox_inches = 'tight', format='pdf')
+fig5.savefig(f'fig/dp_efficiency.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

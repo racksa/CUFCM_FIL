@@ -37,8 +37,8 @@ class VISUAL:
         self.date = '20240717_rpy_get_drag'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240724_symplectic'
-        self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
+        self.date = '20240724_diaplectic'
+        self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
 
         # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -47,8 +47,8 @@ class VISUAL:
 
         
 
-        self.date = '20240311_10'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.date = '20240311_10'
+        # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
         # self.date = '20240311_1'
@@ -75,8 +75,8 @@ class VISUAL:
         # self.date = '20240911_bicilia_ishikawa'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
-        # self.date = '20240919_bicilia_-1'
-        # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
+        self.date = '20240919_bicilia_-2.35'
+        self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -141,7 +141,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1506
+        self.plot_end_frame_setting = 150600000
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -156,7 +156,7 @@ class VISUAL:
         self.ncol = 12
         self.num_sim = 0
 
-        self.plot_interval = 1
+        self.plot_interval = 10
         
         self.index = 0
 
@@ -3144,7 +3144,7 @@ class VISUAL:
                     fil_states_str = fil_states_f.readline()
 
             FFwriter = animation.FFMpegWriter(fps=10)
-            ani.save(f'fig/flowfield_2D_{self.nfil}fil_anim.mp4', writer=FFwriter)
+            ani.save(f'fig/flowfield_2D_{self.nfil}fil_anim_5.mp4', writer=FFwriter)
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -3339,9 +3339,9 @@ class VISUAL:
                 utheta_data[i-self.plot_start_frame] = utheta_list
                 uphi_data[i-self.plot_start_frame] = uphi_list
 
-                np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}.npy', ur_data)
-                np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}.npy', utheta_data)
-                np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}.npy', np.array(R.shape))            
+                np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
+                np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
+                np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
 
         t = ur_data.shape[0]/30
         
