@@ -383,13 +383,13 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
       // dir assumes the body.q is in the default position upright.
       // if body.q is not pointing the default position, say, read from a file, then we need to rotate dir accordingly,
       // eventually the rotated dir, called dir_in, is passed to initialise filaments.
-      matrix dir_matrix(3,1);
-      dir_matrix(0,0) = dir[0];
-      dir_matrix(1,0) = dir[1];
-      dir_matrix(2,0) = dir[2];
-      dir_matrix = body.q.rot_mat()*dir_matrix;
-      Real dir_in[3] = {dir_matrix(0,0), dir_matrix(1,0), dir_matrix(2,0)}; 
-
+      // deprecated, instead body.q is passed to initial filaments (20241001)
+      // matrix dir_matrix(3,1);
+      // dir_matrix(0,0) = dir[0];
+      // dir_matrix(1,0) = dir[1];
+      // dir_matrix(2,0) = dir[2];
+      // dir_matrix = body.q.rot_mat()*dir_matrix;
+      // Real dir_in[3] = {dir_matrix(0,0), dir_matrix(1,0), dir_matrix(2,0)}; 
 
       const Real pos[3] = {body.x[0] + filament_references[3*i], body.x[1] + filament_references[3*i + 1], body.x[2] + filament_references[3*i + 2]};
       
@@ -1112,7 +1112,7 @@ void swimmer::write_reference_positions() const {
 
     for (int n = 0; n < NFIL; n++){
 
-      fil_q_file << filaments[n].body_q.scalar_part << " " << filaments[n].body_q.vector_part[0] << " " << filaments[n].body_q.vector_part[1] << " " << filaments[n].body_q.vector_part[2] << " " ;
+      fil_q_file << filaments[n].body_q_ref.scalar_part << " " << filaments[n].body_q_ref.vector_part[0] << " " << filaments[n].body_q_ref.vector_part[1] << " " << filaments[n].body_q_ref.vector_part[2] << " " ;
 
     }
 

@@ -37,8 +37,9 @@ class VISUAL:
         self.date = '20240717_rpy_get_drag'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240724_diaplectic'
+        self.date = '20240724_diaplectic2'
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
+        # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
         # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -75,8 +76,8 @@ class VISUAL:
         # self.date = '20240911_bicilia_ishikawa'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
-        self.date = '20240919_bicilia_-2.35'
-        self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
+        # self.date = '20240919_bicilia_-2.35'
+        # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -141,8 +142,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 150600000
-        self.frames_setting = 30000
+        self.plot_end_frame_setting = 300000
+        self.frames_setting = 60
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1909,8 +1910,8 @@ class VISUAL:
                 # Plot body axis
                 # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
                 # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
-                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
-                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
+                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
+                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -5521,8 +5522,8 @@ class VISUAL:
         force = True
         path = "data/ic_hpc_sim_free_with_force/"
 
-        # force = False
-        # path = 'data/tilt_test/makeup_pattern/'
+        force = True
+        path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/IVP/'
 
         # import re
@@ -5535,7 +5536,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 3000
+        self.frames_setting = 60
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!

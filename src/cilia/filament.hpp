@@ -92,6 +92,7 @@ public:
     Real phase_dot;
     Real omega0;
     quaternion body_q;
+    quaternion body_q_ref;
     quaternion body_qm1;
     std::vector<Real> vel_dir_phase;
 

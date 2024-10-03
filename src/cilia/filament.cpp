@@ -402,6 +402,7 @@ void filament::initial_setup(const Real *const base_pos,
       q2 = quaternion(cs, sn*dir[0], sn*dir[1], sn*dir[2])*q2;
       
       body_qm1 = q2*qtemp;
+      body_q_ref = body_qm1;
       // rotate to get the correct body_q if the rigidbody_q is not default {1, 0, 0, 0}
       body_qm1 = rigidbody_q*body_qm1;
       body_q = body_qm1;

@@ -116,8 +116,9 @@ fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
 fig5 = plt.figure()
 ax5 = fig5.add_subplot(1,1,1)
-fig6 = plt.figure()
-ax6 = fig6.add_subplot(1,1,1)
+# ax6 = ax5.twinx()
+# fig6 = plt.figure()
+# ax6 = fig6.add_subplot(1,1,1)
 
 # k_list = [-1, 0, 0.5, 1.0, 1.5, 2.0]
 # labels = [r"$k=-1$",r"$k=0$",r"$k=0.5$",r"$k=1$",r"$k=1.5$",r"$k=2$",]
@@ -137,7 +138,7 @@ speed_error_list = np.zeros(nblob_list.shape)
 dissipation_error_list = np.zeros(nblob_list.shape)
 nsim = len(nblob_list)
 
-ref_index = nsim - 6
+ref_index = nsim - 7
 
 ref_speed_array = np.load(f"{path}body_speed_array_index{ref_index}.npy")
 ref_dissipation_array = np.load(f"{path}dissipation_array_index{ref_index}.npy")
@@ -236,26 +237,27 @@ ax4.set_ylabel(r'$V$')
 
 
 
-ax5.plot(nblob_list, speed_error_list, marker = '+', color='black')
+ax5.plot(nblob_list, speed_error_list, marker = '+', color='black', label = r'$V\ \% error$')
 ax5.set_xscale('log')
 ax5.set_yscale('log')
 ax5.set_xlabel(r'$P$')
-ax5.set_ylabel(r'$V\ \% error$')
+ax5.set_ylabel(r'$\% error$')
 
-ax6.plot(nblob_list, dissipation_error_list, marker = '+', color='black')
-ax6.set_xscale('log')
-ax6.set_yscale('log')
-ax6.set_xlabel(r'$P$')
-ax6.set_ylabel(r'$\mathcal{R}\ \% error$')
-
+ax5.plot(nblob_list, dissipation_error_list, marker = '+', color='blue', label = r'$\mathcal{R}\ \% error$')
+# ax6.set_xscale('log')
+# ax6.set_yscale('log')
+# ax6.set_xlabel(r'$P$')
+# ax6.set_ylabel(r'$\mathcal{R}\ \% error$', color='b')
+# ax6.tick_params(axis="y", labelcolor='blue')
+ax5.legend()
 
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
 fig5.tight_layout()
-fig6.tight_layout()
+# fig6.tight_layout()
 
 fig5.savefig(f'fig/resolution_ishikawa.pdf', bbox_inches = 'tight', format='pdf')
-fig6.savefig(f'fig/resolution_ishikawa_dissipation.pdf', bbox_inches = 'tight', format='pdf')
+# fig6.savefig(f'fig/resolution_ishikawa_dissipation.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

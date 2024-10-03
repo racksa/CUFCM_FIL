@@ -14,7 +14,8 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
-path = "data/tilt_test/makeup_pattern/"
+path = "data/tilt_test/makeup_pattern_with_force/"
+# path = "data/tilt_test/makeup_pattern/"
 
 
 r_data = np.load(f"{path}r_data.npy")
@@ -51,8 +52,8 @@ tilt_angle = tilt_angle*180/np.pi
 for fi in range(n_folder):
 
     
-    avg_speed_over_angle = np.zeros(tilt_angle.shape)
-    avg_rot_speed_over_angle = np.zeros(tilt_angle.shape)
+    avg_speed_over_k = np.zeros(tilt_angle.shape)
+    avg_rot_speed_over_k = np.zeros(tilt_angle.shape)
     
 
     for ti in range(n_tilt):
@@ -62,8 +63,12 @@ for fi in range(n_folder):
         avg_speed = avg_speed_along_axis_data[fi][ti::n_tilt]
         avg_rot_speed = avg_rot_speed_along_axis_data[fi][ti::n_tilt]
 
-        avg_speed_over_angle[ti] = np.mean(avg_speed)
-        avg_rot_speed_over_angle[ti] = np.mean(avg_rot_speed)
+        print(avg_speed.shape)
+
+        index = 0
+
+        avg_speed_over_k[ti] = avg_speed[index] #np.mean(avg_speed)
+        avg_rot_speed_over_k[ti] = avg_rot_speed[index] #np.mean(avg_rot_speed)
 
     # cmap = plt.get_cmap(cmap_name)
     # color_data = r_data[fi]
@@ -87,9 +92,13 @@ for fi in range(n_folder):
 
         ax5.scatter(k, r, marker='+', c=colors[fi])
 
-    ax3.plot(tilt_angle, avg_speed_over_angle, marker='+', c=colors[fi], label=labels[fi])
+        # ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
-    ax4.plot(tilt_angle, avg_rot_speed_over_angle, marker='+', c=colors[fi], label=labels[fi])
+        # ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
+
+    # ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
+
+    # ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
         
     
@@ -126,13 +135,13 @@ from matplotlib.cm import ScalarMappable
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'$\chi$')
+ax.set_ylabel(r'$<V>T/L$')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r'$\chi$')
+ax2.set_ylabel(r'$<\Omega>$')
 
 ax3.set_xlabel(r'$\chi$')
 ax3.set_ylabel(r'$<V>T/L$')

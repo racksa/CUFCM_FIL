@@ -105,8 +105,8 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 
 ax.set_xlabel(r'$R/L$')
-ax.set_ylabel(r'$<V>T/L$')
-# ax.set_ylim(0)
+ax.set_ylabel(r'$<V>T/L$')  
+ax.set_ylim(0.0, 0.2)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
@@ -120,6 +120,7 @@ ax3.tick_params(axis="y", labelcolor='blue')
 
 ax4.set_xlabel(r'$R/L$')
 ax4.set_ylabel(r'$\lambda/L$')
+ax4.set_ylim(23, 60)
 
 # ax3.set_xlabel(r'tilt angle')
 # ax3.set_ylabel(variable_label)  
@@ -132,4 +133,5 @@ fig.savefig(f'fig/speed_trend.pdf', bbox_inches = 'tight', format='pdf')
 fig2.savefig(f'fig/wavenumber_trend.pdf', bbox_inches = 'tight', format='pdf')
 # fig3.savefig(f'fig/dissipation_trend.pdf', bbox_inches = 'tight', format='pdf')
 fig4.savefig(f'fig/wavelength_trend.pdf', bbox_inches = 'tight', format='pdf')
+fig4.savefig(f'fig/wavelength_trend.png', bbox_inches = 'tight', format='png', transparent=True)
 plt.show()

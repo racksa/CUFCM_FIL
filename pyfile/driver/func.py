@@ -33,7 +33,7 @@ class DRIVER:
 
         self.category = 'tilt_test/makeup_pattern_with_force/'
         self.exe_name = 'cilia_1e-4_free'
-        self.date = '20240724_diaplectic'
+        self.date = '20240724_diaplectic2'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -175,7 +175,7 @@ class DRIVER:
                         # ar = round(8.00, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1
-                        sim_length = 2
+                        sim_length = 30
                         tilt_angle = (1./9.)*0.5*3.141592653*j
                         pair_dp = 0.0
                         
