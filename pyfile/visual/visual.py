@@ -31,11 +31,11 @@ class VISUAL:
         self.globals_name = 'globals.ini'
 
 
-        self.date = '20240608'
+        # self.date = '20240608'
         # self.dir = f"data/IVP159/{self.date}/"
 
-        self.date = '20240717_rpy_get_drag'
-        self.dir = f"data/regular_wall_sim/{self.date}/"
+        # self.date = '20240717_rpy_get_drag'
+        # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.date = '20240724_diaplectic2'
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
@@ -76,8 +76,8 @@ class VISUAL:
         # self.date = '20240911_bicilia_ishikawa'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
-        # self.date = '20240919_bicilia_-2.35'
-        # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
+        self.date = '20240919_bicilia_dia'
+        self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -143,7 +143,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 300000
-        self.frames_setting = 60
+        self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting

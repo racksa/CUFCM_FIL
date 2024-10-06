@@ -338,7 +338,7 @@ void filament::initial_setup(const Real *const base_pos,
           // phase = Real(2.0)*k*theta;
           // in.close();
 
-          phase = Real(2.0)*WAVNUM*theta;
+          phase = Real(2.0)*WAVNUM*theta + WAVNUM_DIA*phi;
 
         #endif
 
