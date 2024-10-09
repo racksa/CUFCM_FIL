@@ -58,6 +58,10 @@ for fi in range(n_folder):
 
     for ti in range(n_tilt):
 
+        cmap_name = 'Greys'
+        cmap = plt.get_cmap(cmap_name)
+        color = cmap(ti/(n_tilt-1))
+
         k = k_data[fi][ti::n_tilt]
         r = r_data[fi][ti::n_tilt]
         avg_speed = avg_speed_along_axis_data[fi][ti::n_tilt]
@@ -86,19 +90,19 @@ for fi in range(n_folder):
     # color2 = cmap((variable-vmin2)/(vmax2-vmin2))
 
 
-        ax.plot(k, avg_speed, marker='+', c=colors[fi])
+        ax.plot(k, avg_speed, marker='+', c=color)
 
-        ax2.plot(k, avg_rot_speed, marker='+', c=colors[fi])
+        ax2.plot(k, avg_rot_speed, marker='+', c=color)
 
-        ax5.scatter(k, r, marker='+', c=colors[fi])
+        ax5.scatter(k, r, marker='+', c=color)
 
         # ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
         # ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
-    # ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
+    ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
-    # ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
+    ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
         
     

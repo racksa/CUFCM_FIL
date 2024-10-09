@@ -76,8 +76,8 @@ class VISUAL:
         # self.date = '20240911_bicilia_ishikawa'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
-        self.date = '20240919_bicilia_dia'
-        self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
+        # self.date = '20240919_bicilia_dia'
+        # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -142,7 +142,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 300000
+        self.plot_end_frame_setting = 3000000
         self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -5536,7 +5536,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 60
+        self.frames_setting = 120
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!

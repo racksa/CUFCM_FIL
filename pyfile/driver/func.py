@@ -33,9 +33,8 @@ class DRIVER:
 
         self.category = 'tilt_test/makeup_pattern_with_force/'
         self.exe_name = 'cilia_1e-4_free'
-        self.date = '20240724_diaplectic2'
+        self.date = '20240724_diaplectic'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        
 
 
         # self.category = 'ishikawa/'
@@ -50,10 +49,10 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox_bicilia/dp_sweep2/'
-        self.exe_name = 'cilia_1e-4_bicilia2'
-        self.date = '20240919_bicilia_dia2'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'volvox_bicilia/dp_sweep2/'
+        # self.exe_name = 'cilia_1e-4_bicilia2'
+        # self.date = '20240919_bicilia_dia'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -83,8 +82,8 @@ class DRIVER:
                      "wavnum": [],
                      "wavnum_dia": []}
 
-        # self.sweep_shape = (12, 5, 1, 1)
-        self.sweep_shape = (6, 1, 1, 1)
+        self.sweep_shape = (12, 5, 1, 1)
+        # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
 
@@ -130,6 +129,8 @@ class DRIVER:
                         tilt_angle = 0
                         pair_dp = 0.0
                         wavnum = 0.0
+                        wavnum_dia = 0
+                        period = 1
 
                         # # planar triangle
                         nfil = int(256*(i+1))
@@ -175,8 +176,7 @@ class DRIVER:
                         # nblob = int(9000)
                         # ar = round(8.00, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
-                        period = 1
-                        sim_length = 30
+                        sim_length = 20
                         tilt_angle = (1./9.)*0.5*3.141592653*j
                         pair_dp = 0.0
                         
@@ -229,21 +229,21 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 2560
-                        nblob = 40962
-                        ar = 20
-                        nseg = 40
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=8000
-                        spring_factor = round(0)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = 0.
-                        pair_dp = 0.1*i
-                        wavnum = 1
-                        wavnum_dia = 0
+                        # nfil = 2560
+                        # nblob = 40962
+                        # ar = 20
+                        # nseg = 40
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0.
+                        # pair_dp = 0.1*i
+                        # wavnum = 0.0
+                        # wavnum_dia = 1
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
