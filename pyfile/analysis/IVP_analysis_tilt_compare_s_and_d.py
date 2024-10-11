@@ -14,7 +14,7 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
-path = "data/tilt_test/makeup_pattern_with_force/"
+path = "data/tilt_test/makeup_pattern_with_force/1/"
 # path = "data/tilt_test/makeup_pattern/"
 
 

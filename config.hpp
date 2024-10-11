@@ -159,7 +159,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 2
+#define BODY_OR_SURFACE_TYPE 5
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -187,7 +187,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 3
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.

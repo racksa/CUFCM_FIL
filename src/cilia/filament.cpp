@@ -362,6 +362,9 @@ void filament::initial_setup(const Real *const base_pos,
       // here base_normal is a vector that is orthogonal to the filament tangent.
       // n' in appendix A.1
 
+      // Here we are getting the polar_dir using trivial vector analysis.
+      // polar_dir is a vector, tangent to the spherical body towards the posterior
+      // because (0,0, -1) is used in the vector analysis
       Real polar_dir[3] = {Real(0.0), Real(0.0), -Real(1.0)};
       const Real dir_dot_polar_dir = dir[0]*polar_dir[0] + dir[1]*polar_dir[1] + dir[2]*polar_dir[2];
       polar_dir[0] -= dir_dot_polar_dir*dir[0];

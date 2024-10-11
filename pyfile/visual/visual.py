@@ -37,8 +37,8 @@ class VISUAL:
         # self.date = '20240717_rpy_get_drag'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20240724_diaplectic2'
-        self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
+        self.date = '20240724_diaplectic'
+        self.dir = f"data/tilt_test/makeup_pattern_with_force/1/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
         # self.date = 'IVP'
@@ -143,7 +143,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 3000000
-        self.frames_setting = 600
+        self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -5522,9 +5522,9 @@ class VISUAL:
         force = True
         path = "data/ic_hpc_sim_free_with_force/"
 
-        force = True
-        path = 'data/tilt_test/makeup_pattern_with_force/'
-        # path = 'data/tilt_test/IVP/'
+        force = False
+        path = 'data/tilt_test/makeup_pattern_with_force/1/'
+        # path = 'data/tilt_test/IVP/'1
 
         # import re
         # def sort_key(s):
