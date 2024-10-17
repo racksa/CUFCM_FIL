@@ -14,7 +14,7 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
-path = "data/tilt_test/makeup_pattern_with_force/1/"
+path = "data/tilt_test/makeup_pattern_with_force/"
 # path = "data/tilt_test/makeup_pattern/"
 
 
@@ -69,10 +69,14 @@ for fi in range(n_folder):
 
         print(avg_speed.shape)
 
-        index = 0
 
-        avg_speed_over_k[ti] = avg_speed[index] #np.mean(avg_speed)
-        avg_rot_speed_over_k[ti] = avg_rot_speed[index] #np.mean(avg_rot_speed)
+        k_index = 0
+
+        # avg_speed_over_k[ti] = avg_speed[k_index] #np.mean(avg_speed)
+        # avg_rot_speed_over_k[ti] = avg_rot_speed[k_index] #np.mean(avg_rot_speed)
+
+        avg_speed_over_k[ti] = np.mean(avg_speed)
+        avg_rot_speed_over_k[ti] = np.mean(avg_rot_speed)
 
     # cmap = plt.get_cmap(cmap_name)
     # color_data = r_data[fi]
@@ -94,7 +98,7 @@ for fi in range(n_folder):
 
         ax2.plot(k, avg_rot_speed, marker='+', c=color)
 
-        ax5.scatter(k, r, marker='+', c=color)
+        ax5.scatter(k[:7], r[:7], marker='+', c=colors[fi])
 
         # ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 

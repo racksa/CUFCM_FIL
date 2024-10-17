@@ -336,6 +336,8 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
     // DEBUGING END
 
+    seed_filaments(&filament_references[0], &polar_dir_refs[0], &azi_dir_refs[0], &normal_refs[0]);
+
     
 
     // Force to overwrite the seeding file

@@ -38,7 +38,10 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.date = '20240724_diaplectic'
-        self.dir = f"data/tilt_test/makeup_pattern_with_force/1/{self.date}/"
+        self.date = '20240724_symplectic_backup'
+        # self.date = '20240724_symplectic'
+        self.date = '3'
+        self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
         # self.date = 'IVP'
@@ -61,13 +64,14 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        # self.date = '20240827_ishikawa_jfm2'
+        # # self.date = '20240827_jfm2'
         # # self.date = '20240731_pnas_L1'
-        # # self.date = '20240802_pnas_L0.975'
+        # self.date = '20240802_pnas_L0.975'
         # # self.date = '20240829_pnas_volvox_beat'
         # # self.date = '20240822_ishikawa_resolution6'
         # # self.date = '20240902_real_volvox'
-        # self.date = '20240903_real_volvox_seg20'
+        # # self.date = '20240903_real_volvox_seg20'
+        # self.date = '20241015_pnas_rpy'
         # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
@@ -157,7 +161,7 @@ class VISUAL:
         self.ncol = 12
         self.num_sim = 0
 
-        self.plot_interval = 10
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -217,7 +221,6 @@ class VISUAL:
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
 
-        
         try:
             self.tilt_angle = self.pars_list['tilt_angle'][self.index]
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
@@ -225,6 +228,7 @@ class VISUAL:
         except:
             try:
                 self.pair_dp = self.pars_list['pair_dp'][self.index]
+                string = f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
                 open(self.simName + '_fil_references.dat')
             except:
@@ -239,7 +243,6 @@ class VISUAL:
                 except:
                     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
         
-
         try:
             self.fil_spacing = self.pars_list['fil_spacing'][self.index]
             self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
@@ -3457,7 +3460,7 @@ class VISUAL:
         plt.tight_layout()
         # plt.savefig(f'fig/ciliate_multi_phase_elst{spring_factor}.png', bbox_inches = 'tight', format='png')
         plt.savefig(f'fig/ciliate_multi_phase_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # plt.show()
+        plt.show()
 
     def multi_kymograph(self):
         # Plotting
@@ -5523,7 +5526,8 @@ class VISUAL:
         path = "data/ic_hpc_sim_free_with_force/"
 
         force = False
-        path = 'data/tilt_test/makeup_pattern_with_force/1/'
+        path = 'data/tilt_test/makeup_pattern_with_force/'
+        # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
 
         # import re
@@ -5536,7 +5540,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 120
+        self.frames_setting = 900
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!

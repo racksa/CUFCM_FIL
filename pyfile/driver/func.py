@@ -32,16 +32,18 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.category = 'tilt_test/makeup_pattern_with_force/'
-        self.exe_name = 'cilia_1e-4_free'
+        self.exe_name = 'cilia_1e-4_test_seeding'
         self.date = '20240724_diaplectic'
+        self.date = '3'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
 
         # self.category = 'ishikawa/'
-        # self.exe_name = 'cilia_1e-4_ishikawa_volvox'
+        # self.exe_name = 'cilia_1e-4_ishikawa_rpy'
         # # self.date = '20240829_pnas_volvox_beat'
         # # self.date = '20240813_pnas_volvox_beat'
-        # self.date = '20240903_real_volvox_slender50'
+        # # self.date = '20240903_real_volvox_slender50'
+        # self.date = '20241015_pnas_rpy'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'giant_swimmer/'
@@ -82,7 +84,7 @@ class DRIVER:
                      "wavnum": [],
                      "wavnum_dia": []}
 
-        self.sweep_shape = (12, 5, 1, 1)
+        self.sweep_shape = (3, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -126,10 +128,10 @@ class DRIVER:
 
                         seg_sep = 2.6
                         force_mag = 1
-                        tilt_angle = 0
+                        tilt_angle = 0.0
                         pair_dp = 0.0
                         wavnum = 0.0
-                        wavnum_dia = 0
+                        wavnum_dia = 0.0
                         period = 1
 
                         # # planar triangle
@@ -151,37 +153,37 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
                         # sim_length = 400
 
-                        # callibration
-                        nfil = int(1*(i+1))
-                        nblob = int(0*(i+1))
-                        nseg = 40
-                        fil_spacing=256.0
-                        blob_spacing=4.0
-                        fil_x_dim=2
-                        blob_x_dim=64
-                        sim_length = 1
-                        pair_dp = 0.1
+                        # # callibration
+                        # nfil = int(1*(i+1))
+                        # nblob = int(0*(i+1))
+                        # nseg = 40
+                        # fil_spacing=256.0
+                        # blob_spacing=4.0
+                        # fil_x_dim=2
+                        # blob_x_dim=64
+                        # sim_length = 1
+                        # pair_dp = 0.1
 
-                        # # # IVP sim
+                        # # # # IVP sim
                         nx=400
                         ny=400
                         nz=400
                         boxsize=4000
 
                         nseg = 20
-                        nfil = int(639)
+                        nfil = int(641)
                         nblob = int(40961)
                         ar = round(15.00, 2)
                         # nfil = int(159)
                         # nblob = int(9000)
                         # ar = round(8.00, 2)
                         spring_factor = round(0.005 + 0.005*i, 3)
-                        sim_length = 20
+                        sim_length = 1
                         tilt_angle = (1./9.)*0.5*3.141592653*j
                         pair_dp = 0.0
                         
 
-                        # ishikawa pnas
+                        # # ishikawa pnas
                         # nfil = [160, 640, 2560][i]
                         # nblob = 40962
                         # ar = 20
@@ -194,6 +196,9 @@ class DRIVER:
                         # period = 1
                         # sim_length = 1
                         # tilt_angle = 0.
+                        # wavnum = 0.0
+                        # wavnum_dia = 0.0
+                        # pair_dp = 0.0
 
                         # ishikawa jfm
                         # nfil = 160

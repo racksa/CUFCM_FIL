@@ -749,6 +749,18 @@
 
     int samples_per_iter = 1000;
 
+    // Real shift_ratio = (0.471*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Dec 2023 to Feb 2024
+    Real shift_ratio = (1.0*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Feb 2024
+    int max_num_iters = 10000;
+
+    // debug begins
+    std::ifstream in("input/shift_ratio/shift_ratio.dat"); // input
+          in >> shift_ratio;
+          in >> max_num_iters;
+          in >> samples_per_iter;
+          in.close();
+    //debug ends
+
     // Allocate memory for the CUDA nearest-neighbour search.
     Real *samples, *X;
     cudaMallocManaged(&samples, 3*samples_per_iter*sizeof(Real));
@@ -794,7 +806,8 @@
       // Use random initial positions.
       for (int n = 0; n < N; n++){
 
-        const matrix sample = shape.random_point();
+        // const matrix sample = shape.random_point();
+        const matrix sample = shape.random_point_away_from_poles(shift_ratio);
         X[3*n] = sample(0);
         X[3*n + 1] = sample(1);
         X[3*n + 2] = sample(2);
@@ -815,10 +828,8 @@
 
     int num_iters = 0;
 
-    // Real shift_ratio = (0.471*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Dec 2023 to Feb 2024
-    Real shift_ratio = (1.0*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Feb 2024
 
-    while (num_iters < 10000){
+    while (num_iters < max_num_iters){
 
       // Sample from the uniform distribution on the surface.
       for (int n = 0; n < samples_per_iter; n++){
@@ -830,7 +841,6 @@
         samples[3*n + 2] = sample(2);
 
       }
-      
 
       // Find the candidate points closest to the random samples.
       find_nearest_neighbours<<<num_thread_blocks, THREADS_PER_BLOCK>>>(sample_nn_ids, samples, samples_per_iter, X, N);
