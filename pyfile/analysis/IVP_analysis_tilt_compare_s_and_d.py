@@ -17,6 +17,7 @@ cmap_name = 'coolwarm'
 path = "data/tilt_test/makeup_pattern_with_force/"
 # path = "data/tilt_test/makeup_pattern/"
 
+force = True
 
 r_data = np.load(f"{path}r_data.npy")
 k_data = np.load(f"{path}k_data.npy")
@@ -26,6 +27,9 @@ avg_speed_data = np.load(f"{path}avg_speed_data.npy")
 avg_speed_along_axis_data = np.load(f"{path}avg_speed_along_axis_data.npy")
 avg_rot_speed_data = np.load(f"{path}avg_rot_speed_data.npy")
 avg_rot_speed_along_axis_data = np.load(f"{path}avg_rot_speed_along_axis_data.npy")
+
+if force:
+    avg_dis_data = np.load(f"{path}dis_data.npy")
 
 # n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder = r_data.shape[0]
@@ -42,16 +46,23 @@ fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
 fig5 = plt.figure()
 ax5 = fig5.add_subplot(1,1,1)
+fig6 = plt.figure()
+ax6 = fig6.add_subplot(1,1,1)
+fig7 = plt.figure()
+ax7 = fig7.add_subplot(1,1,1)
 
 
 n_tilt = 5
 tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
 tilt_angle = tilt_angle*180/np.pi
 
+print(avg_dis_data[0][0::n_tilt], np.mean(avg_dis_data[0][0::n_tilt]))
+print(avg_dis_data[0][1::n_tilt], np.mean(avg_dis_data[0][1::n_tilt]))
+
 
 for fi in range(n_folder):
 
-    
+    avg_dis_over_k = np.zeros(tilt_angle.shape)
     avg_speed_over_k = np.zeros(tilt_angle.shape)
     avg_rot_speed_over_k = np.zeros(tilt_angle.shape)
     
@@ -66,17 +77,20 @@ for fi in range(n_folder):
         r = r_data[fi][ti::n_tilt]
         avg_speed = avg_speed_along_axis_data[fi][ti::n_tilt]
         avg_rot_speed = avg_rot_speed_along_axis_data[fi][ti::n_tilt]
+        avg_dis = avg_dis_data[fi][ti::n_tilt]
 
-        print(avg_speed.shape)
+        # print(avg_speed.shape)
 
 
-        k_index = 0
+        k_index = 8
 
         # avg_speed_over_k[ti] = avg_speed[k_index] #np.mean(avg_speed)
         # avg_rot_speed_over_k[ti] = avg_rot_speed[k_index] #np.mean(avg_rot_speed)
+        # avg_dis_over_k[ti] = avg_dis[k_index] #np.mean(avg_rot_speed)
 
         avg_speed_over_k[ti] = np.mean(avg_speed)
         avg_rot_speed_over_k[ti] = np.mean(avg_rot_speed)
+        avg_dis_over_k[ti] = np.mean(avg_dis)
 
     # cmap = plt.get_cmap(cmap_name)
     # color_data = r_data[fi]
@@ -108,8 +122,10 @@ for fi in range(n_folder):
 
     ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
-        
-    
+    ax6.plot(tilt_angle, avg_dis_over_k, marker='+', c=colors[fi], label=labels[fi])
+
+    ax7.plot(tilt_angle, avg_speed_over_k**2/avg_dis_over_k, marker='+', c=colors[fi], label=labels[fi])
+
     # ax2.scatter(k, plot_y, s=100, marker='+', c=color2)
 
 
@@ -176,6 +192,8 @@ fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
 fig5.tight_layout()
+fig6.tight_layout()
+fig7.tight_layout()
 # fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
 # fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
 fig3.savefig(f'fig/tilt_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')

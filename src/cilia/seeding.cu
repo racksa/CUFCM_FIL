@@ -754,11 +754,11 @@
     int max_num_iters = 10000;
 
     // debug begins
-    std::ifstream in("input/shift_ratio/shift_ratio.dat"); // input
-          in >> shift_ratio;
-          in >> max_num_iters;
-          in >> samples_per_iter;
-          in.close();
+    // std::ifstream in("input/shift_ratio/shift_ratio.dat"); // input
+    //       in >> shift_ratio;
+    //       in >> max_num_iters;
+    //       in >> samples_per_iter;
+    //       in.close();
     //debug ends
 
     // Allocate memory for the CUDA nearest-neighbour search.

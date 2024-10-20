@@ -38,9 +38,8 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.date = '20240724_diaplectic'
-        self.date = '20240724_symplectic_backup'
         # self.date = '20240724_symplectic'
-        self.date = '3'
+        self.date = '4'
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
@@ -2259,7 +2258,7 @@ class VISUAL:
         ax.plot(time_array, dissipation_array)
         ax.set_xlabel(r'$t/T$')
         ax.set_ylabel(r'$PT^2/\mu L^3$')
-        # fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # plt.show()
 
     def ciliate_dmd(self):
@@ -3452,7 +3451,7 @@ class VISUAL:
                                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
 
                     # ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
-                    ax.set_title(f"ind={self.index}")
+                    ax.set_title(f"{self.index} {self.plot_end_frame}")
                 except:
                     print("WARNING: " + self.simName + " not found.")
         for ax in axs_flat:
@@ -5525,7 +5524,7 @@ class VISUAL:
         force = True
         path = "data/ic_hpc_sim_free_with_force/"
 
-        force = False
+        force = True
         path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
@@ -5540,7 +5539,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 900
+        self.frames_setting = 720
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!
@@ -5649,6 +5648,7 @@ class VISUAL:
 
                             speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
                             dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
+                            dis = dis/self.fillength**3
                             eff = 6*np.pi*self.radius*speed**2/dis
 
                             dis_arrays[ind] += dis
