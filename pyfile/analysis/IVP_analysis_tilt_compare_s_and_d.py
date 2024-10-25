@@ -17,7 +17,7 @@ cmap_name = 'coolwarm'
 path = "data/tilt_test/makeup_pattern_with_force/"
 # path = "data/tilt_test/makeup_pattern/"
 
-force = True
+force = False
 
 r_data = np.load(f"{path}r_data.npy")
 k_data = np.load(f"{path}k_data.npy")
@@ -56,15 +56,15 @@ n_tilt = 5
 tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
 tilt_angle = tilt_angle*180/np.pi
 
-print(avg_dis_data[0][0::n_tilt], np.mean(avg_dis_data[0][0::n_tilt]))
-print(avg_dis_data[0][1::n_tilt], np.mean(avg_dis_data[0][1::n_tilt]))
+# print(avg_dis_data[0][0::n_tilt], np.mean(avg_dis_data[0][0::n_tilt]))
+# print(avg_dis_data[0][1::n_tilt], np.mean(avg_dis_data[0][1::n_tilt]))
 
 
 for fi in range(n_folder):
-
-    avg_dis_over_k = np.zeros(tilt_angle.shape)
     avg_speed_over_k = np.zeros(tilt_angle.shape)
     avg_rot_speed_over_k = np.zeros(tilt_angle.shape)
+    if force:
+        avg_dis_over_k = np.zeros(tilt_angle.shape)
     
 
     for ti in range(n_tilt):
@@ -77,7 +77,8 @@ for fi in range(n_folder):
         r = r_data[fi][ti::n_tilt]
         avg_speed = avg_speed_along_axis_data[fi][ti::n_tilt]
         avg_rot_speed = avg_rot_speed_along_axis_data[fi][ti::n_tilt]
-        avg_dis = avg_dis_data[fi][ti::n_tilt]
+        if force:
+            avg_dis = avg_dis_data[fi][ti::n_tilt]
 
         # print(avg_speed.shape)
 
@@ -90,7 +91,8 @@ for fi in range(n_folder):
 
         avg_speed_over_k[ti] = np.mean(avg_speed)
         avg_rot_speed_over_k[ti] = np.mean(avg_rot_speed)
-        avg_dis_over_k[ti] = np.mean(avg_dis)
+        if force:
+            avg_dis_over_k[ti] = np.mean(avg_dis)
 
     # cmap = plt.get_cmap(cmap_name)
     # color_data = r_data[fi]
@@ -122,9 +124,10 @@ for fi in range(n_folder):
 
     ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi], label=labels[fi])
 
-    ax6.plot(tilt_angle, avg_dis_over_k, marker='+', c=colors[fi], label=labels[fi])
+    if force:
+        ax6.plot(tilt_angle, avg_dis_over_k, marker='+', c=colors[fi], label=labels[fi])
 
-    ax7.plot(tilt_angle, avg_speed_over_k**2/avg_dis_over_k, marker='+', c=colors[fi], label=labels[fi])
+        ax7.plot(tilt_angle, avg_speed_over_k**2/avg_dis_over_k, marker='+', c=colors[fi], label=labels[fi])
 
     # ax2.scatter(k, plot_y, s=100, marker='+', c=color2)
 

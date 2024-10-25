@@ -38,17 +38,13 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         self.date = '20240724_diaplectic'
-        # self.date = '20240724_symplectic'
-        self.date = '4'
+        self.date = '20240724_symplectic'
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
         # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
 
-
-
-        
 
         # self.date = '20240311_10'
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
@@ -90,8 +86,8 @@ class VISUAL:
 
 
 
-        # self.date = f'index1_alpha0.16326530612244897'
-        # self.dir = f"data/bisection/k0.020/section6/iteration2_1e-7/{self.date}/"
+        self.date = f'index1_alpha0.10495626822157433'
+        self.dir = f"data/bisection/k0.020/section16/iteration3_1e-7/{self.date}/"
         
         # self.date = 'index6_alpha0.875'
         # self.dir = f"data/ic_hpc_bisection/k0.005/iteration1/{self.date}/"
@@ -145,7 +141,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000000
+        self.plot_end_frame_setting = 58
         self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1862,14 +1858,28 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        ax.view_init(elev=00., azim=-90)
+        azim_angle = -90
+        azim_angle_rad = azim_angle/180*np.pi
+        plane_normal = np.array([1, 0, 0])
+        rot_mat = np.array([
+            [np.cos(azim_angle_rad), -np.sin(azim_angle_rad), 0],
+            [np.sin(azim_angle_rad), np.cos(azim_angle_rad), 0],
+            [0, 0, 1]
+        ])
+        plane_normal = rot_mat@plane_normal
+        point_on_plane = 10*plane_normal
+        ax.view_init(elev=00., azim=azim_angle, roll=0)
         ax.dist=5.8
-        ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
-        ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
-        ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+
+        
+        
+        # ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.xlim()
 
         global frame
         frame = 0
@@ -1901,7 +1911,7 @@ class VISUAL:
                 
                 # Plot the sphere
                 if(t==self.plot_end_frame-1):
-                    ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
+                    ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5, zorder=0)
                 body_axis_x = np.matmul(R, np.array([2*self.radius,0,0]))
                 body_axis_y = np.matmul(R, np.array([0,2*self.radius,0]))
                 body_axis_z = np.matmul(R, np.array([0,0,1.2*self.radius]))
@@ -1912,8 +1922,8 @@ class VISUAL:
                 # Plot body axis
                 # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
                 # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
-                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
-                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
+                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
+                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1939,9 +1949,12 @@ class VISUAL:
                         fil_data[seg] = seg_pos
 
                     # Show only one side of the sphere
-                    # if fil_references_sphpolar[fil][1] > 0:
-                    if (fil_base - body_pos)[1]> 0:
+                    visible = np.sum(fil_base*plane_normal)
+                    if visible > -0.5:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
+
+                    # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
+                    # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = zorder[0])
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -5524,7 +5537,7 @@ class VISUAL:
         force = True
         path = "data/ic_hpc_sim_free_with_force/"
 
-        force = True
+        force = False
         path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
@@ -5539,7 +5552,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 720
+        self.frames_setting = 900
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!
@@ -5735,9 +5748,9 @@ class VISUAL:
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
 
-        k_string = 'k0.030'
-        iteration_string = 'iteration2_1e-7'
-        edge_section = f'section13'
+        # k_string = 'k0.030'
+        # iteration_string = 'iteration2_1e-7'
+        # edge_section = f'section13'
 
         k_string = 'k0.020'
         iteration_string = 'iteration3_1e-7'
