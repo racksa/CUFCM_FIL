@@ -42,6 +42,9 @@ class VISUAL:
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
+        self.date = '20241028_test'
+        self.dir = f"data/instability/{self.date}/"
+
         # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
 
@@ -86,8 +89,8 @@ class VISUAL:
 
 
 
-        self.date = f'index1_alpha0.10495626822157433'
-        self.dir = f"data/bisection/k0.020/section16/iteration3_1e-7/{self.date}/"
+        # self.date = f'index1_alpha0.10495626822157433'
+        # self.dir = f"data/bisection/k0.020/section16/iteration3_1e-7/{self.date}/"
         
         # self.date = 'index6_alpha0.875'
         # self.dir = f"data/ic_hpc_bisection/k0.005/iteration1/{self.date}/"
@@ -141,7 +144,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 58
+        self.plot_end_frame_setting = 10000
         self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting

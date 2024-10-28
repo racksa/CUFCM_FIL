@@ -25,6 +25,16 @@ Real TILT_ANGLE = 0.0;
 Real PAIR_DP = 0.0;
 Real WAVNUM = 0.0;
 Real WAVNUM_DIA = 0.0;
+Real DIMENSIONLESS_FORCE = 220.0;
+
+Real FIL_X_DIM = 1;
+Real FIL_Y_DIM = 1;
+Real FIL_SPACING = DL*NSEG;
+Real BLOB_X_DIM = 1;
+Real BLOB_Y_DIM = 1;
+Real BLOB_SPACING = DL*NSEG;
+Real HEX_NUM = 1;
+Real REV_RATIO = 0;
 
 std::string SIMULATION_DIR = "data/expr_sims/global/";
 std::string SIMULATION_FILE = "cilia";

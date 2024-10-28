@@ -66,6 +66,14 @@ int main(int argc, char** argv){
   PAIR_DP = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "pair_dp"));
   WAVNUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "wavnum"));
   WAVNUM_DIA = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "wavnum_dia"));
+  DIMENSIONLESS_FORCE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "dimensionless_force"));
+
+  FIL_X_DIM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
+  FIL_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));
+  BLOB_X_DIM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_x_dim"));
+  BLOB_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
+  HEX_NUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
+  REV_RATIO = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
   
   GEN_FORCE_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_mag"));
   SIMULATION_DIR = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_dir");
@@ -121,7 +129,7 @@ int main(int argc, char** argv){
 
   
 
-  sync_var<<<1, 1>>>(NSWIM, NSEG, NFIL, NBLOB, END_FORCE_MAGNITUDE, SEG_SEP);
+  sync_var<<<1, 1>>>(NSWIM, NSEG, NFIL, NBLOB, END_FORCE_MAGNITUDE, SEG_SEP, DL);
   cudaDeviceSynchronize();
 
   float time_start;

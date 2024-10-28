@@ -1113,22 +1113,22 @@
     
     /*Implement the hexagonal seeding algorithm here.*/
     Real *X = (Real*) malloc(3*N*sizeof(Real));
-    Real blob_step = step_x;
-    int blob_grid_dim_x = dim_x;
+    Real step = step_x;
+    int grid_dim_x = dim_x;
 
-    const int blob_grid_dim_y = std::max<int>(1, int(ceil(N/Real(blob_grid_dim_x))));
-    const double blob_grid_step_x = blob_step;
-    const double blob_grid_step_y = blob_step;
+    const int grid_dim_y = std::max<int>(1, int(ceil(N/Real(grid_dim_x))));
+    const double grid_step_x = step;
+    const double grid_step_y = step;
 
-    for (int i = 0; i < blob_grid_dim_x; i++){
-      for (int j = 0; j < blob_grid_dim_y; j++){
+    for (int i = 0; i < grid_dim_x; i++){
+      for (int j = 0; j < grid_dim_y; j++){
 
-        const int blob_id = j + i*blob_grid_dim_y;
+        const int blob_id = j + i*grid_dim_y;
 
         if (blob_id < N){
 
-          X[3*blob_id + 0] = i*blob_grid_step_x + 0.5*(1+(j%hex_num))*blob_grid_step_x;
-          X[3*blob_id + 1] = j*blob_grid_step_y + 0.5*blob_grid_step_y;
+          X[3*blob_id + 0] = i*grid_step_x + 0.5*(1+(j%hex_num))*grid_step_x;
+          X[3*blob_id + 1] = j*grid_step_y + 0.5*grid_step_y;
           X[3*blob_id + 2] = 0.0;
         }
       }
@@ -1143,7 +1143,7 @@
       
       const Real theta = 0.001;
       Real phi = 0.5*PI;
-      if(pos_ref[3*n + 1] >= rev_ratio*blob_grid_step_y*blob_grid_dim_y){
+      if(pos_ref[3*n + 1] >= rev_ratio*grid_step_y*grid_dim_y){
         phi +=  PI;
       }
 
@@ -1360,15 +1360,17 @@
 
       #if HEXAGONAL_WALL_SEEDING
         std::cout << "Seeking an hexagonal placement for the blobs..." << std::endl;
-        Real blob_step_x;
-        int blob_grid_dim_x;
-        int hex_num;
-        Real rev_ratio;
-        blob_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
-        blob_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_x_dim"));
-        hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
-        rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
-        hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, blob_step_x, blob_grid_dim_x, hex_num, rev_ratio);
+        // Real blob_step_x;
+        // int blob_grid_dim_x;
+        // int hex_num;
+        // Real rev_ratio;
+        // blob_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
+        // blob_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_x_dim"));
+        // hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
+        // rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
+        // hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, blob_step_x, blob_grid_dim_x, hex_num, rev_ratio);
+        hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, BLOB_SPACING, BLOB_X_DIM, HEX_NUM, REV_RATIO);
+      
       #elif CENTRIC_WALL_SEEDING
         Real disc_radius;
         std::ifstream in("separation.dat"); // using the 6th number as input
@@ -1493,20 +1495,23 @@
     #elif HEXAGONAL_WALL_SEEDING
       std::cout << "Seeking an hexagonal placement for the fils..." << std::endl;
    
-      Real fil_grid_step_x;
-      Real blob_step;
-      int fil_grid_dim_x;
-      Real disc_radius;
-      int hex_num;
-      Real rev_ratio;
+      // Real fil_grid_step_x;
+      // Real blob_step;
+      // int fil_grid_dim_x;
+      // int hex_num;
+      // Real rev_ratio;
 
-      fil_grid_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));
-      fil_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
-      hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
-      rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
+      Real disc_radius;
+
+      // fil_grid_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));
+      // fil_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
+      // hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
+      // rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
+      // hexagonal_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, 
+      //                   fil_grid_step_x, fil_grid_dim_x, hex_num, rev_ratio);
 
       hexagonal_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, 
-                        fil_grid_step_x, fil_grid_dim_x, hex_num, rev_ratio);
+                        FIL_SPACING, FIL_X_DIM, HEX_NUM, REV_RATIO);
       
       for (int fil_id=0; fil_id < NFIL; fil_id++){
         filament_references[3*fil_id + 2] = 2.1*BASE_HEIGHT_ABOVE_SURFACE;

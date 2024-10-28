@@ -34,7 +34,11 @@ class DRIVER:
         self.category = 'tilt_test/makeup_pattern_with_force/'
         self.exe_name = 'cilia_1e-4_test_seeding'
         self.date = '20240724_diaplectic'
-        self.date = '3'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'instability/'
+        self.exe_name = 'cilia_1e-4_instability_double'
+        self.date = '20241028_test'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
 
@@ -82,9 +86,10 @@ class DRIVER:
                      "reverse_fil_direction_ratio": [],
                      "pair_dp": [],
                      "wavnum": [],
-                     "wavnum_dia": []}
+                     "wavnum_dia": [],
+                     "dimensionless_force": []}
 
-        self.sweep_shape = (3, 1, 1, 1)
+        self.sweep_shape = (1, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -133,25 +138,27 @@ class DRIVER:
                         wavnum = 0.0
                         wavnum_dia = 0.0
                         period = 1
+                        dimensionless_force = 220.
 
                         # # planar triangle
-                        nfil = int(256*(i+1))
-                        nblob = int(25600*(i+1))
+                        nfil = int(400*(i+1))
+                        nblob = int(40000*(i+1))
                         nseg = 20
                         ar = round(1, 2)
-                        period = 1
+                        period = 36
                         spring_factor = round(0.005 + 0.005, 3)
-                        nx=128
+                        nx=256
                         ny=int(256/(i+1))
-                        nz=int(64/(i+1))
-                        boxsize=1280*(i+1)
+                        nz=int(32/(i+1))
+                        boxsize=1600*(i+1)
                         fil_spacing=80.0
                         blob_spacing=8.0
-                        fil_x_dim=16*(i+1)
-                        blob_x_dim=160*(i+1)
+                        fil_x_dim=20*(i+1)
+                        blob_x_dim=200*(i+1)
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
-                        # sim_length = 400
+                        sim_length = 100
+                        seg_sep = 2.2
 
                         # # callibration
                         # nfil = int(1*(i+1))
@@ -165,22 +172,22 @@ class DRIVER:
                         # pair_dp = 0.1
 
                         # # # # IVP sim
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000
 
-                        nseg = 20
-                        nfil = int(641)
-                        nblob = int(40961)
-                        ar = round(15.00, 2)
-                        # nfil = int(159)
-                        # nblob = int(9000)
-                        # ar = round(8.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        sim_length = 1
-                        tilt_angle = (1./9.)*0.5*3.141592653*j
-                        pair_dp = 0.0
+                        # nseg = 20
+                        # nfil = int(639)
+                        # nblob = int(40961)
+                        # ar = round(15.00, 2)
+                        # # nfil = int(159)
+                        # # nblob = int(9000)
+                        # # ar = round(8.00, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # sim_length = 1
+                        # tilt_angle = (1./9.)*0.5*3.141592653*j
+                        # pair_dp = 0.0
                         
 
                         # # ishikawa pnas
@@ -310,6 +317,7 @@ class DRIVER:
                         self.pars_list["pair_dp"].append(pair_dp)
                         self.pars_list["wavnum"].append(wavnum)
                         self.pars_list["wavnum_dia"].append(wavnum_dia)
+                        self.pars_list["dimensionless_force"].append(dimensionless_force)
 
                         index += 1
         # Write rules to sim list file

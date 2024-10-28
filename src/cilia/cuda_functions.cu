@@ -1270,9 +1270,9 @@ __global__ void barrier_forces(Real * __restrict__ f_segs, Real * __restrict__ f
 
         #if INFINITE_PLANE_WALL
 
-          if (zi < BASE_HEIGHT_ABOVE_SURFACE){
+          if (zi < BASE_HEIGHT_ABOVE_SURFACE_d){
 
-            fz = fmin(1.0, 1.0 - (zi - RSEG)/(0.5*DL - RSEG)); // max magnitude one radius from wall
+            fz = fmin(1.0, 1.0 - (zi - RSEG)/(0.5*DL_d - RSEG)); // max magnitude one radius from wall
             fz *= REPULSIVE_FORCE_FACTOR*END_FORCE_MAGNITUDE_d*fz*fz*fz; // 4th power
 
           }
@@ -1531,7 +1531,7 @@ void box_images(Real &x, Real box_size){
 }
 
 __global__
-void sync_var(int nswim, int nseg, int nfil, int nblob, int end_force_magnitude, Real seg_sep){
+void sync_var(int nswim, int nseg, int nfil, int nblob, int end_force_magnitude, Real seg_sep, Real dl){
 
   NSWIM_d = nswim;
   NSEG_d = nseg;
@@ -1540,6 +1540,7 @@ void sync_var(int nswim, int nseg, int nfil, int nblob, int end_force_magnitude,
   NTOTAL_d = (nswim*(nfil*nseg + nblob));
   END_FORCE_MAGNITUDE_d = end_force_magnitude;
   SEG_SEP_d = seg_sep;
+  DL_d = dl;
 
 }
 

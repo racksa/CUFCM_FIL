@@ -42,7 +42,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #endif
 
 
-#define FIL_USE_DOUBLE_PRECISION false
+#define FIL_USE_DOUBLE_PRECISION true
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -81,7 +81,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Simulation type
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define CILIA_TYPE 3
+#define CILIA_TYPE 0
 // Valid options:
 // 0 = Instability-driven cilia. This choice has some sub-types (see below).
 // 1 = Geometrically-switching cilia (partially implemented)
@@ -95,7 +95,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
-  #define CILIA_IC_TYPE 2
+  #define CILIA_IC_TYPE 3
   // Valid options:
   // 0 = All cilia have identical planar perturbations.
   // 1 = All cilia have identical out-of-plane perturbations.
@@ -159,7 +159,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 2
+#define BODY_OR_SURFACE_TYPE 0
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -180,14 +180,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Define one lattice size and leave the other blank to have it automatically calculated to fit the number of filaments.
   // Leave both blank to have the code attempt to make a regular lattice.
   // If values are given for both, the code will use FIL_LATTICE_X_NUM and re-calculate FIL_LATTICE_Y_NUM.
-  #define FIL_LATTICE_X_NUM 1
+  #define FIL_LATTICE_X_NUM FIL_X_DIM
   #define FIL_LATTICE_Y_NUM
-  #define FIL_LATTICE_Y_SPACING (1.8*FIL_LENGTH) // For prescribed-shape cilia, this is the beat-wise separation.
-  #define FIL_LATTICE_X_SPACING (2.0*DL) // Leave blank for a regular grid (i.e. squares or regular hexagons (as appropriate) based on FIL_LATTICE_Y_SPACING).
+  #define FIL_LATTICE_Y_SPACING FIL_SPACING // For prescribed-shape cilia, this is the beat-wise separation.
+  #define FIL_LATTICE_X_SPACING  // Leave blank for a regular grid (i.e. squares or regular hexagons (as appropriate) based on FIL_LATTICE_Y_SPACING).
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 3
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -220,7 +220,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -228,7 +228,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 3 = The Force Coupling Method (FCM). Implemented using the UAMMD library (https://github.com/RaulPPelaez/UAMMD).
 // 4 = cuFCM
 
-#define INITIAL_CONDITIONS_TYPE 0
+#define INITIAL_CONDITIONS_TYPE 0 // deprecated
 // Valid options:
 // 0 = Default
 // 1 = Resume from backup file (only really valid if we ensure DT is the same etc., but this is NOT checked automatically)
@@ -237,9 +237,6 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // N.B. Simulations using GMRES can resume/start using backup files from Broyden-only simulations, but the opposite is not true.
 // N.B. For options 0 and 2, whilst the simulation state will be fresh, all saved data will still be appended to any data from a previous simulation of the same name.
 
-// #if MOBILITY_TYPE==4
-//   #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
-// #endif
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Physical parameters
@@ -265,6 +262,16 @@ extern Real TILT_ANGLE;
 extern Real PAIR_DP;
 extern Real WAVNUM;
 extern Real WAVNUM_DIA;
+extern Real DIMENSIONLESS_FORCE;
+
+extern Real FIL_X_DIM;
+extern Real FIL_Y_DIM;
+extern Real FIL_SPACING;
+extern Real BLOB_X_DIM;
+extern Real BLOB_Y_DIM;
+extern Real BLOB_SPACING;
+extern Real HEX_NUM;
+extern Real REV_RATIO;
 
 
 #define MU 1.0 // Fluid viscosity.
@@ -286,11 +293,8 @@ extern Real WAVNUM_DIA;
 //   #define AXIS_DIR_BODY_LENGTH (NBLOB*RBLOB)
 // #endif
 
-#if CILIA_TYPE==0 or CILIA_TYPE==3
 
-  #define DIMENSIONLESS_FORCE 220.0 
-
-#elif CILIA_TYPE==1
+#if CILIA_TYPE==1
 
   #define DRIVING_TORQUE_MAGNITUDE_RATIO 3.0 // How much stronger is the driving torque in the fast stroke than in the slow
   #define DEFAULT_BASE_TORQUE_MAGNITUDE (0.1*KB) // Driving torque magnitude in the fast stroke
@@ -317,7 +321,7 @@ extern Real WAVNUM_DIA;
 #define MAX_BROYDEN_ITER 400 // Maximum number of Broyden's method iterations per time-step.
 #define TOL 1e-4 // Tolerance to be reached by the Broyden's method solve.
 
-#define SOLVER_TYPE 1
+#define SOLVER_TYPE 0
 // Valid options:
 // 0: Use Broyden's method for absolutely everything. When there is a rigid body with forces (and velocities if they're not prescribed) to solve for,
 //    the associated linear system is embedded in the wider Broyden's solve, rather than being solved for the current iterate at each iteration.
@@ -350,11 +354,12 @@ extern Real WAVNUM_DIA;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 
 #define BASE_HEIGHT_ABOVE_SURFACE (0.5*DL)
+#define BASE_HEIGHT_ABOVE_SURFACE_d (0.5*DL_d)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Derived/redefined parameters (these should be left alone)
