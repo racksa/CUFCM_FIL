@@ -6,12 +6,7 @@
 #ifndef MY_CONFIG_HEADER_INCLUDED
 #define MY_CONFIG_HEADER_INCLUDED
 
-// Only define it if it is not defined in the makefile
-// #ifndef SIMULATION_NAME
-//   #define SIMULATION_DIR "data/expr_sims/global/"
-//   #define SIMULATION_FILE "cilia"
-//   #define SIMULATION_NAME SIMULATION_DIR SIMULATION_FILE
-// #endif
+// Create global variables for data file names
 
 extern std::string SIMULATION_DIR;
 extern std::string SIMULATION_FILE;
@@ -37,12 +32,8 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #define GLOBAL_FILE_NAME "input/globals.ini"
 
-#if MOBILITY_TYPE==4
-  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
-#endif
 
-
-#define FIL_USE_DOUBLE_PRECISION true
+#define FIL_USE_DOUBLE_PRECISION false
 
 
 #if FIL_USE_DOUBLE_PRECISION
@@ -81,7 +72,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Simulation type
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define CILIA_TYPE 0
+#define CILIA_TYPE 3
 // Valid options:
 // 0 = Instability-driven cilia. This choice has some sub-types (see below).
 // 1 = Geometrically-switching cilia (partially implemented)
@@ -92,7 +83,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
 #define PRESCRIBED_BODY_VELOCITIES true
 
-#define OUTPUT_FORCES true
+#define OUTPUT_FORCES false
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 3
@@ -137,7 +128,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 3
+  #define CILIA_IC_TYPE 5
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
@@ -159,7 +150,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 0
+#define BODY_OR_SURFACE_TYPE 2
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -187,7 +178,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 3
+  #define SEEDING_TYPE 7
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -321,7 +312,7 @@ extern Real REV_RATIO;
 #define MAX_BROYDEN_ITER 400 // Maximum number of Broyden's method iterations per time-step.
 #define TOL 1e-4 // Tolerance to be reached by the Broyden's method solve.
 
-#define SOLVER_TYPE 0
+#define SOLVER_TYPE 1
 // Valid options:
 // 0: Use Broyden's method for absolutely everything. When there is a rigid body with forces (and velocities if they're not prescribed) to solve for,
 //    the associated linear system is embedded in the wider Broyden's solve, rather than being solved for the current iterate at each iteration.

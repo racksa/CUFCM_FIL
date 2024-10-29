@@ -42,8 +42,11 @@ class VISUAL:
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
-        self.date = '20241028_test'
-        self.dir = f"data/instability/{self.date}/"
+        # self.date = '20241029_illustration'
+        # self.dir = f"data/tilt_test/illustration/{self.date}/"
+
+        # self.date = '20241028_test'
+        # self.dir = f"data/instability/{self.date}/"
 
         # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -144,7 +147,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 10000
+        self.plot_end_frame_setting = 1
         self.frames_setting = 6000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1861,7 +1864,9 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        azim_angle = -90
+        elev_angle = 0
+        elev_angle_rad = elev_angle/180*np.pi
+        azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
         plane_normal = np.array([1, 0, 0])
         rot_mat = np.array([
@@ -1869,9 +1874,21 @@ class VISUAL:
             [np.sin(azim_angle_rad), np.cos(azim_angle_rad), 0],
             [0, 0, 1]
         ])
-        plane_normal = rot_mat@plane_normal
+        # rot_mat2 = np.array([
+        #     [1, 0, 0],
+        #     [0, np.cos(elev_angle_rad), -np.sin(elev_angle_rad)],
+        #     [0, np.sin(elev_angle_rad), np.cos(elev_angle_rad)],
+        # ])
+        rot_mat2 = np.array([
+            [np.cos(-elev_angle_rad), 0, -np.sin(-elev_angle_rad)],
+            [0, 1, 0],
+            [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
+        ])
+        
+        plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
+
         point_on_plane = 10*plane_normal
-        ax.view_init(elev=00., azim=azim_angle, roll=0)
+        ax.view_init(elev=elev_angle, azim=azim_angle, roll=0)
         ax.dist=5.8
 
         
@@ -1915,9 +1932,9 @@ class VISUAL:
                 # Plot the sphere
                 if(t==self.plot_end_frame-1):
                     ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5, zorder=0)
-                body_axis_x = np.matmul(R, np.array([2*self.radius,0,0]))
-                body_axis_y = np.matmul(R, np.array([0,2*self.radius,0]))
-                body_axis_z = np.matmul(R, np.array([0,0,1.2*self.radius]))
+                body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
+                body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
+                body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
                 
 
                 # ax.scatter(anterior[0]+body_pos[0], anterior[1]+body_pos[1], anterior[2]+body_pos[2], s=20, c='black')
@@ -1925,8 +1942,10 @@ class VISUAL:
                 # Plot body axis
                 # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
                 # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
-                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
-                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
+                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
+                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
+                ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
+                ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1955,6 +1974,8 @@ class VISUAL:
                     visible = np.sum(fil_base*plane_normal)
                     if visible > -0.5:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
+
+
 
                     # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
                     # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = zorder[0])
@@ -5540,7 +5561,7 @@ class VISUAL:
         force = True
         path = "data/ic_hpc_sim_free_with_force/"
 
-        force = False
+        force = True
         path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
