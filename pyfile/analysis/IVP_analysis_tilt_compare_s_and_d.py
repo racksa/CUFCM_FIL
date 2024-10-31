@@ -17,7 +17,7 @@ cmap_name = 'coolwarm'
 path = "data/tilt_test/makeup_pattern_with_force/"
 # path = "data/tilt_test/makeup_pattern/"
 
-force = False
+force = True
 
 r_data = np.load(f"{path}r_data.npy")
 k_data = np.load(f"{path}k_data.npy")
@@ -80,19 +80,20 @@ for fi in range(n_folder):
         if force:
             avg_dis = avg_dis_data[fi][ti::n_tilt]
 
-        # print(avg_speed.shape)
-
 
         k_index = 8
 
         # avg_speed_over_k[ti] = avg_speed[k_index] #np.mean(avg_speed)
         # avg_rot_speed_over_k[ti] = avg_rot_speed[k_index] #np.mean(avg_rot_speed)
-        # avg_dis_over_k[ti] = avg_dis[k_index] #np.mean(avg_rot_speed)
+        # if force:
+        #     avg_dis_over_k[ti] = avg_dis[k_index] #np.mean(avg_rot_speed)
+        
 
         avg_speed_over_k[ti] = np.mean(avg_speed)
         avg_rot_speed_over_k[ti] = np.mean(avg_rot_speed)
         if force:
             avg_dis_over_k[ti] = np.mean(avg_dis)
+            
 
     # cmap = plt.get_cmap(cmap_name)
     # color_data = r_data[fi]
@@ -168,7 +169,7 @@ ax.set_ylabel(r'$<V>T/L$')
 # ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r'$<\Omega>$')
+ax2.set_ylabel(r'$<\Omega>T$')
 
 ax3.set_xlabel(r'$\chi$')
 ax3.set_ylabel(r'$<V>T/L$')
@@ -177,7 +178,7 @@ ax3.legend()
 ax3.set_xlim(tilt_angle[0], tilt_angle[-1])
 
 ax4.set_xlabel(r'$\chi$')
-ax4.set_ylabel(r'$<\Omega>$')
+ax4.set_ylabel(r'$<\Omega>T$')
 ax4.legend()
 # ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax4.set_xlim(tilt_angle[0], tilt_angle[-1])

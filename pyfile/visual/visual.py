@@ -42,11 +42,11 @@ class VISUAL:
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
-        # self.date = '20241029_illustration'
-        # self.dir = f"data/tilt_test/illustration/{self.date}/"
+        self.date = '20241029_illustration'
+        self.dir = f"data/tilt_test/illustration/{self.date}/"
 
-        # self.date = '20241028_test'
-        # self.dir = f"data/instability/{self.date}/"
+        self.date = '20241028_test'
+        self.dir = f"data/instability/{self.date}/"
 
         # self.date = 'IVP'
         # self.dir = f"data/tilt_test/{self.date}/"
@@ -147,8 +147,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1
-        self.frames_setting = 6000
+        self.plot_end_frame_setting = 100000
+        self.frames_setting = 100
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1974,8 +1974,6 @@ class VISUAL:
                     visible = np.sum(fil_base*plane_normal)
                     if visible > -0.5:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
-
-
 
                     # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
                     # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = zorder[0])
@@ -5555,14 +5553,14 @@ class VISUAL:
 
         plt.rcParams.update({'font.size': 27})
 
-        # force = False
-        # path = "data/ic_hpc_sim/"
+        force = False
+        path = "data/ic_hpc_sim/"
 
-        force = True
-        path = "data/ic_hpc_sim_free_with_force/"
+        force = False
+        path = "data/ic_hpc_sim_free/"
 
-        force = True
-        path = 'data/tilt_test/makeup_pattern_with_force/'
+        # force = True
+        # path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
 
@@ -5576,7 +5574,7 @@ class VISUAL:
         print(folders)
 
         self.plot_end_frame_setting = 60000
-        self.frames_setting = 900
+        self.frames_setting = 3000
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!

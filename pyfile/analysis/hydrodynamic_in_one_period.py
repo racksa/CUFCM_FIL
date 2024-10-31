@@ -151,23 +151,23 @@ ax2.legend()
 ax2.set_xlim((0, 1))
 
 ax3.set_xlabel(r'$t/T$')
-ax3.set_ylabel(r"$<V>/L$")
+ax3.set_ylabel(r"$VT/L$")
 ax3.legend()
 ax3.set_xlim((0, 1))
 # ax3.set_ylim((np.min(body_speed_data)-0.1*np.ptp(body_speed_data), np.max(body_speed_data)+0.1*np.ptp(body_speed_data)))
 
 ax4.set_xlabel(r'$t/T$')
-ax4.set_ylabel(r"$<Ω>$")
+ax4.set_ylabel(r"$Ω$")
 ax4.legend()
 ax4.set_xlim((0, 1))
 
 ax5.set_xlabel(r'$t/T$')
-ax5.set_ylabel(r'$<\mathcal{R}>T^2/\mu L^3$')
+ax5.set_ylabel(r'$\mathcal{R}T^2/\mu L^3$')
 ax5.legend()
 ax5.set_xlim((0, 1))
 
 ax6.set_xlabel(r'$t/T$')
-ax6.set_ylabel(r'$<Efficiency>$')
+ax6.set_ylabel(r'$Efficiency$')
 ax6.legend()
 ax6.set_xlim((0, 1))
 
