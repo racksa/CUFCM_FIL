@@ -96,8 +96,10 @@ int main(int argc, char** argv){
     NBLOB = 0;
   #endif
 
+  
+
   // Derive other global variables
-  #if BICILIA
+  #if BICILIA || BICILIA_LONGT
     NSEG_PER_CILIA = NSEG/2;
   #else
     NSEG_PER_CILIA = NSEG;

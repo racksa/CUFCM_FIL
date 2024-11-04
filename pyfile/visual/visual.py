@@ -56,8 +56,8 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -78,11 +78,16 @@ class VISUAL:
         # self.date = '20240906_volvox_symplectic_k=2.35'
         # self.dir = f"data/volvox/{self.date}/"
 
-        # self.date = '20240911_bicilia_ishikawa'
+        # self.date = '20240912_bicilia_IVP'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
 
         # self.date = '20240919_bicilia_dia'
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
+
+        self.date = '20241104'
+        self.dir = f"data/volvox_bicilia/longt/{self.date}/"
+
+        
 
         # self.date = '20240115_resolution'
         # self.dir = f"data/resolution/{self.date}/"
@@ -148,7 +153,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 100000
-        self.frames_setting = 100
+        self.frames_setting = 300000000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1874,11 +1879,6 @@ class VISUAL:
             [np.sin(azim_angle_rad), np.cos(azim_angle_rad), 0],
             [0, 0, 1]
         ])
-        # rot_mat2 = np.array([
-        #     [1, 0, 0],
-        #     [0, np.cos(elev_angle_rad), -np.sin(elev_angle_rad)],
-        #     [0, np.sin(elev_angle_rad), np.cos(elev_angle_rad)],
-        # ])
         rot_mat2 = np.array([
             [np.cos(-elev_angle_rad), 0, -np.sin(-elev_angle_rad)],
             [0, 1, 0],
@@ -1940,8 +1940,6 @@ class VISUAL:
                 # ax.scatter(anterior[0]+body_pos[0], anterior[1]+body_pos[1], anterior[2]+body_pos[2], s=20, c='black')
 
                 # Plot body axis
-                # ax.plot([0, body_axis_x[0]]+body_pos[0], [0, body_axis_x[1]]+body_pos[1], [0, body_axis_x[2]]+body_pos[2])
-                # ax.plot([0, body_axis_y[0]]+body_pos[0], [0, body_axis_y[1]]+body_pos[1], [0, body_axis_y[2]]+body_pos[2])
                 ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
                 ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
                 ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')

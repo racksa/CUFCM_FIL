@@ -81,9 +81,9 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES true
+#define PRESCRIBED_BODY_VELOCITIES false
 
-#define OUTPUT_FORCES false
+#define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 3
@@ -95,7 +95,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 4
+  #define SHAPE_SEQUENCE 3
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -103,6 +103,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 3 = Volvox beat
   // 4 = Original 'Fulford and Blake' beat - <L>=0.975
   // 5 = Bi-cilia
+  // 6 = Bi-cilia long T - variable phase difference
 
   #if SHAPE_SEQUENCE==0
 
@@ -114,11 +115,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION true
+  #define DYNAMIC_PHASE_EVOLUTION false
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION true
+  #define DYNAMIC_SHAPE_ROTATION false
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -128,14 +129,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 5
+  #define CILIA_IC_TYPE 6
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
   // 2 = A metachronal wave (MCW). Its wavelength and direction are defined below. (deprecated)
   // 3 = Ishikawa MCW (deprecated) (the wavenumber k is incorrect if |k|>1)
   // 5 = Read from a file (default - we can define arbitrary initial conditions in python)
-  // 6 = prescribed MCW
+  // 6 = prescribed MCW (read from the globals.ini file)
 
   #if CILIA_IC_TYPE==2
 
@@ -211,7 +212,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 4
+#define MOBILITY_TYPE 1
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -236,6 +237,7 @@ extern int NSWIM;
 extern int NSEG;
 extern int NSEG_PER_CILIA;
 extern int NFIL;
+extern int NPAIR;
 extern int NBLOB;
 extern Real AR;
 extern Real AXIS_DIR_BODY_LENGTH;
@@ -449,6 +451,7 @@ extern Real REV_RATIO;
   #define VOLVOX_BEAT (SHAPE_SEQUENCE==3)
   #define FULFORD_AND_BLAKE_BEAT_ORIGINAL (SHAPE_SEQUENCE==4)
   #define BICILIA (SHAPE_SEQUENCE==5)
+  #define BICILIA_LONGT (SHAPE_SEQUENCE==6)
 
 #endif
 

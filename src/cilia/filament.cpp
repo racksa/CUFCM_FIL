@@ -325,18 +325,18 @@ void filament::initial_setup(const Real *const base_pos,
           }
         #elif (CILIA_IC_TYPE==6)
           // WARNING this is only correct if a spherical body is initialised at the origin!!
-          const Real phi = atan2(base_pos[1], base_pos[0]);
-          const Real theta = acos(base_pos[2]/(sqrt(base_pos[0]*base_pos[0]+
+          Real phi = atan2(base_pos[1], base_pos[0]);
+          Real theta = acos(base_pos[2]/(sqrt(base_pos[0]*base_pos[0]+
                                                     base_pos[1]*base_pos[1]+
                                                     base_pos[2]*base_pos[2])));
+          if (base_pos[0] == base_pos[1] == base_pos[2] == 0){
+            phi = 0;
+            theta = 0;
+          }
+
+          // std::cout << base_pos[0] << "   " << base_pos[1] << "   " << base_pos[2] << "   " << std::endl;
                                                     
-          // Real k = 0.0;
-          // Real v = 0.0;
-          // std::ifstream in("input/prescribed_mcw/mcw.dat"); // input
-          // in >> k;
-          // // phase = Real(2.0)*PI*( sin(k*theta/2.0) + sin(v*phi/4.0) );
-          // phase = Real(2.0)*k*theta;
-          // in.close();
+          // std::cout << phi << "    " << theta << std::endl;
 
           phase = Real(2.0)*WAVNUM*theta + WAVNUM_DIA*phi;
 
@@ -353,7 +353,11 @@ void filament::initial_setup(const Real *const base_pos,
       
       #endif
 
-      phase2 = phase + PAIR_DP*2.0*PI;
+      #if BICILIA
+        phase2 = phase + PAIR_DP*2.0*PI;
+      #elif BICILIA_LONGT
+        phase2 = PAIR_DP*phase;
+      #endif
 
       // qtemp maps x to the surface normal, which we want, but we also need to rotate about the surface normal to align
       // the 'normal-to-filament-centerline' vector at the base (i.e. the second frame vector) with the polar direction.
@@ -873,7 +877,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Bx(1,0) = 8.146824e-02; Bx(1,1) = 3.472676e-01; Bx(1,2) = -2.744220e-01;
         Bx(2,0) = 3.615272e-02; Bx(2,1) = 8.619119e-02; Bx(2,2) = -6.122992e-02;
 
-      #elif BICILIA
+      #elif BICILIA or BICILIA_LONGT
 
         // Same as Fulford-Blake beat but with newly fitted coefficients
 
@@ -1086,9 +1090,17 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         s_to_use2[0] = 0.0;
         s_to_use2[NSEG_PER_CILIA-1] = 1.0;
 
+      #elif BICILIA_LONGT
+
+        s_to_use2 = std::vector<Real>(NSEG_PER_CILIA);
+        s_to_use2[0] = 0.0;
+        s_to_use2[NSEG_PER_CILIA-1] = 1.0;
+
       #endif
 
-      for (int fp = 0; fp < (BICILIA ? 2 : 1); fp++){
+      bool bicilia = (BICILIA || BICILIA_LONGT);
+
+      for (int fp = 0; fp < (bicilia ? 2 : 1); fp++){
 
         Real psi = (fp == 0 ? phase : phase2);
 
@@ -1312,7 +1324,12 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
     if (nt > 0){
 
       phase += phase_dot*DT;
-      phase2 = phase + PAIR_DP*2.0*PI;
+
+      #if BICILIA
+        phase2 = phase + PAIR_DP*2.0*PI;
+      #elif BICILIA_LONGT
+        phase2 = PAIR_DP*phase;
+      #endif
 
       #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
@@ -1394,6 +1411,11 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
       #if FIT_TO_DATA_BEAT
 
         #if BICILIA
+          int index_in_pair = floor(n/NSEG_PER_CILIA);
+          Real z_dis = index_in_pair*2.2*RSEG;
+          Real s_to_use_n = index_in_pair ? s_to_use2[n%NSEG_PER_CILIA] : s_to_use[n%NSEG_PER_CILIA];
+          Real phase_this_cilia = index_in_pair ? phase2 : phase;
+        #elif BICILIA_LONGT
           int index_in_pair = floor(n/NSEG_PER_CILIA);
           Real z_dis = index_in_pair*2.2*RSEG;
           Real s_to_use_n = index_in_pair ? s_to_use2[n%NSEG_PER_CILIA] : s_to_use[n%NSEG_PER_CILIA];
@@ -2313,10 +2335,15 @@ void filament::write_backup(std::ofstream& data_file) const {
 
       return filename_stringstream.str();
 
-     #elif BICILIA
+    #elif BICILIA
 
       return std::string("input/forcing/bicilia_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
     
+    #elif BICILIA_LONGT
+
+      return std::string("input/forcing/bicilia_longt_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
+    
+
     #endif
 
   }

@@ -31,10 +31,10 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-6_sangani'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'tilt_test/illustration/'
-        self.exe_name = 'cilia_1e-4_with_force'
-        self.date = '20241029_illustration'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'tilt_test/illustration/'
+        # self.exe_name = 'cilia_1e-4_with_force'
+        # self.date = '20241029_illustration'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'instability/'
         # self.exe_name = 'cilia_1e-4_instability_double'
@@ -55,10 +55,10 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        # self.category = 'volvox_bicilia/dp_sweep2/'
-        # self.exe_name = 'cilia_1e-4_bicilia2'
-        # self.date = '20240919_bicilia_dia'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        self.category = 'volvox_bicilia/longt/'
+        self.exe_name = 'cilia_1e-4_longt'
+        self.date = '20241104'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -66,6 +66,7 @@ class DRIVER:
                      "nswim": [],
                      "nseg": [],
                      "nfil": [],
+                     "npair": [],
                      "nblob": [],
                      "ar": [],
                      "spring_factor": [],
@@ -89,7 +90,7 @@ class DRIVER:
                      "wavnum_dia": [],
                      "dimensionless_force": []}
 
-        self.sweep_shape = (1, 5, 1, 1)
+        self.sweep_shape = (1, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -148,53 +149,52 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        # nfil = int(400*(i+1))
-                        # nblob = int(40000*(i+1))
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 36
-                        # spring_factor = round(0.005 + 0.005, 3)
-                        # nx=256
-                        # ny=int(256/(i+1))
-                        # nz=int(32/(i+1))
-                        # boxsize=1600*(i+1)
-                        # fil_spacing=80.0
-                        # blob_spacing=8.0
-                        # fil_x_dim=20*(i+1)
-                        # blob_x_dim=200*(i+1)
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # sim_length = 100
-                        # seg_sep = 2.2
+                        nfil = int(400*(i+1))
+                        nblob = int(40000*(i+1))
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        spring_factor = round(0.005 + 0.005, 3)
+                        nx=256
+                        ny=int(256/(i+1))
+                        nz=int(32/(i+1))
+                        boxsize=1600*(i+1)
+                        fil_spacing=80.0
+                        blob_spacing=8.0
+                        fil_x_dim=20*(i+1)
+                        blob_x_dim=200*(i+1)
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
+                        sim_length = 100
 
                         # # callibration
-                        # nfil = int(1*(i+1))
-                        # nblob = int(0*(i+1))
-                        # nseg = 40
-                        # fil_spacing=256.0
-                        # blob_spacing=4.0
-                        # fil_x_dim=2
-                        # blob_x_dim=64
-                        # sim_length = 1
-                        # pair_dp = 0.1
+                        nfil = int(1*(i+1))
+                        nblob = int(0*(i+1))
+                        nseg = 40
+                        fil_spacing=256.0
+                        blob_spacing=4.0
+                        fil_x_dim=2
+                        blob_x_dim=64
+                        sim_length = 50
+                        pair_dp = 0.8
 
                         # # # # IVP sim
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000
 
-                        nseg = 20
-                        nfil = int(639)
-                        nblob = int(40961)
-                        ar = round(15.00, 2)
-                        # nfil = int(159)
-                        # nblob = int(9000)
-                        # ar = round(8.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        sim_length = 0.006
-                        tilt_angle = (1./9.)*0.5*3.141592653*j
-                        pair_dp = 0.0
+                        # nseg = 20
+                        # nfil = int(639)
+                        # nblob = int(40961)
+                        # ar = round(15.00, 2)
+                        # # nfil = int(159)
+                        # # nblob = int(9000)
+                        # # ar = round(8.00, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # sim_length = 0.006
+                        # tilt_angle = (1./9.)*0.5*3.141592653*j
+                        # pair_dp = 0.0
                         
 
                         # # ishikawa pnas
@@ -248,21 +248,21 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        # nfil = 2560
-                        # nblob = 40962
-                        # ar = 20
-                        # nseg = 40
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0.
-                        # pair_dp = 0.1*i
-                        # wavnum = 0.0
-                        # wavnum_dia = 1
+                        nfil = 159
+                        nblob = 9000
+                        ar = 8.0
+                        nseg = 40
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=8000
+                        spring_factor = round(0)
+                        period = 1
+                        sim_length = 50
+                        tilt_angle = 0.
+                        pair_dp = 0.8
+                        wavnum = 1.0
+                        wavnum_dia = 0.0
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
