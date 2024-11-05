@@ -80,8 +80,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 3 = Cilia follow a prescribed sequence of shapes. This choice has some sub-types (see below).
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
+#if CILIA_TYPE == 3
+  #define PAIR true
+  // Sub-type of prescribed cilia motion
+  // This enables filaments to be seeded as pair and have difference frequency
+#endif
+
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES false
+#define PRESCRIBED_BODY_VELOCITIES true
 
 #define OUTPUT_FORCES true
 #if CILIA_TYPE==0
@@ -95,7 +101,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 3
+  #define SHAPE_SEQUENCE 1
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -115,11 +121,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION false
+  #define DYNAMIC_PHASE_EVOLUTION true
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION false
+  #define DYNAMIC_SHAPE_ROTATION true
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -129,7 +135,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 6
+  #define CILIA_IC_TYPE 5
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
@@ -196,7 +202,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
   #else
-    #define FOURIER_DIR "input/fourier_modes/"
+    #if PAIR
+      #define FOURIER_DIR "input/fourier_modes_pair/"
+    #else
+      #define FOURIER_DIR "input/fourier_modes/"
+    #endif
     #define GENERATRIX_FILE_NAME FOURIER_DIR "sphere"
   #endif
 
@@ -212,7 +222,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -450,8 +460,8 @@ extern Real REV_RATIO;
   #define CORAL_LARVAE_BEAT (SHAPE_SEQUENCE==2)
   #define VOLVOX_BEAT (SHAPE_SEQUENCE==3)
   #define FULFORD_AND_BLAKE_BEAT_ORIGINAL (SHAPE_SEQUENCE==4)
-  #define BICILIA (SHAPE_SEQUENCE==5)
-  #define BICILIA_LONGT (SHAPE_SEQUENCE==6)
+  #define BICILIA (SHAPE_SEQUENCE==5) // deprecated - use PAIR instead
+  #define BICILIA_LONGT (SHAPE_SEQUENCE==6) // deprecated - use PAIR instead
 
 #endif
 

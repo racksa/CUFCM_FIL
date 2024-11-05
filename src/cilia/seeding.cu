@@ -851,7 +851,7 @@
 
         const int min_id = sample_nn_ids[n];
 
-        // Hang: min_id == -1 means the nearest neighbour is the aux-point where we want filaments to avoid.
+        // Hang: min_id == -1 means the nearest neighbour is the aux-point which we want filaments to avoid.
         if(!(min_id == -1)){
           X[3*min_id] = (count[min_id]*X[3*min_id] + samples[3*n])/Real(count[min_id] + 1);
           X[3*min_id + 1] = (count[min_id]*X[3*min_id + 1] + samples[3*n + 1])/Real(count[min_id] + 1);
@@ -910,6 +910,219 @@
 
       const Real theta = std::atan2(std::sqrt(X[3*n]*X[3*n] + X[3*n + 1]*X[3*n + 1]), X[3*n + 2]);
       const Real phi = std::atan2(X[3*n + 1], X[3*n]);
+
+      matrix frame = shape.full_frame(theta, phi);
+      // N.B. the polar and azi refs are not used at the end
+      // To define the beating plane, consult the filament class instead
+      
+      polar_dir_refs[3*n] = frame(0);
+      polar_dir_refs[3*n + 1] = frame(1);
+      polar_dir_refs[3*n + 2] = frame(2);
+
+      azi_dir_refs[3*n] = frame(3);
+      azi_dir_refs[3*n + 1] = frame(4);
+      azi_dir_refs[3*n + 2] = frame(5);
+
+      normal_refs[3*n] = frame(6);
+      normal_refs[3*n + 1] = frame(7);
+      normal_refs[3*n + 2] = frame(8);
+
+    }
+
+  };
+
+  void equal_area_seeding_poles_pair(Real *const pos_ref, Real *const polar_dir_refs, Real *const azi_dir_refs, Real *const normal_refs, const int N, shape_fourier_description& shape){
+
+    if (N == 0){
+
+      return; // Because of the squirmer-style simulations, the code may try to seed 0 filaments.
+
+    }
+
+    int NP = N/2;
+
+    // This function essentially implements a version of MacQueen's algorithm.
+    // We seed a large number of points randomly on the surface according to a uniform distribution, and then find
+    // our N points as the centres of regions of (approximately) equal area through N-means clustering.
+
+    int samples_per_iter = 1000;
+
+    // Real shift_ratio = (0.471*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Dec 2023 to Feb 2024
+    Real shift_ratio = (1.0*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Feb 2024
+    int max_num_iters = 10000;
+
+    // Allocate memory for the CUDA nearest-neighbour search.
+    Real *samples, *X;
+    cudaMallocManaged(&samples, 3*samples_per_iter*sizeof(Real));
+    cudaMallocManaged(&X, 3*NP*sizeof(Real));
+
+    int *sample_nn_ids;
+    cudaMallocManaged(&sample_nn_ids, samples_per_iter*sizeof(int));
+
+    const int num_thread_blocks = (samples_per_iter + THREADS_PER_BLOCK - 1)/THREADS_PER_BLOCK;
+
+    // Generate initial guesses.
+    if (std::string(GENERATRIX_FILE_NAME) == std::string("sphere")){
+
+      // We use the spiral distribution given by Saff and Kuijlaars (1997) as our initial positions.
+      Real phi = 0.0;
+
+      for (int n = 0; n < NP; n++){
+
+        const Real theta = std::acos((NP == 1) ? -1.0 : 2.0*n/Real(NP-1) - 1.0);
+
+        const matrix d = shape.location(theta, phi);
+
+        X[3*n] = d(0);
+        X[3*n + 1] = d(1);
+        X[3*n + 2] = d(2);
+
+        if (n == NP-2){
+
+          phi = 0.0;
+
+        } else {
+
+          const Real r = std::sqrt(d(0)*d(0) + d(1)*d(1));
+
+          phi += 3.6/(r*std::sqrt(NP));
+
+        }
+
+      }
+
+    } else {
+
+      // Use random initial positions.
+      for (int n = 0; n < NP; n++){
+
+        // const matrix sample = shape.random_point();
+        const matrix sample = shape.random_point_away_from_poles(shift_ratio);
+        X[3*n] = sample(0);
+        X[3*n + 1] = sample(1);
+        X[3*n + 2] = sample(2);
+
+      }
+
+    }
+
+    std::vector<int> count(NP);
+    std::vector<int> old_count(NP); // Used to check for convergence.
+
+    for (int n = 0; n < NP; n++){
+
+      count[n] = 1;
+      old_count[n] = 1;
+
+    }
+
+    int num_iters = 0;
+
+
+    while (num_iters < max_num_iters){
+
+      // Sample from the uniform distribution on the surface.
+      for (int n = 0; n < samples_per_iter; n++){
+
+        const matrix sample = shape.random_point_away_from_poles(shift_ratio);
+
+        samples[3*n] = sample(0);
+        samples[3*n + 1] = sample(1);
+        samples[3*n + 2] = sample(2);
+
+      }
+
+      // Find the candidate points closest to the random samples.
+      find_nearest_neighbours<<<num_thread_blocks, THREADS_PER_BLOCK>>>(sample_nn_ids, samples, samples_per_iter, X, NP);
+      cudaDeviceSynchronize();
+
+      // Update the candidate points.
+      for (int n = 0; n < samples_per_iter; n++){
+
+        const int min_id = sample_nn_ids[n];
+
+        // Hang: min_id == -1 means the nearest neighbour is the aux-point which we want filaments to avoid.
+        if(!(min_id == -1)){
+          X[3*min_id] = (count[min_id]*X[3*min_id] + samples[3*n])/Real(count[min_id] + 1);
+          X[3*min_id + 1] = (count[min_id]*X[3*min_id + 1] + samples[3*n + 1])/Real(count[min_id] + 1);
+          X[3*min_id + 2] = (count[min_id]*X[3*min_id + 2] + samples[3*n + 2])/Real(count[min_id] + 1);
+
+          count[min_id]++;
+
+          shape.project_onto_surface(&X[3*min_id]);
+        }
+      }
+
+      num_iters++;
+
+      // Check for convergence.
+      // In general, I only expect this to trigger an early exit for small numbers of points (e.g. some filament seeding problems),
+      // and even then possibly only on spheres (or any other shapes that actually have some exact solutions).
+      if (num_iters % 100 == 0){
+
+        int max_change = 0;
+        int min_change = 1000000;
+
+        for (int n = 0; n < NP; n++){
+
+          if (max_change < count[n]-old_count[n]){
+
+            max_change = count[n] - old_count[n];
+
+          }
+
+          if (min_change > count[n]-old_count[n]){
+
+            min_change = count[n] - old_count[n];
+
+          }
+
+        }
+
+        old_count = count;
+
+        if (Real(min_change)/Real(max_change) > 0.99){
+
+          break;
+
+        }
+
+      }
+
+    }
+
+    // Write the data for the final positions
+    for (int n = 0; n < N; n++){
+
+      int pair_index = 3*(n%NP);
+
+      std::cout << n << " " << pair_index << " " << std::endl;
+
+      Real x, y, z;
+
+      // flagellum 1 in the pair
+      if (n/NP == 0){
+        x = X[pair_index];
+        y = X[pair_index + 1];
+        z = X[pair_index + 2];
+      }
+      // flagellum 2 in the pair
+      else{
+        Real rotation_angle = 2*PI*(2.6*RSEG/(AXIS_DIR_BODY_LENGTH*PI));
+        x = cos(rotation_angle)*X[pair_index] - sin(rotation_angle)*X[pair_index + 1];
+        y = sin(rotation_angle)*X[pair_index] + cos(rotation_angle)*X[pair_index + 1];
+        z = X[pair_index + 2];
+      }
+
+      pos_ref[3*n] = x;
+      pos_ref[3*n + 1] = y;
+      pos_ref[3*n + 2] = z;
+
+      
+      
+
+      const Real theta = std::atan2(std::sqrt(x*x + y*y), z);
+      const Real phi = std::atan2(y, x);
 
       matrix frame = shape.full_frame(theta, phi);
       // N.B. the polar and azi refs are not used at the end
@@ -1503,13 +1716,6 @@
 
       Real disc_radius;
 
-      // fil_grid_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));
-      // fil_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
-      // hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
-      // rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
-      // hexagonal_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, 
-      //                   fil_grid_step_x, fil_grid_dim_x, hex_num, rev_ratio);
-
       hexagonal_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, 
                         FIL_SPACING, FIL_X_DIM, HEX_NUM, REV_RATIO);
       
@@ -1549,8 +1755,12 @@
 
       std::cout << "Seeking an equal-area distribution (repulsion at poles) for the filaments..." << std::endl;
 
-      equal_area_seeding_poles(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape);
-
+      if (PAIR){
+        equal_area_seeding_poles_pair(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape);
+      }else{
+        equal_area_seeding_poles(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape);
+      }
+      
     #endif
 
     std::ofstream fil_ref_file(file_name_trunk + ".seed");

@@ -291,10 +291,6 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
     std::string file_name_trunk = GENERATRIX_FILE_NAME+std::to_string(NFIL);
 
-    // DEBUGING BEGIN
-    // std::string file_name_trunk = GENERATRIX_FILE_NAME+std::to_string(472);
-    // DEBUGING END
-
     #if EQUATORIAL_SEEDING
 
       file_name_trunk += "_equatorial";
@@ -388,7 +384,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
       // dir_matrix(1,0) = dir[1];
       // dir_matrix(2,0) = dir[2];
       // dir_matrix = body.q.rot_mat()*dir_matrix;
-      // Real dir_in[3] = {dir_matrix(0,0), dir_matrix(1,0), dir_matrix(2,0)}; 
+      // Real dir_in[3] = {dir_matrix(0,0), dir_matrix(1,0), dir_matrix(2,0)};
 
       const Real pos[3] = {body.x[0] + filament_references[3*i], body.x[1] + filament_references[3*i + 1], body.x[2] + filament_references[3*i + 2]};
       

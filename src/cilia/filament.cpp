@@ -68,6 +68,8 @@ void filament::initial_setup(const Real *const base_pos,
                               const int fil_id,
                               quaternion rigidbody_q){
 
+  id = fil_id;
+
   segments = std::vector<segment>(NSEG);
 
   f = f_address;
@@ -226,7 +228,13 @@ void filament::initial_setup(const Real *const base_pos,
 
     #if PRESCRIBED_CILIA
 
-      omega0 = 2.0*PI; // T = 1
+      omega0 = 2.0*PI;
+
+      if (PAIR){
+        if (id/NPAIR == 1){
+          omega0 *= PAIR_DP;
+        }
+      }      
 
       #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
@@ -329,13 +337,13 @@ void filament::initial_setup(const Real *const base_pos,
           Real theta = acos(base_pos[2]/(sqrt(base_pos[0]*base_pos[0]+
                                                     base_pos[1]*base_pos[1]+
                                                     base_pos[2]*base_pos[2])));
-          if (base_pos[0] == base_pos[1] == base_pos[2] == 0){
+          if (base_pos[0] == 0 && base_pos[1] == 0 && base_pos[2] == 0) {
             phi = 0;
             theta = 0;
           }
 
+
           // std::cout << base_pos[0] << "   " << base_pos[1] << "   " << base_pos[2] << "   " << std::endl;
-                                                    
           // std::cout << phi << "    " << theta << std::endl;
 
           phase = Real(2.0)*WAVNUM*theta + WAVNUM_DIA*phi;
@@ -735,65 +743,65 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         // Same as Fulford-Blake beat but with newly fitted coefficients
 
         Ay = matrix(4,4);
-        Ay(0,0) = -0.01359477;
-        Ay(1,0) = 0.17304993;
-        Ay(2,0) = -0.13139014;
-        Ay(3,0) = -0.16029509;
-        Ay(0,1) = -0.29332220;
-        Ay(1,1) = -2.07743633;
-        Ay(2,1) = 1.67275679;
-        Ay(3,1) = 0.86911573;
-        Ay(0,2) = 1.11787568;
-        Ay(1,2) = 1.96507494;
-        Ay(2,2) = -3.30501852;
-        Ay(3,2) = -1.43711565;
-        Ay(0,3) = -0.57979870;
-        Ay(1,3) = -0.48418322;
-        Ay(2,3) = 1.75899013;
-        Ay(3,3) = 0.70427363;
+        Ay(0,0) = -0.01665535;
+        Ay(1,0) = 0.17505739;
+        Ay(2,0) = -0.12408600;
+        Ay(3,0) = -0.16672661;
+        Ay(0,1) = -0.27457190;
+        Ay(1,1) = -2.09412076;
+        Ay(2,1) = 1.62438155;
+        Ay(3,1) = 0.90896038;
+        Ay(0,2) = 1.08406999;
+        Ay(1,2) = 1.99556763;
+        Ay(2,2) = -3.21015214;
+        Ay(3,2) = -1.50867276;
+        Ay(0,3) = -0.56102820;
+        Ay(1,3) = -0.50179439;
+        Ay(2,3) = 1.70178281;
+        Ay(3,3) = 0.74387795;
         Ax = matrix(4,4);
-        Ax(0,0) = 1.00173453;
-        Ax(1,0) = 0.00177973;
-        Ax(2,0) = 0.18216075;
-        Ax(3,0) = -0.11814694;
-        Ax(0,1) = -0.19343779;
-        Ax(1,1) = -0.21951290;
-        Ax(2,1) = -1.19973029;
-        Ax(3,1) = 1.11157299;
-        Ax(0,2) = -0.20903225;
-        Ax(1,2) = 1.18549520;
-        Ax(2,2) = 1.85563800;
-        Ax(3,2) = -2.22516778;
-        Ax(0,3) = 0.10965722;
-        Ax(1,3) = -0.87560157;
-        Ax(2,3) = -0.73808804;
-        Ax(3,3) = 1.24886035;
+        Ax(0,0) = 1.00490080;
+        Ax(1,0) = 0.00314934;
+        Ax(2,0) = 0.18942274;
+        Ax(3,0) = -0.11162123;
+        Ax(0,1) = -0.19958656;
+        Ax(1,1) = -0.22239636;
+        Ax(2,1) = -1.24525818;
+        Ax(3,1) = 1.07262966;
+        Ax(0,2) = -0.20422343;
+        Ax(1,2) = 1.18659976;
+        Ax(2,2) = 1.94063304;
+        Ax(3,2) = -2.15142914;
+        Ax(0,3) = 0.10887946;
+        Ax(1,3) = -0.87409016;
+        Ax(2,3) = -0.78632572;
+        Ax(3,3) = 1.20544741;
         By = matrix(3,4);
-        By(0,0) = -0.07161063;
-        By(1,0) = -0.28124133;
-        By(2,0) = 0.02784571;
-        By(0,1) = 2.20709826;
-        By(1,1) = 1.40574837;
-        By(2,1) = -0.37172265;
-        By(0,2) = -4.29445659;
-        By(1,2) = -1.48026680;
-        By(2,2) = 1.03114541;
-        By(0,3) = 2.11206054;
-        By(1,3) = 0.39648628;
-        By(2,3) = -0.71183106;
+        By(0,0) = -0.06343445;
+        By(1,0) = -0.28828336;
+        By(2,0) = 0.02187088;
+        By(0,1) = 2.15509751;
+        By(1,1) = 1.45223183;
+        By(2,1) = -0.33070891;
+        By(0,2) = -4.19609063;
+        By(1,2) = -1.56580487;
+        By(2,2) = 0.94906955;
+        By(0,3) = 2.05489100;
+        By(1,3) = 0.44541361;
+        By(2,3) = -0.66157093;
         Bx = matrix(3,4);
-        Bx(0,0) = 0.09132704;
-        Bx(1,0) = -0.09932551;
-        Bx(2,0) = -0.15745604;
-        Bx(0,1) = -0.53597901;
-        Bx(1,1) = 1.16560579;
-        Bx(2,1) = 0.94043342;
-        Bx(0,2) = 1.37873237;
-        Bx(1,2) = -2.64682150;
-        Bx(2,2) = -1.39914889;
-        Bx(0,3) = -0.58397032;
-        Bx(1,3) = 1.58062759;
-        Bx(2,3) = 0.59588026;
+        Bx(0,0) = 0.09140608;
+        Bx(1,0) = -0.09670739;
+        Bx(2,0) = -0.16451150;
+        Bx(0,1) = -0.54804089;
+        Bx(1,1) = 1.14634486;
+        Bx(2,1) = 0.98846449;
+        Bx(0,2) = 1.40643137;
+        Bx(1,2) = -2.60675971;
+        Bx(2,2) = -1.49147276;
+        Bx(0,3) = -0.60109684;
+        Bx(1,3) = 1.55525152;
+        Bx(2,3) = 0.64896090;
 
       #elif FULFORD_AND_BLAKE_BEAT_ORIGINAL
 
@@ -1455,7 +1463,7 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
         segments[n].x[1] = segments[0].x[1] + diff(1);
         segments[n].x[2] = segments[0].x[2] + diff(2);
 
-        // std::cout << n << "   " <<  s_to_use_n << "    " << n%NSEG_PER_CILIA << std::endl;
+        // std::cout << id << " "<<n << " " << segments[0].x[0] << "  "<< s_to_use_n <<" "<<phase_this_cilia << std::endl;
 
         #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 

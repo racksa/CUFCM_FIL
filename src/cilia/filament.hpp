@@ -64,6 +64,8 @@ public:
   void write_data(std::ofstream& data_file) const;
   void write_backup(std::ofstream& data_file) const;
 
+  int id;
+
   #if INSTABILITY_CILIA
 
     Real clamp_lambda[3];

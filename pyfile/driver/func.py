@@ -55,9 +55,9 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox_bicilia/longt/'
-        self.exe_name = 'cilia_1e-4_longt'
-        self.date = '20241104'
+        self.category = 'volvox_bicilia/individual_pair/'
+        self.exe_name = 'cilia_1e-4_individual_pair_fixed'
+        self.date = '20241104_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -66,7 +66,6 @@ class DRIVER:
                      "nswim": [],
                      "nseg": [],
                      "nfil": [],
-                     "npair": [],
                      "nblob": [],
                      "ar": [],
                      "spring_factor": [],
@@ -248,19 +247,19 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 159
+                        nfil = 318
                         nblob = 9000
                         ar = 8.0
-                        nseg = 40
+                        nseg = 20
                         nx=400
                         ny=400
                         nz=400
-                        boxsize=8000
-                        spring_factor = round(0)
+                        boxsize=4000
+                        spring_factor = round(0.05, 3)
                         period = 1
-                        sim_length = 50
+                        sim_length = 300
                         tilt_angle = 0.
-                        pair_dp = 0.8
+                        pair_dp = 0.5
                         wavnum = 1.0
                         wavnum_dia = 0.0
 
