@@ -84,7 +84,7 @@ class VISUAL:
         # self.date = '20240919_bicilia_dia'
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
-        self.date = '20241104_fixed'
+        self.date = '20241107_fixed'
         self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
@@ -152,8 +152,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 100000
-        self.frames_setting = 300000
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting

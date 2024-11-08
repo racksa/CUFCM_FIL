@@ -57,7 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241104_fixed'
+        self.date = '20241108_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -167,15 +167,15 @@ class DRIVER:
                         sim_length = 100
 
                         # # callibration
-                        nfil = int(1*(i+1))
-                        nblob = int(0*(i+1))
-                        nseg = 40
-                        fil_spacing=256.0
-                        blob_spacing=4.0
-                        fil_x_dim=2
-                        blob_x_dim=64
-                        sim_length = 50
-                        pair_dp = 0.8
+                        # nfil = int(1*(i+1))
+                        # nblob = int(0*(i+1))
+                        # nseg = 40
+                        # fil_spacing=256.0
+                        # blob_spacing=4.0
+                        # fil_x_dim=2
+                        # blob_x_dim=64
+                        # sim_length = 50
+                        # pair_dp = 0.8
 
                         # # # # IVP sim
                         # nx=400
@@ -247,19 +247,19 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 318
-                        nblob = 9000
-                        ar = 8.0
+                        nfil = 1278
+                        nblob = 40961
+                        ar = 15.0
                         nseg = 20
                         nx=400
                         ny=400
                         nz=400
                         boxsize=4000
-                        spring_factor = round(0.05, 3)
+                        spring_factor = round(0.5, 3)
                         period = 1
                         sim_length = 300
                         tilt_angle = 0.
-                        pair_dp = 0.5
+                        pair_dp = 1.
                         wavnum = 1.0
                         wavnum_dia = 0.0
 
