@@ -1112,7 +1112,7 @@
         Real theta = acos(X[pair_index + 2]/(sqrt(X[pair_index]*X[pair_index]+
                                                   X[pair_index + 1]*X[pair_index + 1]+
                                                   X[pair_index + 2]*X[pair_index + 2])));
-        Real rotation_angle = 2*PI*(2.6*RSEG/(AXIS_DIR_BODY_LENGTH*PI));
+        Real rotation_angle = 2*PI*(2.6*RSEG/(AXIS_DIR_BODY_LENGTH*PI*sin(theta)));
         x = cos(rotation_angle)*X[pair_index] - sin(rotation_angle)*X[pair_index + 1];
         y = sin(rotation_angle)*X[pair_index] + cos(rotation_angle)*X[pair_index + 1];
         z = X[pair_index + 2];
