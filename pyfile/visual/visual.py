@@ -84,7 +84,7 @@ class VISUAL:
         # self.date = '20240919_bicilia_dia'
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
-        self.date = '20241107_fixed'
+        self.date = '20241108_fixed'
         self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
@@ -164,7 +164,7 @@ class VISUAL:
         self.Ly = 1000
         self.Lz = 1000
 
-        self.ncol = 12
+        self.ncol = 5
         self.num_sim = 0
 
         self.plot_interval = 1

@@ -1108,6 +1108,10 @@
       }
       // flagellum 2 in the pair
       else{
+        Real phi = atan2(X[pair_index + 1], X[pair_index]);
+        Real theta = acos(X[pair_index + 2]/(sqrt(X[pair_index]*X[pair_index]+
+                                                  X[pair_index + 1]*X[pair_index + 1]+
+                                                  X[pair_index + 2]*X[pair_index + 2])));
         Real rotation_angle = 2*PI*(2.6*RSEG/(AXIS_DIR_BODY_LENGTH*PI));
         x = cos(rotation_angle)*X[pair_index] - sin(rotation_angle)*X[pair_index + 1];
         y = sin(rotation_angle)*X[pair_index] + cos(rotation_angle)*X[pair_index + 1];

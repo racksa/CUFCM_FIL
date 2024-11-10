@@ -234,7 +234,7 @@ void filament::initial_setup(const Real *const base_pos,
         if (id/NPAIR == 1){
           omega0 *= PAIR_DP;
         }
-      }      
+      }
 
       #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
