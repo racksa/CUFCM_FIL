@@ -97,6 +97,7 @@ class DRIVER:
         self.current_thread = 0
         self.num_thread = 1
         self.cuda_device = 0
+        self.run_on_hpc = False
     
     def update_date(self, date):
         self.date = date
@@ -396,14 +397,16 @@ class DRIVER:
             # command = f"export OPENBLAS_NUM_THREADS=1; \
             #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
             #             ./bin/{self.exe_name} > terminal_outputs/output_{self.date}_{self.pars_list['nfil'][i]:.0f}fil_{i}.out"
-
+            
+            
             command = f"export OPENBLAS_NUM_THREADS=1; \
                         export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
                         ./bin/{self.exe_name} "
             
-            # on ic hpc
-            # command = f"export OPENBLAS_NUM_THREADS=1; \
-            #             ./bin/{self.exe_name}"
+            # override on ic hpc
+            if self.run_on_hpc:
+                command = f"export OPENBLAS_NUM_THREADS=1; \
+                            ./bin/{self.exe_name}"
 
 
             os.system(command)

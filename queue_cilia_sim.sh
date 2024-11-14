@@ -30,7 +30,7 @@
 
 q=19
 nq=20
-command="python3 pyfile/driver/driver.py run ${q} ${nq} 1"
+command="python3 pyfile/driver/driver.py run ${q} ${nq} 1 HPC"
 
 
 # cp --attributes-only "run_cilia_sim.pbs" "pbs/run_cilia_sim${q}.pbs"

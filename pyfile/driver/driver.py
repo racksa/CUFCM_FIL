@@ -3,7 +3,14 @@ import sys
 
 driver = func.DRIVER()
 
+
+
+
+
 if(len(sys.argv) > 1):
+    if 'HPC' in sys.argv:
+        driver.run_on_hpc = True
+
     if(sys.argv[1] == 'clean'):
         driver.delete_files()
 
