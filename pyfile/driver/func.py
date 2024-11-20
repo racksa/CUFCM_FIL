@@ -57,7 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241109_fixed'
+        self.date = '20241120_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -89,7 +89,7 @@ class DRIVER:
                      "wavnum_dia": [],
                      "dimensionless_force": []}
 
-        self.sweep_shape = (1, 1, 1, 1)
+        self.sweep_shape = (10, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -256,11 +256,11 @@ class DRIVER:
                         ny=400
                         nz=400
                         boxsize=4000
-                        spring_factor = round(0.5, 3)
+                        spring_factor = round(0.01 *(i+1), 3)
                         period = 1
                         sim_length = 300
                         tilt_angle = 0.
-                        pair_dp = 1.
+                        pair_dp = 0.
                         wavnum = 1.0
                         wavnum_dia = 0.0
 
