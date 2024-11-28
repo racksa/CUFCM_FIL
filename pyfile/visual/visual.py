@@ -65,7 +65,7 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        # # self.date = '20240827_jfm2'
+        self.date = '20240827_jfm2'
         # # self.date = '20240731_pnas_L1'
         # self.date = '20240802_pnas_L0.975'
         # # self.date = '20240829_pnas_volvox_beat'
@@ -73,7 +73,7 @@ class VISUAL:
         # # self.date = '20240902_real_volvox'
         # # self.date = '20240903_real_volvox_seg20'
         # self.date = '20241015_pnas_rpy'
-        # self.dir = f"data/ishikawa/{self.date}/"
+        self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
         # self.dir = f"data/volvox/{self.date}/"
@@ -84,8 +84,8 @@ class VISUAL:
         # self.date = '20240919_bicilia_dia'
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
-        self.date = '20241120_fixed'
-        self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
+        # self.date = '20241120_fixed'
+        # self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
 
@@ -152,7 +152,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
+        self.plot_end_frame_setting = 29980
         self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -1667,8 +1667,28 @@ class VISUAL:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
-        ax.view_init(elev=0., azim=90)
-        ax.dist=7.4        
+        elev_angle = 0
+        elev_angle_rad = elev_angle/180*np.pi
+        azim_angle = 0
+        azim_angle_rad = azim_angle/180*np.pi
+        plane_normal = np.array([1, 0, 0])
+        rot_mat = np.array([
+            [np.cos(azim_angle_rad), -np.sin(azim_angle_rad), 0],
+            [np.sin(azim_angle_rad), np.cos(azim_angle_rad), 0],
+            [0, 0, 1]
+        ])
+        rot_mat2 = np.array([
+            [np.cos(-elev_angle_rad), 0, -np.sin(-elev_angle_rad)],
+            [0, 1, 0],
+            [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
+        ])
+        
+        plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
+
+        point_on_plane = 10*plane_normal
+        ax.view_init(elev=elev_angle, azim=azim_angle, roll=180)
+        ax.dist=5.8
+          
 
         # Flow field
         n_theta = 20
@@ -1736,11 +1756,13 @@ class VISUAL:
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
+                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
                     fil_data = np.zeros((self.nseg, 3))
                     fil_i = int(3*fil*self.nseg)
                     print(" fil ", fil, "          ", end="\r")
 
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 0.1 + 0.9*abs(np.cos(fil_phases[fil]/2))
 
                     for seg in range(self.nseg):
                         seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
@@ -1752,8 +1774,10 @@ class VISUAL:
                             for pi, pos in enumerate(pos_list):
                                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
                     
-                    if (fil_data[0] - body_pos)[1]> 0:
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+                    visible = np.sum(fil_base*plane_normal)
+                    if visible > -0.5:
+                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', zorder = 100, alpha = alpha)
 
                 if(show_flow_field):
                     for blob in range(int(self.pars['NBLOB'])):
@@ -1937,13 +1961,11 @@ class VISUAL:
                 body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
                 
 
-                # ax.scatter(anterior[0]+body_pos[0], anterior[1]+body_pos[1], anterior[2]+body_pos[2], s=20, c='black')
-
                 # Plot body axis
-                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
-                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
-                ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
-                ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
+                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
+                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
+                # ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
+                # ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -1954,6 +1976,7 @@ class VISUAL:
                     # cmap_name = 'twilight_shifted'
                     cmap = plt.get_cmap(cmap_name)
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
 
                     s = np.linspace(0, 1, 20)
                     Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
@@ -1970,8 +1993,10 @@ class VISUAL:
 
                     # Show only one side of the sphere
                     visible = np.sum(fil_base*plane_normal)
-                    if visible > -0.5:
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100)
+                    if visible > -0.:
+                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100,)
+
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', linewidth=3, zorder = 100, alpha=alpha)
 
                     # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
                     # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = zorder[0])
@@ -3056,6 +3081,7 @@ class VISUAL:
                     fil_i = int(3*fil*self.nseg)
                     seg_data = np.zeros((self.nseg, 3))
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
                     for seg in range(self.nseg):
                         seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
                         seg_data[seg] = seg_pos
@@ -3068,9 +3094,9 @@ class VISUAL:
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
                     if(seg_data[0, 0]>0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100)
+                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 100, alpha = alpha)
                     if(seg_data[0, 0]<0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98)
+                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
 
             
             # compute the flow field
@@ -3130,9 +3156,7 @@ class VISUAL:
             vy_mesh_2D = vy_mesh[half_plane_index,:,:]
             vz_mesh_2D = vz_mesh[half_plane_index,:,:]
 
-
-            phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)
-            
+            phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
             
             # Colorbars
             # from matplotlib.colors import Normalize
@@ -3194,6 +3218,7 @@ class VISUAL:
                     body_states_str = body_states_f.readline()
                     fil_states_str = fil_states_f.readline()
             
+            ax.axis('off')
             ax.set_aspect('equal')
             plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
