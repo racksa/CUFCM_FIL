@@ -57,8 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.exe_name = 'cilia_1e-4_fixed'
-        self.date = '20241120_fixed'
+        self.date = '20241202_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -250,9 +249,9 @@ class DRIVER:
 
                         # pair phase difference
                         nfil = 1278
-                        nfil = 2539
+                        # nfil = 2539
                         nblob = 40961
-                        ar = 22.5
+                        ar = 15
                         nseg = 20
                         nx=400
                         ny=400
@@ -262,7 +261,7 @@ class DRIVER:
                         period = 1
                         sim_length = 300
                         tilt_angle = 0.
-                        pair_dp = 0.
+                        pair_dp = 1.
                         wavnum = -2.4
                         wavnum_dia = 0.0
 

@@ -81,7 +81,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 #if CILIA_TYPE == 3
-  #define PAIR false
+  #define PAIR true
   // Sub-type of prescribed cilia motion
   // This enables filaments to be seeded as pair and have difference frequency
 #endif
@@ -89,7 +89,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
 #define PRESCRIBED_BODY_VELOCITIES true
 
-#define OUTPUT_FORCES true
+#define OUTPUT_FORCES false
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 3
@@ -101,7 +101,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 3
+  #define SHAPE_SEQUENCE 1
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -135,7 +135,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 6
+  #define CILIA_IC_TYPE 5
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
