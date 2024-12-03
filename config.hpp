@@ -81,7 +81,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
 #if CILIA_TYPE == 3
-  #define PAIR true
+  #define PAIR false
   // Sub-type of prescribed cilia motion
   // This enables filaments to be seeded as pair and have difference frequency
 #endif

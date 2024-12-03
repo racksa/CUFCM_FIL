@@ -133,13 +133,13 @@ class DRIVER:
                     for l in range(self.sweep_shape[3]):
 
                         seg_sep = 2.6
-                        force_mag = 1
+                        force_mag = 1.0
                         tilt_angle = 0.0
                         pair_dp = 0.0
                         wavnum = 0.0
                         wavnum_dia = 0.0
                         period = 1
-                        dimensionless_force = 220.
+                        dimensionless_force = 220000.
 
                         fil_spacing=80.0
                         blob_spacing=8.0
@@ -249,7 +249,7 @@ class DRIVER:
 
                         # pair phase difference
                         nfil = 2
-                        nblob = 9000
+                        nblob = 900
                         ar = 8.0
 
                         # nfil = 639
@@ -266,7 +266,7 @@ class DRIVER:
                         sim_length = 300
                         tilt_angle = 0.
                         pair_dp = 1.
-                        wavnum = 1.0
+                        wavnum = 0.0
                         wavnum_dia = 0.0
 
                         # swimmer size trend
