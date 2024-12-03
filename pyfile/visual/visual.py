@@ -84,7 +84,8 @@ class VISUAL:
         # self.date = '20240919_bicilia_dia'
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
-        self.date = '20241202_fixed'
+        self.date = '20241120_fixed'
+        self.date = '20241204_fixed'
         self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
@@ -153,7 +154,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 300000
-        self.frames_setting = 30
+        self.frames_setting = 300000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -487,7 +488,7 @@ class VISUAL:
                         ])
                         for seg in range(0, int(self.pars['NSEG'])):
                             
-                            ref = self.fillength*R@Rfil@Rtheta@np.array(volvox_cilia_shape(s[seg], fil_phases[fil]))
+                            ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
                             seg_pos = fil_base + ref
                             self.write_data(seg_pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
 

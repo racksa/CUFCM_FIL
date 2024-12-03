@@ -57,7 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241202_fixed'
+        self.date = '20241204_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -149,23 +149,23 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        nfil = int(400*(i+1))
-                        nblob = int(40000*(i+1))
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        spring_factor = round(0.005 + 0.005, 3)
-                        nx=256
-                        ny=int(256/(i+1))
-                        nz=int(32/(i+1))
-                        boxsize=1600*(i+1)
-                        fil_spacing=80.0
-                        blob_spacing=8.0
-                        fil_x_dim=20*(i+1)
-                        blob_x_dim=200*(i+1)
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        sim_length = 100
+                        # nfil = int(400*(i+1))
+                        # nblob = int(40000*(i+1))
+                        # nseg = 20
+                        # ar = round(1, 2)
+                        # period = 1
+                        # spring_factor = round(0.005 + 0.005, 3)
+                        # nx=256
+                        # ny=int(256/(i+1))
+                        # nz=int(32/(i+1))
+                        # boxsize=1600*(i+1)
+                        # fil_spacing=80.0
+                        # blob_spacing=8.0
+                        # fil_x_dim=20*(i+1)
+                        # blob_x_dim=200*(i+1)
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # sim_length = 100
 
                         # # callibration
                         # nfil = int(1*(i+1))
@@ -248,10 +248,14 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 1278
-                        # nfil = 2539
-                        nblob = 40961
-                        ar = 15
+                        nfil = 2
+                        nblob = 9000
+                        ar = 8.0
+
+                        # nfil = 639
+                        # nblob = 40961
+                        # ar = 15.0
+                        
                         nseg = 20
                         nx=400
                         ny=400
@@ -262,7 +266,7 @@ class DRIVER:
                         sim_length = 300
                         tilt_angle = 0.
                         pair_dp = 1.
-                        wavnum = -2.4
+                        wavnum = 1.0
                         wavnum_dia = 0.0
 
                         # swimmer size trend
@@ -406,6 +410,7 @@ class DRIVER:
             
             # override on ic hpc
             if self.run_on_hpc:
+                print("\n Running on HPC \n\n\n")
                 command = f"export OPENBLAS_NUM_THREADS=1; \
                             ./bin/{self.exe_name}"
 
