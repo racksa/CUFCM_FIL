@@ -107,11 +107,9 @@ int main(int argc, char** argv){
   }
 
   NPAIR = NFIL;
-  #ifdef PAIR
-    if (PAIR){
-      NPAIR = NFIL/2;
-    }
-  #endif
+  if (PAIR==1){
+    NPAIR = NFIL/2;
+  }
 
   NTOTAL = (NSWIM*(NFIL*NSEG + NBLOB));
   AXIS_DIR_BODY_LENGTH = AR*FIL_LENGTH;
@@ -296,7 +294,7 @@ int main(int argc, char** argv){
 
     std::cout << std::endl;
     std::cout << "Simulating " << NSWIM << " swimmers, each having a rigid body resolved using " << NBLOB << " 'blobs'." << std::endl;
-    std::cout << "Attached to each rigid body are " << NPAIR << " pairs of filaments, each pair comprised of " << NFIL/NPAIR << " filaments each with " << NSEG << " segments." << std::endl;
+    std::cout << "Attached to each rigid body are " << NPAIR << " pairs of filaments, each pair comprised of " << NFIL/NPAIR << " filaments each with " << NSEG << " segments and length " << FIL_LENGTH << std::endl;
     std::cout << std::endl;
 
   #endif

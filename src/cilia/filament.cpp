@@ -230,12 +230,12 @@ void filament::initial_setup(const Real *const base_pos,
 
       omega0 = 2.0*PI;
 
-      if (PAIR){
+      if (PAIR==1){
         if (id/NPAIR == 1){
           omega0 *= PAIR_DP;
         }
       }
-
+      
       #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
         shape_rotation_angle = 0.0;

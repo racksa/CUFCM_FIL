@@ -151,23 +151,23 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        # nfil = int(400*(i+1))
-                        # nblob = int(40000*(i+1))
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # spring_factor = round(0.005 + 0.005, 3)
-                        # nx=256
-                        # ny=int(256/(i+1))
-                        # nz=int(32/(i+1))
-                        # boxsize=1600*(i+1)
-                        # fil_spacing=80.0
-                        # blob_spacing=8.0
-                        # fil_x_dim=20*(i+1)
-                        # blob_x_dim=200*(i+1)
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # sim_length = 100
+                        nfil = int(400*(i+1))
+                        nblob = int(40000*(i+1))
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        spring_factor = round(0.005 + 0.005, 3)
+                        nx=256
+                        ny=int(256/(i+1))
+                        nz=int(32/(i+1))
+                        boxsize=1600*(i+1)
+                        fil_spacing=80.0
+                        blob_spacing=8.0
+                        fil_x_dim=20*(i+1)
+                        blob_x_dim=200*(i+1)
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
+                        sim_length = 100
 
                         # # callibration
                         # nfil = int(1*(i+1))
@@ -181,23 +181,23 @@ class DRIVER:
                         # pair_dp = 0.8
 
                         # # # # IVP sim
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000
 
-                        nseg = 20
-                        nfil = int(639)
-                        nblob = int(40961)
-                        ar = round(15.00, 2)
-                        # nfil = int(159)
-                        # nblob = int(9000)
-                        # ar = round(8.00, 2)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        sim_length = 300
-                        tilt_angle = 0.0
-                        pair_dp = 0.0
-                        fene_model = 0
+                        # nseg = 20
+                        # nfil = int(639)
+                        # nblob = int(40961)
+                        # ar = round(15.00, 2)
+                        # # nfil = int(159)
+                        # # nblob = int(9000)
+                        # # ar = round(8.00, 2)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # sim_length = 300
+                        # tilt_angle = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
                         
 
                         # # ishikawa pnas
@@ -255,23 +255,23 @@ class DRIVER:
                         # nblob = 900
                         # ar = 8.0
 
-                        # nfil = 639
-                        # nblob = 40961
-                        # ar = 15.0
+                        nfil = 1278
+                        nblob = 40961
+                        ar = 15.0
                         
-                        # nseg = 20
-                        # nx=256
-                        # ny=256
-                        # nz=256
-                        # boxsize=4000
-                        # spring_factor = round(0.005 *(i+1), 3)
-                        # period = 1
-                        # sim_length = 300
-                        # tilt_angle = 0.
-                        # pair_dp = 1.
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 0
+                        nseg = 20
+                        nx=256
+                        ny=256
+                        nz=256
+                        boxsize=4000
+                        spring_factor = round(0.005*(i+1), 3)
+                        period = 1
+                        sim_length = 300
+                        tilt_angle = 0.
+                        pair_dp = 1.
+                        wavnum = 0.0
+                        wavnum_dia = 0.0
+                        fene_model = 1
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]

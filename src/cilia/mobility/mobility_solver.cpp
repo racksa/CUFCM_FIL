@@ -318,7 +318,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             Qbar /= gen_angle_force_refs.size();
 
             Real k_scaling = (swimmers[n].filaments[i].omega0*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH);
-            // std::cout<< Qbar << "   " << k_scaling << "\n";
 
             Real max_angle = 0.78;
             Real fene_factor = swimmers[n].filaments[i].shape_rotation_angle;

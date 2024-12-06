@@ -84,11 +84,9 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 3 = Cilia follow a prescribed sequence of shapes. This choice has some sub-types (see below).
 // 4 = Squirmer-type simulation; i.e. there aren't actually any filaments/cilia. The slip velocity can be set in the mobility solver.
 
-#if CILIA_TYPE == 3
-  #define PAIR false
-  // Sub-type of prescribed cilia motion
-  // This enables filaments to be seeded as pair and have difference frequency
-#endif
+#define PAIR 1
+// Sub-type of prescribed cilia motion
+// This enables filaments to be seeded as pair and have difference frequency
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
 #define PRESCRIBED_BODY_VELOCITIES true
@@ -105,7 +103,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 1
+  #define SHAPE_SEQUENCE 4
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -206,7 +204,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
   #else
-    #if PAIR
+    #if PAIR==1
       #define FOURIER_DIR "input/fourier_modes_pair/"
     #else
       #define FOURIER_DIR "input/fourier_modes/"
