@@ -57,7 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241204_fixed'
+        self.date = '20241205_fixed_nopair'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -87,9 +87,10 @@ class DRIVER:
                      "pair_dp": [],
                      "wavnum": [],
                      "wavnum_dia": [],
-                     "dimensionless_force": []}
+                     "dimensionless_force": [],
+                     "fene_model": []}
 
-        self.sweep_shape = (10, 1, 1, 1)
+        self.sweep_shape = (20, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -139,7 +140,8 @@ class DRIVER:
                         wavnum = 0.0
                         wavnum_dia = 0.0
                         period = 1
-                        dimensionless_force = 220000.
+                        dimensionless_force = 220.
+                        fene_model = 0
 
                         fil_spacing=80.0
                         blob_spacing=8.0
@@ -179,22 +181,23 @@ class DRIVER:
                         # pair_dp = 0.8
 
                         # # # # IVP sim
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=4000
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
 
-                        # nseg = 20
-                        # nfil = int(639)
-                        # nblob = int(40961)
-                        # ar = round(15.00, 2)
-                        # # nfil = int(159)
-                        # # nblob = int(9000)
-                        # # ar = round(8.00, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # sim_length = 0.006
-                        # tilt_angle = (1./9.)*0.5*3.141592653*j
-                        # pair_dp = 0.0
+                        nseg = 20
+                        nfil = int(639)
+                        nblob = int(40961)
+                        ar = round(15.00, 2)
+                        # nfil = int(159)
+                        # nblob = int(9000)
+                        # ar = round(8.00, 2)
+                        spring_factor = round(0.005 + 0.005*i, 3)
+                        sim_length = 300
+                        tilt_angle = 0.0
+                        pair_dp = 0.0
+                        fene_model = 0
                         
 
                         # # ishikawa pnas
@@ -248,26 +251,27 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        nfil = 2
-                        nblob = 900
-                        ar = 8.0
+                        # nfil = 2
+                        # nblob = 900
+                        # ar = 8.0
 
                         # nfil = 639
                         # nblob = 40961
                         # ar = 15.0
                         
-                        nseg = 20
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
-                        spring_factor = round(0.01 *(i+1), 3)
-                        period = 1
-                        sim_length = 300
-                        tilt_angle = 0.
-                        pair_dp = 1.
-                        wavnum = 0.0
-                        wavnum_dia = 0.0
+                        # nseg = 20
+                        # nx=256
+                        # ny=256
+                        # nz=256
+                        # boxsize=4000
+                        # spring_factor = round(0.005 *(i+1), 3)
+                        # period = 1
+                        # sim_length = 300
+                        # tilt_angle = 0.
+                        # pair_dp = 1.
+                        # wavnum = 0.0
+                        # wavnum_dia = 0.0
+                        # fene_model = 0
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
@@ -330,6 +334,7 @@ class DRIVER:
                         self.pars_list["wavnum"].append(wavnum)
                         self.pars_list["wavnum_dia"].append(wavnum_dia)
                         self.pars_list["dimensionless_force"].append(dimensionless_force)
+                        self.pars_list["fene_model"].append(fene_model)
 
                         index += 1
         # Write rules to sim list file

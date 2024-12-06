@@ -52,12 +52,12 @@ class VISUAL:
         # self.dir = f"data/tilt_test/{self.date}/"
 
 
-        # self.date = '20240311_10'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -65,7 +65,7 @@ class VISUAL:
         # self.date = '20240311_1'
         # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
 
-        self.date = '20240827_jfm2'
+        # self.date = '20240827_jfm2'
         # # self.date = '20240731_pnas_L1'
         # self.date = '20240802_pnas_L0.975'
         # # self.date = '20240829_pnas_volvox_beat'
@@ -73,7 +73,7 @@ class VISUAL:
         # # self.date = '20240902_real_volvox'
         # # self.date = '20240903_real_volvox_seg20'
         # self.date = '20241015_pnas_rpy'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
         # self.dir = f"data/volvox/{self.date}/"
@@ -85,7 +85,7 @@ class VISUAL:
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         self.date = '20241120_fixed'
-        self.date = '20241204_fixed'
+        self.date = '20241205_fixed_nopair'
         self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
@@ -153,8 +153,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 300000
-        self.frames_setting = 300000
+        self.plot_end_frame_setting = 10000
+        self.frames_setting = 60
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting

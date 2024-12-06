@@ -32,6 +32,10 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #define GLOBAL_FILE_NAME "input/globals.ini"
 
+#if MOBILITY_TYPE==4
+  #define CUFCM_CONFIG_FILE_NAME "input/simulation_info_cilia"
+#endif
+
 
 #define FIL_USE_DOUBLE_PRECISION false
 
@@ -92,7 +96,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
-  #define CILIA_IC_TYPE 3
+  #define CILIA_IC_TYPE 2
   // Valid options:
   // 0 = All cilia have identical planar perturbations.
   // 1 = All cilia have identical out-of-plane perturbations.
@@ -266,6 +270,7 @@ extern Real PAIR_DP;
 extern Real WAVNUM;
 extern Real WAVNUM_DIA;
 extern Real DIMENSIONLESS_FORCE;
+extern int FENE_MODEL;
 
 extern Real FIL_X_DIM;
 extern Real FIL_Y_DIM;
