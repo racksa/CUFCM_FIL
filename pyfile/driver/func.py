@@ -90,7 +90,7 @@ class DRIVER:
                      "dimensionless_force": [],
                      "fene_model": []}
 
-        self.sweep_shape = (20, 1, 1, 1)
+        self.sweep_shape = (10, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -264,7 +264,7 @@ class DRIVER:
                         ny=256
                         nz=256
                         boxsize=4000
-                        spring_factor = round(0.005*(i+1), 3)
+                        spring_factor = round(0.01*(i+1), 3)
                         period = 1
                         sim_length = 300
                         tilt_angle = 0.
