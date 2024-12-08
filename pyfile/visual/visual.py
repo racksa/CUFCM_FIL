@@ -85,7 +85,7 @@ class VISUAL:
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         self.date = '20241120_fixed'
-        self.date = '20241205_fixed_nopair'
+        self.date = '20241207_fixed'
         self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
