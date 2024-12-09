@@ -322,12 +322,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             Real max_angle = 0.78;
             Real fene_factor = swimmers[n].filaments[i].shape_rotation_angle;
             if (FENE_MODEL == 1){
-              // if (std::abs(swimmers[n].filaments[i].shape_rotation_angle) > max_angle){
-              //   fene_factor = 100.0*max_angle*swimmers[n].filaments[i].shape_rotation_angle;
-              // }else{
-              //   fene_factor = swimmers[n].filaments[i].shape_rotation_angle/std::abs(1.0 - pow(swimmers[n].filaments[i].shape_rotation_angle / max_angle, 2));
-              // }
-
               if (std::abs(swimmers[n].filaments[i].shape_rotation_angle) > max_angle){
                 fene_factor = 0.5*swimmers[n].filaments[i].shape_rotation_angle * (1 + pow(swimmers[n].filaments[i].shape_rotation_angle, 2)/pow(max_angle,2)*std::exp(std::abs(swimmers[n].filaments[i].shape_rotation_angle) - max_angle));
               }else{
@@ -349,6 +343,20 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             // Scale if the natural frequency of this cilium differs from the reference case
             q_phase *= 0.5*swimmers[n].filaments[i].omega0/PI;
+
+            // Add noise because a real flagellum cannot be perfect
+            std::random_device rd{};
+            std::mt19937 gen{rd()};
+            std::normal_distribution<Real> d(0,1);
+            Real noise = d(gen);
+
+            // Real Qbarp = 0.0;
+            // for (int ii = 0; ii < gen_phase_force_refs.size(); ii++){
+            //   Qbarp += std::abs(gen_phase_force_refs[ii]);
+            // }
+            // Qbarp /= gen_phase_force_refs.size();
+            // std::cout << i << "     " << Qbarp << std::endl;
+            q_phase += FORCE_NOISE_MAG*noise;
 
             // Store minus the generalised force in the RHS
             #if PRESCRIBED_BODY_VELOCITIES

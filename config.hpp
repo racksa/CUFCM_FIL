@@ -269,6 +269,7 @@ extern Real WAVNUM;
 extern Real WAVNUM_DIA;
 extern Real DIMENSIONLESS_FORCE;
 extern int FENE_MODEL;
+extern Real FORCE_NOISE_MAG;
 
 extern Real FIL_X_DIM;
 extern Real FIL_Y_DIM;

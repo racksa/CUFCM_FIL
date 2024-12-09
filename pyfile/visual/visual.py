@@ -85,7 +85,7 @@ class VISUAL:
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         self.date = '20241120_fixed'
-        self.date = '20241207_fixed'
+        self.date = '20241209_fixed'
         self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         
@@ -153,8 +153,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 900000
-        self.frames_setting = 60
+        self.plot_end_frame_setting = 30000
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1200,6 +1200,59 @@ class VISUAL:
         fig6.tight_layout()
         fig5.savefig(f'fig/oder_parameter_index{self.index}.png', bbox_inches = 'tight', format='png')
         fig6.savefig(f'fig/num_effective_stroke_index{self.index}.png', bbox_inches = 'tight', format='png')
+        plt.show()
+
+    def phase_diff(self):
+        self.select_sim()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        phase1_array = np.zeros(self.frames)
+        phase2_array = np.zeros(self.frames)
+        phase_diff_array = np.zeros(self.frames)
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                # fil_phases = util.box(fil_phases, 2*np.pi)
+                # fil_angles = fil_states[self.nfil:]
+                # phase1_array[i-self.plot_start_frame] = util.box(fil_phases[0], 2*np.pi)
+                # phase2_array[i-self.plot_start_frame] = util.box(fil_phases[1], 2*np.pi)
+                phase1_array[i-self.plot_start_frame] = np.sin(fil_phases[0])
+                phase2_array[i-self.plot_start_frame] = np.sin(fil_phases[1])
+                phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+
+
+        ax.plot(time_array, phase_diff_array)
+        ax.set_xlabel('t/T')
+        ax.set_ylabel('$\Delta$')
+        ax.set_xlim(time_array[0], time_array[-1])
+        # ax.set_ylim(0)
+        ax.grid()
+
+        ax2.plot(time_array, phase1_array)
+        ax2.plot(time_array, phase2_array)
+
+        
+
+        # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        # np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
+        # np.save(f'{self.dir}/num_eff_beat_array_index{self.index}.npy', effective_beat_array)
+        
+        fig.tight_layout()
+        fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+        
         plt.show()
 
     def footpath(self):

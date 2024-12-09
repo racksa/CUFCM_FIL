@@ -67,7 +67,8 @@ int main(int argc, char** argv){
   WAVNUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "wavnum"));
   WAVNUM_DIA = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "wavnum_dia"));
   DIMENSIONLESS_FORCE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "dimensionless_force"));
-  FENE_MODEL = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fene_model"));
+  FENE_MODEL = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fene_model"));
+  FORCE_NOISE_MAG = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_noise_mag"));
 
   FIL_X_DIM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
   FIL_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));

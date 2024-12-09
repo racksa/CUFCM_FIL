@@ -7,7 +7,7 @@ visualiser = visual.VISUAL()
 
 # lists of available options
 list_of_single_options = ['plot', 'plot_eco', 'plot_fil', 'phase', 'wavenumber', 'phase_plane', 'order_parameter', 'eckert', 'ciliate', 'ciliate_eco', 'ciliate_speed', 'ciliate_speed_eco', 'ciliate_traj', 
-                   'timing', 'ciliate_forcing', 'ciliate_dissipation', 'footpath',
+                   'timing', 'ciliate_forcing', 'ciliate_dissipation', 'footpath', 'phase_diff',
                    'ciliate_svd', 'ciliate_dmd', 'kymograph', 'copy_phases',
                    'periodic_solution', 'find_periodicity', 'spherical_contour', 'flow_field_2D', 'flow_field_kymograph']
 # list_of_multi_options = ['multi_phase', 'multi_ciliate', 'multi_ciliate_traj',

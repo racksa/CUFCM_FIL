@@ -57,7 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241208_fixed'
+        self.date = '20241209_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -88,7 +88,8 @@ class DRIVER:
                      "wavnum": [],
                      "wavnum_dia": [],
                      "dimensionless_force": [],
-                     "fene_model": []}
+                     "fene_model": [],
+                     "force_noise_mag": []}
 
         self.sweep_shape = (10, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
@@ -136,12 +137,13 @@ class DRIVER:
                         seg_sep = 2.6
                         force_mag = 1.0
                         tilt_angle = 0.0
-                        pair_dp = 0.0
+                        pair_dp = 1.0
                         wavnum = 0.0
                         wavnum_dia = 0.0
                         period = 1
                         dimensionless_force = 220.
                         fene_model = 0
+                        force_noise_mag = 0
 
                         fil_spacing=80.0
                         blob_spacing=8.0
@@ -151,23 +153,24 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        nfil = int(400*(i+1))
-                        nblob = int(40000*(i+1))
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        spring_factor = round(0.005 + 0.005, 3)
-                        nx=256
-                        ny=int(256/(i+1))
-                        nz=int(32/(i+1))
-                        boxsize=1600*(i+1)
-                        fil_spacing=80.0
-                        blob_spacing=8.0
-                        fil_x_dim=20*(i+1)
-                        blob_x_dim=200*(i+1)
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        sim_length = 100
+                        # nfil = int(2)
+                        # nblob = int(40000)
+                        # nseg = 20
+                        # ar = round(1, 2)
+                        # period = 1
+                        # spring_factor = round(0.01 + 0.01*i, 3)
+                        # nx=256
+                        # ny=int(256)
+                        # nz=int(32)
+                        # boxsize=1600
+                        # fil_spacing=4.0
+                        # blob_spacing=8.0
+                        # fil_x_dim=20
+                        # blob_x_dim=200
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # sim_length = 1000
+
 
                         # # callibration
                         # nfil = int(1*(i+1))
@@ -251,10 +254,6 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # pair phase difference
-                        # nfil = 2
-                        # nblob = 900
-                        # ar = 8.0
-
                         nfil = 1278
                         nblob = 40961
                         ar = 15.0
@@ -272,6 +271,7 @@ class DRIVER:
                         wavnum = 0.0
                         wavnum_dia = 0.0
                         fene_model = 1
+                        force_noise_mag = 80000
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
@@ -335,6 +335,8 @@ class DRIVER:
                         self.pars_list["wavnum_dia"].append(wavnum_dia)
                         self.pars_list["dimensionless_force"].append(dimensionless_force)
                         self.pars_list["fene_model"].append(fene_model)
+                        self.pars_list["force_noise_mag"].append(force_noise_mag)
+
 
                         index += 1
         # Write rules to sim list file

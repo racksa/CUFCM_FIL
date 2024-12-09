@@ -28,6 +28,7 @@ Real WAVNUM = 0.0;
 Real WAVNUM_DIA = 0.0;
 Real DIMENSIONLESS_FORCE = 220.0;
 int FENE_MODEL = 0;
+Real FORCE_NOISE_MAG = 0;
 
 Real FIL_X_DIM = 1;
 Real FIL_Y_DIM = 1;
