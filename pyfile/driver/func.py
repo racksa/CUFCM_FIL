@@ -57,7 +57,7 @@ class DRIVER:
 
         self.category = 'volvox_bicilia/individual_pair/'
         self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241205_fixed_nopair'
+        self.date = '20241208_fixed'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 

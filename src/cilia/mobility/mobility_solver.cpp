@@ -322,10 +322,17 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             Real max_angle = 0.78;
             Real fene_factor = swimmers[n].filaments[i].shape_rotation_angle;
             if (FENE_MODEL == 1){
+              // if (std::abs(swimmers[n].filaments[i].shape_rotation_angle) > max_angle){
+              //   fene_factor = 100.0*max_angle*swimmers[n].filaments[i].shape_rotation_angle;
+              // }else{
+              //   fene_factor = swimmers[n].filaments[i].shape_rotation_angle/std::abs(1.0 - pow(swimmers[n].filaments[i].shape_rotation_angle / max_angle, 2));
+              // }
+
               if (std::abs(swimmers[n].filaments[i].shape_rotation_angle) > max_angle){
-                fene_factor = 100.0*max_angle*swimmers[n].filaments[i].shape_rotation_angle;
+                fene_factor = 0.5*swimmers[n].filaments[i].shape_rotation_angle * (1 + pow(swimmers[n].filaments[i].shape_rotation_angle, 2)/pow(max_angle,2)*std::exp(std::abs(swimmers[n].filaments[i].shape_rotation_angle) - max_angle));
               }else{
-                fene_factor = swimmers[n].filaments[i].shape_rotation_angle/std::abs(1.0 - pow(swimmers[n].filaments[i].shape_rotation_angle / max_angle, 2));
+                fene_factor = swimmers[n].filaments[i].shape_rotation_angle;
+                // fene_factor = swimmers[n].filaments[i].shape_rotation_angle/std::abs(1.0 - pow(swimmers[n].filaments[i].shape_rotation_angle / max_angle, 2));
               }
             }
             
