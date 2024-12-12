@@ -69,6 +69,8 @@ int main(int argc, char** argv){
   DIMENSIONLESS_FORCE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "dimensionless_force"));
   FENE_MODEL = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fene_model"));
   FORCE_NOISE_MAG = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_noise_mag"));
+  OMEGA_SPREAD = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "omega_spread"));
+
 
   FIL_X_DIM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
   FIL_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));

@@ -228,7 +228,12 @@ void filament::initial_setup(const Real *const base_pos,
 
     #if PRESCRIBED_CILIA
 
-      omega0 = 2.0*PI;
+      std::random_device rd_spread{};
+      std::mt19937 gen_spread{rd_spread()};
+      std::normal_distribution<Real> d(0,1);
+      Real noise = OMEGA_SPREAD*d(gen_spread);
+
+      omega0 = 2.0*PI + noise;
 
       if (PAIR==1){
         if (id/NPAIR == 1){
