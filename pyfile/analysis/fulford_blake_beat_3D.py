@@ -171,7 +171,7 @@ sm.set_array([])
 cax = fig.add_axes([ax.get_position().x1+0.01,ax.get_position().y0,0.02,ax.get_position().height])
 cbar =plt.colorbar(sm, cax=cax)
 cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-cbar.set_label(r"phase")
+cbar.set_label(r"$\psi_1$")
 
 ax2.set_ylim(-30, 30)
 ax2.set_xlim(0, 60)

@@ -45,7 +45,7 @@ s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP
 s_ref = np.loadtxt(s_ref_filename)
 num_ref_phase = s_ref[0]
 num_seg = int(s_ref[1])
-num_frame = 30
+num_frame = 15
 num_angle = 2
 radius = 1
 L = (num_seg-1)*2.6
@@ -147,126 +147,77 @@ axisl_x = 35
 axisl_y = 53
 # ax1.arrow(origin[0], origin[1], axisl_x, 0.0, width=0.5, linewidth=0.2, color='black', zorder=1000)
 
-# ax2.plot(0, 50*np.sin(fil_angles[-1]))
-# ax2.plot(0, 50*np.cos(fil_angles[-1]))
 ax2.plot(axisl_y*np.array([0, np.sin(fil_angles[-1])]), axisl_y*np.array([0, np.cos(fil_angles[-1])]),\
          linestyle='dashed', c='black', zorder=1000)
 ax2.plot(axisl_y*np.array([0, 0]), axisl_y*np.array([0, 1]),\
          linestyle='dashed', c='black', zorder=1000)
 
-# ax2.arrow(origin[0], origin[1], 0.0, axisl_y, width=0.5, linewidth=0.2, color='black', zorder=1000  )
-# ax2.arrow(origin[0], origin[1], axisl_y*np.sin(fil_angles[-1]), axisl_y*np.cos(fil_angles[-1]), width=0.5, linewidth=0.2, color='black', zorder=1000 )
-# ax2.annotate(r'$y$', origin + np.array([0, axisl_y+3.2]), fontsize=25, ha='center')
-# ax2.annotate(r'$y$', origin + np.array([axisl_y*np.sin(fil_angles[-1]), axisl_y*np.cos(fil_angles[-1])+3.2]), fontsize=25, ha='center')
+# # Draw x_b
+# ax1.scatter(0, 0, s=60, c = 'black', zorder = 1000)
+# ax1.annotate(r'$x_b$', (-8, 0.0), fontsize=25, va='center')
 
+# ax2.scatter(0, 0, s=60, c = 'black', zorder = 1000)
+# ax2.annotate(r'$x_b$', (-6, 0.0), fontsize=25, va='center')
 
-# for j in range(num_angle):
-#     fil_data = np.zeros((num_seg, 3))
-#     normal = np.zeros((2,3))
-#     tangent = np.zeros((2,3))
-#     edge = np.zeros((5,3))
-#     phase = 0*np.pi/16
-    
-#     for p in range(num_frame2):
-#         phase = 2*np.pi/num_frame2*p
-
-#         # color
-#         cmap = plt.get_cmap(cmap_name)
-#         fil_color = cmap(phase/(2*np.pi))
-
-#         # s for this phase
-#         s = fitted_shape_s(phase)
-
-#         # rotation angle
-#         rotation_matrix = np.array([
-#             [np.cos(fil_angles[j]), -np.sin(fil_angles[j]), 0],
-#             [np.sin(fil_angles[j]), np.cos(fil_angles[j]), 0],
-#             [0, 0, 1]
+# # Draw curved arrows
+# import matplotlib.patches as patches
+# import matplotlib.path as mpath
+# def rotation_2D(angle):
+#     return np.array([
+#             [np.cos(angle), -np.sin(angle)],
+#             [np.sin(angle), np.cos(angle)]
 #         ])
 
-#         for seg in range(num_seg):
-#             seg_pos = np.array(fitted_shape(s[seg], phase))*L
-#             seg_pos = np.dot(rotation_matrix, seg_pos)
-#             fil_data[seg] = seg_pos
+# # psi
+# start = np.array([-12.7, 45.4])
+# control1 = np.array([44, 47])
+# control2 = np.array([53, 25])
+# end = np.array([6, 36])
 
-#         ax2.plot(fil_data[:,1], fil_data[:,0], c=angle_colors[j], alpha = 1-j/num_angle, zorder = j)
+# path_data = [
+#     (mpath.Path.MOVETO, start),
+#     (mpath.Path.CURVE4, control1),
+#     (mpath.Path.CURVE4, control2),
+#     (mpath.Path.CURVE4, end)
+# ]
+# codes, verts = zip(*path_data)
+# path = mpath.Path(verts, codes)
+# arrow = patches.FancyArrowPatch(path=path,
+#                                 arrowstyle='->',  # arrowstyle can be adjusted
+#                                 color='black',
+#                                 linewidth=1,       # Adjust thickness
+#                                 mutation_scale=20)
+# ax1.add_patch(arrow)
+# ax1.annotate(r'$\psi_1(t)$', (5, 40.0), fontsize=25, va='center')
 
-#     origin = np.array([0, 0])
-#     axisl_x = 35
-#     axisl_y = 63
-#     ax2.arrow(origin[0], origin[1], axisl_x*np.cos(fil_angles[j]), -axisl_x*np.sin(fil_angles[j]), width=0.5, linewidth=0.2, color=angle_axis_colors[j])
-#     ax2.arrow(origin[0], origin[1], axisl_y*np.sin(fil_angles[j]), axisl_y*np.cos(fil_angles[j]), width=0.5, linewidth=0.2, color=angle_axis_colors[j] )
-#     ax2.annotate(r'$x$', origin + np.array([axisl_x*np.cos(fil_angles[j])+3, -axisl_x*np.sin(fil_angles[j])]), fontsize=25, va='center')
-#     ax2.annotate(r'$y$', origin + np.array([axisl_y*np.sin(fil_angles[j]), axisl_y*np.cos(fil_angles[j])+3.2]), fontsize=25, ha='center')
-    
-
-# Draw x_b
-ax1.scatter(0, 0, s=60, c = 'black', zorder = 1000)
-ax1.annotate(r'$x_b$', (-8, 0.0), fontsize=25, va='center')
-
-ax2.scatter(0, 0, s=60, c = 'black', zorder = 1000)
-ax2.annotate(r'$x_b$', (-6, 0.0), fontsize=25, va='center')
-
-# Draw curved arrows
-import matplotlib.patches as patches
-import matplotlib.path as mpath
-def rotation_2D(angle):
-    return np.array([
-            [np.cos(angle), -np.sin(angle)],
-            [np.sin(angle), np.cos(angle)]
-        ])
-
-# psi
-start = np.array([-12.7, 45.4])
-control1 = np.array([44, 47])
-control2 = np.array([53, 25])
-end = np.array([6, 36])
-
-path_data = [
-    (mpath.Path.MOVETO, start),
-    (mpath.Path.CURVE4, control1),
-    (mpath.Path.CURVE4, control2),
-    (mpath.Path.CURVE4, end)
-]
-codes, verts = zip(*path_data)
-path = mpath.Path(verts, codes)
-arrow = patches.FancyArrowPatch(path=path,
-                                arrowstyle='->',  # arrowstyle can be adjusted
-                                color='black',
-                                linewidth=1,       # Adjust thickness
-                                mutation_scale=20)
-ax1.add_patch(arrow)
-ax1.annotate(r'$\psi_1(t)$', (5, 40.0), fontsize=25, va='center')
-
-# theta
-start_t = np.array([0, 50])
-control1_t = rotation_2D(-fil_angles[-1]/3.)@start_t
-control2_t = rotation_2D(-fil_angles[-1]*2./3.)@start_t
-end_t = rotation_2D(-fil_angles[-1])@start_t
+# # theta
+# start_t = np.array([0, 50])
+# control1_t = rotation_2D(-fil_angles[-1]/3.)@start_t
+# control2_t = rotation_2D(-fil_angles[-1]*2./3.)@start_t
+# end_t = rotation_2D(-fil_angles[-1])@start_t
 
 
-path_data_t = [
-    (mpath.Path.MOVETO, start_t),
-    (mpath.Path.CURVE4, control1_t),
-    (mpath.Path.CURVE4, control2_t),
-    (mpath.Path.CURVE4, end_t)
-]
-codes, verts = zip(*path_data_t)
-path = mpath.Path(verts, codes)
-arrow = patches.FancyArrowPatch(path=path,
-                                arrowstyle='->',  # arrowstyle can be adjusted
-                                color='black',
-                                linewidth=1,       # Adjust thickness
-                                mutation_scale=20)
-ax2.add_patch(arrow)
-ax2.annotate(r'$\psi_2(t)$', (7, 45), fontsize=25, va='center')
+# path_data_t = [
+#     (mpath.Path.MOVETO, start_t),
+#     (mpath.Path.CURVE4, control1_t),
+#     (mpath.Path.CURVE4, control2_t),
+#     (mpath.Path.CURVE4, end_t)
+# ]
+# codes, verts = zip(*path_data_t)
+# path = mpath.Path(verts, codes)
+# arrow = patches.FancyArrowPatch(path=path,
+#                                 arrowstyle='->',  # arrowstyle can be adjusted
+#                                 color='black',
+#                                 linewidth=1,       # Adjust thickness
+#                                 mutation_scale=20)
+# ax2.add_patch(arrow)
+# ax2.annotate(r'$\psi_2(t)$', (7, 45), fontsize=25, va='center')
 
 
 
 ax1.set_xlabel('x')
 ax1.set_ylabel('y')
 ax1.set_aspect('equal')
-# ax1.set_ylim(0)
 ax1.axis('off')
 
 ax2.set_xlabel('x')
@@ -276,7 +227,7 @@ ax2.axis('off')
 
 
 plt.tight_layout()       
-fig1.savefig(f'fig/fulford_blake_beat_psi.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/fulford_blake_beat_theta.pdf', bbox_inches = 'tight', format='pdf')
+fig1.savefig(f'fig/fulford_blake_beat_psi.png', bbox_inches = 'tight', format='png', transparent=True)
+fig2.savefig(f'fig/fulford_blake_beat_theta.png', bbox_inches = 'tight', format='png', transparent=True)
 # fig1.savefig(f'fig/fulford_blake_beat.png', bbox_inches = 'tight', format='png')
 plt.show()

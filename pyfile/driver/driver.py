@@ -28,7 +28,9 @@ if(len(sys.argv) > 1):
             driver.cuda_device = int(sys.argv[4])
         if(len(sys.argv) > 5):
             driver.update_date(sys.argv[5])
-        driver.create_rules()
+        
+        if not driver.check_rules():
+            driver.create_rules()
         driver.run()
 
     if(sys.argv[1] == 'run_rules'):

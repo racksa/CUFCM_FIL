@@ -235,6 +235,8 @@ void filament::initial_setup(const Real *const base_pos,
 
       omega0 = 2.0*PI + noise;
 
+      std::cout << id << "   " << omega0 << std::endl;
+
       if (PAIR==1){
         if (id/NPAIR == 1){
           omega0 *= PAIR_DP;

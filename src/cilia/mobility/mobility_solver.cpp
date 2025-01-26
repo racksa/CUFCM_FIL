@@ -294,6 +294,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
     #endif
 
+  
+
     #if PRESCRIBED_CILIA
 
       rhs.zero();
@@ -356,6 +358,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             // }
             // Qbarp /= gen_phase_force_refs.size();
             // std::cout << i << "     " << Qbarp << std::endl;
+            
             q_phase += FORCE_NOISE_MAG*noise;
 
             // Store minus the generalised force in the RHS
@@ -1226,10 +1229,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
               out(out_id + 1) -= out(seg_force_id + 1);
               out(out_id + 2) -= out(seg_force_id + 2);
 
-              const Real diff[3] = {segments[k].x[0] - swimmers[n].body.x[0], segments[k].x[1] - swimmers[n].body.x[1], segments[k].x[2] - swimmers[n].body.x[2]};
-              out(out_id + 3) -= diff[1]*out(seg_force_id + 2) - diff[2]*out(seg_force_id + 1);
-              out(out_id + 4) -= diff[2]*out(seg_force_id) - diff[0]*out(seg_force_id + 2);
-              out(out_id + 5) -= diff[0]*out(seg_force_id + 1) - diff[1]*out(seg_force_id);
+              #if !PRESCRIBED_BODY_ROTATION
+                const Real diff[3] = {segments[k].x[0] - swimmers[n].body.x[0], segments[k].x[1] - swimmers[n].body.x[1], segments[k].x[2] - swimmers[n].body.x[2]};
+                out(out_id + 3) -= diff[1]*out(seg_force_id + 2) - diff[2]*out(seg_force_id + 1);
+                out(out_id + 4) -= diff[2]*out(seg_force_id) - diff[0]*out(seg_force_id + 2);
+                out(out_id + 5) -= diff[0]*out(seg_force_id + 1) - diff[1]*out(seg_force_id);
+              #endif
 
             }
 
@@ -1245,10 +1250,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             out(out_id + 1) -= out(blob_force_id + 1);
             out(out_id + 2) -= out(blob_force_id + 2);
 
-            const matrix diff = Q*matrix(3, 1, &swimmers[n].body.blob_references[3*m]);
-            out(out_id + 3) -= diff(1)*out(blob_force_id + 2) - diff(2)*out(blob_force_id + 1);
-            out(out_id + 4) -= diff(2)*out(blob_force_id) - diff(0)*out(blob_force_id + 2);
-            out(out_id + 5) -= diff(0)*out(blob_force_id + 1) - diff(1)*out(blob_force_id + 0);
+            #if !PRESCRIBED_BODY_ROTATION
+              const matrix diff = Q*matrix(3, 1, &swimmers[n].body.blob_references[3*m]);
+              out(out_id + 3) -= diff(1)*out(blob_force_id + 2) - diff(2)*out(blob_force_id + 1);
+              out(out_id + 4) -= diff(2)*out(blob_force_id) - diff(0)*out(blob_force_id + 2);
+              out(out_id + 5) -= diff(0)*out(blob_force_id + 1) - diff(1)*out(blob_force_id + 0);
+            #endif
 
           }
 
@@ -1287,15 +1294,18 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
                 out(phase_id) -= dot(k_phi, out.get_block(seg_force_id, 3));
                 out(angle_id) -= dot(k_theta, out.get_block(seg_force_id, 3));
 
+                #if !PRESCRIBED_BODY_ROTATION
                 matrix diff(3,1);
                 diff(0) = swimmers[n].filaments[m].segments[k].x[0] - swimmers[n].body.x[0];
                 diff(1) = swimmers[n].filaments[m].segments[k].x[1] - swimmers[n].body.x[1];
                 diff(2) = swimmers[n].filaments[m].segments[k].x[2] - swimmers[n].body.x[2];
-
+                #endif
                 v_phi += k_phi;
                 v_theta += k_theta;
+                #if !PRESCRIBED_BODY_ROTATION
                 u_phi += cross(diff, k_phi);
                 u_theta += cross(diff, k_theta);
+                #endif
 
                 c11 += dot(k_phi, k_phi);
                 c22 += dot(k_theta, k_theta);
@@ -1359,15 +1369,19 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
                 k_theta(1) = swimmers[n].filaments[m].vel_dir_angle[3*k + 1];
                 k_theta(2) = swimmers[n].filaments[m].vel_dir_angle[3*k + 2];
 
-                matrix diff(3,1);
-                diff(0) = swimmers[n].filaments[m].segments[k].x[0] - swimmers[n].body.x[0];
-                diff(1) = swimmers[n].filaments[m].segments[k].x[1] - swimmers[n].body.x[1];
-                diff(2) = swimmers[n].filaments[m].segments[k].x[2] - swimmers[n].body.x[2];
+                #if !PRESCRIBED_BODY_ROTATION
+                  matrix diff(3,1);
+                  diff(0) = swimmers[n].filaments[m].segments[k].x[0] - swimmers[n].body.x[0];
+                  diff(1) = swimmers[n].filaments[m].segments[k].x[1] - swimmers[n].body.x[1];
+                  diff(2) = swimmers[n].filaments[m].segments[k].x[2] - swimmers[n].body.x[2];
+                #endif
 
                 v_phi += k_phi;
                 v_theta += k_theta;
-                u_phi += cross(diff, k_phi);
-                u_theta += cross(diff, k_theta);
+                #if !PRESCRIBED_BODY_ROTATION
+                  u_phi += cross(diff, k_phi);
+                  u_theta += cross(diff, k_theta);
+                #endif
 
                 c11 += dot(k_phi, k_phi);
                 c22 += dot(k_theta, k_theta);
@@ -1422,10 +1436,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             for (int k = 0; k < NSEG; k++){
 
               const int seg_force_id = 3*(n*NFIL*NSEG + m*NSEG + k);
-              const Real diff[3] = {segments[k].x[0] - swimmers[n].body.x[0], segments[k].x[1] - swimmers[n].body.x[1], segments[k].x[2] - swimmers[n].body.x[2]};
-              out(seg_force_id) += seg_mob_inv*(out(out_id) + out(out_id + 4)*diff[2] - out(out_id + 5)*diff[1]);
-              out(seg_force_id + 1) += seg_mob_inv*(out(out_id + 1) + out(out_id + 5)*diff[0] - out(out_id + 3)*diff[2]);
-              out(seg_force_id + 2) += seg_mob_inv*(out(out_id + 2) + out(out_id + 3)*diff[1] - out(out_id + 4)*diff[0]);
+              #if !PRESCRIBED_BODY_ROTATION
+                const Real diff[3] = {segments[k].x[0] - swimmers[n].body.x[0], segments[k].x[1] - swimmers[n].body.x[1], segments[k].x[2] - swimmers[n].body.x[2]};
+                out(seg_force_id) += seg_mob_inv*(out(out_id) + out(out_id + 4)*diff[2] - out(out_id + 5)*diff[1]);
+                out(seg_force_id + 1) += seg_mob_inv*(out(out_id + 1) + out(out_id + 5)*diff[0] - out(out_id + 3)*diff[2]);
+                out(seg_force_id + 2) += seg_mob_inv*(out(out_id + 2) + out(out_id + 3)*diff[1] - out(out_id + 4)*diff[0]);
+              #endif
 
               #if DYNAMIC_PHASE_EVOLUTION
 
@@ -1451,11 +1467,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           for (int m = 0; m < NBLOB; m++){
 
             const int blob_force_id = 3*(NSWIM*NFIL*NSEG + n*NBLOB + m);
-            const matrix diff = Q*matrix(3, 1, &swimmers[n].body.blob_references[3*m]);
-            out(blob_force_id) += blob_mob_inv*(out(out_id) + out(out_id + 4)*diff(2) - out(out_id + 5)*diff(1));
-            out(blob_force_id + 1) += blob_mob_inv*(out(out_id + 1) + out(out_id + 5)*diff(0) - out(out_id + 3)*diff(2));
-            out(blob_force_id + 2) += blob_mob_inv*(out(out_id + 2) + out(out_id + 3)*diff(1) - out(out_id + 4)*diff(0));
-
+            #if !PRESCRIBED_BODY_ROTATION
+              const matrix diff = Q*matrix(3, 1, &swimmers[n].body.blob_references[3*m]);
+              out(blob_force_id) += blob_mob_inv*(out(out_id) + out(out_id + 4)*diff(2) - out(out_id + 5)*diff(1));
+              out(blob_force_id + 1) += blob_mob_inv*(out(out_id + 1) + out(out_id + 5)*diff(0) - out(out_id + 3)*diff(2));
+              out(blob_force_id + 2) += blob_mob_inv*(out(out_id + 2) + out(out_id + 3)*diff(1) - out(out_id + 4)*diff(0));
+            #endif
           }
 
         }
@@ -1880,30 +1897,34 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
         for (int n = 0; n < NSWIM; n++){
 
-          const int swim_id = 3*NSWIM*(NBLOB + NFIL*NSEG) + 6*n;
+          const int swim_id = 3*NSWIM*(NBLOB + NFIL*NSEG) + 6*n; // correspond to V_body entries
 
           for (int m = 0; m < NFIL*NSEG; m++){
 
             int out_id = 3*(n*NFIL*NSEG + m);
 
-            // -K mult lambda_fil -= K*V_body
+            // -K1*V_body (fil rows)
             out(out_id) -= in(swim_id);
             out(out_id + 1) -= in(swim_id + 1);
             out(out_id + 2) -= in(swim_id + 2);
 
-            const Real diff[3] = {x_segs_host[out_id] - swimmers[n].body.x[0], x_segs_host[out_id + 1] - swimmers[n].body.x[1], x_segs_host[out_id + 2] - swimmers[n].body.x[2]};
-            out(out_id) -= in(swim_id + 4)*diff[2] - in(swim_id + 5)*diff[1];
-            out(out_id + 1) -= in(swim_id + 5)*diff[0] - in(swim_id + 3)*diff[2];
-            out(out_id + 2) -= in(swim_id + 3)*diff[1] - in(swim_id + 4)*diff[0];
+            #if !PRESCRIBED_BODY_ROTATION
+              const Real diff[3] = {x_segs_host[out_id] - swimmers[n].body.x[0], x_segs_host[out_id + 1] - swimmers[n].body.x[1], x_segs_host[out_id + 2] - swimmers[n].body.x[2]};
+              out(out_id) -= in(swim_id + 4)*diff[2] - in(swim_id + 5)*diff[1];
+              out(out_id + 1) -= in(swim_id + 5)*diff[0] - in(swim_id + 3)*diff[2];
+              out(out_id + 2) -= in(swim_id + 3)*diff[1] - in(swim_id + 4)*diff[0];
+            #endif
 
-            // -K^T mult
+            // -K1^T * lambda (fil)
             const Real seg_force[3] = {f_segs_host[2*out_id], f_segs_host[2*out_id + 1], f_segs_host[2*out_id + 2]};
             out(swim_id) -= seg_force[0];
             out(swim_id + 1) -= seg_force[1];
             out(swim_id + 2) -= seg_force[2];
-            out(swim_id + 3) -= diff[1]*seg_force[2] - diff[2]*seg_force[1];
-            out(swim_id + 4) -= diff[2]*seg_force[0] - diff[0]*seg_force[2];
-            out(swim_id + 5) -= diff[0]*seg_force[1] - diff[1]*seg_force[0];
+            #if !PRESCRIBED_BODY_ROTATION
+              out(swim_id + 3) -= diff[1]*seg_force[2] - diff[2]*seg_force[1];
+              out(swim_id + 4) -= diff[2]*seg_force[0] - diff[0]*seg_force[2];
+              out(swim_id + 5) -= diff[0]*seg_force[1] - diff[1]*seg_force[0];
+            #endif
 
           }
 
@@ -1913,24 +1934,28 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             const int out_id = 3*(n*NBLOB + NSWIM*NFIL*NSEG + m);
 
-            // -K mult
+            // -K1*V_body (blob rows)
             out(out_id) -= in(swim_id);
             out(out_id + 1) -= in(swim_id + 1);
             out(out_id + 2) -= in(swim_id + 2);
 
-            const matrix diff = R*matrix(3, 1, &swimmers[n].body.blob_references[3*m]);
-            out(out_id) -= in(swim_id + 4)*diff(2) - in(swim_id + 5)*diff(1);
-            out(out_id + 1) -= in(swim_id + 5)*diff(0) - in(swim_id + 3)*diff(2);
-            out(out_id + 2) -= in(swim_id + 3)*diff(1) - in(swim_id + 4)*diff(0);
+            #if !PRESCRIBED_BODY_ROTATION
+              const matrix diff = R*matrix(3, 1, &swimmers[n].body.blob_references[3*m]);
+              out(out_id) -= in(swim_id + 4)*diff(2) - in(swim_id + 5)*diff(1);
+              out(out_id + 1) -= in(swim_id + 5)*diff(0) - in(swim_id + 3)*diff(2);
+              out(out_id + 2) -= in(swim_id + 3)*diff(1) - in(swim_id + 4)*diff(0);
+            #endif
 
-            // -K^T mult
+            // -K1^T * lambda (blob)
             const Real blob_force[3] = {f_blobs_host[3*(n*NBLOB + m)], f_blobs_host[3*(n*NBLOB + m) + 1], f_blobs_host[3*(n*NBLOB + m) + 2]};
             out(swim_id) -= blob_force[0];
             out(swim_id + 1) -= blob_force[1];
             out(swim_id + 2) -= blob_force[2];
-            out(swim_id + 3) -= diff(1)*blob_force[2] - diff(2)*blob_force[1];
-            out(swim_id + 4) -= diff(2)*blob_force[0] - diff(0)*blob_force[2];
-            out(swim_id + 5) -= diff(0)*blob_force[1] - diff(1)*blob_force[0];
+            #if !PRESCRIBED_BODY_ROTATION
+              out(swim_id + 3) -= diff(1)*blob_force[2] - diff(2)*blob_force[1];
+              out(swim_id + 4) -= diff(2)*blob_force[0] - diff(0)*blob_force[2];
+              out(swim_id + 5) -= diff(0)*blob_force[1] - diff(1)*blob_force[0];
+            #endif
 
           }
 
@@ -2111,6 +2136,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
       #endif
 
+    #endif
+
+    #if !PRESCRIBED_BODY_VELOCITIES && PRESCRIBED_BODY_ROTATION
+      out(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) = 0.0;
+      out(3*NSWIM*(NBLOB + NFIL*NSEG) + 4) = 0.0;
+      out(3*NSWIM*(NBLOB + NFIL*NSEG) + 5) = 0.0;
     #endif
 
     return out;
@@ -2475,6 +2506,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
         }
 
         #if USE_RIGHT_PRECON
+
+          std::cout<< temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << std::endl;
 
           soln += apply_preconditioner_new(temp_soln, swimmers);
 

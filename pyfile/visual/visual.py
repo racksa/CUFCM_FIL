@@ -52,8 +52,8 @@ class VISUAL:
         # self.dir = f"data/tilt_test/{self.date}/"
 
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
         # self.date = '20240311_1'
@@ -84,9 +84,12 @@ class VISUAL:
         # self.date = '20240919_bicilia_dia'
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
-        self.date = '20241120_fixed'
-        self.date = '20241212_fixed'
-        self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
+        # self.date = '20241120_fixed'
+        # self.date = '20241217_fixed_noise'
+        # self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
+
+        self.date = '20250125_fixed_correct'
+        self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
         
 
@@ -131,7 +134,13 @@ class VISUAL:
                      "blob_x_dim": [],
                      "hex_num": [],
                      "reverse_fil_direction_ratio": [],
-                     "pair_dp": []}
+                     "pair_dp": [],
+                     "wavnum": [],
+                     "wavnum_dia": [],
+                     "dimensionless_force": [],
+                     "fene_model": [],
+                     "force_noise_mag": [],
+                     "omega_spread": []}
         self.video = False
         self.interpolate = False
         self.angle = False
@@ -153,8 +162,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 6000
+        self.plot_end_frame_setting = 30
+        self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -227,28 +236,41 @@ class VISUAL:
         self.ar = self.pars_list['ar'][self.index]
         self.spring_factor = self.pars_list['spring_factor'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
-
+        
         try:
             self.tilt_angle = self.pars_list['tilt_angle'][self.index]
             self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
             open(self.simName + '_fil_references.dat')
         except:
             try:
+                self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
+                self.omega_spread = self.pars_list['omega_spread'][self.index]
                 self.pair_dp = self.pars_list['pair_dp'][self.index]
-                string = f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
-                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
+                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise_{self.omega_spread:.4f}ospread"
                 open(self.simName + '_fil_references.dat')
             except:
-                self.tilt_angle = 0.
-                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
                 try:
+                    self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
+                    self.pair_dp = self.pars_list['pair_dp'][self.index]
+                    self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise"
                     open(self.simName + '_fil_references.dat')
                 except:
-                    self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
-                try:
-                    open(self.simName + '_fil_references.dat')
-                except:
-                    self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
+                    try:
+                        self.pair_dp = self.pars_list['pair_dp'][self.index]
+                        string = f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
+                        self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
+                        open(self.simName + '_fil_references.dat')
+                    except:
+                        self.tilt_angle = 0.
+                        self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
+                        try:
+                            open(self.simName + '_fil_references.dat')
+                        except:
+                            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
+                        try:
+                            open(self.simName + '_fil_references.dat')
+                        except:
+                            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
         
         try:
             self.fil_spacing = self.pars_list['fil_spacing'][self.index]
@@ -1239,12 +1261,6 @@ class VISUAL:
 
         ax2.plot(time_array, phase1_array)
         ax2.plot(time_array, phase2_array)
-
-        
-
-        # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-        # np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
-        # np.save(f'{self.dir}/num_eff_beat_array_index{self.index}.npy', effective_beat_array)
         
         fig.tight_layout()
         fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
@@ -2947,6 +2963,7 @@ class VISUAL:
     def flow_field_2D(self):
         
         read_flow_field = False
+        save_source_data = True
 
         def stokeslet(x, x0, f0):
             r = np.linalg.norm(x-x0)
@@ -3008,6 +3025,7 @@ class VISUAL:
         blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
+        body_vels_f = open(self.simName + '_body_vels.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
         
 
@@ -3078,6 +3096,7 @@ class VISUAL:
             blob_forces_str = blob_forces_f.readline()
             seg_states_str = seg_states_f.readline()
             body_states_str = body_states_f.readline()
+            body_vels_str = body_vels_f.readline()
             fil_states_str = fil_states_f.readline()
 
             while(not frame % self.plot_interval == 0):
@@ -3085,6 +3104,7 @@ class VISUAL:
                 blob_forces_str = blob_forces_f.readline()
                 seg_states_str = seg_states_f.readline()
                 body_states_str = body_states_f.readline()
+                body_vels_str = body_vels_f.readline()
                 fil_states_str = fil_states_f.readline()
                 frame += 1
             print(f'frame={frame}')
@@ -3093,6 +3113,7 @@ class VISUAL:
             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
             seg_states = np.array(seg_states_str.split()[1:], dtype=float)
             body_states = np.array(body_states_str.split()[1:], dtype=float)
+            body_vels = np.array(body_vels_str.split()[1:], dtype=float)
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             fil_phases = fil_states[:self.nfil]
@@ -3108,6 +3129,8 @@ class VISUAL:
             # Create arrays to store pos and force of all particles
             source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
             source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+            if save_source_data:
+                np.savetxt(f'{self.dir}flow_torque{frame}.dat', source_pos_list, delimiter=' ')
 
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
@@ -3148,7 +3171,20 @@ class VISUAL:
                     if(seg_data[0, 0]<0):
                         ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
 
-            
+            if save_source_data:
+                np.savetxt(f'{self.dir}flow_pos{frame}.dat', source_pos_list, delimiter=' ')
+                np.savetxt(f'{self.dir}flow_force{frame}.dat', source_force_list, delimiter=' ')
+                np.savetxt(f'{self.dir}flow_body_vels{frame}.dat', body_vels, delimiter=' ')
+
+                # move to fcm folder 
+                # # DEBUG 
+                # # TEST
+                os.system(f'mv {self.dir}flow_torque{frame}.dat ~/CUFCM/data/filsim_data/')
+                os.system(f'mv {self.dir}flow_pos{frame}.dat ~/CUFCM/data/filsim_data/')
+                os.system(f'mv {self.dir}flow_force{frame}.dat ~/CUFCM/data/filsim_data/')
+                os.system(f'mv {self.dir}flow_body_vels{frame}.dat ~/CUFCM/data/filsim_data/')
+                os.system(f'cp {self.dir}rules.ini ~/CUFCM/data/filsim_data/')
+
             # compute the flow field
             if not read_flow_field:
                 # using single core
@@ -3270,8 +3306,8 @@ class VISUAL:
             
             ax.axis('off')
             ax.set_aspect('equal')
-            plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.show()
+            # plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            # plt.show()
 
     def flow_field_kymograph(self):
         def stokeslet(x, x0, f0):
@@ -4447,9 +4483,13 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
 
+        end_phase_array = np.zeros(self.num_sim)
         slip_rate_array = np.zeros(self.num_sim)
         pair_dp_list = np.array(self.pars_list['pair_dp'])
+        force_noise_mag_list = np.array(self.pars_list['force_noise_mag'])
 
         for ind in range(self.num_sim):
             try:
@@ -4475,7 +4515,8 @@ class VISUAL:
                         phase2_array[i-self.plot_start_frame] = np.sin(fil_phases[1])
                         phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
                         
-                slip_rate_array[ind] = phase_diff_array[-1] / time_array[-1]
+                end_phase_array[ind] = phase_diff_array[-1]
+                # slip_rate_array[ind] = phase_diff_array[-1] / time_array[-1]
 
                 ax.plot(time_array, phase_diff_array)
                 ax.set_xlabel('t/T')
@@ -4487,10 +4528,16 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
 
+        slip_rate_array = end_phase_array / self.frames
+        phase_drift_array = np.array([int(abs(x)) for x in end_phase_array])
+        print(phase_drift_array)
+
         ax2.plot(1./pair_dp_list, slip_rate_array)
         ax2.set_xlim(1./pair_dp_list[-1], 1./pair_dp_list[0])
-        ax2.set_xlabel('$\psi_1^{(1)}/\psi_1^{(2)}$')
-        ax2.set_ylabel('$\Delta/T$')
+        ax2.set_xlabel(r'$\psi_1^{(1)}/\psi_1^{(2)}$')
+        ax2.set_ylabel(r'$\Delta/T$')
+
+        ax3.plot(force_noise_mag_list, phase_drift_array)
         
 
         fig.tight_layout()

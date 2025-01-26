@@ -55,9 +55,13 @@ class DRIVER:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'volvox_bicilia/individual_pair/'
-        self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        self.date = '20241212_fixed'
+        # self.category = 'volvox_bicilia/individual_pair/'
+        # self.exe_name = 'cilia_1e-4_individual_pair_fixed'
+        # self.date = '20241217_fixed_ospread'
+
+        self.category = 'fixed_swimmer_correct/'
+        self.exe_name = 'cilia_1e-4_fixed'
+        self.date = '20250125_fixed_correct'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -92,7 +96,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (20, 1, 1, 1)
+        self.sweep_shape = (1, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -144,37 +148,38 @@ class DRIVER:
                         period = 1
                         dimensionless_force = 220.
                         fene_model = 0
-                        force_noise_mag = 0
+                        force_noise_mag = 0.0
                         omega_spread = 0.0
 
                         fil_spacing=80.0
                         blob_spacing=8.0
-                        fil_x_dim=20*(i+1)
-                        blob_x_dim=200*(i+1)
+                        fil_x_dim=20
+                        blob_x_dim=200
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        nfil = int(2)
-                        nblob = int(40000)
+                        nfil = int(1)
+                        nblob = int(400)
                         nseg = 20
                         ar = round(1, 2)
                         period = 1
-                        spring_factor = round(0.01, 3)
-                        nx=256
-                        ny=int(256)
-                        nz=int(32)
-                        boxsize=1600
-                        fil_spacing=4.0
-                        blob_spacing=8.0
-                        fil_x_dim=8
-                        blob_x_dim=200
+                        spring_factor = round(0.05, 3)
+                        nx=int(32)
+                        ny=int(128)
+                        nz=int(96)
+                        boxsize=20
+                        fil_spacing=20.0
+                        blob_spacing=2.0
+                        fil_x_dim=1
+                        blob_x_dim=10
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
-                        sim_length = 50
+                        sim_length = 1
+                        force_noise_mag = 0.0
                         omega_spread = 0.0
-                        pair_dp = 0.6 + 0.02*(i+1)
-
+                        pair_dp = 1.0
+                        fene_model = 0
 
                         # # callibration
                         # nfil = int(1*(i+1))
@@ -188,23 +193,26 @@ class DRIVER:
                         # pair_dp = 0.8
 
                         # # # # IVP sim
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=4000
-
+                        # nfil = 159
+                        # nblob = 9000
+                        # ar = 8.0
+                        
                         # nseg = 20
-                        # nfil = int(639)
-                        # nblob = int(40961)
-                        # ar = round(15.00, 2)
-                        # # nfil = int(159)
-                        # # nblob = int(9000)
-                        # # ar = round(8.00, 2)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # nx=256
+                        # ny=256
+                        # nz=256
+                        # boxsize=4000
+                        # spring_factor = round(0.005, 3)
+                        # period = 1
                         # sim_length = 300
-                        # tilt_angle = 0.0
+                        # tilt_angle = 0.
                         # pair_dp = 1.0
-                        # fene_model = 0
+                        # wavnum = 0.0
+                        # wavnum_dia = 0.0
+                        # fene_model = 1
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
+                        # pair_dp = 1.0
                         
 
                         # # ishikawa pnas
@@ -267,7 +275,7 @@ class DRIVER:
                         # ny=256
                         # nz=256
                         # boxsize=4000
-                        # spring_factor = round(0.01*(i+1), 3)
+                        # spring_factor = round(0.01, 3)
                         # period = 1
                         # sim_length = 300
                         # tilt_angle = 0.
@@ -275,7 +283,9 @@ class DRIVER:
                         # wavnum = 0.0
                         # wavnum_dia = 0.0
                         # fene_model = 1
-                        # force_noise_mag = 0
+                        # omega_spread = 0.2*i
+                        # force_noise_mag = 0000.0*i
+                        # pair_dp = 1.0
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
@@ -355,6 +365,15 @@ class DRIVER:
         print(f"\033[32m{self.dir}\033[m")
         print(f"\033[34m{self.exe_name}\033[m")
 
+    def check_rules(self):
+        from pathlib import Path
+        file_path = Path(self.dir + 'rules.ini')
+        if file_path.is_file():
+            print("Using the existing rules.ini in the directory\n\n\n")
+        else:
+            print("rules.ini does not exist. Applying new rules.\n\n\n")
+        return file_path.is_file()
+        
     def write_rules(self):
         os.system(f'mkdir -p {self.dir}')
         sim = configparser.ConfigParser()
@@ -396,7 +415,7 @@ class DRIVER:
             
             for key, value in self.pars_list.items():
                 self.write_ini("Parameters", key, float(self.pars_list[key][i]))
-            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp"
+            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp_{self.pars_list['force_noise_mag'][i]:.4f}noise_{self.pars_list['omega_spread'][i]:.4f}ospread"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
