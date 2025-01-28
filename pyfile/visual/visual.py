@@ -85,7 +85,7 @@ class VISUAL:
         # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
 
         # self.date = '20241120_fixed'
-        # self.date = '20241217_fixed_noise'
+        # # self.date = '20241217_fixed_noise'
         # self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
         self.date = '20250125_fixed_correct'
@@ -162,8 +162,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 30
-        self.frames_setting = 30
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -501,15 +501,17 @@ class VISUAL:
                         # self.write_data(fil_base, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
 
                         s = np.linspace(0, 1, 20)
+
+                        # R_ref(q)
                         Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
 
+                        # R(\psi_2) rotation about the z-axis
                         Rtheta = rotation_matrix = np.array([
                             [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
                             [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
                             [0, 0, 1]
                         ])
                         for seg in range(0, int(self.pars['NSEG'])):
-                            
                             ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
                             seg_pos = fil_base + ref
                             self.write_data(seg_pos, float(self.pars['RSEG']), superpuntoDatafileName, self.periodic, True, True, color=fil_color)
@@ -3143,7 +3145,7 @@ class VISUAL:
                 ax.add_patch(circle)
 
                 for blob in range(self.nblob):
-                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos + [0, 30.0, 0]
                     blob_force = blob_forces[3*blob : 3*blob+3]
                     # ax.scatter(blob_pos[1], blob_pos[2], c='black')
 
@@ -3156,7 +3158,7 @@ class VISUAL:
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
                     alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
                     for seg in range(self.nseg):
-                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos + [0, 30.0, 0]
                         seg_data[seg] = seg_pos
                         seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                         seg_force = seg_force[:3]

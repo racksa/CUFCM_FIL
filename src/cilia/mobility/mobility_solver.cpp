@@ -2404,6 +2404,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
         matrix new_soln = system_matrix_mult_new(preconed, swimmers);
 
+        // std::cout<<new_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << std::endl;
+
         Q.set_col(iter, new_soln);
 
       #else
@@ -2475,6 +2477,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
         { cudaDeviceSynchronize(); gmres_solve_time += (get_time_cilia() - time_start); time_start = get_time_cilia();}
       #endif
 
+
+      // Exit when the error is smaller than the specified tolerance
       if ((relative_error <= LINEAR_SYSTEM_TOL) || (iter == max_iter)){
 
         matrix y(iter, 1);
@@ -2507,9 +2511,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
         #if USE_RIGHT_PRECON
 
-          std::cout<< temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << std::endl;
-
           soln += apply_preconditioner_new(temp_soln, swimmers);
+
+
+          std::cout<< temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << "  " << temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 4) << "  " << temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 5) << std::endl;
+          std::cout<< "--" << soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << "  " << soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 4) << "  " << soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 5) << std::endl;
+          
 
           // When we use a right preconditioner, the velocity arrays are storing M*M_approx_inv*F
           // rather than M*F (and thus the force arrays store M_approx_inv*F rather than F). We need to
@@ -2550,7 +2557,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           #if !PRESCRIBED_BODY_VELOCITIES
 
             v_bodies = soln.get_block(3*NSWIM*(NBLOB + NFIL*NSEG), 6*NSWIM);
-
+            
           #endif
 
           #if DYNAMIC_PHASE_EVOLUTION

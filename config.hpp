@@ -95,8 +95,8 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 2 = PRESCRIBED ROTATION ONLY
 
 // Define whether the motion of the rigid bodies is imposed or allowed to evolve dynamically.
-#define PRESCRIBED_BODY_VELOCITIES (BODY_VELOCITY_TYPE==1)
-#define PRESCRIBED_BODY_ROTATION (BODY_VELOCITY_TYPE==2)
+#define PRESCRIBED_BODY_VELOCITIES (BODY_VELOCITY_TYPE == 1)
+#define PRESCRIBED_BODY_ROTATION (BODY_VELOCITY_TYPE == 2)
 
 // #if !PRESCRIBED_BODY_VELOCITIES
 //   // Define
