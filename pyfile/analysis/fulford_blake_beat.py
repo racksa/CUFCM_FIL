@@ -85,8 +85,10 @@ fig1 = plt.figure()
 ax1 = fig1.add_subplot(111)
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(111)
-fig3 = plt.figure()
+fig3 = plt.figure(dpi=200)
 ax3 = fig3.add_subplot(111, projection='3d')
+fig4 = plt.figure(dpi=300)
+ax4 = fig4.add_subplot(111, projection='3d')
 
 for p in range(num_frame):
     phase = 2*np.pi/num_frame*p
@@ -221,18 +223,33 @@ arrow = patches.FancyArrowPatch(path=path,
 ax2.add_patch(arrow)
 ax2.annotate(r'$\psi_2(t)$', (15, 50), fontsize=25, va='center')
 
-
+############################
 # # plot rot_ref
+###############################
 
-
-rot_angle = np.pi*0.3
-rot_axis = np.array([1,1,1])
-
-
-offset = np.array([0, 0, 0])
-radius = 30
-xb = util.spherical_to_cartesian(30, 0, 2.5)
+offset = np.array([0, 110, 0])
+radius = 60
+xb = util.spherical_to_cartesian(radius, 0.6, 1.)
 quaternion = util.point_to_quaternion(xb[0], xb[1], xb[2],)
+
+
+base_normal = util.quaternion_normal(quaternion)
+dirc = np.array(xb)/np.linalg.norm(xb)
+polar_dir = np.array([0, 0, -1.])
+dot_prod = np.dot(dirc, polar_dir)
+polar_dir -= dot_prod*dirc
+q2 = np.array([0., 0., 0., 0.])
+if (np.linalg.norm(polar_dir) > 0):
+    polar_dir /= np.linalg.norm(polar_dir)
+
+    q2[0] = np.dot(polar_dir, base_normal)
+    q2[1] = base_normal[1]*polar_dir[2] - base_normal[2]*polar_dir[1]
+    q2[2] = base_normal[2]*polar_dir[0] - base_normal[0]*polar_dir[2]
+    q2[3] = base_normal[0]*polar_dir[1] - base_normal[1]*polar_dir[0]
+
+    q2 = util.sqrt_in_place(q2)
+quaternion = util.quaternion_multiply(q2, quaternion)
+
 rot_matrix = util.rot_mat(quaternion)
 
 for p in range(num_frame):
@@ -248,40 +265,44 @@ for p in range(num_frame):
     for seg in range(num_seg):
         seg_pos = np.array(fitted_shape(s[seg], phase))*L
         fil_data[seg] = seg_pos
-    # ax3.plot(fil_data[:,2], fil_data[:,1], fil_data[:,0], c='black', alpha = 1.0, zorder = p)
+    ax3.plot(fil_data[:,2], fil_data[:,1], fil_data[:,0], c='black', alpha = 1.0, zorder = p)
 
     for seg in range(num_seg):
         seg_pos = np.array(fitted_shape(s[seg], phase))*L
+        temp = seg_pos[2]
+        seg_pos[2] = seg_pos[0]
+        seg_pos[1] = seg_pos[1]
+        seg_pos[0] = temp
         seg_pos = np.dot(rot_matrix, seg_pos) + offset + xb
         fil_data[seg] = seg_pos
-    ax3.plot(fil_data[:,2], fil_data[:,1], fil_data[:,0], c='green', alpha = 1.0, zorder = p)
+    ax3.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='green', alpha = 1.0, zorder = p)
 
-axis_length = 80
+axis_length = 60
 x_axis = np.array([[0, 0, 0], [1, 0, 0]])*axis_length
 y_axis = np.array([[0, 0, 0], [0, 1, 0]])*axis_length
 z_axis = np.array([[0, 0, 0], [0, 0, 1]])*axis_length
 
-rotated_x_axis = np.array([np.dot(rot_matrix, x_axis[0]), np.dot(rot_matrix, x_axis[1])]) + offset + xb
-rotated_y_axis = np.array([np.dot(rot_matrix, y_axis[0]), np.dot(rot_matrix, y_axis[1])]) + offset + xb
+rotated_x_axis = np.array([np.dot(rot_matrix, x_axis[0]), np.dot(rot_matrix, x_axis[1])])*0.5 + offset + xb
+rotated_y_axis = np.array([np.dot(rot_matrix, y_axis[0]), np.dot(rot_matrix, y_axis[1])])*0.5 + offset + xb
 rotated_z_axis = np.array([np.dot(rot_matrix, z_axis[0]), np.dot(rot_matrix, z_axis[1])]) + offset + xb
 
 ax3.plot(x_axis[:,2],x_axis[:,1],x_axis[:,0],\
          linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
-ax3.plot(y_axis[:,2],y_axis[:,1],y_axis[:,0],\
+ax3.plot(y_axis[:,2]*0.5,y_axis[:,1]*0.5,y_axis[:,0]*0.5,\
          linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
 ax3.plot(z_axis[:,2],z_axis[:,1],z_axis[:,0],\
          linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
 
-ax3.plot(rotated_x_axis[:,2],rotated_x_axis[:,1],rotated_x_axis[:,0],\
-         linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
-ax3.plot(rotated_y_axis[:,2],rotated_y_axis[:,1],rotated_y_axis[:,0],\
-         linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
-ax3.plot(rotated_z_axis[:,2],rotated_z_axis[:,1],rotated_z_axis[:,0],\
-         linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
+ax3.plot(rotated_x_axis[:,0],rotated_x_axis[:,1],rotated_x_axis[:,2],\
+         linestyle='dashed', c='green', zorder=1000, linewidth=1.0)
+ax3.plot(rotated_y_axis[:,0],rotated_y_axis[:,1],rotated_y_axis[:,2],\
+         linestyle='dashed', c='green', zorder=1000, linewidth=1.0)
+ax3.plot(rotated_z_axis[:,0],rotated_z_axis[:,1],rotated_z_axis[:,2],\
+         linestyle='dashed', c='green', zorder=1000, linewidth=1.0)
 
-resolution = 10
-theta_range = [0, np.pi / 2]  # Theta range (0 to 90 degrees)
-phi_range = [0, np.pi]    
+resolution = 600
+theta_range = [0, np.pi/2.]  # Theta range (0 to 90 degrees)
+phi_range = [0, np.pi/2.]    
 theta = np.linspace(theta_range[0], theta_range[1], resolution)
 phi = np.linspace(phi_range[0], phi_range[1], resolution)
 theta, phi = np.meshgrid(theta, phi)
@@ -291,8 +312,125 @@ x = radius * np.sin(theta) * np.cos(phi) + offset[0]
 y = radius * np.sin(theta) * np.sin(phi) + offset[1]
 z = radius * np.cos(theta) + offset[2]
 
-# Plot the surface
-ax3.plot_surface(z, y, x, alpha=0.8, edgecolor='k')
+ax3.plot_surface(x, y, z, color='grey', alpha=0.5)
+
+
+#---------------------------------
+# Plot body rotation
+#---------------------------------
+offset = np.array([0, 180, 0])
+radius = 60
+xb = util.spherical_to_cartesian(radius, 0.6, 1.)
+quaternion = util.point_to_quaternion(xb[0], xb[1], xb[2],)
+
+base_normal = util.quaternion_normal(quaternion)
+dirc = np.array(xb)/np.linalg.norm(xb)
+polar_dir = np.array([0, 0, -1.])
+dot_prod = np.dot(dirc, polar_dir)
+polar_dir -= dot_prod*dirc
+q2 = np.array([0., 0., 0., 0.])
+if (np.linalg.norm(polar_dir) > 0):
+    polar_dir /= np.linalg.norm(polar_dir)
+
+    q2[0] = np.dot(polar_dir, base_normal)
+    q2[1] = base_normal[1]*polar_dir[2] - base_normal[2]*polar_dir[1]
+    q2[2] = base_normal[2]*polar_dir[0] - base_normal[0]*polar_dir[2]
+    q2[3] = base_normal[0]*polar_dir[1] - base_normal[1]*polar_dir[0]
+
+    q2 = util.sqrt_in_place(q2)
+quaternion = util.quaternion_multiply(q2, quaternion)
+
+rot_matrix = util.rot_mat(quaternion)
+
+for p in range(num_frame):
+    phase = 2*np.pi/num_frame*p
+    fil_data = np.zeros((num_seg, 3))
+
+    # s for this phase
+    s = fitted_shape_s(phase)
+
+    # alpha
+    alpha=0.1 + 0.9*p/num_frame
+
+    for seg in range(num_seg):
+        seg_pos = np.array(fitted_shape(s[seg], phase))*L
+        temp = seg_pos[2]
+        seg_pos[2] = seg_pos[0]
+        seg_pos[1] = seg_pos[1]
+        seg_pos[0] = temp
+        seg_pos = np.dot(rot_matrix, seg_pos)+ xb
+        fil_data[seg] = seg_pos
+    ax4.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', alpha = 1.0, zorder = p)
+
+rot_angle = -np.pi*0.2
+rot_axis = np.array([1,2,0])
+body_q = util.rotation_quaternion(rot_axis, rot_angle)
+body_rot_matrix = util.rot_mat(body_q)
+
+theta_range = [0, np.pi]  # Theta range (0 to 90 degrees)
+phi_range = [0, 2.*np.pi]    
+theta = np.linspace(theta_range[0], theta_range[1], resolution)
+phi = np.linspace(phi_range[0], phi_range[1], resolution)
+theta, phi = np.meshgrid(theta, phi)
+
+# Convert spherical coordinates to Cartesian coordinates
+x = radius * np.sin(theta) * np.cos(phi) 
+y = radius * np.sin(theta) * np.sin(phi) 
+z = radius * np.cos(theta)
+
+ax4.plot_surface(x, y, z,  color='grey', alpha=0.5)
+
+for i in range(len(x)):
+    x[i], y[i], z[i] = np.dot(body_rot_matrix, np.array([x[i], y[i], z[i]]))
+
+axis_length = 1.2*radius
+x_axis = np.array([[0, 0, 0], [1, 0, 0]])*axis_length
+y_axis = np.array([[0, 0, 0], [0, 1, 0]])*axis_length
+z_axis = np.array([[0, 0, 0], [0, 0, 1]])*axis_length
+
+ax4.plot(x_axis[:,0],x_axis[:,1],x_axis[:,2],\
+         linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
+ax4.plot(y_axis[:,0],y_axis[:,1],y_axis[:,2],\
+         linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
+ax4.plot(z_axis[:,0],z_axis[:,1],z_axis[:,2],\
+         linestyle='dashed', c='black', zorder=1000, linewidth=1.0)
+
+# rotated one
+for p in range(num_frame):
+    phase = 2*np.pi/num_frame*p
+    fil_data = np.zeros((num_seg, 3))
+
+    # s for this phase
+    s = fitted_shape_s(phase)
+
+    # alpha
+    alpha=0.1 + 0.9*p/num_frame
+
+    for seg in range(num_seg):
+        seg_pos = np.array(fitted_shape(s[seg], phase))*L
+        temp = seg_pos[2]
+        seg_pos[2] = seg_pos[0]
+        seg_pos[1] = seg_pos[1]
+        seg_pos[0] = temp
+        seg_pos = np.dot(rot_matrix, seg_pos) 
+        seg_pos = np.dot(body_rot_matrix, seg_pos) + offset + np.dot(body_rot_matrix, xb)
+        fil_data[seg] = seg_pos
+    ax4.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='green', alpha = 1.0, zorder = p)
+
+
+ax4.plot_surface(x, y + offset[1], z,  color='grey', alpha=0.5)
+
+rotated_x_axis = np.array([np.dot(body_rot_matrix, x_axis[0]), np.dot(body_rot_matrix, x_axis[1])]) 
+rotated_y_axis = np.array([np.dot(body_rot_matrix, y_axis[0]), np.dot(body_rot_matrix, y_axis[1])])
+rotated_z_axis = np.array([np.dot(body_rot_matrix, z_axis[0]), np.dot(body_rot_matrix, z_axis[1])])
+
+ax4.plot(rotated_x_axis[:,0],rotated_x_axis[:,1]+offset[1],rotated_x_axis[:,2],\
+         linestyle='dashed', c='green', zorder=1000, linewidth=1.0)
+ax4.plot(rotated_y_axis[:,0],rotated_y_axis[:,1]+offset[1],rotated_y_axis[:,2],\
+         linestyle='dashed', c='green', zorder=1000, linewidth=1.0)
+ax4.plot(rotated_z_axis[:,0],rotated_z_axis[:,1]+offset[1],rotated_z_axis[:,2],\
+         linestyle='dashed', c='green', zorder=1000, linewidth=1.0)
+
 
 ax1.set_xlabel('x')
 ax1.set_ylabel('y')
@@ -308,10 +446,24 @@ ax3.set_xlabel('x')
 ax3.set_ylabel('y')
 ax3.set_zlabel('z')
 ax3.set_aspect('equal')
-ax3.view_init(elev=15, azim=10) 
+ax3.axis('off')
+ax3.view_init(elev=15, azim=10)
+ax3.dist=10
 
-plt.tight_layout()       
+ax4.set_xlabel('x')
+ax4.set_ylabel('y')
+ax4.set_zlabel('z')
+ax4.set_aspect('equal')
+ax4.axis('off')
+ax4.view_init(elev=15, azim=10) 
+ax4.dist=10
+
+plt.tight_layout()
+fig3.tight_layout()     
+fig4.tight_layout()       
 fig1.savefig(f'fig/fulford_blake_beat_psi.png', bbox_inches = 'tight', format='png', transparent=True)
 fig2.savefig(f'fig/fulford_blake_beat_theta.png', bbox_inches = 'tight', format='png', transparent=True)
+fig3.savefig(f'fig/filq_rotation.png', bbox_inches = 'tight', format='png', transparent=True)
+fig4.savefig(f'fig/body_rotation.png', bbox_inches = 'tight', format='png', transparent=True)
 # fig1.savefig(f'fig/fulford_blake_beat.png', bbox_inches = 'tight', format='png')
 plt.show()
