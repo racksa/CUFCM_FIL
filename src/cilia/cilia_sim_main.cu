@@ -103,16 +103,20 @@ int main(int argc, char** argv){
 
 
   // Derive other global variables
-  if (BICILIA || BICILIA_LONGT){
-    NSEG_PER_CILIA = NSEG/2;
-  }else{
-    NSEG_PER_CILIA = NSEG;
-  }
+  #ifdef BICILIA
+    if (BICILIA || BICILIA_LONGT){
+      NSEG_PER_CILIA = NSEG/2;
+    }else{
+      NSEG_PER_CILIA = NSEG;
+    }
+  #endif
 
   NPAIR = NFIL;
   if (PAIR==1){
     NPAIR = NFIL/2;
   }
+  int NFIL_PER_PAIR = NFIL==0 ? 0 : NFIL/NPAIR;
+
 
   NTOTAL = (NSWIM*(NFIL*NSEG + NBLOB));
   AXIS_DIR_BODY_LENGTH = AR*FIL_LENGTH;
@@ -297,7 +301,7 @@ int main(int argc, char** argv){
 
     std::cout << std::endl;
     std::cout << "Simulating " << NSWIM << " swimmers, each having a rigid body resolved using " << NBLOB << " 'blobs'." << std::endl;
-    std::cout << "Attached to each rigid body are " << NPAIR << " pairs of filaments, each pair comprised of " << NFIL/NPAIR << " filaments each with " << NSEG << " segments and length " << FIL_LENGTH << std::endl;
+    std::cout << "Attached to each rigid body are " << NPAIR << " pairs of filaments, each pair comprised of " << NFIL_PER_PAIR << " filaments each with " << NSEG << " segments and length " << FIL_LENGTH << std::endl;
     std::cout << std::endl;
 
   #endif

@@ -8,15 +8,15 @@ class DRIVER:
         self.globals_name = 'input/globals.ini'
         self.afix = ''
         self.inputfile = f""
-        # self.category = 'regular_wall_sim/'
-        # self.category = 'IVP159_flowfield/'
+
         self.category = 'tilt_test/'
+        self.category = 'resolution/'
         
 
         self.exe_name = 'cilia_1e-4_newbeat'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20240730_newbeat'
+        self.date = '20250204_squirmer'
         
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -62,6 +62,16 @@ class DRIVER:
         self.category = 'fixed_swimmer_correct/'
         self.exe_name = 'cilia_1e-4_fixed'
         self.date = '20250125_fixed_correct'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'resolution/'
+        self.exe_name = 'cilia_1e-4_squirmer'
+        self.date = '20250204_1e-4_squirmer'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'regular_wall_sim/'
+        self.exe_name = 'cilia_1e-4_squirmer'
+        self.date = '20250204_1e-4_ref'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
@@ -182,17 +192,17 @@ class DRIVER:
                         fene_model = 0
 
                         # # callibration
-                        # nfil = int(1*(i+1))
-                        # nblob = int(0*(i+1))
-                        # nseg = 40
-                        # fil_spacing=256.0
-                        # blob_spacing=4.0
-                        # fil_x_dim=2
-                        # blob_x_dim=64
-                        # sim_length = 50
-                        # pair_dp = 0.8
+                        nfil = int(1)
+                        nblob = int(0)
+                        nseg = 20
+                        fil_spacing=256.0
+                        blob_spacing=4.0
+                        fil_x_dim=2
+                        blob_x_dim=64
+                        sim_length = 1
+                        pair_dp = 1.0
 
-                        # # # # IVP sim
+                        # # # IVP sim
                         # nfil = 159
                         # nblob = 9000
                         # ar = 8.0
@@ -302,24 +312,28 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # sangani resolution
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        
-                        # boxsize=1200+16*(i+1)**(3)
-                        # nblob = int(40961)
-                        
-                        # # boxsize=8000
-                        # # nblob = int(20 + (3*i)**3)
-                        
-                        # ar = round(20.00, 2)
-                        # nfil = 0
+                        # nfil = int(0)
+                        # nblob = int(400)
                         # nseg = 20
-                        # spring_factor = round(1*(i+1), 3)
+                        # ar = round(1, 2)
                         # period = 1
-                        # sim_length = 0.0034
-                        # tilt_angle = 0
-                        # force_mag = 10000.0
+                        # spring_factor = round(0.05, 3)
+                        # nx=int(128)
+                        # ny=int(128)
+                        # nz=int(128)
+                        # boxsize=20
+                        # fil_spacing=20.0
+                        # blob_spacing=2.0
+                        # fil_x_dim=1
+                        # blob_x_dim=10
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # sim_length = 5
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
+                        
 
 
                         self.pars_list["index"].append(index)

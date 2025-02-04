@@ -2513,11 +2513,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
           soln += apply_preconditioner_new(temp_soln, swimmers);
 
-
-          std::cout<< temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << "  " << temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 4) << "  " << temp_soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 5) << std::endl;
-          std::cout<< "--" << soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 3) << "  " << soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 4) << "  " << soln(3*NSWIM*(NBLOB + NFIL*NSEG) + 5) << std::endl;
-          
-
           // When we use a right preconditioner, the velocity arrays are storing M*M_approx_inv*F
           // rather than M*F (and thus the force arrays store M_approx_inv*F rather than F). We need to
           // have them store the latter so that what we save in the segment velocity and force files is

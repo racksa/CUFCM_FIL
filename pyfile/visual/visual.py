@@ -91,6 +91,12 @@ class VISUAL:
         self.date = '20250125_fixed_correct'
         self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
+        self.date = '20250204_1e-4_squirmer'
+        self.dir = f"data/resolution/{self.date}/"
+
+        self.date = '20250204_1e-4_ref'
+        self.dir = f"data/regular_wall_sim/{self.date}/"
+
         
 
         # self.date = '20240115_resolution'
@@ -2121,7 +2127,12 @@ class VISUAL:
                 body_pos_array[i-self.plot_start_frame] = body_states[0 : 3]
 
         ax.plot(body_pos_array[:,0], body_pos_array[:,1], body_pos_array[:,2])
-        plt.savefig(f'fig/ciliate_traj_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
+        # plt.savefig(f'fig/ciliate_traj_{self.nfil}fil.pdf', bbox_inches = 'tight', format='pdf')
+        ax.set_aspect('equal')
+        ax.set_xlim((-100, 100))
+        ax.set_ylim((-100, 100))
+        ax.set_zlim((-100, 100))
+        fig.tight_layout()
         plt.show()
 
     def ciliate_speed(self):
