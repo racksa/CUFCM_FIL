@@ -475,52 +475,11 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
       #if NO_CILIA_SQUIRMER
 
-        // This is all but copied verbatim from the filament object.
-        // I should probably come up with a better system.
-        matrix Ap(3,3);
-        Ap(0,0) = 3.091205e-01; Ap(0,1) = -1.993712e+00; Ap(0,2) = 1.091847e+00;
-        Ap(1,0) = -2.952120e-01; Ap(1,1) = 7.189021e-01; Ap(1,2) = -6.328589e-01;
-        Ap(2,0) = -9.868018e-02; Ap(2,1) = 3.312812e-01; Ap(2,2) = -2.578206e-01;
-
-        matrix An(3,3);
-        An(0,0) = -2.468656e-01; An(0,1) = 1.215869e+00; An(0,2) = -5.867236e-01;
-        An(1,0) = 3.075836e-01; An(1,1) = -6.966322e-01; An(1,2) = 4.554729e-01;
-        An(2,0) = 2.378489e-02; An(2,1) = -1.355582e-01; An(2,2) = 7.315831e-02;
-
-        matrix Bp(3,3);
-        Bp(0,0) = 9.165546e-01; Bp(0,1) = 8.848315e-02; Bp(0,2) = -4.838832e-01;
-        Bp(1,0) = -2.946211e-01; Bp(1,1) = 1.057964e+00; Bp(1,2) = -6.335721e-01;
-        Bp(2,0) = 6.122744e-02; Bp(2,1) = -2.319094e-01; Bp(2,2) = 1.906292e-01;
-
-        matrix Bn(3,3);
-        Bn(0,0) = 1.336807e-01; Bn(0,1) = -6.807852e-01; Bn(0,2) = 6.008592e-01;
-        Bn(1,0) = 8.146824e-02; Bn(1,1) = 3.472676e-01; Bn(1,2) = -2.744220e-01;
-        Bn(2,0) = 3.615272e-02; Bn(2,1) = 8.619119e-02; Bn(2,2) = -6.122992e-02;
-
-        // Absorb the omega = 2pi
-        Ap *= 2.0*PI;
-        An *= 2.0*PI;
-        Bp *= 2.0*PI;
-        Bn *= 2.0*PI;
-
-        // Match the ratio of cilium length to body length.
-        const Real cilia_length_scale = 18.0*(2.0*FIL_LENGTH)/785.0;
-        Ap *= cilia_length_scale;
-        An *= cilia_length_scale;
-        Bp *= cilia_length_scale;
-        Bn *= cilia_length_scale;
-
-        const Real MCW_length = cilia_length_scale; // TODO: This should be in the config, but will require other things being added to the config too.
-
-        // Slip velocities for pure squirmer:
         for (int n = 0; n < NSWIM; n++){
 
           const std::vector<Real>& polar = swimmers[n].body.polar_dir_refs;
           const std::vector<Real>& normal = swimmers[n].body.normal_refs;
           const std::vector<Real>& refs = swimmers[n].body.blob_references;
-
-          // Some other things we will need to evaluate velocities:
-          const int num_fourier_modes = Ap.num_rows;
 
           matrix s_vec(3,1);
           s_vec(0) = 1.0;
@@ -528,41 +487,129 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           s_vec(2) = 1.0;
 
           const matrix Q = swimmers[n].body.q.rot_mat();
-
-          const Real MCW_length_in_radians = MCW_length/swimmers[n].body.max_cylindrical_radius;
-
+          
           for (int m = 0; m < NBLOB; m++){
 
-            const Real phi = std::atan2(refs[3*m + 1], refs[3*m]); // Azimuthal angle coordinate of the point on the surface in a body-fixed spherical cordinate system.
+            Real phi = std::atan2(refs[3*m + 1], refs[3*m]); // Azimuthal angle coordinate of the point on the surface in a body-fixed spherical cordinate system.
+            Real theta = acos(refs[3*m + 2]/(sqrt(refs[3*m]*refs[3*m]+
+                                                    refs[3*m + 1]*refs[3*m + 1]+
+                                                    refs[3*m + 2]*refs[3*m + 2])));
+            Real A_1 = 300.0;
+            Real B_1 = 50.0;
+            Real ur = A_1 * legendreP(1, cos(theta));
+            Real utheta = B_1 * legendreV(1, cos(theta));
+            CartesianCoordinates v_cartesian = spherical_to_cartesian_field(ur, utheta, 0.0, theta, phi);
 
-            // What would be the phase of a filament attached to this point on the surface?
-            Real phase = 2.0*PI*nt*DT; // = 2.0*PI*t/T, since the period is T = 1.
-            phase += 2.0*PI*phi/MCW_length_in_radians; // Shift due to the MCW.
+            matrix v(3, 1); 
+            v(0) = v_cartesian.x;
+            v(1) = v_cartesian.y;
+            v(2) = v_cartesian.z;
 
-         /*   // What would the velocity of the tip of this filament be?
-            matrix cos_vec(1, num_fourier_modes);
-            matrix sin_vec(1, num_fourier_modes);
-            for (int n = 1; n <= num_fourier_modes; n++){
-              cos_vec(n-1) = n*std::cos(n*phase);
-              sin_vec(n-1) = -n*std::sin(n*phase);
-            }*/
-            const Real p_coeff = (0.1019 + 0.0064*std::sin(phase))*2.0*FIL_LENGTH; //*AXIS_DIR_BODY_LENGTH; //(cos_vec*Bp + sin_vec*Ap)*s_vec;
-            const Real n_coeff = 0.0; //(cos_vec*Bn + sin_vec*An)*s_vec;
-            matrix p_vec(3,1);
-            p_vec(0) = polar[3*m];
-            p_vec(1) = polar[3*m + 1];
-            p_vec(2) = polar[3*m + 2];
-            matrix n_vec(3,1);
-            n_vec(0) = normal[3*m];
-            n_vec(1) = normal[3*m + 1];
-            n_vec(2) = normal[3*m + 2];
-            const matrix v = Q*(p_coeff*p_vec + n_coeff*n_vec);
+            v = Q*v;
+
+            // std::cout << "--------------" << std::endl;
+            // std::cout << "([" << refs[3*m] << "," << refs[3*m+1] << "," << refs[3*m+2] << "])" << std::endl;
+            // std::cout << "([" << swimmers[n].body.q.scalar_part << "," << swimmers[n].body.q.vector_part[0] << "," << swimmers[n].body.q.vector_part[1] << "," << swimmers[n].body.q.vector_part[2] << "])" << std::endl;
+            
+            // std::cout << "(" << ur << " " << utheta << ")" << std::endl;
+            // std::cout << "(" << v(0) << " " << v(1) << " " << v(2) << ")" << std::endl;
 
             // Store the slip velocity.
             rhs.add_to_block(3*(n*NBLOB + m), 3, v);
           }
-
         }
+
+
+        // What Time had defined starts from here
+
+        // // This is all but copied verbatim from the filament object.
+        // // I should probably come up with a better system.
+        // matrix Ap(3,3);
+        // Ap(0,0) = 3.091205e-01; Ap(0,1) = -1.993712e+00; Ap(0,2) = 1.091847e+00;
+        // Ap(1,0) = -2.952120e-01; Ap(1,1) = 7.189021e-01; Ap(1,2) = -6.328589e-01;
+        // Ap(2,0) = -9.868018e-02; Ap(2,1) = 3.312812e-01; Ap(2,2) = -2.578206e-01;
+
+        // matrix An(3,3);
+        // An(0,0) = -2.468656e-01; An(0,1) = 1.215869e+00; An(0,2) = -5.867236e-01;
+        // An(1,0) = 3.075836e-01; An(1,1) = -6.966322e-01; An(1,2) = 4.554729e-01;
+        // An(2,0) = 2.378489e-02; An(2,1) = -1.355582e-01; An(2,2) = 7.315831e-02;
+
+        // matrix Bp(3,3);
+        // Bp(0,0) = 9.165546e-01; Bp(0,1) = 8.848315e-02; Bp(0,2) = -4.838832e-01;
+        // Bp(1,0) = -2.946211e-01; Bp(1,1) = 1.057964e+00; Bp(1,2) = -6.335721e-01;
+        // Bp(2,0) = 6.122744e-02; Bp(2,1) = -2.319094e-01; Bp(2,2) = 1.906292e-01;
+
+        // matrix Bn(3,3);
+        // Bn(0,0) = 1.336807e-01; Bn(0,1) = -6.807852e-01; Bn(0,2) = 6.008592e-01;
+        // Bn(1,0) = 8.146824e-02; Bn(1,1) = 3.472676e-01; Bn(1,2) = -2.744220e-01;
+        // Bn(2,0) = 3.615272e-02; Bn(2,1) = 8.619119e-02; Bn(2,2) = -6.122992e-02;
+
+        // // Absorb the omega = 2pi
+        // Ap *= 2.0*PI;
+        // An *= 2.0*PI;
+        // Bp *= 2.0*PI;
+        // Bn *= 2.0*PI;
+
+        // // Match the ratio of cilium length to body length.
+        // const Real cilia_length_scale = 18.0*(2.0*FIL_LENGTH)/785.0;
+        // Ap *= cilia_length_scale;
+        // An *= cilia_length_scale;
+        // Bp *= cilia_length_scale;
+        // Bn *= cilia_length_scale;
+
+        // const Real MCW_length = cilia_length_scale; // TODO: This should be in the config, but will require other things being added to the config too.
+
+        // // Slip velocities for pure squirmer:
+        // for (int n = 0; n < NSWIM; n++){
+
+        //   const std::vector<Real>& polar = swimmers[n].body.polar_dir_refs;
+        //   const std::vector<Real>& normal = swimmers[n].body.normal_refs;
+        //   const std::vector<Real>& refs = swimmers[n].body.blob_references;
+
+        //   // Some other things we will need to evaluate velocities:
+        //   const int num_fourier_modes = Ap.num_rows;
+
+        //   matrix s_vec(3,1);
+        //   s_vec(0) = 1.0;
+        //   s_vec(1) = 1.0;
+        //   s_vec(2) = 1.0;
+
+        //   const matrix Q = swimmers[n].body.q.rot_mat();
+
+        //   const Real MCW_length_in_radians = MCW_length/swimmers[n].body.max_cylindrical_radius;
+
+        //   for (int m = 0; m < NBLOB; m++){
+
+        //     const Real phi = std::atan2(refs[3*m + 1], refs[3*m]); // Azimuthal angle coordinate of the point on the surface in a body-fixed spherical cordinate system.
+
+        //     // What would be the phase of a filament attached to this point on the surface?
+        //     Real phase = 2.0*PI*nt*DT; // = 2.0*PI*t/T, since the period is T = 1.
+        //     phase += 2.0*PI*phi/MCW_length_in_radians; // Shift due to the MCW.
+
+        //  /*   // What would the velocity of the tip of this filament be?
+        //     matrix cos_vec(1, num_fourier_modes);
+        //     matrix sin_vec(1, num_fourier_modes);
+        //     for (int n = 1; n <= num_fourier_modes; n++){
+        //       cos_vec(n-1) = n*std::cos(n*phase);
+        //       sin_vec(n-1) = -n*std::sin(n*phase);
+        //     }*/
+        //     const Real p_coeff = (0.1019 + 0.0064*std::sin(phase))*2.0*FIL_LENGTH; //*AXIS_DIR_BODY_LENGTH; //(cos_vec*Bp + sin_vec*Ap)*s_vec;
+        //     const Real n_coeff = 0.0; //(cos_vec*Bn + sin_vec*An)*s_vec;
+        //     matrix p_vec(3,1);
+        //     p_vec(0) = polar[3*m];
+        //     p_vec(1) = polar[3*m + 1];
+        //     p_vec(2) = polar[3*m + 2];
+        //     matrix n_vec(3,1);
+        //     n_vec(0) = normal[3*m];
+        //     n_vec(1) = normal[3*m + 1];
+        //     n_vec(2) = normal[3*m + 2];
+        //     const matrix v = Q*(p_coeff*p_vec + n_coeff*n_vec);
+
+        //     // Store the slip velocity.
+        //     rhs.add_to_block(3*(n*NBLOB + m), 3, v);
+        //   }
+
+        // }
 
       #endif
 

@@ -40,4 +40,15 @@ struct CartesianCoordinates {
 
 CartesianCoordinates spherical_to_cartesian(double r, double theta, double phi);
 
+CartesianCoordinates spherical_to_cartesian_field(double ur, double utheta, double uphi, 
+                                          double theta, double phi);
+
+double legendreP(int n, double x);
+
+double derivative(int N, double x, double h);
+
+double associated_legendre(int N, double x);
+
+double legendreV(int N, double x);
+
 #endif

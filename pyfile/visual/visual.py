@@ -94,8 +94,8 @@ class VISUAL:
         self.date = '20250204_1e-4_squirmer'
         self.dir = f"data/resolution/{self.date}/"
 
-        self.date = '20250204_1e-4_ref'
-        self.dir = f"data/regular_wall_sim/{self.date}/"
+        # self.date = '20250204_1e-4_ref'
+        # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         
 
@@ -168,8 +168,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 30000
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -367,8 +367,8 @@ class VISUAL:
                         self.write_data(body_pos, self.radius, superpuntoDatafileName, self.periodic, color=16777215)
                     
                     if(self.show_poles):
-                        self.write_data(body_pos + np.matmul(R, np.array([0,0,self.radius])), 3*float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=0*65536+0*256+255)
-                        self.write_data(body_pos + np.matmul(R, np.array([0,0,-self.radius])), 3*float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=0*65536+0*256+255)
+                        self.write_data(body_pos + R@np.array([0,0,self.radius]), 3*float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=0*65536+0*256+255)
+                        self.write_data(body_pos + R@np.array([0,0,-self.radius]), 3*float(self.pars['RBLOB']), superpuntoDatafileName, self.periodic, color=0*65536+0*256+255)
 
                     for fil in range(int(self.pars['NFIL'])):
                         fil_color = int("000000", base=16)

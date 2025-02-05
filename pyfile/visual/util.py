@@ -120,9 +120,9 @@ def cartesian_to_spherical(x):
     
     return r, theta, phi
 
-def spherical_to_cartesian(r, theta, phi):
+def spherical_to_cartesian(r, phi, theta):
     """
-    Convert spherical coordinates (r, theta, phi) to Cartesian coordinates (x, y, z).
+    Convert spherical coordinates (r, phi, theta) to Cartesian coordinates (x, y, z).
     
     Args:
         r (float): Radial distance from the origin.
@@ -134,9 +134,9 @@ def spherical_to_cartesian(r, theta, phi):
     Returns:
         tuple: A tuple containing the Cartesian coordinates (x, y, z).
     """
-    x = r * np.sin(phi) * np.cos(theta)
-    y = r * np.sin(phi) * np.sin(theta)
-    z = r * np.cos(phi)
+    x = r * np.sin(theta) * np.cos(phi)
+    y = r * np.sin(theta) * np.sin(phi)
+    z = r * np.cos(theta)
     return x, y, z
 
 def create_3d_cell_list(positions, cell_size):

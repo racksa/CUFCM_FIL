@@ -69,10 +69,10 @@ class DRIVER:
         self.date = '20250204_1e-4_squirmer'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'regular_wall_sim/'
-        self.exe_name = 'cilia_1e-4_squirmer'
-        self.date = '20250204_1e-4_ref'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'regular_wall_sim/'
+        # self.exe_name = 'cilia_1e-4_squirmer'
+        # self.date = '20250204_1e-4_ref'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -191,16 +191,16 @@ class DRIVER:
                         pair_dp = 1.0
                         fene_model = 0
 
-                        # # callibration
-                        nfil = int(1)
-                        nblob = int(0)
-                        nseg = 20
-                        fil_spacing=256.0
-                        blob_spacing=4.0
-                        fil_x_dim=2
-                        blob_x_dim=64
-                        sim_length = 1
-                        pair_dp = 1.0
+                        # # # callibration
+                        # nfil = int(1)
+                        # nblob = int(0)
+                        # nseg = 20
+                        # fil_spacing=256.0
+                        # blob_spacing=4.0
+                        # fil_x_dim=2
+                        # blob_x_dim=64
+                        # sim_length = 1
+                        # pair_dp = 1.0
 
                         # # # IVP sim
                         # nfil = 159
@@ -312,27 +312,27 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # sangani resolution
-                        # nfil = int(0)
-                        # nblob = int(400)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # spring_factor = round(0.05, 3)
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=20
-                        # fil_spacing=20.0
-                        # blob_spacing=2.0
-                        # fil_x_dim=1
-                        # blob_x_dim=10
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # sim_length = 5
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
+                        nfil = int(0)
+                        nblob = int(9000)
+                        nseg = 20
+                        ar = round(6, 2)
+                        period = 1
+                        spring_factor = round(0.05, 3)
+                        nx=int(128)
+                        ny=int(128)
+                        nz=int(128)
+                        boxsize=20
+                        fil_spacing=20.0
+                        blob_spacing=2.0
+                        fil_x_dim=1
+                        blob_x_dim=10
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
+                        sim_length = 1
+                        force_noise_mag = 0.0
+                        omega_spread = 0.0
+                        pair_dp = 1.0
+                        fene_model = 0
                         
 
 
