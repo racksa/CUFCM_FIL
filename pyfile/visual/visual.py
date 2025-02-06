@@ -6300,5 +6300,56 @@ class VISUAL:
         np.save(f'{save_dir}/avg_rot_speed{afix}.npy', avg_rot_speed)
         print(f'index={self.index} avg speed={avg_speed/self.fillength} avg rot speed={avg_rot_speed}')
         
+    def squirmer(self):
+                 # Plotting
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
 
+        avg_speed = np.zeros(self.num_sim)
+        max_speed = np.zeros(self.num_sim)
+        some_speed = np.zeros(self.num_sim)
+
+        for ind in range(self.num_sim):
+            try:
+                self.index = ind
+                self.select_sim()
+
+                body_vels_f = open(self.simName + '_body_vels.dat', "r")
+
+                body_speed_array = np.zeros(self.frames)
+
+                for i in range(self.plot_end_frame):
+                    print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                    body_vels_str = body_vels_f.readline()
+
+                    if(i>=self.plot_start_frame):
+                        body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+
+                        # body_vel_array[i-self.plot_start_frame] = body_vels
+                        body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+
+                avg_speed[ind] = np.mean(body_speed_array)
+                max_speed[ind] = np.max(body_speed_array)
+                some_speed[ind] = body_speed_array[0]
+
+                ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar, np.ones(np.shape(body_speed_array)[0])*self.nblob, body_speed_array)
+
+                # ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar, body_speed_array/self.fillength,)
+                # ax.plot(time_array, body_speed_array/self.fillength, label=f"{self.index}) nblob={self.nblob}")
+            except:
+                print("WARNING: " + self.simName + " not found.")
+
+        # print(f'avg speed={avg_speed/self.fillength}')
+
+        # print(", ".join((max_speed/self.fillength).astype(str)))
+        # print(", ".join((some_speed/self.fillength).astype(str)))
+        # print(f'max speed={max_speed/self.fillength}')
+        
+        plt.legend()
+        ax.set_xlabel(r'$AR$')
+        ax.set_ylabel(r'$N_{blob}$')
+        ax.set_zlabel(r'|V|')
+        # ax.set_xlim(0, 1)
+        # fig.savefig(f'fig/multi_speed_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
 #

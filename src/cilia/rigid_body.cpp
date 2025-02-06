@@ -367,7 +367,11 @@ void rigid_body::initial_setup(const int id, Real *const f_address, const Real *
 
       }
     
-      
+      #if NO_CILIA_SQUIRMER
+
+        seed_blobs(&blob_references[0], &polar_dir_refs[0], &azi_dir_refs[0], &normal_refs[0]);
+
+      #endif
    
 
     // The seeding functions work on unit-length surfaces, so the scaling must be done after we read or calculate.

@@ -495,7 +495,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
                                                     refs[3*m + 1]*refs[3*m + 1]+
                                                     refs[3*m + 2]*refs[3*m + 2])));
             Real A_1 = 300.0;
-            Real B_1 = 50.0;
+            Real B_1 = 300.0;
             Real ur = A_1 * legendreP(1, cos(theta));
             Real utheta = B_1 * legendreV(1, cos(theta));
             CartesianCoordinates v_cartesian = spherical_to_cartesian_field(ur, utheta, 0.0, theta, phi);

@@ -106,7 +106,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (1, 1, 1, 1)
+        self.sweep_shape = (6, 6, 10, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -313,28 +313,26 @@ class DRIVER:
 
                         # sangani resolution
                         nfil = int(0)
-                        nblob = int(9000)
+                        nblob = int(9000*(i+1))
                         nseg = 20
-                        ar = round(6, 2)
+                        ar = round(6*(j+1), 2)
                         period = 1
                         spring_factor = round(0.05, 3)
-                        nx=int(128)
-                        ny=int(128)
-                        nz=int(128)
-                        boxsize=20
+                        nx=int(400)
+                        ny=int(400)
+                        nz=int(400)
+                        boxsize=12000
                         fil_spacing=20.0
                         blob_spacing=2.0
                         fil_x_dim=1
                         blob_x_dim=10
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
-                        sim_length = 1
+                        sim_length = 0.003
                         force_noise_mag = 0.0
                         omega_spread = 0.0
                         pair_dp = 1.0
                         fene_model = 0
-                        
-
 
                         self.pars_list["index"].append(index)
                         self.pars_list["nswim"].append(1)

@@ -217,7 +217,9 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define FOURIER_DIR "input/rigidwall_seeding/"
     #define GENERATRIX_FILE_NAME FOURIER_DIR "rigidwall"
   #else
-    #if PAIR==1
+    #if CILIA_TYPE==4
+       #define FOURIER_DIR "input/fourier_modes_resolution_study/"
+    #elif PAIR==1
       #define FOURIER_DIR "input/fourier_modes_pair/"
     #else
       #define FOURIER_DIR "input/fourier_modes/"
@@ -237,7 +239,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
