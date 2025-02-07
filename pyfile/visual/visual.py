@@ -91,7 +91,7 @@ class VISUAL:
         self.date = '20250125_fixed_correct'
         self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250204_1e-4_squirmer'
+        self.date = '20250205_1e-4_squirmer'
         self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
@@ -216,6 +216,7 @@ class VISUAL:
         try:
             sim.read(self.dir+"rules.ini")
             num_fil = len(np.unique([float(s) for s in sim["Parameter list"]['nfil'].split(', ')]))
+            num_blob = len(np.unique([float(s) for s in sim["Parameter list"]['nblob'].split(', ')]))
             num_ar = len(np.unique([float(s) for s in sim["Parameter list"]['ar'].split(', ')]))
             num_elst = len(np.unique([float(s) for s in sim["Parameter list"]['spring_factor'].split(', ')]))
             num_per_elst = int(num_fil*num_ar)
@@ -6304,15 +6305,27 @@ class VISUAL:
                  # Plotting
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot()
 
-        avg_speed = np.zeros(self.num_sim)
-        max_speed = np.zeros(self.num_sim)
-        some_speed = np.zeros(self.num_sim)
+        squirmer_speed = 100
+
+        num_ar = len(np.unique(self.pars_list['ar']))
+        num_blob = len(np.unique(self.pars_list['nblob']))
+        num_repeat = int(self.num_sim/num_ar/num_blob)
+
+        avg_error = np.zeros((num_ar, num_blob))
+        std = np.zeros((num_ar, num_blob))
 
         for ind in range(self.num_sim):
             try:
+                ar_index = int((ind//num_repeat)%num_ar)
+                blob_index = int(ind//(num_repeat*num_ar))
+
                 self.index = ind
-                self.select_sim()
+                self.select_sim()                
 
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
@@ -6326,30 +6339,57 @@ class VISUAL:
                         body_vels = np.array(body_vels_str.split()[1:], dtype=float)
 
                         # body_vel_array[i-self.plot_start_frame] = body_vels
-                        body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
+                        body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))                
 
-                avg_speed[ind] = np.mean(body_speed_array)
-                max_speed[ind] = np.max(body_speed_array)
-                some_speed[ind] = body_speed_array[0]
+                error_array = np.abs(body_speed_array-squirmer_speed)/squirmer_speed
 
-                ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar, np.ones(np.shape(body_speed_array)[0])*self.nblob, body_speed_array)
+                avg_error[ar_index][blob_index] = np.mean(error_array)
+                std[ar_index][blob_index] = np.std(error_array)
 
-                # ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar, body_speed_array/self.fillength,)
-                # ax.plot(time_array, body_speed_array/self.fillength, label=f"{self.index}) nblob={self.nblob}")
+                ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar*self.fillength*0.5, np.ones(np.shape(body_speed_array)[0])*self.nblob, error_array)
+
             except:
                 print("WARNING: " + self.simName + " not found.")
 
-        # print(f'avg speed={avg_speed/self.fillength}')
+        cax2 = ax2.imshow(avg_error, cmap='Reds')
+        cax3 = ax3.imshow(std, cmap='Reds')
+
+        x_ticks = np.arange(num_blob)
+        x_labels = np.unique(self.pars_list['nblob']).astype(int)
+        y_ticks = np.arange(num_ar)
+        y_labels = (np.unique(self.pars_list['ar'])*self.fillength*0.5).astype(int)
+
+        ax2.set_yticks(ticks=y_ticks, labels=y_labels)
+        ax2.set_xticks(ticks=x_ticks, labels=x_labels)
+        ax2.set_xticklabels(x_labels, rotation=45)
+        ax2.set_xlabel(r'$N_{blob}$')
+        ax2.set_ylabel(r'$R_{swim}/R_{blob}$')
+        ax2.set_title(r'Relative error')
+
+        ax3.set_yticks(ticks=y_ticks, labels=y_labels)
+        ax3.set_xticks(ticks=x_ticks, labels=x_labels)
+        ax3.set_xticklabels(x_labels, rotation=45)
+        ax3.set_xlabel(r'$N_{blob}$')
+        ax3.set_ylabel(r'$R_{swim}/R_{blob}$')
+        ax3.set_title(r'std in error')
 
         # print(", ".join((max_speed/self.fillength).astype(str)))
         # print(", ".join((some_speed/self.fillength).astype(str)))
         # print(f'max speed={max_speed/self.fillength}')
         
-        plt.legend()
-        ax.set_xlabel(r'$AR$')
+        ax.set_xlabel(r'$R_{swim}/R_{blob}$')
         ax.set_ylabel(r'$N_{blob}$')
-        ax.set_zlabel(r'|V|')
+        ax.set_zlabel(r'Percentage error')
+        
+        plt.colorbar(cax2, ax=ax2)
+        plt.colorbar(cax3, ax=ax3)
+        fig.tight_layout()
+        fig2.tight_layout()
+        fig3.tight_layout()
+        
         # ax.set_xlim(0, 1)
-        # fig.savefig(f'fig/multi_speed_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/squirmer_error_3d.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.savefig(f'fig/squirmer_error.pdf', bbox_inches = 'tight', format='pdf')
+        fig3.savefig(f'fig/squirmer_std.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 #

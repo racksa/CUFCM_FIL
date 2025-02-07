@@ -1,6 +1,7 @@
 import configparser
 import os
 import util
+from filelock import FileLock
 
 class DRIVER:
 
@@ -16,9 +17,9 @@ class DRIVER:
         self.exe_name = 'cilia_1e-4_newbeat'
         # self.exe_name = 'cilia_1e-4_30_ishikawa'
 
-        self.date = '20250204_squirmer'
+        # self.date = '20250204_squirmer'
         
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
 
         # self.category = 'ic_hpc_sim_free_with_force/'
@@ -66,7 +67,7 @@ class DRIVER:
 
         self.category = 'resolution/'
         self.exe_name = 'cilia_1e-4_squirmer'
-        self.date = '20250204_1e-4_squirmer'
+        self.date = '20250205_1e-4_squirmer'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'regular_wall_sim/'
@@ -133,13 +134,20 @@ class DRIVER:
         
     def write_ini(self, section, variable, value):
         ini = configparser.ConfigParser()
-        ini.read(self.globals_name)
+        lock = FileLock(f"{self.globals_name}.lock")  # Create a lock file
 
-        ini.set(section, variable, f'{value}')
+        with lock:  # Ensure exclusive access
+            ini.read(self.globals_name)
 
-        # Save the changes back to the file
-        with open(self.globals_name, 'w') as configfile:
-            ini.write(configfile, space_around_delimiters=False)
+            if not ini.has_section(section):
+                ini.add_section(section)  # Ensure section exists
+
+            ini.set(section, variable, str(value))
+
+            # Save the changes back to the file
+            with open(self.globals_name, 'w') as configfile:
+                ini.write(configfile, space_around_delimiters=False)
+
 
     def create_rules(self):
         # Define the rule of sweeping simulations
@@ -315,7 +323,7 @@ class DRIVER:
                         nfil = int(0)
                         nblob = int(9000*(i+1))
                         nseg = 20
-                        ar = round(6*(j+1), 2)
+                        ar = round(8*(j+1), 2)
                         period = 1
                         spring_factor = round(0.05, 3)
                         nx=int(400)

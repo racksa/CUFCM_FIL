@@ -156,6 +156,15 @@ def plot_swimmer( N ):
     axis_start = Q@np.array([0, 0, -35]) + body_pos
     axis_end = Q@np.array([0, 0, 35]) + body_pos
     ax.plot([axis_start[0], axis_end[0]], [axis_start[1], axis_end[1]], [axis_start[2], axis_end[2]], c='black')
+
+    num_points = 300
+    radius = np.linalg.norm(poss[0])
+    u = np.linspace(0, 2 * np.pi, num_points)
+    v = np.linspace(0, np.pi, num_points)
+    x = radius * np.outer(np.cos(u), np.sin(v))
+    y = radius * np.outer(np.sin(u), np.sin(v))
+    z = radius * np.outer(np.ones(np.size(u)), np.cos(v))
+    ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
     
     for pos in poss:
         A_1 = 300
@@ -175,6 +184,10 @@ def plot_swimmer( N ):
     
     
     ax.set_aspect('equal')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    ax.set_zlabel('z')
+    fig.savefig(f'fig/squirming_mode.pdf', bbox_inches = 'tight', format='pdf')
     plt.show()
     
 
