@@ -91,7 +91,7 @@ class VISUAL:
         self.date = '20250125_fixed_correct'
         self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250205_1e-4_squirmer'
+        self.date = '20250213_1e-4_squirmer'
         self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
@@ -6315,9 +6315,10 @@ class VISUAL:
         num_ar = len(np.unique(self.pars_list['ar']))
         num_blob = len(np.unique(self.pars_list['nblob']))
         num_repeat = int(self.num_sim/num_ar/num_blob)
-
+        
         avg_error = np.zeros((num_ar, num_blob))
         std = np.zeros((num_ar, num_blob))
+        d_a_ratio = np.zeros((num_ar, num_blob))
 
         for ind in range(self.num_sim):
             try:
@@ -6330,7 +6331,8 @@ class VISUAL:
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
                 body_speed_array = np.zeros(self.frames)
-
+                
+                # in each frame, we have repeats
                 for i in range(self.plot_end_frame):
                     print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                     body_vels_str = body_vels_f.readline()
@@ -6345,6 +6347,7 @@ class VISUAL:
 
                 avg_error[ar_index][blob_index] = np.mean(error_array)
                 std[ar_index][blob_index] = np.std(error_array)
+                d_a_ratio[ar_index][blob_index] = np.sqrt(4*np.pi*self.radius/self.nblob)
 
                 ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar*self.fillength*0.5, np.ones(np.shape(body_speed_array)[0])*self.nblob, error_array)
 
@@ -6352,7 +6355,8 @@ class VISUAL:
                 print("WARNING: " + self.simName + " not found.")
 
         cax2 = ax2.imshow(avg_error, cmap='Reds')
-        cax3 = ax3.imshow(std, cmap='Reds')
+        # cax3 = ax3.imshow(std, cmap='Reds')
+        cax3 = ax3.imshow(d_a_ratio, cmap='Reds')
 
         x_ticks = np.arange(num_blob)
         x_labels = np.unique(self.pars_list['nblob']).astype(int)
@@ -6391,5 +6395,107 @@ class VISUAL:
         fig.savefig(f'fig/squirmer_error_3d.pdf', bbox_inches = 'tight', format='pdf')
         fig2.savefig(f'fig/squirmer_error.pdf', bbox_inches = 'tight', format='pdf')
         fig3.savefig(f'fig/squirmer_std.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
+
+    def squirmer_fixed_ratio(self):
+                 # Plotting
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        # fig2 = plt.figure()
+        # ax2 = fig2.add_subplot()
+        # fig3 = plt.figure()
+        # ax3 = fig3.add_subplot()
+
+        squirmer_speed = 100
+
+        # num_ar = len(np.unique(self.pars_list['ar']))
+        num_blob = len(np.unique(self.pars_list['nblob']))
+        num_repeat = int(self.num_sim/num_blob)
+        
+        avg_error = np.zeros(num_blob)
+        std = np.zeros(num_blob)
+        d_a_ratio = np.zeros(num_blob)
+
+        nblobs = np.zeros(num_blob)
+        errors = np.zeros(num_blob)
+
+        for ind in range(self.num_sim):
+            try:
+                blob_index = int(ind//(num_repeat))
+
+                self.index = ind
+                self.select_sim()                
+
+                body_vels_f = open(self.simName + '_body_vels.dat', "r")
+
+                body_speed_array = np.zeros(self.frames)
+                
+                # in each frame, we have repeats
+                for i in range(self.plot_end_frame):
+                    print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                    body_vels_str = body_vels_f.readline()
+
+                    if(i>=self.plot_start_frame):
+                        body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+
+                        # body_vel_array[i-self.plot_start_frame] = body_vels
+                        body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))                
+
+                error_array = np.abs(body_speed_array-squirmer_speed)/squirmer_speed
+
+                avg_error[blob_index] = np.mean(error_array)
+                std[blob_index] = np.std(error_array)
+                d_a_ratio[blob_index] = np.sqrt(4*np.pi*self.radius/self.nblob)
+
+                nblobs[blob_index] = self.nblob
+                errors[blob_index] = np.mean(error_array)
+
+                # ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.nblob, error_array)
+
+                # ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.ar*self.fillength*0.5, np.ones(np.shape(body_speed_array)[0])*self.nblob, error_array)
+
+            except:
+                print("WARNING: " + self.simName + " not found.")
+        
+        ax.plot(nblobs, errors)
+        ax.set_xlabel(r'$N_{blob}$')
+        ax.set_ylabel(r'Relative error')
+
+        # cax2 = ax2.imshow(avg_error, cmap='Reds')
+        # cax3 = ax3.imshow(d_a_ratio, cmap='Reds')
+
+        # x_ticks = np.arange(num_blob)
+        # x_labels = np.unique(self.pars_list['nblob']).astype(int)
+        # y_ticks = np.arange(num_ar)
+        # y_labels = (np.unique(self.pars_list['ar'])*self.fillength*0.5).astype(int)
+
+        # ax2.set_yticks(ticks=y_ticks, labels=y_labels)
+        # ax2.set_xticks(ticks=x_ticks, labels=x_labels)
+        # ax2.set_xticklabels(x_labels, rotation=45)
+        # ax2.set_xlabel(r'$N_{blob}$')
+        # ax2.set_ylabel(r'$R_{swim}/R_{blob}$')
+        # ax2.set_title(r'Relative error')
+
+        # ax3.set_yticks(ticks=y_ticks, labels=y_labels)
+        # ax3.set_xticks(ticks=x_ticks, labels=x_labels)
+        # ax3.set_xticklabels(x_labels, rotation=45)
+        # ax3.set_xlabel(r'$N_{blob}$')
+        # ax3.set_ylabel(r'$R_{swim}/R_{blob}$')
+        # ax3.set_title(r'std in error')
+        
+        ax.set_xlabel(r'$N_{blob}$')
+        ax.set_ylabel(r'Percentage error')
+        # ax.set_zlabel(r'Percentage error')
+        
+        # plt.colorbar(cax2, ax=ax2)
+        # plt.colorbar(cax3, ax=ax3)
+        fig.tight_layout()
+        # fig2.tight_layout()
+        # fig3.tight_layout()
+        
+        # ax.set_xlim(0, 1)
+        fig.savefig(f'fig/squirmer_error_fixed_spacing.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/squirmer_error.pdf', bbox_inches = 'tight', format='pdf')
+        # fig3.savefig(f'fig/squirmer_std.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 #

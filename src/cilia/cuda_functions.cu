@@ -880,6 +880,608 @@ __global__ void Mbs_mult_add(Real * __restrict__ V, const Real *const __restrict
 
 
 
+// Pairwise FCM kernels
+__device__ __host__
+Real S_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return Real(1.0)/(Real(8.0)*Real(PI)*r) * ((Real(1.0) + sigmasq/rsq)*erfS) - Real(0.5)*sigmasq*sigmasq/rsq * gaussgam;
+}
+
+__device__ __host__
+Real S_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return Real(1.0)/(Real(8.0)*Real(PI)*pow(r, 3)) * ((Real(1.0) - Real(3.0)*sigmasq/rsq)*erfS) + Real(1.5)*sigmasq*sigmasq/rsq/rsq*gaussgam;
+}
+
+// R_ij = f(r) (-x cross)
+__device__ __host__
+Real f(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return Real(1.0)/(Real(8.0)*Real(PI)*pow(r, 3)) * ( erfS - Real(4.0)*Real(PI)*r*sigmasq * gaussgam );
+}
+
+__device__ __host__
+Real dfdr(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+    return Real(-3.0)/r*f(r, rsq, sigma, sigmasq, gaussgam, erfS) + Real(0.5)/r*gaussgam;
+}
+
+// P_ij = Q_I(r) delta_ij + Q_xx(r) x_ix_j
+__device__ __host__
+Real Q_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return Real(1.0)/(Real(4.0)*PI*pow(r, 3))*erfS - (Real(1.0) + sigmasq/rsq)*gaussgam;
+}
+
+__device__ __host__
+Real Q_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return Real(-3.0)/(Real(4.0)*PI*pow(r, 5))*erfS + (Real(1.0) + Real(3.0)*sigmasq/rsq)/rsq*gaussgam;
+}
+
+// P_ij = P_I(r) delta_ij + P_xx(r) x_ix_j
+__device__ __host__
+Real P_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return Real(-1.0)/(Real(8.0)*Real(PI)*pow(r, 3))*erfS + (Real(0.5)/rsq*(sigmasq+rsq))*gaussgam;
+}
+
+__device__ __host__
+Real P_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+	return (Real(3.0)/(Real(8.0)*Real(PI)*pow(r, 4))*erfS - (Real(0.5)/rsq/r*(Real(3.0)*sigmasq+rsq))*gaussgam)/r;
+}
+
+// T_ij = T_I(r) delta_ij + T_xx(r) x_ix_j
+__device__ __host__
+Real T_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam){
+    return (Real(2.0) - rsq / sigmasq) / sigmasq * gaussgam;
+}
+
+__device__ __host__
+Real T_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam){
+    return Real(1.0) / sigmasq / sigmasq * gaussgam;
+}
+
+__device__ __host__
+Real K(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam){
+    return Real(-0.5) / sigmasq * gaussgam;
+}
+
+
+template<int vel_dof, int force_dof>
+__device__ void fcm_interaction(Real *const V, const Real *const F, const int i, const Real xi, const Real yi, const Real zi, const Real ai, const int j, const Real xj, const Real yj, const Real zj, const Real aj){
+
+  // Calculates the velocities in an unbounded domain.
+  Real rx = xi - xj;
+  Real ry = yi - yj;
+  Real rz = zi - zj;
+
+
+  const Real r = sqrt(rx*rx + ry*ry + rz*rz);
+  const Real r2 = rx*rx + ry*ry + rz*rz;
+  const Real rm1 = 1.0/(r + 1e-20); // We don't treat r = 0 separately.
+
+  const Real amax_minus_amin = abs(ai - aj);
+
+  const Real sigma = ai/sqrt(PI);
+  const Real sigmasq = sigma*sigma;
+  Real gamma = sqrt(Real(2.0))*sigma;
+  Real gammasq = gamma*gamma;
+
+  Real erfS = erf(r/(sqrt(Real(2.0))*gamma));
+  Real gaussgam = exp(-Real(0.5)*r2/(gammasq))/pow(Real(PI)*Real(PI)*gammasq, Real(1.5));
+
+  rx *= rm1; ry *= rm1; rz *= rm1;
+
+  Real A, B;
+
+  // translation-translation
+  Real r_dot = rx*F[0] + ry*F[1] + rz*F[2];
+
+  {
+
+    A = S_I(r, r2,  sigma, sigmasq, gaussgam, erfS);
+    B = S_xx(r, r2,  sigma, sigmasq, gaussgam, erfS);
+
+    // A = 1.0/(6.0*PI*MU*((ai > aj) ? ai : aj)); // ternary operator gives largest radius
+    // B = 0.0;
+
+  }
+
+  V[0] += A*F[0] + B*rx;
+  V[1] += A*F[1] + B*ry;
+  V[2] += A*F[2] + B*rz;
+
+  // if (force_dof > 3){
+
+  //   // translation-rotation
+  //   if (r > ai + aj){
+
+  //     A = rm1*rm1/(8.0*PI*MU);
+
+  //   } else if (r > amax_minus_amin){
+
+  //     A = aj - ai + r;
+  //     A *= rm1*rm1*A*(ai*ai + 2.0*ai*(r + aj) - 3.0*(aj - r)*(aj - r))/(128.0*PI*MU*ai*aj*aj*aj);
+
+  //   } else {
+
+  //     A = (aj > ai)*r/(8.0*PI*MU*aj*aj*aj);
+
+  //   }
+
+  //   V[0] += A*(F[4]*rz - F[5]*ry);
+  //   V[1] += A*(F[5]*rx - F[3]*rz);
+  //   V[2] += A*(F[3]*ry - F[4]*rx);
+
+  // }
+
+  // if (vel_dof > 3){
+
+  //   // rotation-translation ( = translation-rotation with ai and aj swapped; see Zuk et al. (2014))
+  //   if (r > ai + aj){
+
+  //     A = rm1*rm1/(8.0*PI*MU);
+
+  //   } else if (r > amax_minus_amin){
+
+  //     A = ai - aj + r;
+  //     A *= rm1*rm1*A*(aj*aj + 2.0*aj*(r + ai) - 3.0*(ai - r)*(ai - r))/(128.0*PI*MU*aj*ai*ai*ai);
+
+  //   } else {
+
+  //     A = (ai > aj)*r/(8.0*PI*MU*ai*ai*ai);
+
+  //   }
+
+  //   V[3] += A*(F[1]*rz - F[2]*ry);
+  //   V[4] += A*(F[2]*rx - F[0]*rz);
+  //   V[5] += A*(F[0]*ry - F[1]*rx);
+
+  //   if (force_dof > 3){
+
+  //     // rotation-rotation
+  //     r_dot = rx*F[3] + ry*F[4] + rz*F[5];
+
+  //     if (r > ai + aj){
+
+  //       A = -rm1*rm1*rm1/(16.0*PI*MU);
+  //       B = -3.0*r_dot*A;
+
+  //     } else if (r > amax_minus_amin){
+
+  //       // Don't worry about optimising this part, we shouldn't ever actually use it anyway.
+
+  //       A = 5.0*(r*r*r)*(r*r*r);
+  //       B = (ai - aj)*(ai - aj) - r*r;
+
+  //       A -= 27.0*r*r*r*r*(ai*ai + aj*aj);
+  //       B *= 3.0*B;
+
+  //       A += 32.0*(r*r*r)*((ai*ai*ai) + (aj*aj*aj));
+  //       B *= ai*ai + aj*aj + 4.0*ai*aj - r*r;
+
+  //       A -= 9.0*r*r*(ai*ai - aj*aj)*(ai*ai - aj*aj);
+  //       A -= amax_minus_amin*amax_minus_amin*amax_minus_amin*amax_minus_amin*(ai*ai + aj*aj + 4.0*ai*aj);
+
+  //       const Real temp = 1.0/(512.0*PI*MU*(r*r*r)*(ai*ai*ai)*(aj*aj*aj));
+
+  //       A *= temp;
+  //       B *= temp*r_dot;
+
+  //     } else {
+
+  //       const Real amax = ((ai > aj) ? ai : aj);
+
+  //       A = 1.0/(8.0*PI*MU*amax*amax*amax);
+  //       B = 0.0;
+
+  //     }
+
+  //     V[3] += A*F[3] + B*rx;
+  //     V[4] += A*F[4] + B*ry;
+  //     V[5] += A*F[5] + B*rz;
+
+  //   }
+
+  // }
+
+}
+
+
+
+__global__ void Mss_mult_fcm(Real * __restrict__ V, const Real *const __restrict__ F, const Real *const __restrict__ X, const int start_seg, const int num_segs){
+
+  // Calculates the velocities of filament segments given the forces and torques
+  // on the segments.
+
+  const int index = threadIdx.x + blockIdx.x*blockDim.x;
+  const int stride = blockDim.x*gridDim.x;
+
+  // Declare the shared memory for this thread block
+  __shared__ Real x_shared[THREADS_PER_BLOCK];
+  __shared__ Real y_shared[THREADS_PER_BLOCK];
+  __shared__ Real z_shared[THREADS_PER_BLOCK];
+  __shared__ Real fx_shared[THREADS_PER_BLOCK];
+  __shared__ Real fy_shared[THREADS_PER_BLOCK];
+  __shared__ Real fz_shared[THREADS_PER_BLOCK];
+
+  #if !PRESCRIBED_CILIA
+
+    __shared__ Real taux_shared[THREADS_PER_BLOCK];
+    __shared__ Real tauy_shared[THREADS_PER_BLOCK];
+    __shared__ Real tauz_shared[THREADS_PER_BLOCK];
+
+  #endif
+
+  Real v[6];
+  Real xi, yi, zi;
+
+  // Stay in the loop as long as any thread in the block still needs to compute velocities.
+  for (int i = (start_seg + index); (i-threadIdx.x) < (start_seg + num_segs); i+=stride){
+
+    if (i < (start_seg + num_segs)){
+
+      v[0] = 0.0; v[1] = 0.0; v[2] = 0.0; v[3] = 0.0; v[4] = 0.0; v[5] = 0.0;
+      xi = X[3*i]; yi = X[3*i + 1]; zi = X[3*i + 2];
+
+    }
+
+    for (int j_start = 0; j_start < NSWIM_d*NFIL_d*NSEG_d; j_start += THREADS_PER_BLOCK){
+
+      const int j_to_read = j_start + threadIdx.x;
+
+      if (j_to_read < NSWIM_d*NFIL_d*NSEG_d){
+
+        x_shared[threadIdx.x] = X[3*j_to_read];
+        y_shared[threadIdx.x] = X[3*j_to_read + 1];
+        z_shared[threadIdx.x] = X[3*j_to_read + 2];
+        fx_shared[threadIdx.x] = F[6*j_to_read];
+        fy_shared[threadIdx.x] = F[6*j_to_read + 1];
+        fz_shared[threadIdx.x] = F[6*j_to_read + 2];
+
+        #if !PRESCRIBED_CILIA
+
+          taux_shared[threadIdx.x] = F[6*j_to_read + 3];
+          tauy_shared[threadIdx.x] = F[6*j_to_read + 4];
+          tauz_shared[threadIdx.x] = F[6*j_to_read + 5];
+
+        #endif
+
+      }
+
+      __syncthreads();
+
+      if (i < (start_seg + num_segs)){
+
+        for (int j=0; (j < THREADS_PER_BLOCK) && (j_start + j < NSWIM_d*NFIL_d*NSEG_d); j++){
+
+          Real f[6];
+          f[0] = fx_shared[j];
+          f[1] = fy_shared[j];
+          f[2] = fz_shared[j];
+
+          #if !PRESCRIBED_CILIA
+
+            f[3] = taux_shared[j];
+            f[4] = tauy_shared[j];
+            f[5] = tauz_shared[j];
+
+          #endif
+
+          #if PRESCRIBED_CILIA
+
+            fcm_interaction<3,3>(v, f, i, xi, yi, zi, RSEG, j + j_start, x_shared[j], y_shared[j], z_shared[j], RSEG);
+
+          #else
+
+            fcm_interaction<6,6>(v, f, i, xi, yi, zi, RSEG, j + j_start, x_shared[j], y_shared[j], z_shared[j], RSEG);
+
+          #endif
+
+        }
+
+      }
+
+      __syncthreads();
+
+    } // End of loop over filament segment forces and torques.
+
+    if (i < (start_seg + num_segs)){
+
+      const int p = 6*(i - start_seg);
+
+      V[p] = v[0];
+      V[p + 1] = v[1];
+      V[p + 2] = v[2];
+      V[p + 3] = v[3];
+      V[p + 4] = v[4];
+      V[p + 5] = v[5];
+
+    }
+
+  } // End of striding loop over filament segment velocities.
+
+} // End of Mss_mult kernel.
+
+__global__ void Mbb_mult_fcm(Real * __restrict__ V, const Real *const __restrict__ F, const Real *const __restrict__ X, const int start_blob, const int num_blobs){
+
+  // Calculates the velocities of rigid-body blobs given the forces they experience.
+
+  const int index = threadIdx.x + blockIdx.x*blockDim.x;
+  const int stride = blockDim.x*gridDim.x;
+
+  // Declare the shared memory for this thread block
+  __shared__ Real x_shared[THREADS_PER_BLOCK];
+  __shared__ Real y_shared[THREADS_PER_BLOCK];
+  __shared__ Real z_shared[THREADS_PER_BLOCK];
+  __shared__ Real fx_shared[THREADS_PER_BLOCK];
+  __shared__ Real fy_shared[THREADS_PER_BLOCK];
+  __shared__ Real fz_shared[THREADS_PER_BLOCK];
+
+  Real v[3];
+  Real xi, yi, zi;
+
+  // Stay in the loop as long as any thread in the block still needs to compute velocities.
+  for (int i = (start_blob + index); (i-threadIdx.x) < (start_blob + num_blobs); i+=stride){
+
+    if (i < (start_blob + num_blobs)){
+
+      v[0] = 0.0; v[1] = 0.0; v[2] = 0.0;
+      xi = X[3*i]; yi = X[3*i + 1]; zi = X[3*i + 2];
+
+    }
+
+    for (int j_start = 0; j_start < NSWIM_d*NBLOB_d; j_start += THREADS_PER_BLOCK){
+
+      const int j_to_read = j_start + threadIdx.x;
+
+      if (j_to_read < NSWIM_d*NBLOB_d){
+
+        x_shared[threadIdx.x] = X[3*j_to_read];
+        y_shared[threadIdx.x] = X[3*j_to_read + 1];
+        z_shared[threadIdx.x] = X[3*j_to_read + 2];
+        fx_shared[threadIdx.x] = F[3*j_to_read];
+        fy_shared[threadIdx.x] = F[3*j_to_read + 1];
+        fz_shared[threadIdx.x] = F[3*j_to_read + 2];
+
+      }
+
+      __syncthreads();
+
+      if (i < (start_blob + num_blobs)){
+
+        for (int j=0; (j < THREADS_PER_BLOCK) && (j_start + j < NSWIM_d*NBLOB_d); j++){
+
+          const Real f[3] = {fx_shared[j], fy_shared[j], fz_shared[j]};
+
+          rpy_interaction<3,3>(v, f, i, xi, yi, zi, RBLOB, j_start + j, x_shared[j], y_shared[j], z_shared[j], RBLOB);
+
+        }
+
+      }
+
+      __syncthreads();
+
+    } // End of loop over blob forces.
+
+    if (i < (start_blob + num_blobs)){
+
+      const int p = 3*(i - start_blob);
+
+      V[p] = v[0];
+      V[p + 1] = v[1];
+      V[p + 2] = v[2];
+
+    }
+
+  } // End of striding loop over blob velocities.
+
+} // End of Mbb_mult kernel.
+
+__global__ void Msb_mult_fcm(Real * __restrict__ V, const Real *const __restrict__ F, const Real *const __restrict__ Xs, const Real *const __restrict__ Xb, const int start_seg, const int num_segs){
+
+  // Calculates the velocities of filament segments given the forces on
+  // rigid-body blobs.
+
+  const int index = threadIdx.x + blockIdx.x*blockDim.x;
+  const int stride = blockDim.x*gridDim.x;
+
+  // Declare the shared memory for this thread block
+  __shared__ Real x_shared[THREADS_PER_BLOCK];
+  __shared__ Real y_shared[THREADS_PER_BLOCK];
+  __shared__ Real z_shared[THREADS_PER_BLOCK];
+  __shared__ Real fx_shared[THREADS_PER_BLOCK];
+  __shared__ Real fy_shared[THREADS_PER_BLOCK];
+  __shared__ Real fz_shared[THREADS_PER_BLOCK];
+
+  Real v[6];
+  Real xi, yi, zi;
+
+  // Stay in the loop as long as any thread in the block still needs to compute velocities.
+  for (int i = (start_seg + index); (i-threadIdx.x) < (start_seg + num_segs); i+=stride){
+
+    if (i < (start_seg + num_segs)){
+
+      v[0] = 0.0; v[1] = 0.0; v[2] = 0.0; v[3] = 0.0; v[4] = 0.0; v[5] = 0.0;
+      xi = Xs[3*i]; yi = Xs[3*i + 1]; zi = Xs[3*i + 2];
+
+    }
+
+    for (int j_start = 0; j_start < NSWIM_d*NBLOB_d; j_start += THREADS_PER_BLOCK){
+
+      const int j_to_read = j_start + threadIdx.x;
+
+      if (j_to_read < NSWIM_d*NBLOB_d){
+
+        x_shared[threadIdx.x] = Xb[3*j_to_read];
+        y_shared[threadIdx.x] = Xb[3*j_to_read + 1];
+        z_shared[threadIdx.x] = Xb[3*j_to_read + 2];
+        fx_shared[threadIdx.x] = F[3*j_to_read];
+        fy_shared[threadIdx.x] = F[3*j_to_read + 1];
+        fz_shared[threadIdx.x] = F[3*j_to_read + 2];
+
+      }
+
+      __syncthreads();
+
+      if (i < (start_seg + num_segs)){
+
+        for (int j=0; (j < THREADS_PER_BLOCK) && (j_start + j < NSWIM_d*NBLOB_d); j++){
+
+          const Real f[3] = {fx_shared[j], fy_shared[j], fz_shared[j]};
+
+          #if PRESCRIBED_CILIA
+
+            fcm_interaction<3,3>(v, f, i, xi, yi, zi, RSEG, j_start + j, x_shared[j], y_shared[j], z_shared[j], RBLOB);
+
+          #else
+
+            fcm_interaction<6,3>(v, f, i, xi, yi, zi, RSEG, j_start + j, x_shared[j], y_shared[j], z_shared[j], RBLOB);
+
+          #endif
+
+        }
+
+      }
+
+      __syncthreads();
+
+    } // End of loop over blob forces.
+
+    if (i < (start_seg + num_segs)){
+
+      const int p = 6*(i - start_seg);
+
+      V[p] += v[0];
+      V[p + 1] += v[1];
+      V[p + 2] += v[2];
+      V[p + 3] += v[3];
+      V[p + 4] += v[4];
+      V[p + 5] += v[5];
+
+    }
+
+  } // End of striding loop over filament segment velocities.
+
+} // End of Msb_mult kernel.
+
+__global__ void Mbs_mult_fcm(Real * __restrict__ V, const Real *const __restrict__ F, const Real *const __restrict__ Xb, const Real *const __restrict__ Xs, const int start_blob, const int num_blobs){
+
+  // Calculates the velocities of blobs given the forces and torques on
+  // filament segments.
+
+  const int index = threadIdx.x + blockIdx.x*blockDim.x;
+  const int stride = blockDim.x*gridDim.x;
+
+  // Declare the shared memory for this thread block
+  __shared__ Real x_shared[THREADS_PER_BLOCK];
+  __shared__ Real y_shared[THREADS_PER_BLOCK];
+  __shared__ Real z_shared[THREADS_PER_BLOCK];
+  __shared__ Real fx_shared[THREADS_PER_BLOCK];
+  __shared__ Real fy_shared[THREADS_PER_BLOCK];
+  __shared__ Real fz_shared[THREADS_PER_BLOCK];
+
+  #if !PRESCRIBED_CILIA
+
+    __shared__ Real taux_shared[THREADS_PER_BLOCK];
+    __shared__ Real tauy_shared[THREADS_PER_BLOCK];
+    __shared__ Real tauz_shared[THREADS_PER_BLOCK];
+
+  #endif
+
+  Real v[3];
+  Real xi, yi, zi;
+
+  // Stay in the loop as long as any thread in the block still needs to compute velocities.
+  for (int i = (start_blob + index); (i-threadIdx.x) < (start_blob + num_blobs); i+=stride){
+
+    if (i < (start_blob + num_blobs)){
+
+      v[0] = 0.0; v[1] = 0.0; v[2] = 0.0;
+      xi = Xb[3*i]; yi = Xb[3*i + 1]; zi = Xb[3*i + 2];
+
+    }
+
+    for (int j_start = 0; j_start < NSWIM_d*NFIL_d*NSEG_d; j_start += THREADS_PER_BLOCK){
+
+      const int j_to_read = j_start + threadIdx.x;
+
+      if (j_to_read < NSWIM_d*NFIL_d*NSEG_d){
+
+        x_shared[threadIdx.x] = Xs[3*j_to_read];
+        y_shared[threadIdx.x] = Xs[3*j_to_read + 1];
+        z_shared[threadIdx.x] = Xs[3*j_to_read + 2];
+        fx_shared[threadIdx.x] = F[6*j_to_read];
+        fy_shared[threadIdx.x] = F[6*j_to_read + 1];
+        fz_shared[threadIdx.x] = F[6*j_to_read + 2];
+
+        #if !PRESCRIBED_CILIA
+
+          taux_shared[threadIdx.x] = F[6*j_to_read + 3];
+          tauy_shared[threadIdx.x] = F[6*j_to_read + 4];
+          tauz_shared[threadIdx.x] = F[6*j_to_read + 5];
+
+        #endif
+
+      }
+
+      __syncthreads();
+
+      if (i < (start_blob + num_blobs)){
+
+        for (int j=0; (j < THREADS_PER_BLOCK) && (j_start + j < NSWIM_d*NFIL_d*NSEG_d); j++){
+
+          Real f[6];
+          f[0] = fx_shared[j];
+          f[1] = fy_shared[j];
+          f[2] = fz_shared[j];
+
+          #if !PRESCRIBED_CILIA
+
+            f[3] = taux_shared[j];
+            f[4] = tauy_shared[j];
+            f[5] = tauz_shared[j];
+
+          #endif
+
+          #if PRESCRIBED_CILIA
+
+            fcm_interaction<3,3>(v, f, i, xi, yi, zi, RBLOB, j_start + j, x_shared[j], y_shared[j], z_shared[j], RSEG);
+
+          #else
+
+            fcm_interaction<3,6>(v, f, i, xi, yi, zi, RBLOB, j_start + j, x_shared[j], y_shared[j], z_shared[j], RSEG);
+
+          #endif
+
+        }
+
+      }
+
+      __syncthreads();
+
+    } // End of loop over segment forces and torques.
+
+    if (i < (start_blob + num_blobs)){
+
+      const int p = 3*(i - start_blob);
+
+      #if USE_BROYDEN_FOR_EVERYTHING || PRESCRIBED_CILIA
+
+        V[p] += v[0];
+        V[p + 1] += v[1];
+        V[p + 2] += v[2];
+
+      #else
+
+        V[p] = v[0];
+        V[p + 1] = v[1];
+        V[p + 2] = v[2];
+
+      #endif
+
+    }
+
+  } // End of striding loop over blob velocities.
+
+} // End of Mbs_mult kernel.
+
+
+
 // Stokes drag kernels
 
 __global__ void Ms_mult(Real * __restrict__ V, const Real *const __restrict__ F, const int start_seg, const int num_segs){

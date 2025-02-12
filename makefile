@@ -22,6 +22,9 @@ MOBILITY_SOURCE =
 else ifeq ($(MOBILITY_TYPE), 4) # cuFCM
 MOBILITY_OPTS = -arch=sm_75 -std=c++14 -O3 -I../include -lcufft -lcurand -lineinfo
 MOBILITY_SOURCE = fcm_mobility_solver.cu $(CUFCM_ROOT)CUFCM_CELLLIST.cu $(CUFCM_ROOT)CUFCM_FCM.cu $(CUFCM_ROOT)CUFCM_DATA.cu $(CUFCM_ROOT)CUFCM_SOLVER.cu $(CUFCM_ROOT)CUFCM_CORRECTION.cu
+else ifeq ($(MOBILITY_TYPE), 5) # pairwise FCM
+MOBILITY_OPTS = -std=c++11
+MOBILITY_SOURCE = pairwisefcm_mobility_solver.cu
 endif
 
 CILIA_CPP = matrix.cpp quaternion.cpp segment.cpp filament.cpp broyden_solver.cpp rigid_body.cpp swimmer.cpp mobility_solver.cpp

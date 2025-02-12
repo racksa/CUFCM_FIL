@@ -38,6 +38,11 @@
   #include "./mobility/fcm_mobility_solver.hpp"
   typedef fcm_mobility_solver chosen_mobility_solver;
 
+#elif PAIRWISE_FCM
+
+  #include "./mobility/pairwisefcm_mobility_solver.hpp"
+  typedef pairwisefcm_mobility_solver chosen_mobility_solver;
+
 #endif
 
 #if !(PRESCRIBED_CILIA || NO_CILIA_SQUIRMER)

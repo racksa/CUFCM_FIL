@@ -239,13 +239,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 4
+#define MOBILITY_TYPE 5
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
 // 2 = Weakly-coupled-filaments RPY mobility. Intra-filament hydrodynamics are as in option 1, but we use an approximation for inter-filament interactions.
 // 3 = The Force Coupling Method (FCM). Implemented using the UAMMD library (https://github.com/RaulPPelaez/UAMMD).
 // 4 = cuFCM
+// 5 = pairwise FCM
 
 #define INITIAL_CONDITIONS_TYPE 0 // deprecated
 // Valid options:
@@ -405,6 +406,7 @@ extern Real REV_RATIO;
 #define WEAKLY_COUPLED_FILAMENTS_RPY_MOBILITY (MOBILITY_TYPE==2)
 #define UAMMD_FCM (MOBILITY_TYPE==3)
 #define CUFCM (MOBILITY_TYPE==4)
+#define PAIRWISE_FCM (MOBILITY_TYPE==5)
 
 #define USE_BROYDEN_FOR_EVERYTHING (SOLVER_TYPE==0)
 #define USE_GMRES_FOR_LINEAR_SYSTEM (SOLVER_TYPE==1)

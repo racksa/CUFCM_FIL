@@ -12,6 +12,11 @@ __global__ void Msb_mult(Real *V, const Real *const F, const Real *const Xs, con
 __global__ void Mbs_mult(Real *V, const Real *const F, const Real *const Xb, const Real *const Xs, const int start_blob, const int num_blobs);
 __global__ void Mbs_mult_add(Real *V, const Real *const F, const Real *const Xb, const Real *const Xs, const int start_blob, const int num_blobs);
 
+// Pairwise FCM kernels
+__global__ void Mss_mult_fcm(Real *V, const Real *const F, const Real *const X, const int start_seg, const int num_segs);
+__global__ void Mbb_mult_fcm(Real *V, const Real *const F, const Real *const X, const int start_blob, const int num_blobs);
+__global__ void Msb_mult_fcm(Real *V, const Real *const F, const Real *const Xs, const Real *const Xb, const int start_seg, const int num_segs);
+__global__ void Mbs_mult_fcm(Real *V, const Real *const F, const Real *const Xb, const Real *const Xs, const int start_blob, const int num_blobs);
 
 // Stokes drag kernels
 __global__ void Ms_mult(Real *V, const Real *const F, const int start_seg, const int num_segs);
