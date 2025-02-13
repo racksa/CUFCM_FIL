@@ -948,6 +948,7 @@ __device__ void fcm_interaction(Real *const V, const Real *const F, const int i,
   Real rx = xi - xj;
   Real ry = yi - yj;
   Real rz = zi - zj;
+  Real Fdotx = rx*F[0] + ry*F[1] + rz*F[2];
 
 
   const Real r = sqrt(rx*rx + ry*ry + rz*rz);
@@ -971,19 +972,99 @@ __device__ void fcm_interaction(Real *const V, const Real *const F, const int i,
   // translation-translation
   Real r_dot = rx*F[0] + ry*F[1] + rz*F[2];
 
-  {
+
+  // if (r > ai + aj){
+
+  //   A = rm1*rm1*(ai*ai + aj*aj)/3.0;
+  //   B = 1.0 - 3.0*A;
+  //   A += 1.0;
+
+  //   Real temp = rm1/(8.0*PI*MU);
+
+  //   A *= temp;
+  //   B *= temp;
+    
+
+  //   // A = S_I(r, r2,  gamma, gammasq, gaussgam, erfS);
+  //   // B = S_xx(r, r2,  gamma, gammasq, gaussgam, erfS);
+
+  // }else if (r > amax_minus_amin){
+
+  //   Real temp = 32.0*r*r*r;
+
+  //   A = amax_minus_amin*amax_minus_amin + 3.0*r*r;
+  //   A *= -A/temp;
+  //   A += 0.5*(ai + aj);
+
+  //   B = amax_minus_amin*amax_minus_amin - r*r;
+  //   B *= 3.0*B/temp;
+
+  //   temp = 1.0/(6.0*PI*MU*ai*aj);
+
+  //   A *= temp;
+  //   B *= temp;
+  //   }else {
+
+  //   A = 1.0/(6.0*PI*MU*((ai > aj) ? ai : aj)); // ternary operator gives largest radius
+  //   B = 0.0; 
+
+  // }
+
+  // V[0] += A*F[0] + B*rx*Fdotx;
+  // V[1] += A*F[1] + B*ry*Fdotx;
+  // V[2] += A*F[2] + B*rz*Fdotx;
+
+
+
+
+  if (r > ai + aj){
+
+    // A = S_I(r, r2,  gamma, gammasq, gaussgam, erfS);
+    // B = S_xx(r, r2,  gamma, gammasq, gaussgam, erfS);
 
     A = S_I(r, r2,  sigma, sigmasq, gaussgam, erfS);
     B = S_xx(r, r2,  sigma, sigmasq, gaussgam, erfS);
 
-    // A = 1.0/(6.0*PI*MU*((ai > aj) ? ai : aj)); // ternary operator gives largest radius
-    // B = 0.0;
+    // A = rm1*rm1*(ai*ai + aj*aj)/3.0;
+    // B = 1.0 - 3.0*A;
+    // A += 1.0;
+
+    // Real temp = rm1/(8.0*PI*MU);
+
+    // A *= temp;
+    // B *= temp;
+
+  }else if (r > amax_minus_amin){
+
+    // Real temp = 32.0*r*r*r;
+
+    // A = amax_minus_amin*amax_minus_amin + 3.0*r*r;
+    // A *= -A/temp;
+    // A += 0.5*(ai + aj);
+
+    // B = amax_minus_amin*amax_minus_amin - r*r;
+    // B *= 3.0*B/temp;
+
+    // temp = 1.0/(6.0*PI*MU*ai*aj);
+
+    // A *= temp;
+    // B *= temp;
+
+    } else {
+
+    A = 1.0/(6.0*PI*MU*ai); // ternary operator gives largest radius
+    B = 0.0; 
 
   }
 
-  V[0] += A*F[0] + B*rx;
-  V[1] += A*F[1] + B*ry;
-  V[2] += A*F[2] + B*rz;
+  V[0] += A*F[0] + B*rx*r_dot;
+  V[1] += A*F[1] + B*ry*r_dot;
+  V[2] += A*F[2] + B*rz*r_dot;
+
+
+
+
+
 
   // if (force_dof > 3){
 
@@ -1248,7 +1329,7 @@ __global__ void Mbb_mult_fcm(Real * __restrict__ V, const Real *const __restrict
 
           const Real f[3] = {fx_shared[j], fy_shared[j], fz_shared[j]};
 
-          rpy_interaction<3,3>(v, f, i, xi, yi, zi, RBLOB, j_start + j, x_shared[j], y_shared[j], z_shared[j], RBLOB);
+          fcm_interaction<3,3>(v, f, i, xi, yi, zi, RBLOB, j_start + j, x_shared[j], y_shared[j], z_shared[j], RBLOB);
 
         }
 

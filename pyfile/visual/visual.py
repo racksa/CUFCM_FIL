@@ -6457,7 +6457,7 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
         
-        ax.plot(nblobs, errors)
+        ax.plot(nblobs, errors, marker='+')
         ax.set_xlabel(r'$N_{blob}$')
         ax.set_ylabel(r'Relative error')
 
