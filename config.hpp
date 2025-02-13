@@ -55,6 +55,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define myfil_cos cos
     #define myfil_sin sin
     #define OUTPUT_DIGIT 15
+    #define my_sqrt sqrt
 #else
     typedef float Real;
     typedef int Integer;
@@ -70,6 +71,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
     #define myfil_cos cosf
     #define myfil_sin sinf
     #define OUTPUT_DIGIT 7
+    #define my_sqrt sqrtf
 #endif
 
 
@@ -145,7 +147,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
 
-  #define WRITE_GENERALISED_FORCES true
+  #define WRITE_GENERALISED_FORCES false
   // If true, this simulation will save its generalised forces to file for use as the reference values.
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
@@ -239,7 +241,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 5
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).

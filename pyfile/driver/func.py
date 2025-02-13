@@ -67,7 +67,7 @@ class DRIVER:
 
         self.category = 'resolution/'
         self.exe_name = 'cilia_1e-4_squirmer'
-        self.date = '20250213_1e-4_squirmer'
+        self.date = '20250214_1e-4_squirmer_fcm'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'regular_wall_sim/'
@@ -107,7 +107,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (12, 1, 1, 1)
+        self.sweep_shape = (8, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0

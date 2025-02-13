@@ -948,24 +948,22 @@ __device__ void fcm_interaction(Real *const V, const Real *const F, const int i,
   Real rx = xi - xj;
   Real ry = yi - yj;
   Real rz = zi - zj;
-  Real Fdotx = rx*F[0] + ry*F[1] + rz*F[2];
 
-
-  const Real r = sqrt(rx*rx + ry*ry + rz*rz);
+  const Real r = my_sqrt(rx*rx + ry*ry + rz*rz);
   const Real r2 = rx*rx + ry*ry + rz*rz;
   const Real rm1 = 1.0/(r + 1e-20); // We don't treat r = 0 separately.
 
   const Real amax_minus_amin = abs(ai - aj);
 
-  const Real sigma = ai/sqrt(PI);
+  const Real sigma = ai/my_sqrt(PI);
   const Real sigmasq = sigma*sigma;
-  Real gamma = sqrt(Real(2.0))*sigma;
+  Real gamma = my_sqrt(Real(2.0))*sigma;
   Real gammasq = gamma*gamma;
 
-  Real erfS = erf(r/(sqrt(Real(2.0))*gamma));
-  Real gaussgam = exp(-Real(0.5)*r2/(gammasq))/pow(Real(PI)*Real(PI)*gammasq, Real(1.5));
+  Real erfS = erf(r/(my_sqrt(Real(2.0))*gamma));
+  Real gaussgam = exp(-Real(0.5)*r2/(gammasq))/pow(Real(2.0)*Real(PI)*gammasq, Real(1.5));
 
-  rx *= rm1; ry *= rm1; rz *= rm1;
+  // rx *= rm1; ry *= rm1; rz *= rm1;
 
   Real A, B;
 
@@ -1019,11 +1017,8 @@ __device__ void fcm_interaction(Real *const V, const Real *const F, const int i,
 
   if (r > ai + aj){
 
-    // A = S_I(r, r2,  gamma, gammasq, gaussgam, erfS);
-    // B = S_xx(r, r2,  gamma, gammasq, gaussgam, erfS);
-
-    A = S_I(r, r2,  sigma, sigmasq, gaussgam, erfS);
-    B = S_xx(r, r2,  sigma, sigmasq, gaussgam, erfS);
+    A = S_I(r, r2,  gamma, gammasq, gaussgam, erfS);
+    B = S_xx(r, r2,  gamma, gammasq, gaussgam, erfS);
 
     // A = rm1*rm1*(ai*ai + aj*aj)/3.0;
     // B = 1.0 - 3.0*A;

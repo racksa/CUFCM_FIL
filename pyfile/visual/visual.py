@@ -91,7 +91,7 @@ class VISUAL:
         self.date = '20250125_fixed_correct'
         self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250213_1e-4_squirmer'
+        self.date = '20250214_1e-4_squirmer'
         self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
@@ -6398,39 +6398,45 @@ class VISUAL:
         plt.show()
 
     def squirmer_fixed_ratio(self):
-                 # Plotting
+        
+
+        # Plotting
         fig = plt.figure()
         ax = fig.add_subplot()
-        # fig2 = plt.figure()
-        # ax2 = fig2.add_subplot()
-        # fig3 = plt.figure()
-        # ax3 = fig3.add_subplot()
 
         squirmer_speed = 100
 
         # num_ar = len(np.unique(self.pars_list['ar']))
         num_blob = len(np.unique(self.pars_list['nblob']))
+        print(np.unique(self.pars_list['nblob']))
         num_repeat = int(self.num_sim/num_blob)
         
         avg_error = np.zeros(num_blob)
         std = np.zeros(num_blob)
         d_a_ratio = np.zeros(num_blob)
 
+        speeds = np.zeros(num_blob)
+        squirmer_speeds = np.zeros(num_blob)
         nblobs = np.zeros(num_blob)
         errors = np.zeros(num_blob)
+
 
         for ind in range(self.num_sim):
             try:
                 blob_index = int(ind//(num_repeat))
 
                 self.index = ind
-                self.select_sim()                
+                self.select_sim()
+
+                radius = self.radius
+
+                squirmer_speed = 1000./(6.*np.pi*radius)
 
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
                 body_speed_array = np.zeros(self.frames)
                 
-                # in each frame, we have repeats
+                # each time frame represents a repeat
                 for i in range(self.plot_end_frame):
                     print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                     body_vels_str = body_vels_f.readline()
@@ -6445,10 +6451,12 @@ class VISUAL:
 
                 avg_error[blob_index] = np.mean(error_array)
                 std[blob_index] = np.std(error_array)
-                d_a_ratio[blob_index] = np.sqrt(4*np.pi*self.radius/self.nblob)
+                d_a_ratio[blob_index] = np.sqrt(4*np.pi*radius/self.nblob)
 
                 nblobs[blob_index] = self.nblob
                 errors[blob_index] = np.mean(error_array)
+                speeds[blob_index] = np.mean(body_speed_array)
+                squirmer_speeds[blob_index] = squirmer_speed
 
                 # ax.scatter(np.ones(np.shape(body_speed_array)[0])*self.nblob, error_array)
 
@@ -6458,6 +6466,8 @@ class VISUAL:
                 print("WARNING: " + self.simName + " not found.")
         
         ax.plot(nblobs, errors, marker='+')
+        # ax.plot(nblobs, speeds, marker='+')
+        # ax.plot(nblobs, squirmer_speeds)
         ax.set_xlabel(r'$N_{blob}$')
         ax.set_ylabel(r'Relative error')
 

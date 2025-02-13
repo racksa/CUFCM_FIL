@@ -502,6 +502,8 @@ void swimmer::forces_and_torques(const int nt, int id){
 
       // Finally, add any external forces on the blobs, and the induced torques on body, to f.
 
+      // f(2) += 1000;
+
 
     #endif
 
