@@ -354,7 +354,7 @@ extern Real REV_RATIO;
 // 1: Use GMRES to solve the linear system at each iteration of Broyden's method.
 
 #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-#define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
+#define LINEAR_SYSTEM_TOL 1e-6 // Relative tolerance in the linear system solves.
 
 #if SOLVER_TYPE==1
 

@@ -16,6 +16,8 @@ import os
 from scipy.optimize import curve_fit
 from numba import cuda, float64
 from beat import *
+from matplotlib.ticker import ScalarFormatter
+
 
 mpl.rcParams['mathtext.fontset'] = 'stix'
 mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
@@ -91,7 +93,7 @@ class VISUAL:
         self.date = '20250125_fixed_correct'
         self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250214_1e-4_squirmer'
+        self.date = '20250214_1e-6_squirmer_fcm'
         self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
@@ -6404,11 +6406,8 @@ class VISUAL:
         fig = plt.figure()
         ax = fig.add_subplot()
 
-        squirmer_speed = 100
-
         # num_ar = len(np.unique(self.pars_list['ar']))
         num_blob = len(np.unique(self.pars_list['nblob']))
-        print(np.unique(self.pars_list['nblob']))
         num_repeat = int(self.num_sim/num_blob)
         
         avg_error = np.zeros(num_blob)
@@ -6430,7 +6429,8 @@ class VISUAL:
 
                 radius = self.radius
 
-                squirmer_speed = 1000./(6.*np.pi*radius)
+                squirmer_speed = 200
+                # squirmer_speed = 1000./(6.*np.pi*radius)
 
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
@@ -6466,6 +6466,12 @@ class VISUAL:
                 print("WARNING: " + self.simName + " not found.")
         
         ax.plot(nblobs, errors, marker='+')
+        ax.set_xscale('log')
+        ax.set_yscale('log')
+        formatter = ScalarFormatter(useMathText=True)
+        formatter.set_scientific(True)
+        ax.xaxis.set_major_formatter(formatter)
+
         # ax.plot(nblobs, speeds, marker='+')
         # ax.plot(nblobs, squirmer_speeds)
         ax.set_xlabel(r'$N_{blob}$')

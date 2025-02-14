@@ -67,7 +67,7 @@ class DRIVER:
 
         self.category = 'resolution/'
         self.exe_name = 'cilia_1e-4_squirmer'
-        self.date = '20250214_1e-4_squirmer_fcm'
+        self.date = '20250214_1e-6_squirmer_fcm'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'regular_wall_sim/'
@@ -321,7 +321,7 @@ class DRIVER:
 
                         # sangani resolution
                         nfil = int(0)
-                        nblob = int(9000*(i+1))
+                        nblob = int(8000*(i+1))
                         nseg = 20
                         # ar = round(8*(j+1), 2)
                         ar = round(0.26273*(nblob/4./3.141592653)**.5, 2)

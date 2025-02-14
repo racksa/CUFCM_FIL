@@ -494,7 +494,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             Real theta = acos(refs[3*m + 2]/(sqrt(refs[3*m]*refs[3*m]+
                                                     refs[3*m + 1]*refs[3*m + 1]+
                                                     refs[3*m + 2]*refs[3*m + 2])));
-            Real A_1 = 300.0;
+            Real A_1 = 0.0;
             Real B_1 = 300.0;
             Real ur = A_1 * legendreP(1, cos(theta));
             Real utheta = B_1 * legendreV(1, cos(theta));
@@ -628,6 +628,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
           // This part of the vector should contain minus the total force and torque on the rigid body,
           // which is equal to the total force and torque across all filament segments minus the net
           // external force and torque on the swimmer by the force- and torque-free swimming conditions.
+          
           rhs.set_block(3*NSWIM*NBLOB + 6*n, 6, -swimmers[n].f);
 
         #endif
