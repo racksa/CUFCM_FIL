@@ -16,6 +16,8 @@ plt.rcParams.update({'font.size': 16})
 
 cmap_name = 'coolwarm'
 
+trunc = 2
+
 Ay = np.array([[-0.654, 0.787, 0.202], \
             [0.393, -1.516, 0.716], \
             [-0.097, 0.032, -0.118], \
@@ -140,7 +142,7 @@ path = 'data/ishikawa/20240802_pnas_L0.975/'
 # plot sim data
 path = "data/ishikawa/20240731_pnas_L1/"
 # path = "data/ishikawa/20240805_volvox_beat/"
-for ind in range(3):
+for ind in range(trunc):
     try:
         time_array = np.load(f"{path}time_array_index{ind}.npy")
         speed_array = np.load(f"{path}body_speed_array_index{ind}.npy")
@@ -165,31 +167,31 @@ directory = 'pyfile/analysis/ishikawa_data/'
 files = ['vel_k0.0N162.csv', 'vel_k0.0N636.csv', 'vel_k0.0N2520.csv']
 
 # files = ['k0.0N162.csv', 'k0.0N636.csv', 'k0.0N2520.csv']
-for i, filename in enumerate(files):
+for i, filename in enumerate(files[:trunc]):
     file = open(directory + filename, mode='r')
     df = pd.read_csv(directory + filename, header=None)
     data = df.to_numpy()
     x, y = data[:,0], data[:,1]
 
-    ax.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
+    ax.plot(x, y, ls = 'dashed', alpha=0.5, c=colors[i])
 
 directory = 'pyfile/analysis/ishikawa_data/'
 files = ['dissipation_k0.0N162.csv', 'dissipation_k0.0N636.csv', 'dissipation_k0.0N2520.csv']
 
 # files = ['k0.0N162.csv', 'k0.0N636.csv', 'k0.0N2520.csv']
-for i, filename in enumerate(files):
+for i, filename in enumerate(files[:trunc]):
     file = open(directory + filename, mode='r')
     df = pd.read_csv(directory + filename, header=None)
     data = df.to_numpy()
     x, y = data[:,0], data[:,1]
 
-    ax2.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i])
+    ax2.plot(x, y, ls = 'dashed', alpha=0.5, c=colors[i])
 
 legend11 = ax.legend(loc='center', frameon=False)
 # line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$L=0.975$' )
 # line2, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashdot', c='black', label=r'$L=1$' )
 line3, = ax.plot([-1, -1.1], [-1, -1.1], ls='solid', c='black', label=r'$Present\ result$' )
-line4, = ax.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
+line4, = ax.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$Omori.\ (2020)$')
 legend21 = ax.legend(handles = [line3, line4], loc='upper right')
 ax.add_artist(legend11)
 ax.set_xlim(0, 1)
@@ -200,7 +202,7 @@ legend21 = ax2.legend(loc='center', frameon=False)
 # line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$L=0.975$' )
 # line2, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashdot', c='black', label=r'$L=1$' )
 line3, = ax2.plot([-1, -1.1], [-1, -1.1], ls='solid', c='black', label=r'$Present\ result$' )
-line4, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Omori.\ (2020)$')
+line4, = ax2.plot([-1, -1.1], [-1, -1.1], ls='dashed', c='black', label=r'$Omori.\ (2020)$')
 legend22 = ax2.legend(handles = [line3, line4], loc='upper right')
 ax2.add_artist(legend21)
 ax2.set_xlim(0, 1)

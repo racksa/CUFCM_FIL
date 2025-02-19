@@ -24,7 +24,7 @@ mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
-plt.rcParams.update({'font.size': 16})
+plt.rcParams.update({'font.size': 24})
 
 
 class VISUAL:
@@ -6400,7 +6400,13 @@ class VISUAL:
         plt.show()
 
     def squirmer_fixed_ratio(self):
-        
+
+        mpl.rcParams['mathtext.fontset'] = 'stix'
+        mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+
+        plt.rcParams.update({'font.size': 16})
 
         # Plotting
         fig = plt.figure()
@@ -6465,53 +6471,25 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
         
-        ax.plot(nblobs, errors, marker='+')
-        ax.set_xscale('log')
-        ax.set_yscale('log')
-        formatter = ScalarFormatter(useMathText=True)
-        formatter.set_scientific(True)
-        ax.xaxis.set_major_formatter(formatter)
+        ax.loglog(nblobs, errors, marker='+')
 
-        # ax.plot(nblobs, speeds, marker='+')
-        # ax.plot(nblobs, squirmer_speeds)
-        ax.set_xlabel(r'$N_{blob}$')
+        ax.set_xlim(0, 80000)
+
+        import matplotlib.ticker as ticker
+
+        ax.set_xlabel(r'$P$')
         ax.set_ylabel(r'Relative error')
+        plt.draw()
 
-        # cax2 = ax2.imshow(avg_error, cmap='Reds')
-        # cax3 = ax3.imshow(d_a_ratio, cmap='Reds')
+        x_ticks = np.linspace(10000, 80000, 8)
+        x_labels = [f"{int(tick)}" for tick in x_ticks]
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels(x_labels)
+        for label in ax.get_xticklabels():
+            label.set_rotation(45)
 
-        # x_ticks = np.arange(num_blob)
-        # x_labels = np.unique(self.pars_list['nblob']).astype(int)
-        # y_ticks = np.arange(num_ar)
-        # y_labels = (np.unique(self.pars_list['ar'])*self.fillength*0.5).astype(int)
-
-        # ax2.set_yticks(ticks=y_ticks, labels=y_labels)
-        # ax2.set_xticks(ticks=x_ticks, labels=x_labels)
-        # ax2.set_xticklabels(x_labels, rotation=45)
-        # ax2.set_xlabel(r'$N_{blob}$')
-        # ax2.set_ylabel(r'$R_{swim}/R_{blob}$')
-        # ax2.set_title(r'Relative error')
-
-        # ax3.set_yticks(ticks=y_ticks, labels=y_labels)
-        # ax3.set_xticks(ticks=x_ticks, labels=x_labels)
-        # ax3.set_xticklabels(x_labels, rotation=45)
-        # ax3.set_xlabel(r'$N_{blob}$')
-        # ax3.set_ylabel(r'$R_{swim}/R_{blob}$')
-        # ax3.set_title(r'std in error')
-        
-        ax.set_xlabel(r'$N_{blob}$')
-        ax.set_ylabel(r'Percentage error')
-        # ax.set_zlabel(r'Percentage error')
-        
-        # plt.colorbar(cax2, ax=ax2)
-        # plt.colorbar(cax3, ax=ax3)
         fig.tight_layout()
-        # fig2.tight_layout()
-        # fig3.tight_layout()
-        
-        # ax.set_xlim(0, 1)
+
         fig.savefig(f'fig/squirmer_error_fixed_spacing.pdf', bbox_inches = 'tight', format='pdf')
-        # fig2.savefig(f'fig/squirmer_error.pdf', bbox_inches = 'tight', format='pdf')
-        # fig3.savefig(f'fig/squirmer_std.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 #
