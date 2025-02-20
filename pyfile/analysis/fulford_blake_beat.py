@@ -22,7 +22,13 @@ mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
 mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
-cmap_name = 'hsv'
+plt.rcParams.update({'font.size': 24})
+
+plt.rcParams.update({
+    "mathtext.fontset": "cm",   # Use Computer Modern (LaTeX-like)
+    "font.family": "serif",
+    "font.serif": ["Computer Modern Roman"],
+})
 
 # Fourier coeffs for the shape
 Ay = np.array([[-3.3547e-01, 4.0369e-01, 1.0362e-01], \

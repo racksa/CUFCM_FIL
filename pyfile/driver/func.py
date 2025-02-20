@@ -67,7 +67,7 @@ class DRIVER:
 
         self.category = 'resolution/'
         self.exe_name = 'cilia_1e-4_squirmer'
-        self.date = '20250214_1e-6_squirmer_fcm'
+        self.date = '20250220_1e-6_settling'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'regular_wall_sim/'

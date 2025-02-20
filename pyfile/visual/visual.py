@@ -17,15 +17,37 @@ from scipy.optimize import curve_fit
 from numba import cuda, float64
 from beat import *
 from matplotlib.ticker import ScalarFormatter
+import matplotlib.font_manager as fm
 
-
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-
+# Path to the directory where fonts are stored
+font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+# Choose the TTF or OTF version of CMU Serif Regular
+font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+# Load the font into Matplotlib's font manager
+prop = fm.FontProperties(fname=font_path)
+# Register each font file with Matplotlib's font manager
+for font_file in os.listdir(font_dir):
+    if font_file.endswith('.otf'):
+        fm.fontManager.addfont(os.path.join(font_dir, font_file))
+# Set the global font family to 'serif' and specify CMU Serif
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['CMU Serif']
+plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
 plt.rcParams.update({'font.size': 24})
 
+
+# mpl.rcParams['mathtext.fontset'] = 'stix'
+# mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+# mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+# mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+
+# plt.rcParams.update({'font.size': 24})
+
+# plt.rcParams.update({
+#     "mathtext.fontset": "cm",   # Use Computer Modern (LaTeX-like)
+#     "font.family": "serif",
+#     "font.serif": ["Computer Modern Roman"],
+# })
 
 class VISUAL:
 
@@ -93,7 +115,7 @@ class VISUAL:
         self.date = '20250125_fixed_correct'
         self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250214_1e-6_squirmer_fcm'
+        self.date = '20250214_1e-6_settling'
         self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
@@ -6400,19 +6422,25 @@ class VISUAL:
         plt.show()
 
     def squirmer_fixed_ratio(self):
+        
+        # self.date = '20250220_1e-6_settling'
+        # self.dir = f"data/resolution/{self.date}/"
+        # self.date = '20250220_1e-6_squirmer'
+        # self.dir = f"data/resolution/{self.date}/"
 
-        mpl.rcParams['mathtext.fontset'] = 'stix'
-        mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-        mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-        mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        # option = 1: settling
+        # option = 2: squirmer
+        if self.date == '20250214_1e-6_settling':
+            option = 1
+        if self.date == '20250214_1e-6_squirmer':
+            option = 2
 
-        plt.rcParams.update({'font.size': 16})
+        plt.rcParams.update({'font.size': 24})
 
         # Plotting
         fig = plt.figure()
         ax = fig.add_subplot()
 
-        # num_ar = len(np.unique(self.pars_list['ar']))
         num_blob = len(np.unique(self.pars_list['nblob']))
         num_repeat = int(self.num_sim/num_blob)
         
@@ -6435,8 +6463,11 @@ class VISUAL:
 
                 radius = self.radius
 
-                squirmer_speed = 200
-                # squirmer_speed = 1000./(6.*np.pi*radius)
+                
+                if option == 2:
+                    squirmer_speed = 200
+                if option == 1:
+                    squirmer_speed = 1000./(6.*np.pi*radius)
 
                 body_vels_f = open(self.simName + '_body_vels.dat', "r")
 
@@ -6471,25 +6502,51 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
         
-        ax.loglog(nblobs, errors, marker='+')
+        ax.loglog(nblobs, errors, marker='+', c='black')
 
         ax.set_xlim(0, 80000)
 
         import matplotlib.ticker as ticker
 
         ax.set_xlabel(r'$P$')
-        ax.set_ylabel(r'Relative error')
+        ax.set_ylabel(r'|V-W|/|W|')
         plt.draw()
 
+        x_scale_offset = 1e4
+        y_scale_offset = 1e-3
+
+        # # y-axis
+        plt.annotate(r'$\times 10^{-3}$', 
+             xy=(-0, 1), xycoords='axes fraction', 
+             fontsize=20, ha='left', va='bottom')
+        
+        if option == 1:
+            y_ticks = [3e-3, 4e-3, 6e-3]
+        if option == 2:
+            y_ticks = [6e-3, 10e-3]
+        y_labels = [f"{int(tick/y_scale_offset)}" for tick in y_ticks]
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_labels)
+
+        # x-axis
+        plt.annotate(r'$\times 10^{-4}$', xy=(1, -0.20), xycoords='axes fraction', 
+             fontsize=20, ha='right')
         x_ticks = np.linspace(10000, 80000, 8)
-        x_labels = [f"{int(tick)}" for tick in x_ticks]
+        x_labels = [f"{int(tick/x_scale_offset)}" for tick in x_ticks]
         ax.set_xticks(x_ticks)
         ax.set_xticklabels(x_labels)
+
+        
+        
+
         for label in ax.get_xticklabels():
-            label.set_rotation(45)
+            label.set_rotation(0)
 
         fig.tight_layout()
 
-        fig.savefig(f'fig/squirmer_error_fixed_spacing.pdf', bbox_inches = 'tight', format='pdf')
+        keyword = 'settling'
+        if option==2:
+            keyword = 'squirmer'
+        fig.savefig(f'fig/{keyword}_error_fixed_spacing.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 #

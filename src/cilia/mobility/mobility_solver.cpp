@@ -508,7 +508,7 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             v = Q*v;
 
             // Store the slip velocity.
-            rhs.add_to_block(3*(n*NBLOB + m), 3, v);
+            // rhs.add_to_block(3*(n*NBLOB + m), 3, v);
           }
         }
 
