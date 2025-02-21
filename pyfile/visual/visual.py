@@ -96,7 +96,8 @@ class VISUAL:
         # # self.date = '20240822_ishikawa_resolution6'
         # # self.date = '20240902_real_volvox'
         # # self.date = '20240903_real_volvox_seg20'
-        # self.date = '20241015_pnas_rpy'
+
+        # self.date = '20240802_pnas_L0.975'
         # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
@@ -112,10 +113,10 @@ class VISUAL:
         # # self.date = '20241217_fixed_noise'
         # self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
 
-        self.date = '20250125_fixed_correct'
-        self.dir = f"data/fixed_swimmer_correct/{self.date}/"
+        # self.date = '20250125_fixed_correct'
+        # self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250214_1e-6_settling'
+        self.date = '20250214_1e-6_squirmer'
         self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
@@ -790,7 +791,7 @@ class VISUAL:
         # Plotting
         # colormap = 'cividis'
         colormap = 'twilight_shifted'
-        # colormap = 'hsv'
+        colormap = 'hsv'
         # colormap = 'Greys'
 
         # colormap = 'binary'
@@ -833,7 +834,7 @@ class VISUAL:
             if self.angle:
                 variables = fil_states[self.nfil:]
 
-            ax.set_title(rf"${frame}$")
+            # ax.set_title(rf"${frame}$")
             ax.set_ylabel(r"$\theta$")
             ax.set_xlabel(r"$\phi$")
             ax.set_xlim(-np.pi, np.pi)
@@ -2061,10 +2062,10 @@ class VISUAL:
                 
 
                 # Plot body axis
-                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black')
-                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black')
-                # ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
-                # ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
+                ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black', linestyle='dashed')
+                ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black', linestyle='dashed')
+                ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
+                ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
 
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
@@ -2092,10 +2093,11 @@ class VISUAL:
 
                     # Show only one side of the sphere
                     visible = np.sum(fil_base*plane_normal)
+                    # visible = 1
                     if visible > -0.:
-                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100,)
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100,)
 
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', linewidth=3, zorder = 100, alpha=alpha)
+                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', linewidth=3, zorder = 100, alpha=alpha)
 
                     # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
                     # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = zorder[0])
@@ -6430,10 +6432,14 @@ class VISUAL:
 
         # option = 1: settling
         # option = 2: squirmer
+        option = 0
         if self.date == '20250214_1e-6_settling':
             option = 1
         if self.date == '20250214_1e-6_squirmer':
             option = 2
+
+        if option == 0:
+            print("folder name incorrect")
 
         plt.rcParams.update({'font.size': 24})
 
@@ -6504,12 +6510,22 @@ class VISUAL:
         
         ax.loglog(nblobs, errors, marker='+', c='black')
 
-        ax.set_xlim(0, 80000)
+        # Plot the fitted function
+        log_x = np.log10(nblobs)
+        log_y = np.log10(errors)
+        slope, intercept = np.polyfit(log_x, log_y, 1)
+        equation_text = f"$y = {10**intercept:.2f} x^{{{slope:.2f}}}$"
+        # plt.annotate(equation_text, 
+        #      xy=(0.2, 0.3), xycoords='axes fraction', 
+        #      fontsize=20, ha='left', va='bottom')
 
+
+
+        ax.set_xlim(0, 80000)
         import matplotlib.ticker as ticker
 
         ax.set_xlabel(r'$P$')
-        ax.set_ylabel(r'|V-W|/|W|')
+        ax.set_ylabel(r'$|V-W|/|W|$')
         plt.draw()
 
         x_scale_offset = 1e4
@@ -6547,6 +6563,7 @@ class VISUAL:
         keyword = 'settling'
         if option==2:
             keyword = 'squirmer'
-        fig.savefig(f'fig/{keyword}_error_fixed_spacing.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/{keyword}_error_fixed_spacing.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/{keyword}_error_fixed_spacing.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
 #
