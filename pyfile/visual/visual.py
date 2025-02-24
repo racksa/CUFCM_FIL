@@ -72,12 +72,12 @@ class VISUAL:
         # self.date = '20241028_test'
         # self.dir = f"data/instability/{self.date}/"
 
-        # self.date = 'IVP'
-        # self.dir = f"data/tilt_test/{self.date}/"
+        self.date = 'IVP'
+        self.dir = f"data/tilt_test/{self.date}/"
 
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.date = '20240311_3'
+        # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
         # self.date = '20240311_1'
@@ -116,12 +116,14 @@ class VISUAL:
         # self.date = '20250125_fixed_correct'
         # self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        self.date = '20250214_1e-6_squirmer'
-        self.dir = f"data/resolution/{self.date}/"
+        # self.date = '20250214_1e-6_squirmer'
+        # self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
+        self.date = '20250224_flowfield_2'
+        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
         
 
         # self.date = '20240115_resolution'
@@ -130,7 +132,8 @@ class VISUAL:
         # self.date = '20240822_sangani_boxsize2'
         # self.dir = f"data/resolution/{self.date}/"
 
-
+        # self.date = '20250221_defect_example'
+        # self.dir = f"data/defect_example/{self.date}/"
 
         # self.date = f'index1_alpha0.10495626822157433'
         # self.dir = f"data/bisection/k0.020/section16/iteration3_1e-7/{self.date}/"
@@ -193,7 +196,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 30000
+        self.plot_end_frame_setting = 33
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -815,7 +818,7 @@ class VISUAL:
         sm.set_array([])
         cbar = plt.colorbar(sm)
         cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-        cbar.set_label(r"phase")    
+        cbar.set_label(r"$\psi_1$")    
 
         global frame
         frame = 0
@@ -1993,7 +1996,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        elev_angle = 0
+        elev_angle = -90
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
@@ -3091,7 +3094,6 @@ class VISUAL:
         z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
 
         flow_spacing = 20
-        speed_limit = 40
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
         # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -3183,7 +3185,7 @@ class VISUAL:
                 ax.add_patch(circle)
 
                 for blob in range(self.nblob):
-                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos + [0, 30.0, 0]
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
                     blob_force = blob_forces[3*blob : 3*blob+3]
                     # ax.scatter(blob_pos[1], blob_pos[2], c='black')
 
@@ -3196,7 +3198,7 @@ class VISUAL:
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
                     alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
                     for seg in range(self.nseg):
-                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos + [0, 30.0, 0]
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
                         seg_data[seg] = seg_pos
                         seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                         seg_force = seg_force[:3]
@@ -3212,7 +3214,9 @@ class VISUAL:
                         ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
 
             if save_source_data:
-                np.savetxt(f'{self.dir}flow_pos{frame}.dat', source_pos_list, delimiter=' ')
+                boxsize = self.pars_list['boxsize'][self.index]
+                shift = 0.5*np.array([boxsize, boxsize, boxsize])
+                np.savetxt(f'{self.dir}flow_pos{frame}.dat', source_pos_list+shift, delimiter=' ')
                 np.savetxt(f'{self.dir}flow_force{frame}.dat', source_force_list, delimiter=' ')
                 np.savetxt(f'{self.dir}flow_body_vels{frame}.dat', body_vels, delimiter=' ')
 
@@ -3260,6 +3264,7 @@ class VISUAL:
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
+            speed_limit = max_speed*0.7
             np.clip(speed_list, None, speed_limit, speed_list)
 
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
@@ -3347,7 +3352,7 @@ class VISUAL:
             ax.axis('off')
             ax.set_aspect('equal')
             # plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            # plt.show()
+            plt.show()
 
     def flow_field_kymograph(self):
         def stokeslet(x, x0, f0):
@@ -3545,6 +3550,11 @@ class VISUAL:
         # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
         plt.show()
     
+    def flow_field_FFCM(self):
+        import subprocess
+
+        subprocess.call("bin/FLOWFIELD", shell=True)
+
 # Multi sims
     def multi_phase(self):
         # Plotting

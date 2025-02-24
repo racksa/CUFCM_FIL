@@ -882,62 +882,13 @@ __global__ void Mbs_mult_add(Real * __restrict__ V, const Real *const __restrict
 
 // Pairwise FCM kernels
 __device__ __host__
-Real S_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+Real S_I_fil(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
 	return Real(1.0)/(Real(8.0)*Real(PI)*r) * ((Real(1.0) + sigmasq/rsq)*erfS) - Real(0.5)*sigmasq*sigmasq/rsq * gaussgam;
 }
 
 __device__ __host__
-Real S_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
+Real S_xx_fil(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
 	return Real(1.0)/(Real(8.0)*Real(PI)*pow(r, 3)) * ((Real(1.0) - Real(3.0)*sigmasq/rsq)*erfS) + Real(1.5)*sigmasq*sigmasq/rsq/rsq*gaussgam;
-}
-
-// R_ij = f(r) (-x cross)
-__device__ __host__
-Real f(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
-	return Real(1.0)/(Real(8.0)*Real(PI)*pow(r, 3)) * ( erfS - Real(4.0)*Real(PI)*r*sigmasq * gaussgam );
-}
-
-__device__ __host__
-Real dfdr(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
-    return Real(-3.0)/r*f(r, rsq, sigma, sigmasq, gaussgam, erfS) + Real(0.5)/r*gaussgam;
-}
-
-// P_ij = Q_I(r) delta_ij + Q_xx(r) x_ix_j
-__device__ __host__
-Real Q_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
-	return Real(1.0)/(Real(4.0)*PI*pow(r, 3))*erfS - (Real(1.0) + sigmasq/rsq)*gaussgam;
-}
-
-__device__ __host__
-Real Q_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
-	return Real(-3.0)/(Real(4.0)*PI*pow(r, 5))*erfS + (Real(1.0) + Real(3.0)*sigmasq/rsq)/rsq*gaussgam;
-}
-
-// P_ij = P_I(r) delta_ij + P_xx(r) x_ix_j
-__device__ __host__
-Real P_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
-	return Real(-1.0)/(Real(8.0)*Real(PI)*pow(r, 3))*erfS + (Real(0.5)/rsq*(sigmasq+rsq))*gaussgam;
-}
-
-__device__ __host__
-Real P_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam, Real erfS){
-	return (Real(3.0)/(Real(8.0)*Real(PI)*pow(r, 4))*erfS - (Real(0.5)/rsq/r*(Real(3.0)*sigmasq+rsq))*gaussgam)/r;
-}
-
-// T_ij = T_I(r) delta_ij + T_xx(r) x_ix_j
-__device__ __host__
-Real T_I(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam){
-    return (Real(2.0) - rsq / sigmasq) / sigmasq * gaussgam;
-}
-
-__device__ __host__
-Real T_xx(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam){
-    return Real(1.0) / sigmasq / sigmasq * gaussgam;
-}
-
-__device__ __host__
-Real K(Real r, Real rsq, Real sigma, Real sigmasq, Real gaussgam){
-    return Real(-0.5) / sigmasq * gaussgam;
 }
 
 
@@ -971,54 +922,10 @@ __device__ void fcm_interaction(Real *const V, const Real *const F, const int i,
   Real r_dot = rx*F[0] + ry*F[1] + rz*F[2];
 
 
-  // if (r > ai + aj){
-
-  //   A = rm1*rm1*(ai*ai + aj*aj)/3.0;
-  //   B = 1.0 - 3.0*A;
-  //   A += 1.0;
-
-  //   Real temp = rm1/(8.0*PI*MU);
-
-  //   A *= temp;
-  //   B *= temp;
-    
-
-  //   // A = S_I(r, r2,  gamma, gammasq, gaussgam, erfS);
-  //   // B = S_xx(r, r2,  gamma, gammasq, gaussgam, erfS);
-
-  // }else if (r > amax_minus_amin){
-
-  //   Real temp = 32.0*r*r*r;
-
-  //   A = amax_minus_amin*amax_minus_amin + 3.0*r*r;
-  //   A *= -A/temp;
-  //   A += 0.5*(ai + aj);
-
-  //   B = amax_minus_amin*amax_minus_amin - r*r;
-  //   B *= 3.0*B/temp;
-
-  //   temp = 1.0/(6.0*PI*MU*ai*aj);
-
-  //   A *= temp;
-  //   B *= temp;
-  //   }else {
-
-  //   A = 1.0/(6.0*PI*MU*((ai > aj) ? ai : aj)); // ternary operator gives largest radius
-  //   B = 0.0; 
-
-  // }
-
-  // V[0] += A*F[0] + B*rx*Fdotx;
-  // V[1] += A*F[1] + B*ry*Fdotx;
-  // V[2] += A*F[2] + B*rz*Fdotx;
-
-
-
-
   if (r > ai + aj){
 
-    A = S_I(r, r2,  gamma, gammasq, gaussgam, erfS);
-    B = S_xx(r, r2,  gamma, gammasq, gaussgam, erfS);
+    A = S_I_fil(r, r2,  gamma, gammasq, gaussgam, erfS);
+    B = S_xx_fil(r, r2,  gamma, gammasq, gaussgam, erfS);
 
     // A = rm1*rm1*(ai*ai + aj*aj)/3.0;
     // B = 1.0 - 3.0*A;

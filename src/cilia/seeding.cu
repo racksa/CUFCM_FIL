@@ -751,6 +751,7 @@
 
     // Real shift_ratio = (0.471*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Dec 2023 to Feb 2024
     Real shift_ratio = (1.0*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); // value used from Feb 2024
+    // Real shift_ratio = (0.2*FIL_LENGTH)/(0.5*AXIS_DIR_BODY_LENGTH*PI); 
     int max_num_iters = 10000;
 
     // debug begins

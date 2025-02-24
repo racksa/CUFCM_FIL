@@ -60,15 +60,20 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-4_individual_pair_fixed'
         # self.date = '20241217_fixed_ospread'
 
-        self.category = 'fixed_swimmer_correct/'
+        # self.category = 'fixed_swimmer_correct/'
+        # self.exe_name = 'cilia_1e-4_fixed'
+        # self.date = '20250125_fixed_correct'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'for_paper/flowfield_example/'
         self.exe_name = 'cilia_1e-4_fixed'
-        self.date = '20250125_fixed_correct'
+        self.date = '20250224_flowfield_2'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'resolution/'
-        self.exe_name = 'cilia_1e-4_squirmer'
-        self.date = '20250220_1e-6_settling'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'resolution/'
+        # self.exe_name = 'cilia_1e-4_squirmer'
+        # self.date = '20250220_1e-6_settling'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'regular_wall_sim/'
         # self.exe_name = 'cilia_1e-4_squirmer'
@@ -107,7 +112,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (8, 1, 1, 1)
+        self.sweep_shape = (1, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -211,26 +216,26 @@ class DRIVER:
                         # pair_dp = 1.0
 
                         # # # IVP sim
-                        # nfil = 159
-                        # nblob = 9000
-                        # ar = 8.0
+                        nfil = 639
+                        nblob = 40961
+                        ar = 15.0
                         
-                        # nseg = 20
-                        # nx=256
-                        # ny=256
-                        # nz=256
-                        # boxsize=4000
-                        # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 300
-                        # tilt_angle = 0.
-                        # pair_dp = 1.0
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 1
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = 1.0
+                        nseg = 20
+                        nx=256
+                        ny=256
+                        nz=256
+                        boxsize=4000
+                        spring_factor = round(0.005, 3)
+                        period = 1
+                        sim_length = 300
+                        tilt_angle = 0.
+                        pair_dp = 1.0
+                        wavnum = 0.0
+                        wavnum_dia = 0.0
+                        fene_model = 1
+                        omega_spread = 0.0
+                        force_noise_mag = 0.0
+                        pair_dp = 1.0
                         
 
                         # # ishikawa pnas
@@ -249,6 +254,7 @@ class DRIVER:
                         # wavnum = 0.0
                         # wavnum_dia = 0.0
                         # pair_dp = 0.0
+
 
                         # ishikawa jfm
                         # nfil = 160
@@ -319,29 +325,30 @@ class DRIVER:
                         # sim_length = 2
                         # tilt_angle = 0
 
+
                         # sangani resolution
-                        nfil = int(0)
-                        nblob = int(8000*(i+1))
-                        nseg = 20
-                        # ar = round(8*(j+1), 2)
-                        ar = round(0.26273*(nblob/4./3.141592653)**.5, 2)
-                        period = 1
-                        spring_factor = round(0.05, 3)
-                        nx=int(400)
-                        ny=int(400)
-                        nz=int(400)
-                        boxsize=12000
-                        fil_spacing=20.0
-                        blob_spacing=2.0
-                        fil_x_dim=1
-                        blob_x_dim=10
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        sim_length = 0.003
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-                        pair_dp = 1.0
-                        fene_model = 0
+                        # nfil = int(0)
+                        # nblob = int(8000*(i+1))
+                        # nseg = 20
+                        # # ar = round(8*(j+1), 2)
+                        # ar = round(0.26273*(nblob/4./3.141592653)**.5, 2)
+                        # period = 1
+                        # spring_factor = round(0.05, 3)
+                        # nx=int(400)
+                        # ny=int(400)
+                        # nz=int(400)
+                        # boxsize=12000
+                        # fil_spacing=20.0
+                        # blob_spacing=2.0
+                        # fil_x_dim=1
+                        # blob_x_dim=10
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # sim_length = 0.003
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
 
                         self.pars_list["index"].append(index)
                         self.pars_list["nswim"].append(1)

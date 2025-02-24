@@ -78,7 +78,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Simulation type
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#define CILIA_TYPE 4
+#define CILIA_TYPE 3
 // Valid options:
 // 0 = Instability-driven cilia. This choice has some sub-types (see below).
 // 1 = Geometrically-switching cilia (partially implemented)
@@ -91,7 +91,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // This enables filaments to be seeded as pair and have difference frequency
 
 
-#define BODY_VELOCITY_TYPE 0
+#define BODY_VELOCITY_TYPE 1
 // 0 = FREE TO SWIM
 // 1 = PRESCRIBED VELOCITIES
 // 2 = PRESCRIBED ROTATION ONLY
@@ -152,7 +152,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 0
+  #define CILIA_IC_TYPE 5
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
@@ -241,7 +241,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 5
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -354,7 +354,7 @@ extern Real REV_RATIO;
 // 1: Use GMRES to solve the linear system at each iteration of Broyden's method.
 
 #define MAX_LINEAR_SYSTEM_ITER 350 // Maximum number of iterations used to solve the linear system in each mobility solve.
-#define LINEAR_SYSTEM_TOL 1e-6 // Relative tolerance in the linear system solves.
+#define LINEAR_SYSTEM_TOL 1e-4 // Relative tolerance in the linear system solves.
 
 #if SOLVER_TYPE==1
 
@@ -380,7 +380,7 @@ extern Real REV_RATIO;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 
