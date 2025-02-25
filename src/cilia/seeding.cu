@@ -1590,11 +1590,11 @@
         hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, BLOB_SPACING, BLOB_X_DIM, HEX_NUM, REV_RATIO);
       
       #elif CENTRIC_WALL_SEEDING
-        Real disc_radius;
-        std::ifstream in("separation.dat"); // using the 6th number as input
-        for (int di=0; di<6; di++){
-          in >> disc_radius;
-        }
+        Real disc_radius = BLOB_SPACING*my_sqrt(NBLOB);
+        // std::ifstream in("separation.dat"); // using the 6th number as input
+        // for (int di=0; di<6; di++){
+        //   in >> disc_radius;
+        // }
         std::cout << "Seeking an centric placement for the blobs..." << std::endl;
         equal_area_seeding_centric(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, disc_radius, 0.0);
       #endif
@@ -1730,11 +1730,12 @@
 
     #elif CENTRIC_WALL_SEEDING
       std::cout << "Seeking an centric placement for the fils..." << std::endl;
-      Real disc_radius;
-        std::ifstream in("separation.dat"); // using the 5th number as input
-        for (int di=0; di<5; di++){
-          in >> disc_radius;
-        }
+      Real disc_radius = FIL_SPACING*my_sqrt(NFIL);
+      // Real disc_radius;
+      //   std::ifstream in("separation.dat"); // using the 5th number as input
+      //   for (int di=0; di<5; di++){
+      //     in >> disc_radius;
+      //   }
 
       equal_area_seeding_centric(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, disc_radius, 0.04);
       

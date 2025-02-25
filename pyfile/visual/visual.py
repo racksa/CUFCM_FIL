@@ -116,14 +116,17 @@ class VISUAL:
         # self.date = '20250125_fixed_correct'
         # self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        # self.date = '20250214_1e-6_squirmer'
+        # self.date = '20250214_1e-6_settling'
         # self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20250224_flowfield_2'
+        self.date = '20250225_flowfield_sym'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+
+        self.date = '20250225_pizza_demo'
+        self.dir = f"data/pizza_sim/{self.date}/"
         
 
         # self.date = '20240115_resolution'
@@ -6535,8 +6538,10 @@ class VISUAL:
         import matplotlib.ticker as ticker
 
         ax.set_xlabel(r'$P$')
-        ax.set_ylabel(r'$|V-W|/|W|$')
-        plt.draw()
+        if option == 1:
+            ax.set_ylabel(r'$|V-W|/|W|$')
+        if option == 2:
+            ax.set_ylabel(r'$|V-\frac{2}{3}B_1|/\frac{2}{3}B_1$')
 
         x_scale_offset = 1e4
         y_scale_offset = 1e-3
@@ -6555,7 +6560,7 @@ class VISUAL:
         ax.set_yticklabels(y_labels)
 
         # x-axis
-        plt.annotate(r'$\times 10^{-4}$', xy=(1, -0.20), xycoords='axes fraction', 
+        plt.annotate(r'$\times 10^{4}$', xy=(1, -0.20), xycoords='axes fraction', 
              fontsize=20, ha='right')
         x_ticks = np.linspace(10000, 80000, 8)
         x_labels = [f"{int(tick/x_scale_offset)}" for tick in x_ticks]

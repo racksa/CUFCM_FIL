@@ -112,11 +112,11 @@ LINK= -lcufft -lcurand -llapack -lopenblas -llapacke -lineinfo
 HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8
 
 cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_fixed
+	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pizza
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_fixed
+	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pizza
 
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	module load cuda/11.4.2 && \
-	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_fixed
+	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pizza

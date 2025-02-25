@@ -67,7 +67,7 @@ class DRIVER:
 
         self.category = 'for_paper/flowfield_example/'
         self.exe_name = 'cilia_1e-4_fixed'
-        self.date = '20250224_flowfield_2'
+        self.date = '20250225_flowfield_sym'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'resolution/'
@@ -79,6 +79,11 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-4_squirmer'
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'pizza_sim/'
+        self.exe_name = 'cilia_1e-4_pizza'
+        self.date = '20250225_pizza_demo'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -182,18 +187,18 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        nfil = int(1)
-                        nblob = int(400)
+                        nfil = int(32)
+                        nblob = int(1600)
                         nseg = 20
                         ar = round(1, 2)
                         period = 1
                         spring_factor = round(0.05, 3)
-                        nx=int(32)
+                        nx=int(128)
                         ny=int(128)
-                        nz=int(96)
-                        boxsize=20
-                        fil_spacing=20.0
-                        blob_spacing=2.0
+                        nz=int(128)
+                        boxsize=400
+                        fil_spacing=40.0
+                        blob_spacing=5.0
                         fil_x_dim=1
                         blob_x_dim=10
                         hex_num=2
@@ -216,26 +221,26 @@ class DRIVER:
                         # pair_dp = 1.0
 
                         # # # IVP sim
-                        nfil = 639
-                        nblob = 40961
-                        ar = 15.0
+                        # nfil = 639
+                        # nblob = 40961
+                        # ar = 15.0
                         
-                        nseg = 20
-                        nx=256
-                        ny=256
-                        nz=256
-                        boxsize=4000
-                        spring_factor = round(0.005, 3)
-                        period = 1
-                        sim_length = 300
-                        tilt_angle = 0.
-                        pair_dp = 1.0
-                        wavnum = 0.0
-                        wavnum_dia = 0.0
-                        fene_model = 1
-                        omega_spread = 0.0
-                        force_noise_mag = 0.0
-                        pair_dp = 1.0
+                        # nseg = 20
+                        # nx=256
+                        # ny=256
+                        # nz=256
+                        # boxsize=4000
+                        # spring_factor = round(0.005, 3)
+                        # period = 1
+                        # sim_length = 30
+                        # tilt_angle = i*1./9*3.141592653
+                        # pair_dp = 1.0
+                        # wavnum = 0.0
+                        # wavnum_dia = 0.0
+                        # fene_model = 1
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
+                        # pair_dp = 1.0
                         
 
                         # # ishikawa pnas
@@ -451,7 +456,7 @@ class DRIVER:
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 
