@@ -80,10 +80,10 @@ class DRIVER:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'pizza_sim/'
-        self.exe_name = 'cilia_1e-4_pizza'
-        self.date = '20250225_pizza_demo'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'pizza_sim/'
+        # self.exe_name = 'cilia_1e-4_pizza'
+        # self.date = '20250225_pizza_demo'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -117,7 +117,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (1, 1, 1, 1)
+        self.sweep_shape = (5, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -187,27 +187,27 @@ class DRIVER:
                         reverse_fil_direction_ratio=0.0
 
                         # # planar triangle
-                        nfil = int(32)
-                        nblob = int(1600)
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        spring_factor = round(0.05, 3)
-                        nx=int(128)
-                        ny=int(128)
-                        nz=int(128)
-                        boxsize=400
-                        fil_spacing=40.0
-                        blob_spacing=5.0
-                        fil_x_dim=1
-                        blob_x_dim=10
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        sim_length = 1
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-                        pair_dp = 1.0
-                        fene_model = 0
+                        # nfil = int(32)
+                        # nblob = int(1600)
+                        # nseg = 20
+                        # ar = round(1, 2)
+                        # period = 1
+                        # spring_factor = round(0.05, 3)
+                        # nx=int(128)
+                        # ny=int(128)
+                        # nz=int(128)
+                        # boxsize=400
+                        # fil_spacing=40.0
+                        # blob_spacing=5.0
+                        # fil_x_dim=1
+                        # blob_x_dim=10
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # sim_length = 1
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
 
                         # # # callibration
                         # nfil = int(1)
@@ -221,26 +221,26 @@ class DRIVER:
                         # pair_dp = 1.0
 
                         # # # IVP sim
-                        # nfil = 639
-                        # nblob = 40961
-                        # ar = 15.0
+                        nfil = 639
+                        nblob = 40961
+                        ar = 15.0
                         
-                        # nseg = 20
-                        # nx=256
-                        # ny=256
-                        # nz=256
-                        # boxsize=4000
-                        # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 30
-                        # tilt_angle = i*1./9*3.141592653
-                        # pair_dp = 1.0
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 1
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = 1.0
+                        nseg = 20
+                        nx=256
+                        ny=256
+                        nz=256
+                        boxsize=4000
+                        spring_factor = round(0.005, 3)
+                        period = 1
+                        sim_length = 60
+                        tilt_angle = i*1./18*3.141592653
+                        pair_dp = 1.0
+                        wavnum = 0.0
+                        wavnum_dia = 0.0
+                        fene_model = 1
+                        omega_spread = 0.0
+                        force_noise_mag = 0.0
+                        pair_dp = 1.0
                         
 
                         # # ishikawa pnas

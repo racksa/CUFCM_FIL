@@ -125,8 +125,8 @@ class VISUAL:
         self.date = '20250225_flowfield_sym'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        self.date = '20250225_pizza_demo'
-        self.dir = f"data/pizza_sim/{self.date}/"
+        # self.date = '20250225_pizza_demo'
+        # self.dir = f"data/pizza_sim/{self.date}/"
         
 
         # self.date = '20240115_resolution'
@@ -199,7 +199,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 33
+        self.plot_end_frame_setting = 20
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -273,7 +273,16 @@ class VISUAL:
         self.nblob = int(self.pars_list['nblob'][self.index])
         self.ar = self.pars_list['ar'][self.index]
         self.spring_factor = self.pars_list['spring_factor'][self.index]
+        self.nx = self.pars_list['nx'][self.index]
+        self.ny = self.pars_list['ny'][self.index]
+        self.nz = self.pars_list['nz'][self.index]
+        self.boxsize = self.pars_list['boxsize'][self.index]
         self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
+
+        self.Lx = self.boxsize
+        self.Ly = self.boxsize*self.ny/self.nx
+        self.Lz = self.boxsize*self.nz/self.nx
+
         
         try:
             self.tilt_angle = self.pars_list['tilt_angle'][self.index]
@@ -1999,7 +2008,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        elev_angle = -90
+        elev_angle = 0
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
@@ -3554,9 +3563,306 @@ class VISUAL:
         plt.show()
     
     def flow_field_FFCM(self):
-        import subprocess
 
-        subprocess.call("bin/FLOWFIELD", shell=True)
+        def find_pos(line, symbol):
+            """Find position of symbol
+            """
+            for char_pos, c in enumerate(line):
+                if c == symbol:
+                    return char_pos+1
+            print("Failed to find symbol in string")
+            return 0
+
+        def find_key(key, lines):
+            """Find the row the key belongs to
+            """
+            for i in range(len(lines)):
+                if lines[i].find(key) == 0:
+                    return i
+            print("Failed to find key in file")
+            return -1
+
+        def replace(key, value, fileName):
+            """Replace value in file by key
+            """
+            infoFile = open(fileName, 'r')
+            lines = infoFile.readlines()
+            row = find_key(key, lines)
+            lines[row] = lines[row][:len(key)+1] + value + '\n'
+            infoFile = open(fileName, 'w')
+            infoFile.writelines(lines)
+            infoFile.close()
+
+        def read_info(fileName, symbol='='):
+            """Read info and create dict
+            """
+            ret_pardict = {}
+            ret_filedict = {}
+            infoFile = open(fileName, 'r')
+            lines = infoFile.readlines()
+            print(lines)
+            print(fileName)
+            for row in range(len(lines)):
+                if not lines[row][0] == '$' or lines[row][0] == ' ':
+                    sep = find_pos(lines[row], symbol)
+                    ret_pardict[lines[row][:sep-1]] = float(lines[row][sep:])
+                elif lines[row][0] == '$':
+                    sep = find_pos(lines[row], symbol)
+                    ret_filedict[lines[row][:sep-1]] = lines[row][sep:].replace("\n", "")
+            infoFile.close()
+            return ret_pardict, ret_filedict
+        
+        def reshape_func(flow, nx, ny, nz):
+            return np.reshape(flow, (nz, ny, nx), order='C') # z-major
+
+        # need to test
+        self.select_sim()
+
+        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        body_vels_f = open(self.simName + '_body_vels.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        global frame
+        frame = 0
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        cmap_name = 'hsv'
+        cmap = plt.get_cmap(cmap_name)
+
+        def animation_func(t):
+            global frame
+
+            ax.cla()
+
+            seg_forces_str = seg_forces_f.readline()
+            blob_forces_str = blob_forces_f.readline()
+            seg_states_str = seg_states_f.readline()
+            body_states_str = body_states_f.readline()
+            body_vels_str = body_vels_f.readline()
+            fil_states_str = fil_states_f.readline()
+
+            while(not frame % self.plot_interval == 0):
+                seg_forces_str = seg_forces_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+                body_vels_str = body_vels_f.readline()
+                fil_states_str = fil_states_f.readline()
+                frame += 1
+            print(f'frame={frame}')
+
+            seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+            blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+            seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+            body_states = np.array(body_states_str.split()[1:], dtype=float)
+            body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+            fil_phases = fil_states[:self.nfil]
+            fil_plot_data = np.zeros((self.nfil, self.nseg, 3))
+
+            # Create arrays to store pos and force of all particles
+            source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+            source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+            os.system(f'mkdir {self.dir}flowfield/')
+            np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
+
+            shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
+            # shift = np.zeros(3)
+
+            for swim in range(int(self.pars['NSWIM'])):
+                body_pos = body_states[7*swim : 7*swim+3]
+
+                circle=plt.Circle((shift[1], shift[2]), self.radius, color='Grey', zorder=99)
+
+                ax.add_patch(circle)
+
+                for blob in range(self.nblob):
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos + shift
+                    blob_force = blob_forces[3*blob : 3*blob+3]
+
+                    source_pos_list[blob] = blob_pos
+                    source_force_list[blob] = blob_force
+
+                for fil in range(self.nfil):
+                    fil_i = int(3*fil*self.nseg)
+                    seg_data = np.zeros((self.nseg, 3))
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    for seg in range(self.nseg):
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos + shift
+                        seg_data[seg] = seg_pos
+                        seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                        seg_force = seg_force[:3]
+
+                        source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
+                        source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
+                    
+                    fil_plot_data[fil] = seg_data
+                    # only plot fil when the fil is facing us. this is done by checking the base of the filament
+                    if(seg_data[0, 0]>0):
+                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 100, alpha = alpha)
+                    if(seg_data[0, 0]<0):
+                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
+
+
+            np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
+            np.savetxt(f'{self.dir}flowfield/flow_force{frame}.dat', source_force_list, delimiter=' ')
+            np.savetxt(f'{self.dir}flowfield/flow_body_vels{frame}.dat', body_vels, delimiter=' ')
+
+            info_file_name = 'simulation_info'
+            pardict, filedict = read_info(info_file_name)
+
+            import subprocess
+            file_dir = f'{self.dir}flowfield/'
+            frame = self.plot_end_frame - 1
+            for file in os.listdir(file_dir):
+                if f'flow_pos{frame}' in file:
+                    filedict['$posfile']  = file_dir + file
+                if f'flow_force{frame}' in file:
+                    filedict['$forcefile']  = file_dir + file
+                if f'flow_torque{frame}' in file:
+                    filedict['$torquefile']  = file_dir + file
+
+            Lx = self.boxsize
+            Ly = Lx/self.nx*self.ny
+            Lz = Lx/self.nx*self.nz
+
+            yx_ratio = self.ny/self.nx
+            zx_ratio = self.nz/self.nx
+
+            nx = 64
+            ny = int(nx*yx_ratio)
+            nz = int(nx*zx_ratio)
+
+            pardict['checkerror'] = 0
+            pardict['repeat']=     1
+            pardict['prompt']=     10
+
+            pardict['rh']=         1
+
+            pardict['N']=          self.N
+            pardict['beta']=       20
+            pardict['nx']=         nx
+            pardict['ny']=         ny
+            pardict['nz']=         nz
+            pardict['boxsize']=    self.boxsize
+            dicts = [pardict, filedict]
+
+            for dic in dicts:
+                for key in dic:
+                    replace(key, str(dic[key]), info_file_name)
+
+            subprocess.call("bin/FLOWFIELD", shell=True)
+
+            os.system(f'mv data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
+            os.system(f'mv data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
+            os.system(f'mv data/simulation/flow_z.dat {file_dir}flow_z{frame}.dat')
+
+            start_time = time.time()
+            # Define file paths
+            flow_x_path = f'{file_dir}flow_x{frame}.dat'
+            flow_y_path = f'{file_dir}flow_y{frame}.dat'
+            flow_z_path = f'{file_dir}flow_z{frame}.dat'
+            pos_path = filedict['$posfile']
+
+            # Load flow data
+            with open(flow_x_path, "r") as flow_x_f, open(flow_y_path, "r") as flow_y_f, open(flow_z_path, "r") as flow_z_f:
+                flow_x = np.array(flow_x_f.readline().split(), dtype=float)
+                flow_y = np.array(flow_y_f.readline().split(), dtype=float)
+                flow_z = np.array(flow_z_f.readline().split(), dtype=float)
+
+            print(f"elapsed time = {time.time() - start_time}")
+
+            start_time = time.time()
+            flow_x = reshape_func(flow_x, nx, ny ,nz)
+            flow_y = reshape_func(flow_y, nx, ny ,nz)
+            flow_z = reshape_func(flow_z, nx, ny ,nz)
+
+            print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
+            
+
+            X = np.linspace(0, Lx, nx)
+            Y = np.linspace(0, Ly, ny)
+            Z = np.linspace(0, Lz, nz)
+
+            W = 0.0
+            dx = Lx/nx
+            nxh = int(nx/2)
+            nyh = int(ny/2)
+            nzh = int(nz/2)
+
+            x = nxh
+            y = nyh
+            z = nzh
+
+            vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+
+            speed_limit = np.max(vel)*0.5
+
+            print(f"elapsed time = {time.time() - start_time}")
+
+            start_time = time.time()
+
+            # ax.streamplot(X, Y, flow_x[z]-W, flow_y[z])
+            ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
+            # ax.streamplot(X, Y, flow_expression_x-W, flow_expression_y)
+
+            y_lower, y_upper, z_lower, z_upper = 0, Ly, 0, Lz
+
+            cmap_name2= 'Reds'
+
+            phi_var_plot = ax.imshow(vel, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+
+
+            print(f"elapsed time = {time.time() - start_time}")
+
+            # qfac = 10
+            # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
+            ax.set_aspect('equal')
+            ax.set_xlabel('y')
+            ax.set_ylabel('z')
+
+        if(self.video):
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i>=self.plot_start_frame):
+                    frame = i
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
+                    # plt.show()
+                    break
+                else:
+                    seg_forces_str = seg_forces_f.readline()
+                    blob_forces_str = blob_forces_f.readline()
+                    seg_states_str = seg_states_f.readline()
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+
+            FFwriter = animation.FFMpegWriter(fps=10)
+            # ani.save(f'fig/flowfield_2D_{self.nfil}fil_anim_5.mp4', writer=FFwriter)
+        else:
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i==self.plot_end_frame-1):
+                    frame = i
+                    animation_func(i)
+                else:
+                    seg_forces_str = seg_forces_f.readline()
+                    blob_forces_str = blob_forces_f.readline()
+                    seg_states_str = seg_states_f.readline()
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+            
+            # ax.axis('off')
+            ax.set_aspect('equal')
+            # plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.show()
+
 
 # Multi sims
     def multi_phase(self):
