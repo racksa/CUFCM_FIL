@@ -76,8 +76,8 @@ class VISUAL:
         self.dir = f"data/tilt_test/{self.date}/"
 
 
-        # self.date = '20240311_3'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
+        self.date = '20240311_8'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
         # self.date = '20240311_1'
@@ -199,7 +199,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 20
+        self.plot_end_frame_setting = 1800 - 14
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -273,15 +273,18 @@ class VISUAL:
         self.nblob = int(self.pars_list['nblob'][self.index])
         self.ar = self.pars_list['ar'][self.index]
         self.spring_factor = self.pars_list['spring_factor'][self.index]
-        self.nx = self.pars_list['nx'][self.index]
-        self.ny = self.pars_list['ny'][self.index]
-        self.nz = self.pars_list['nz'][self.index]
-        self.boxsize = self.pars_list['boxsize'][self.index]
-        self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
+        try:
+            self.nx = self.pars_list['nx'][self.index]
+            self.ny = self.pars_list['ny'][self.index]
+            self.nz = self.pars_list['nz'][self.index]
+            self.boxsize = self.pars_list['boxsize'][self.index]
+            self.N = int(self.nswim*(self.nfil*self.nseg + self.nblob))
 
-        self.Lx = self.boxsize
-        self.Ly = self.boxsize*self.ny/self.nx
-        self.Lz = self.boxsize*self.nz/self.nx
+            self.Lx = self.boxsize
+            self.Ly = self.boxsize*self.ny/self.nx
+            self.Lz = self.boxsize*self.nz/self.nx
+        except:
+            pass
 
         
         try:
@@ -828,9 +831,11 @@ class VISUAL:
         norm = Normalize(vmin=vmin, vmax=vmax)
         sm = ScalarMappable(cmap=colormap, norm=norm)
         sm.set_array([])
-        cbar = plt.colorbar(sm)
-        cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-        cbar.set_label(r"$\psi_1$")    
+        # cbar = plt.colorbar(sm)
+        # cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+        # cbar.set_label(r"$\psi_1$")    
+
+        plt.rcParams.update({'font.size': 48})
 
         global frame
         frame = 0
@@ -851,12 +856,20 @@ class VISUAL:
 
             # ax.set_title(rf"${frame}$")
             ax.set_ylabel(r"$\theta$")
-            ax.set_xlabel(r"$\phi$")
+            # ax.set_xlabel(r"$\phi$")
+            
+
             ax.set_xlim(-np.pi, np.pi)
             ax.set_ylim(0, np.pi)
-            ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
-            ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
+            # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
+            # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
+            ax.set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
+            ax.set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
             ax.invert_yaxis()
+
+
+            # ax.set_xticklabels([])
+
             fig.tight_layout()
 
             cmap = mpl.colormaps[colormap]
@@ -941,8 +954,10 @@ class VISUAL:
                     # if(self.angle):
                     #     fil_angles_str = fil_angles_f.readline()
                     frame += 1
-                
+
+            
             plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
     def wavenumber(self):
@@ -6093,25 +6108,26 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim/"
 
-        force = False
-        path = "data/ic_hpc_sim_free/"
+        # force = False
+        # path = "data/ic_hpc_sim_free/"
 
         # force = True
         # path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
 
-        # import re
-        # def sort_key(s):
-        #     # Split the string by the underscore and convert the second part to an integer
-        #     return int(s.split('_')[1])
-        # folders = sorted(util.list_folders(path), key=sort_key)
+        import re
+        def sort_key(s):
+            # Split the string by the underscore and convert the second part to an integer
+            return int(s.split('_')[1])
+        folders = sorted(util.list_folders(path), key=sort_key)
 
         folders = util.list_folders(path)
         print(folders)
-
-        self.plot_end_frame_setting = 60000
-        self.frames_setting = 3000
+        
+        # make this number very large to include the converged ones
+        self.plot_end_frame_setting = 150000
+        self.frames_setting = 300
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!

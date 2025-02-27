@@ -120,7 +120,7 @@ ax1.set_ylabel(r'$Q/\omega \eta L^3$')
 ax1_x_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ]
 ax1.set_xticks(ticks= np.linspace(0, 2*np.pi, 5), labels=ax1_x_labels)
 ax1.set_xlim(0, 2*np.pi)
-ax1.legend()
+ax1.legend(frameon=False)
 
 # ax2.plot(A_n[:8])
 # ax2.plot(B_n[:8])
@@ -153,7 +153,7 @@ ax4.set_ylabel(r'$Coefficient$')
 ax4.set_xlim(0)
 ax4.set_ylim(0)
 ax4.set_xticks(ticks= np.linspace(0, coeff_lim-1, coeff_lim))
-ax4.legend()
+ax4.legend(frameon=False)
 
 fig1.tight_layout()
 fig3.tight_layout()

@@ -67,7 +67,7 @@ class DRIVER:
 
         self.category = 'for_paper/flowfield_example/'
         self.exe_name = 'cilia_1e-4_fixed'
-        self.date = '20250225_flowfield_sym'
+        self.date = '20250225_flowfield_dia'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'resolution/'

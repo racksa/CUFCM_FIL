@@ -5,13 +5,23 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import os
 import re
+import matplotlib.font_manager as fm
 
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-
-plt.rcParams.update({'font.size': 16})
+# Path to the directory where fonts are stored
+font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+# Choose the TTF or OTF version of CMU Serif Regular
+font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+# Load the font into Matplotlib's font manager
+prop = fm.FontProperties(fname=font_path)
+# Register each font file with Matplotlib's font manager
+for font_file in os.listdir(font_dir):
+    if font_file.endswith('.otf'):
+        fm.fontManager.addfont(os.path.join(font_dir, font_file))
+# Set the global font family to 'serif' and specify CMU Serif
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['CMU Serif']
+plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+plt.rcParams.update({'font.size': 24})
 
 cmap_name = 'coolwarm'
 
@@ -96,7 +106,7 @@ avg_dissipation = avg_dissipation[sorted_indices]
 
 ax.plot(RoL, avg_body_speed, color='black', marker='+')
 ax2.plot(RoL, avg_wavenumbers, color='black', marker='+')
-ax3.plot(RoL, avg_dissipation, color='blue', marker='+')
+ax3.plot(RoL, avg_dissipation/1e4, color='blue', marker='+')
 ax4.plot(RoL, cilia_array_length/avg_wavenumbers/L, color='black', marker='+')
 
 
@@ -112,6 +122,10 @@ ax.set_ylim(0.0, 0.2)
 
 ax2.set_xlabel(r'$R/L$')
 ax2.set_ylabel(r'$Wavenumber$')
+
+ax3.annotate(r'$\times 10^{4}$', 
+             xy=(1, 1), xycoords='axes fraction', 
+             fontsize=20, ha='left', va='bottom', color='b')
 
 
 ax3.set_xlabel(r'$R/L$')
