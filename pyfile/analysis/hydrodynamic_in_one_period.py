@@ -24,8 +24,10 @@ plt.rcParams.update({'font.size': 24})
 
 cmap_name = 'coolwarm'
 
-path = "data/ic_hpc_sim_free/20240311_1/"
-path = "data/ic_hpc_sim_free_with_force/20240311_1/"
+# path = "data/ic_hpc_sim_free/20240311_1/"
+# path = "data/ic_hpc_sim_free_with_force/20240311_1/"
+
+path = "data/for_paper/hydrodynamics_in_one_period/20250228/"
 
 indices = [0, 1]
 

@@ -122,8 +122,12 @@ class VISUAL:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20250225_flowfield_sym'
+        self.date = '20250225_flowfield_dia'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+
+        # self.date = '20250228'
+        # self.dir = f"data/for_paper/hydrodynamics_in_one_period/{self.date}/"
+
 
         # self.date = '20250225_pizza_demo'
         # self.dir = f"data/pizza_sim/{self.date}/"
@@ -199,7 +203,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1800 - 14
+        self.plot_end_frame_setting = 3000
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -2023,7 +2027,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        elev_angle = 0
+        elev_angle = 90
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
@@ -6111,16 +6115,16 @@ class VISUAL:
         # force = False
         # path = "data/ic_hpc_sim_free/"
 
-        # force = True
-        # path = 'data/tilt_test/makeup_pattern_with_force/'
+        force = True
+        path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
 
-        import re
-        def sort_key(s):
-            # Split the string by the underscore and convert the second part to an integer
-            return int(s.split('_')[1])
-        folders = sorted(util.list_folders(path), key=sort_key)
+        # import re
+        # def sort_key(s):
+        #     # Split the string by the underscore and convert the second part to an integer
+        #     return int(s.split('_')[1])
+        # folders = sorted(util.list_folders(path), key=sort_key)
 
         folders = util.list_folders(path)
         print(folders)

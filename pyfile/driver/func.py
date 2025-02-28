@@ -65,9 +65,9 @@ class DRIVER:
         # self.date = '20250125_fixed_correct'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'for_paper/flowfield_example/'
-        self.exe_name = 'cilia_1e-4_fixed'
-        self.date = '20250225_flowfield_dia'
+        self.category = 'for_paper/hydrodynamics_in_one_period/'
+        self.exe_name = 'cilia_1e-4_free'
+        self.date = '20250228'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'resolution/'
@@ -117,7 +117,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (5, 1, 1, 1)
+        self.sweep_shape = (2, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -230,10 +230,10 @@ class DRIVER:
                         ny=256
                         nz=256
                         boxsize=4000
-                        spring_factor = round(0.005, 3)
+                        spring_factor = round(0.005 + 0.005*i, 3)
                         period = 1
                         sim_length = 60
-                        tilt_angle = i*1./18*3.141592653
+                        tilt_angle = 0.
                         pair_dp = 1.0
                         wavnum = 0.0
                         wavnum_dia = 0.0
@@ -456,7 +456,7 @@ class DRIVER:
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 
