@@ -6,6 +6,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 
+import matplotlib.ticker as mticker
+
 # Path to the directory where fonts are stored
 font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
 # Choose the TTF or OTF version of CMU Serif Regular
@@ -29,10 +31,9 @@ cmap_name = 'coolwarm'
 
 path = "data/for_paper/hydrodynamics_in_one_period/20250228/"
 
-indices = [0, 1]
 
-index = 1
-index2 = 0
+index = 0 # symplectic
+index2 = 1 # diaplectic
 force = True
 
 
@@ -153,34 +154,43 @@ ax1.set_xlabel(r'$t/T$')
 ax1.set_ylabel(r'r')
 ax1.plot(-1, -1, marker='+', c='black', label='Symplectic')
 ax1.plot(-1, -1, marker='x', c='blue', label='Diaplectic')
-ax1.legend(loc='upper left')
+ax1.legend(loc='upper left', fontsize=16, frameon=False)
 ax1.set_xlim((0, 1))
 ax1.set_ylim((0, 1))
 
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'No. of effective strokes')
-ax2.legend()
+ax2.legend(fontsize=16, frameon=False)
 ax2.set_xlim((0, 1))
 
 ax3.set_xlabel(r'$t/T$')
 ax3.set_ylabel(r"$VT/L$")
-ax3.legend()
+ax3.legend(fontsize=16, frameon=False)
 ax3.set_xlim((0, 1))
 # ax3.set_ylim((np.min(body_speed_data)-0.1*np.ptp(body_speed_data), np.max(body_speed_data)+0.1*np.ptp(body_speed_data)))
 
 ax4.set_xlabel(r'$t/T$')
 ax4.set_ylabel(r"$Ω$")
-ax4.legend()
+ax4.legend(fontsize=16, frameon=False)
 ax4.set_xlim((0, 1))
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((-5, -5))  # Forces 10^-5 notation
+ax4.yaxis.set_major_formatter(formatter)
+
 
 ax5.set_xlabel(r'$t/T$')
 ax5.set_ylabel(r'$\mathcal{R}T^2/\mu L^3$')
-ax5.legend()
+ax5.legend(fontsize=16, frameon=False)
 ax5.set_xlim((0, 1))
+
+
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
+ax5.yaxis.set_major_formatter(formatter)
 
 ax6.set_xlabel(r'$t/T$')
 ax6.set_ylabel(r'$Efficiency$')
-ax6.legend()
+ax6.legend(fontsize=16, frameon=False)
 ax6.set_xlim((0, 1))
 
 fig1.tight_layout()

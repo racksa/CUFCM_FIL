@@ -117,7 +117,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (2, 1, 1, 1)
+        self.sweep_shape = (4, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -230,7 +230,7 @@ class DRIVER:
                         ny=256
                         nz=256
                         boxsize=4000
-                        spring_factor = round(0.005 + 0.005*i, 3)
+                        spring_factor = round(0.005 + 0.005*(i**2), 3)
                         period = 1
                         sim_length = 60
                         tilt_angle = 0.

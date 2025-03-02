@@ -76,12 +76,12 @@ class VISUAL:
         self.dir = f"data/tilt_test/{self.date}/"
 
 
-        self.date = '20240311_8'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"
+        # self.date = '20240311_8'
+        # self.dir = f"data/ic_hpc_sim/{self.date}/"
         
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -122,7 +122,7 @@ class VISUAL:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20250225_flowfield_dia'
+        self.date = '20250225_flowfield_sym'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250228'
@@ -203,8 +203,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 30000
+        self.plot_end_frame_setting = 1
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3118,13 +3118,13 @@ class VISUAL:
 
         # sphere
 
-        r_ratio = 2.0
+        r_ratio = 4.0
         x_lower, x_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         x_lower, x_upper = 0, 1, 
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
 
-        flow_spacing = 20
+        flow_spacing = 40
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
         # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -3583,6 +3583,9 @@ class VISUAL:
     
     def flow_field_FFCM(self):
 
+        view = 'top'
+        view = 'side'
+
         def find_pos(line, symbol):
             """Find position of symbol
             """
@@ -3710,8 +3713,14 @@ class VISUAL:
                 for fil in range(self.nfil):
                     fil_i = int(3*fil*self.nseg)
                     seg_data = np.zeros((self.nseg, 3))
+
+                    # color
+                    alpha = 1
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
-                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    # b&w
+                    # alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    # fil_color = 'black'
+
                     for seg in range(self.nseg):
                         seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos + shift
                         seg_data[seg] = seg_pos
@@ -3723,10 +3732,16 @@ class VISUAL:
                     
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
-                    if(seg_data[0, 0]>0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 100, alpha = alpha)
-                    if(seg_data[0, 0]<0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
+                    if view == 'side':
+                        if(seg_data[0, 0]>shift[0]):
+                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                        # if(seg_data[0, 0]<shift[0]):
+                        #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98, alpha = alpha)
+                    if view == 'top':
+                        if(seg_data[0, 2]>shift[2]):
+                            ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+                        # if(seg_data[0, 0]<shift[2]):
+                        #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
 
 
             np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
@@ -3754,7 +3769,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 64
+            nx = 128
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -3819,23 +3834,36 @@ class VISUAL:
             y = nyh
             z = nzh
 
-            vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+            if view == 'side':
+                vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+            if view == 'top':
+                vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
             speed_limit = np.max(vel)*0.5
 
             print(f"elapsed time = {time.time() - start_time}")
 
             start_time = time.time()
+            
+            if view == 'side':
+                ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
+            if view == 'top':
+                ax.streamplot(X, Y, flow_x[z,:,:], flow_y[z,:,:], color='black')
 
-            # ax.streamplot(X, Y, flow_x[z]-W, flow_y[z])
-            ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
-            # ax.streamplot(X, Y, flow_expression_x-W, flow_expression_y)
-
-            y_lower, y_upper, z_lower, z_upper = 0, Ly, 0, Lz
+            # Specify the bounds of imshow, also shift the pixels to the right positions
+            y_lower, y_upper, z_lower, z_upper = 0-0.5*dx, Ly+0.5*dx, 0-0.5*dx, Lz+0.5*dx
 
             cmap_name2= 'Reds'
 
-            phi_var_plot = ax.imshow(vel, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+            # append one row and col to the vel pixels to match the positions of grid points
+            nrows, ncols = vel.shape 
+            new_vel = np.zeros((nrows + 1, ncols + 1))
+            new_vel[:nrows, :ncols] = vel
+            new_vel[nrows, :ncols] = vel[0, :]
+            new_vel[:nrows, ncols] = vel[:, 0]
+            new_vel[nrows, ncols] = vel[0, 0]
+
+            phi_var_plot = ax.imshow(new_vel, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
 
 
             print(f"elapsed time = {time.time() - start_time}")
@@ -3843,6 +3871,8 @@ class VISUAL:
             # qfac = 10
             # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
             ax.set_aspect('equal')
+            ax.set_xlim((0, Lx))
+            ax.set_ylim((0, Ly))
             ax.set_xlabel('y')
             ax.set_ylabel('z')
 
@@ -3879,7 +3909,7 @@ class VISUAL:
             
             # ax.axis('off')
             ax.set_aspect('equal')
-            # plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/flowfield2D_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
 
