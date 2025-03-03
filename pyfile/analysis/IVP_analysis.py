@@ -115,7 +115,7 @@ ax.set_xlabel(r'$k$')
 ax.set_ylabel(r'$<r>$')
 ax.set_ylim(0)
 ax.set_xlim(0, 0.09 / x_scale_offset)
-ax.legend(fontsize=18, frameon=False)
+ax.legend(fontsize=16, frameon=False)
 
 
 ax.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
@@ -125,20 +125,20 @@ ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r"$<V>T/L$")
 ax2.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax2.scatter(None, None,  marker='x', c='b', label='Diaplectic')
-ax2.legend()
+ax2.legend(fontsize=16, frameon=False)
 
 ax3.set_xlabel(r'$k$')
 ax3.set_ylabel(r"$<\Omega>T$")
 ax3.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax3.scatter(None, None,  marker='x', c='b', label='Diaplectic')
-ax3.legend()
+ax3.legend(fontsize=16, frameon=False)
 
 
 ax4.scatter(None, None, s=100, marker='o', c='black', linewidths=1, zorder=300, label='Symplectic')
 ax4.scatter(None, None, s=100, marker='s', c='black', linewidths=1, zorder=300, label='Asymmetric Symplectic')
 ax4.scatter(None, None, s=100, marker='x', c='black', linewidths=2, zorder=300, label='Diaplectic ($\kappa=1$)')
 ax4.scatter(None, None, s=100, marker='^', c='black', linewidths=1, zorder=300, label='Diaplectic ($\kappa=2$)')
-ax4.legend(frameon=False)
+ax4.legend(fontsize=16, frameon=False)
 ax4.set_axis_off()
 
 

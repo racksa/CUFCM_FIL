@@ -220,7 +220,7 @@ ax2.add_artist(legend21)
 ax2.set_xlim(0, 1)
 ax2.set_ylim(0)
 ax2.set_xlabel(r'$t/T$')
-ax2.set_ylabel(r'$\mathcal{R}T^2/\mu L^3$')
+ax2.set_ylabel(r'$\mathcal{R}T^2/\eta L^3$')
 
 ax2.yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
 ax2.ticklabel_format(axis='y', style='sci', scilimits=(4,4))

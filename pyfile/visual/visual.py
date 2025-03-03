@@ -86,9 +86,6 @@ class VISUAL:
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"        
-
         # self.date = '20240827_jfm2'
         # # self.date = '20240731_pnas_L1'
         # self.date = '20240802_pnas_L0.975'
@@ -122,10 +119,12 @@ class VISUAL:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20250225_flowfield_sym'
+        self.date = '20250303_flowfield_sym'
+        # self.date = '20250225_flowfield_sym'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        # self.date = '20250228'
+        # self.date = '20250302'
+        # # self.date = '20250228'
         # self.dir = f"data/for_paper/hydrodynamics_in_one_period/{self.date}/"
 
 
@@ -203,8 +202,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 12000
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3036,8 +3035,11 @@ class VISUAL:
 
     def flow_field_2D(self):
         
+        view = 'top'
+        # view = 'side'
+        
         read_flow_field = False
-        save_source_data = True
+        save_source_data = False
 
         def stokeslet(x, x0, f0):
             r = np.linalg.norm(x-x0)
@@ -3119,11 +3121,15 @@ class VISUAL:
         # sphere
 
         r_ratio = 4.0
-        x_lower, x_upper = -r_ratio*self.radius, r_ratio*self.radius, 
-        x_lower, x_upper = 0, 1, 
+        if view == 'side':
+            x_lower, x_upper = 0, 1
+            z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
+        if view == 'top':
+            x_lower, x_upper = -r_ratio*self.radius, r_ratio*self.radius, 
+            z_lower, z_upper = 0, 1, 
+        
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
-        z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
-
+        
         flow_spacing = 40
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -3162,8 +3168,12 @@ class VISUAL:
             global frame
             
             ax.cla()
-            ax.set_xlim(y_lower, y_upper)
-            ax.set_ylim(z_lower, z_upper)
+            if view == 'side':
+                ax.set_xlim(y_lower, y_upper)
+                ax.set_ylim(z_lower, z_upper)
+            if view == 'top':
+                ax.set_xlim(x_lower, x_upper)
+                ax.set_ylim(y_lower, y_upper)
 
             seg_forces_str = seg_forces_f.readline()
             blob_forces_str = blob_forces_f.readline()
@@ -3238,11 +3248,18 @@ class VISUAL:
                         source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
 
                     fil_plot_data[fil] = seg_data
+                    if view == 'side':
+                        if(seg_data[0, 0]>0):
+                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                    if view == 'top':
+                        if(seg_data[0, 2]>0):
+                            ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
-                    if(seg_data[0, 0]>0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 100, alpha = alpha)
-                    if(seg_data[0, 0]<0):
-                        ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
+                    # if(seg_data[0, 0]>0):
+                    #     ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 100, alpha = alpha)
+                    # if(seg_data[0, 0]<0):
+                    #     ax.plot(seg_data[:,1], seg_data[:,2], c='black', zorder = 98, alpha = alpha)
 
             if save_source_data:
                 boxsize = self.pars_list['boxsize'][self.index]
@@ -3304,21 +3321,37 @@ class VISUAL:
             # speed_mesh = ur_list.reshape(y_mesh.shape)
             # speed_mesh = utheta_list.reshape(y_mesh.shape)
 
-            half_plane_index = int(x_mesh.shape[0]/2)
-            speed_mesh_2D = speed_mesh[half_plane_index,:,:]
+           
 
             vx_mesh = v_list[:,0].reshape(y_mesh.shape)
             vy_mesh = v_list[:,1].reshape(y_mesh.shape)
             vz_mesh = v_list[:,2].reshape(y_mesh.shape)
 
-            x_mesh_2D = x_mesh[half_plane_index,:,:]
-            y_mesh_2D = y_mesh[half_plane_index,:,:]
-            z_mesh_2D = z_mesh[half_plane_index,:,:]
-            vx_mesh_2D = vx_mesh[half_plane_index,:,:]
-            vy_mesh_2D = vy_mesh[half_plane_index,:,:]
-            vz_mesh_2D = vz_mesh[half_plane_index,:,:]
-
-            phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+            if view == 'side':
+                half_plane_index = int(x_mesh.shape[0]/2)
+                print(x_mesh.shape, y_mesh.shape, z_mesh.shape)
+                speed_mesh_2D = speed_mesh[half_plane_index,:,:]
+                x_mesh_2D = x_mesh[half_plane_index,:,:]
+                y_mesh_2D = y_mesh[half_plane_index,:,:]
+                z_mesh_2D = z_mesh[half_plane_index,:,:]
+                vx_mesh_2D = vx_mesh[half_plane_index,:,:]
+                vy_mesh_2D = vy_mesh[half_plane_index,:,:]
+                vz_mesh_2D = vz_mesh[half_plane_index,:,:]
+                ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
+                phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+            
+            if view == 'top':
+                half_plane_index = int(x_mesh.shape[2]/2)
+                print(x_mesh.shape, y_mesh.shape, z_mesh.shape)
+                speed_mesh_2D = speed_mesh[:,:,half_plane_index]
+                x_mesh_2D = x_mesh[:,:,half_plane_index]
+                y_mesh_2D = y_mesh[:,:,half_plane_index]
+                z_mesh_2D = z_mesh[:,:,half_plane_index]
+                vx_mesh_2D = vx_mesh[:,:,half_plane_index]
+                vy_mesh_2D = vy_mesh[:,:,half_plane_index]
+                vz_mesh_2D = vz_mesh[:,:,half_plane_index]
+                ax.streamplot(x_mesh_2D.T, y_mesh_2D.T, vx_mesh_2D.T, vy_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
+                phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[x_lower, x_upper, y_lower, y_upper], vmax = speed_limit, vmin=0)            
             
             # Colorbars
             # from matplotlib.colors import Normalize
@@ -3335,7 +3368,7 @@ class VISUAL:
             # ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
             # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=3.)
             
-            ax.streamplot(y_mesh_2D.T, z_mesh_2D.T, vy_mesh_2D.T, vz_mesh_2D.T, color='black', density=0.5, broken_streamlines=False)
+            
 
             os.system(f'mkdir -p {self.dir}flowfield')
             np.save(f'{self.dir}flowfield/vx_mesh_index{self.index}_{frame}.npy', vx_mesh)
@@ -3382,7 +3415,7 @@ class VISUAL:
             
             ax.axis('off')
             ax.set_aspect('equal')
-            # plt.savefig(f'fig/flowfield2D_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/flowfield_stokeslet_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
     def flow_field_kymograph(self):
@@ -3699,9 +3732,17 @@ class VISUAL:
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
 
-                circle=plt.Circle((shift[1], shift[2]), self.radius, color='Grey', zorder=99)
+                if view == 'top':
+                    circle=plt.Circle((shift[1], shift[2]), self.radius, color='Grey', zorder=99)
+                    ax.scatter(shift[1], shift[2], c='black', zorder = 999)
+                if view == 'side':
+                    circle=plt.Circle((shift[0], shift[1]), self.radius, color='Grey', zorder=99)
+                    ax.plot([shift[0], shift[0]], [self.radius+shift[1], -self.radius+shift[1]], c='black', linestyle='dashed', zorder = 999, linewidth=0.5)
+                    ax.scatter([shift[0]], [-self.radius+shift[1]], c='black', zorder = 100, s=5)
+                    ax.scatter([shift[0]], [self.radius+shift[1]], c='black', zorder = 100, s=5)
 
                 ax.add_patch(circle)
+
 
                 for blob in range(self.nblob):
                     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos + shift
@@ -3871,6 +3912,7 @@ class VISUAL:
             # qfac = 10
             # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
             ax.set_aspect('equal')
+            # ax.set_title(f'{t}')
             ax.set_xlim((0, Lx))
             ax.set_ylim((0, Ly))
             ax.set_xlabel('y')
@@ -3907,9 +3949,10 @@ class VISUAL:
                     body_states_str = body_states_f.readline()
                     fil_states_str = fil_states_f.readline()
             
-            # ax.axis('off')
+            ax.axis('off')
             ax.set_aspect('equal')
-            plt.savefig(f'fig/flowfield2D_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
 

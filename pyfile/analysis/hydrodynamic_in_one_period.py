@@ -5,7 +5,6 @@ import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
-
 import matplotlib.ticker as mticker
 
 # Path to the directory where fonts are stored
@@ -27,11 +26,11 @@ plt.rcParams.update({'font.size': 24})
 cmap_name = 'coolwarm'
 
 # path = "data/ic_hpc_sim_free/20240311_1/"
-# path = "data/ic_hpc_sim_free_with_force/20240311_1/"
+path = "data/ic_hpc_sim_free_with_force/20240311_1/"
+index = 1 # symplectic
+index2 = 0 # diaplectic
 
-path = "data/for_paper/hydrodynamics_in_one_period/20250228/"
-
-
+path = "data/for_paper/hydrodynamics_in_one_period/20250302/"
 index = 0 # symplectic
 index2 = 1 # diaplectic
 force = True
@@ -88,8 +87,8 @@ ax6 = fig6.add_subplot(1,1,1)
 #     indices_diaplectic = np.where((plot_y  < .4) & (plot_y > 0.04))[0]
 #     indices_diaplectic_k2 = np.where(plot_y  < 0.04)[0]
 
-#     ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker='x', c='r')
-#     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker='+', c='r')
+#     ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=100, marker=dia_marker, c='r')
+#     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=100, marker=sym_marker, c='r')
 #     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=100, marker='P', c='r')
 
 
@@ -107,25 +106,28 @@ ax6 = fig6.add_subplot(1,1,1)
 # vmax2 = np.max(variable)
 # color2 = cmap((variable-vmin2)/(vmax2-vmin2))
 
+sym_marker = None
+dia_marker = None
 
-ax1.plot(time_data[:-1], r_data[:-1], marker='+', c='black')
-ax12.plot(time_data[:-1], r_data2[:-1], marker='x', c='blue')
 
-ax2.plot(time_data[:-1], num_eff_beat_data[:-1], marker='+', c='black', label='Symplectic')
-ax2.plot(time_data[:-1], num_eff_beat_data2[:-1], marker='x', c='blue', label='Diaplectic')
+ax1.plot(time_data[:-1], r_data[:-1], marker=sym_marker, c='black')
+ax12.plot(time_data[:-1], r_data2[:-1], marker=dia_marker, c='blue')
 
-ax3.plot(time_data[:-1], body_speed_data[:num_frame-1], marker='+', c='black', label='Symplectic')
-ax3.plot(time_data[:-1], body_speed_data2[:num_frame-1], marker='x', c='blue', label='Diaplectic')
+ax2.plot(time_data[:-1], num_eff_beat_data[:-1], marker=sym_marker, c='black', label='Symplectic')
+ax2.plot(time_data[:-1], num_eff_beat_data2[:-1], marker=dia_marker, c='blue', label='Diaplectic')
 
-ax4.plot(time_data[:-1], body_rot_speed_data[:num_frame-1], marker='+', c='black', label='Symplectic')
-ax4.plot(time_data[:-1], body_rot_speed_data2[:num_frame-1], marker='x', c='blue', label='Diaplectic')
+ax3.plot(time_data[:-1], body_speed_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')
+ax3.plot(time_data[:-1], body_speed_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')
+
+ax4.plot(time_data[:-1], body_rot_speed_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')
+ax4.plot(time_data[:-1], body_rot_speed_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')
 
 if force:
-    ax5.plot(time_data[:-1], dissipation_data[:num_frame-1], marker='+', c='black', label='Symplectic')
-    ax5.plot(time_data[:-1], dissipation_data2[:num_frame-1], marker='x', c='blue', label='Diaplectic')
+    ax5.plot(time_data[:-1], dissipation_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')
+    ax5.plot(time_data[:-1], dissipation_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')
 
-    ax6.plot(time_data[:-1], efficiency_data[:num_frame-1], marker='+', c='black', label='Symplectic')
-    ax6.plot(time_data[:-1], efficiency_data2[:num_frame-1], marker='x', c='blue', label='Diaplectic')
+    ax6.plot(time_data[:-1], efficiency_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')
+    ax6.plot(time_data[:-1], efficiency_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')
 
 
 # ax3.scatter(tilt_data[fi][:][indices_meridional], variable[:][indices_meridional], color = 'r', label=r'$<r>$>0.4')
@@ -144,16 +146,16 @@ from matplotlib.cm import ScalarMappable
 # cbar.set_label(variable_label)   
 
 # legend
-# ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
-# ax.scatter(-1, -1, marker='+', c='black', s=100, label='Diaplectic')
+# ax.scatter(-1, -1, marker=dia_marker, c='black', s=100, label='Symplectic')
+# ax.scatter(-1, -1, marker=sym_marker, c='black', s=100, label='Diaplectic')
 # ax.scatter(-1, -1, marker='P', c='black', s=100, label='Diaplectic(#k=2)')
 # ax.scatter(-1, -1, marker='s', c='r', s=100, label='Held fixed')
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax1.set_xlabel(r'$t/T$')
 ax1.set_ylabel(r'r')
-ax1.plot(-1, -1, marker='+', c='black', label='Symplectic')
-ax1.plot(-1, -1, marker='x', c='blue', label='Diaplectic')
+ax1.plot(-1, -1, marker=sym_marker, c='black', label='Symplectic')
+ax1.plot(-1, -1, marker=dia_marker, c='blue', label='Diaplectic')
 ax1.legend(loc='upper left', fontsize=16, frameon=False)
 ax1.set_xlim((0, 1))
 ax1.set_ylim((0, 1))
@@ -170,11 +172,11 @@ ax3.set_xlim((0, 1))
 # ax3.set_ylim((np.min(body_speed_data)-0.1*np.ptp(body_speed_data), np.max(body_speed_data)+0.1*np.ptp(body_speed_data)))
 
 ax4.set_xlabel(r'$t/T$')
-ax4.set_ylabel(r"$Ω$")
+ax4.set_ylabel(r"$\Omega$")
 ax4.legend(fontsize=16, frameon=False)
 ax4.set_xlim((0, 1))
 formatter = mticker.ScalarFormatter(useMathText=True)
-formatter.set_powerlimits((-5, -5))  # Forces 10^-5 notation
+formatter.set_powerlimits((-4, -4))  # Forces 10^-5 notation
 ax4.yaxis.set_major_formatter(formatter)
 
 

@@ -4,6 +4,7 @@ import os
 import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import matplotlib.font_manager as fm
 
 # Path to the directory where fonts are stored
@@ -181,15 +182,18 @@ ax.set_ylabel(r'$<V>T/L$')
 ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r'$<\Omega>T$')
 
-ax3.set_xlabel(r'$\chi$')
+ax3.set_xlabel(r'$\chi(deg)$')
 ax3.set_ylabel(r'$<V>T/L$')
-ax3.legend()
+ax3.legend(fontsize=16, frameon=False)
 # ax3.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax3.set_xlim(tilt_angle[0], tilt_angle[-1])
 
-ax4.set_xlabel(r'$\chi$')
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
+ax4.yaxis.set_major_formatter(formatter)
+ax4.set_xlabel(r'$\chi(deg)$')
 ax4.set_ylabel(r'$<\Omega>T$')
-ax4.legend()
+ax4.legend(fontsize=16, frameon=False)
 # ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax4.set_xlim(tilt_angle[0], tilt_angle[-1])
 
@@ -197,7 +201,7 @@ ax5.scatter(-.1, -.1, marker='+', c='red', label='Symplectic')
 ax5.scatter(-.1, -.1, marker='+', c='blue', label='Diaplectic')
 ax5.set_xlabel(r'$k$')
 ax5.set_ylabel(r'$<r>$')
-ax5.legend()
+ax5.legend(fontsize=16, frameon=False)
 ax5.set_ylim(0)
 ax5.set_xlim(0)
 
