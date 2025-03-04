@@ -81,7 +81,7 @@ class VISUAL:
         
 
         self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
+        self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -113,14 +113,14 @@ class VISUAL:
         # self.date = '20250125_fixed_correct'
         # self.dir = f"data/fixed_swimmer_correct/{self.date}/"
 
-        # self.date = '20250214_1e-6_settling'
+        # self.date = '20250214_1e-6_squirmer'
         # self.dir = f"data/resolution/{self.date}/"
 
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20250303_flowfield_sym'
-        # self.date = '20250225_flowfield_sym'
+        # self.date = '20250303_flowfield_sym'
+        self.date = '20250225_flowfield_sym'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250302'
@@ -202,7 +202,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 12000
+        self.plot_end_frame_setting = 11
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -3036,7 +3036,7 @@ class VISUAL:
     def flow_field_2D(self):
         
         view = 'top'
-        # view = 'side'
+        view = 'side'
         
         read_flow_field = False
         save_source_data = False
@@ -3688,6 +3688,9 @@ class VISUAL:
         cmap_name = 'hsv'
         cmap = plt.get_cmap(cmap_name)
 
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+
         def animation_func(t):
             global frame
 
@@ -3810,7 +3813,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 128
+            nx = 64
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -3834,9 +3837,9 @@ class VISUAL:
 
             subprocess.call("bin/FLOWFIELD", shell=True)
 
-            os.system(f'mv data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
-            os.system(f'mv data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
-            os.system(f'mv data/simulation/flow_z.dat {file_dir}flow_z{frame}.dat')
+            os.system(f'mv -f data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
+            os.system(f'mv -f data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
+            os.system(f'mv -f data/simulation/flow_z.dat {file_dir}flow_z{frame}.dat')
 
             start_time = time.time()
             # Define file paths
@@ -3877,6 +3880,7 @@ class VISUAL:
 
             if view == 'side':
                 vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+                
             if view == 'top':
                 vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
@@ -3906,13 +3910,22 @@ class VISUAL:
 
             phi_var_plot = ax.imshow(new_vel, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
 
+            # plot speed values over distance
+            ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+            ax2.vlines(-self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+
+            ax2.plot(np.linspace(-.5*Ly, .5*Ly, ny), vel[nzh,:]/self.fillength, color='black')
+            ax2.set_ylim(0)
+            ax2.set_xlim((-.5*Ly, .5*Ly))
+            ax2.set_xlabel(f'$d$')
+            ax2.set_ylabel(r'$|{u}_{flow}|T/L$')
+            fig2.tight_layout()
 
             print(f"elapsed time = {time.time() - start_time}")
 
             # qfac = 10
             # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
             ax.set_aspect('equal')
-            # ax.set_title(f'{t}')
             ax.set_xlim((0, Lx))
             ax.set_ylim((0, Ly))
             ax.set_xlabel('y')
@@ -3952,7 +3965,8 @@ class VISUAL:
             ax.axis('off')
             ax.set_aspect('equal')
             # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
 
@@ -6185,11 +6199,11 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim/"
 
-        # force = False
-        # path = "data/ic_hpc_sim_free/"
-
         force = True
-        path = 'data/tilt_test/makeup_pattern_with_force/'
+        path = "data/ic_hpc_sim_free_with_force/"
+
+        # force = True
+        # path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
         # path = 'data/tilt_test/IVP/'1
 
@@ -6920,16 +6934,26 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
         
-        ax.loglog(nblobs, errors, marker='+', c='black')
+        ax.loglog(nblobs, errors, marker='+', c='black', label=f'Data')
 
         # Plot the fitted function
         log_x = np.log10(nblobs)
         log_y = np.log10(errors)
         slope, intercept = np.polyfit(log_x, log_y, 1)
         equation_text = f"$y = {10**intercept:.2f} x^{{{slope:.2f}}}$"
-        # plt.annotate(equation_text, 
-        #      xy=(0.2, 0.3), xycoords='axes fraction', 
-        #      fontsize=20, ha='left', va='bottom')
+        plt.annotate(equation_text, 
+             xy=(0.2, 0.3), xycoords='axes fraction', 
+             fontsize=20, ha='left', va='bottom', color='r')
+
+        x_fit = np.linspace(min(log_x), max(log_x), 100)
+        y_fit = slope * x_fit + intercept
+        # Convert back from log scale to normal scale
+        x_plot = 10**x_fit
+        y_plot = 10**y_fit
+        # Plot fitted line
+        ax.plot(x_plot, y_plot, color='red', linestyle='--', label=f'Fitted line')
+
+        ax.legend(fontsize=16, frameon=False)
 
 
 

@@ -23,7 +23,7 @@ plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
 plt.rcParams.update({'font.size': 24})
 
 path_heldfixed = "data/ic_hpc_sim/"
-path_free = "data/ic_hpc_sim_free/"
+path_free = "data/ic_hpc_sim_free_with_force/"
 
 r_data_heldfixed = np.load(f"{path_heldfixed}r_data.npy")
 k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
