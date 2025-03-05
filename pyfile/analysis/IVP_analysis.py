@@ -22,12 +22,30 @@ plt.rcParams['font.serif'] = ['CMU Serif']
 plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
 plt.rcParams.update({'font.size': 24})
 
-path_heldfixed = "data/ic_hpc_sim/"
-path_free = "data/ic_hpc_sim_free_with_force/"
+def box(x, box_size):
+    return x - np.floor(x/box_size)*box_size
 
+def cartesian_to_spherical(x):
+    r = np.sqrt(x[0]**2 + x[1]**2 + x[2]**2)
+    theta = np.arctan2(x[1], x[0])
+    phi = np.arccos(x[2] / r)
+    
+    return r, theta, phi
+
+path_heldfixed = "data/ic_hpc_sim/"
+path_free = "data/ic_hpc_sim_free_test/"
+
+fil_references = np.load(f"{path_heldfixed}fil_ref_data.npy")
+nfil = int(np.shape(fil_references)[0]/3)
+fil_references_sphpolar = np.zeros((nfil,3))
+for i in range(nfil):
+    fil_references_sphpolar[i] = cartesian_to_spherical(fil_references[3*i: 3*i+3])
+
+phase_data_heldfixed = np.load(f"{path_heldfixed}phase_data.npy")
 r_data_heldfixed = np.load(f"{path_heldfixed}r_data.npy")
 k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
 
+phase_data_free = np.load(f"{path_free}phase_data.npy")
 r_data_free = np.load(f"{path_free}r_data.npy")
 k_data_free = np.load(f"{path_free}k_data.npy")
 avg_speed_data_free = np.load(f"{path_free}avg_speed_data.npy")
@@ -50,7 +68,22 @@ ax3 = fig3.add_subplot(1,1,1)
 fig4 = plt.figure(dpi=dpi)
 ax4 = fig4.add_subplot(1,1,1)
 
+ncol = np.shape(phase_data_heldfixed)[1]
+nrow = np.shape(phase_data_heldfixed)[0]
+fig5, axs = plt.subplots(nrow, ncol, sharex=True, sharey=True)
+axs_flat = axs.ravel()
+for ax5 in axs_flat:
+    ax5.set_xticklabels([])
+    ax5.set_yticklabels([])
+    ax5.set_xlabel('')
+    ax5.set_ylabel('')
+
 x_scale_offset = 1e-2
+
+colormap = 'hsv'
+colormap = 'twilight_shifted'
+vmin, vmax = 0, 2*np.pi
+cmap = mpl.colormaps[colormap]
 
 for fi in range(n_folder_heldfixed):
     plot_x = k_data_heldfixed[fi] / x_scale_offset
@@ -67,15 +100,24 @@ for fi in range(n_folder_heldfixed):
     ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=s, marker=marker, c=color)
     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=s, marker=marker, c=color)
 
-    #special points for paper (made up)
-    if fi==9: # symplectic
-        ax.scatter(plot_x[1], plot_y[1], s=100, marker='o', c='black', linewidths=1, zorder=300)
-    if fi==3: # asym_symplectic
-        ax.scatter(plot_x[0], plot_y[0], s=100, marker='s', c='black', linewidths=1, zorder=300)
-    if fi==3:
-        ax.scatter(plot_x[9], plot_y[9], s=100, marker='x', c='black', linewidths=2, zorder=300)
-    if fi==8:
+    #special points for paper
+    fii = 8
+    if fi==fii: # symplectic
+        ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='black', linewidths=1, zorder=300)
+    if fi==fii: # asym_symplectic
+        ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='black', linewidths=1, zorder=300)
+    if fi==fii: #k=1
         ax.scatter(plot_x[9], plot_y[9], s=100, marker='^', c='black', linewidths=1, zorder=300)
+    if fi==fii: #k=2
+        ax.scatter(plot_x[7], plot_y[7], s=100, marker='x', c='black', linewidths=2, zorder=300)
+
+    
+    # plot fil_phases
+    for simi in range(ncol):
+        if simi in indices_diaplectic or simi in indices_diaplectic_k2:
+            colors = cmap(box(phase_data_heldfixed[fi][simi], vmax)/vmax)
+            axs_flat[int(fi*ncol+simi)].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+        
 
 for fi in range(n_folder_free):
     plot_x = k_data_free[fi] / x_scale_offset

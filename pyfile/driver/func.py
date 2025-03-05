@@ -24,7 +24,7 @@ class DRIVER:
 
         self.category = 'ic_hpc_sim_free_with_force2/'
         self.exe_name = 'cilia_1e-4_free'
-        self.date = '20240311_1'
+        self.date = '20240311_3'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'resolution/'
@@ -231,9 +231,9 @@ class DRIVER:
                         nz=400
                         boxsize=8000
                         # spring_factor = round(0.005 + 0.005*(i**2), 3)
-                        spring_factor = round(0.005 + 0.005*i, 3)
+                        spring_factor = round(0.007 + 0.005*i, 3)
                         period = 1
-                        sim_length = 10
+                        sim_length = 20
                         # tilt_angle = i*1./18*3.141592653
                         tilt_angle = 0.0
                         pair_dp = 1.0

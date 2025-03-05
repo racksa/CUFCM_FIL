@@ -76,12 +76,11 @@ class VISUAL:
         self.dir = f"data/tilt_test/{self.date}/"
 
 
-        # self.date = '20240311_8'
-        # self.dir = f"data/ic_hpc_sim/{self.date}/"
-        
+        self.date = '20240311_8'
+        self.dir = f"data/ic_hpc_sim/{self.date}/"        
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
+        # self.date = '20240311_2'
+        # self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -120,8 +119,8 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20250303_flowfield_sym'
-        self.date = '20250225_flowfield_sym'
-        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # self.date = '20250225_flowfield_sym'
+        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250302'
         # # self.date = '20250228'
@@ -202,7 +201,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 11
+        self.plot_end_frame_setting = 1100000
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -214,7 +213,7 @@ class VISUAL:
         self.Ly = 1000
         self.Lz = 1000
 
-        self.ncol = 5
+        self.ncol = 4
         self.num_sim = 0
 
         self.plot_interval = 1
@@ -3914,7 +3913,7 @@ class VISUAL:
             ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
             ax2.vlines(-self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
 
-            ax2.plot(np.linspace(-.5*Ly, .5*Ly, ny), vel[nzh,:]/self.fillength, color='black')
+            ax2.plot(np.linspace(-.5*Ly, .5*Ly-dx, ny), vel[nzh,:]/self.fillength, color='black')
             ax2.set_ylim(0)
             ax2.set_xlim((-.5*Ly, .5*Ly))
             ax2.set_xlabel(f'$d$')
@@ -3975,12 +3974,13 @@ class VISUAL:
         # Plotting
         colormap = 'cividis'
         colormap = 'twilight_shifted'
+        plt.rcParams.update({'font.size': 8})
 
         # nrow = len(np.unique(self.pars_list['nfil']))
         # ncol = len(np.unique(self.pars_list['ar']))
         # if(ncol == 1 or nrow == 1):
-            # nrow = int(self.num_sim**.5)
-            # ncol = nrow + (1 if nrow**2 < self.num_sim else 0)
+        #     nrow = int(self.num_sim**.5)
+        #     ncol = nrow + (1 if nrow**2 < self.num_sim else 0)
         
         ncol = self.ncol
         nrow = self.num_sim//ncol
@@ -3998,8 +3998,6 @@ class VISUAL:
         row_major_bottom_top_indices = np.array([
             row + nrow * col for row in row_indices for col in col_indices
         ])
-        print(row_major_bottom_top_indices)
-
 
         import scipy.interpolate
 
@@ -4011,12 +4009,12 @@ class VISUAL:
         
         plt.xlim(-np.pi, np.pi)
         plt.ylim(0, np.pi)
-        plt.xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
+        plt.xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
         plt.yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
         plt.gca().invert_yaxis()
 
-        for ind, ax in zip(row_major_bottom_top_indices, axs_flat):
-        # for ind, ax in enumerate(axs_flat):
+        # for ind, ax in zip(row_major_bottom_top_indices, axs_flat):
+        for ind, ax in enumerate(axs_flat):
             ax.invert_yaxis()
             if (ind < self.num_sim):
                 try:
@@ -4060,15 +4058,16 @@ class VISUAL:
                                 ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
 
                     # ax.set_title(f"ind={self.index} spr={self.spring_factor} {self.plot_end_frame}")
-                    ax.set_title(f"{self.index} {self.plot_end_frame}")
+                    # ax.set_title(f"{self.index} {self.plot_end_frame}")
+                    ax.set_title(f"k={self.spring_factor}")
                 except:
                     print("WARNING: " + self.simName + " not found.")
-        for ax in axs_flat:
-            ax.tick_params(axis='both', which='both', labelsize=18)
+        # for ax in axs_flat:
+        #     ax.tick_params(axis='both', which='both', labelsize=18)
         plt.tight_layout()
         # plt.savefig(f'fig/ciliate_multi_phase_elst{spring_factor}.png', bbox_inches = 'tight', format='png')
         plt.savefig(f'fig/ciliate_multi_phase_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        plt.show()
+        # plt.show()
 
     def multi_kymograph(self):
         # Plotting
@@ -6199,8 +6198,8 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim/"
 
-        force = True
-        path = "data/ic_hpc_sim_free_with_force/"
+        # force = True
+        # path = "data/ic_hpc_sim_free_with_force/"
 
         # force = True
         # path = 'data/tilt_test/makeup_pattern_with_force/'
@@ -6224,6 +6223,7 @@ class VISUAL:
         # All folders should have the same num_sim!
         self.dir = path + folders[0] + '/'
         self.read_rules()
+        phase_data = np.zeros((len(folders), self.num_sim, int(self.pars_list["nfil"][0])))
         r_data = np.zeros((len(folders), self.num_sim))
         k_data = np.zeros((len(folders), self.num_sim))
         tilt_data = np.zeros((len(folders), self.num_sim))
@@ -6243,8 +6243,10 @@ class VISUAL:
             print(self.dir)
             self.read_rules()
 
+
             k_arrays = self.pars_list['spring_factor']
             tilt_arrays = self.pars_list['tilt_angle']
+            phase_arrays = np.zeros((np.shape(k_arrays)[0], int(self.pars_list["nfil"][0])))
             r_arrays = np.zeros(np.shape(k_arrays))
             avg_vz_arrays = np.zeros(np.shape(k_arrays))
             avg_speed_arrays = np.zeros(np.shape(k_arrays))
@@ -6349,6 +6351,7 @@ class VISUAL:
                 avg_rot_speed_arrays[ind] = np.mean(body_rot_speed_array)
                 avg_rot_speed_along_axis_arrays[ind] = np.mean(body_rot_speed_along_axis_array)
                 r_arrays[ind] /= self.frames
+                phase_arrays[ind] = phases
                 print(avg_speed_arrays[ind])
                 if force:
                     
@@ -6359,6 +6362,7 @@ class VISUAL:
                 #     print("Something went wrong")
                 #     pass
 
+            phase_data[fi] = phase_arrays
             r_data[fi] = r_arrays
             k_data[fi] = k_arrays
             tilt_data[fi] = tilt_arrays
@@ -6374,6 +6378,8 @@ class VISUAL:
             ax.scatter(k_arrays, r_arrays, marker='x', label = folder, c='black')
 
         # save data
+        np.save(f"{path}fil_ref_data.npy", self.fil_references)
+        np.save(f"{path}phase_data.npy", phase_data)
         np.save(f"{path}r_data.npy", r_data)
         np.save(f"{path}k_data.npy", k_data)
         np.save(f"{path}tilt_data.npy", tilt_data)
