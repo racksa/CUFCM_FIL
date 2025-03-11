@@ -76,10 +76,11 @@ class VISUAL:
         self.dir = f"data/tilt_test/{self.date}/"
 
 
-        self.date = '20240311_8'
+        self.date = '20240311_3'
         self.dir = f"data/ic_hpc_sim/{self.date}/"        
 
-        # self.date = '20240311_2'
+        self.date = '20240311_4'
+        self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
         # self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
@@ -201,8 +202,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1100000
-        self.frames_setting = 30000
+        self.plot_end_frame_setting = 3000000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -857,7 +858,7 @@ class VISUAL:
                 variables = fil_states[self.nfil:]
 
             # ax.set_title(rf"${frame}$")
-            ax.set_ylabel(r"$\theta$")
+            # ax.set_ylabel(r"$\theta$")
             # ax.set_xlabel(r"$\phi$")
             
 
@@ -866,11 +867,11 @@ class VISUAL:
             # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
             # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
             ax.set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
-            ax.set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
+            ax.set_yticks(np.linspace(0, np.pi, 3), ['', 'π/2', 'π'])
             ax.invert_yaxis()
 
 
-            # ax.set_xticklabels([])
+            ax.set_xticklabels([])
 
             fig.tight_layout()
 
@@ -937,9 +938,9 @@ class VISUAL:
                     frame = i
                     plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
                     ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
-                    plt.show()    
-                    # FFwriter = animation.FFMpegWriter(fps=16)
-                    # ani.save(f'fig/fil_phase_index{self.index}_{self.date}_anim.mp4', writer=FFwriter)
+                    # plt.show()    
+                    FFwriter = animation.FFMpegWriter(fps=16)
+                    ani.save(f'fig/fil_phase_index{self.index}_{self.date}_anim.mp4', writer=FFwriter)
                     ## when save, need to comment out plt.show() and be patient!
                     break
                 else:
@@ -2025,7 +2026,7 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        elev_angle = 90
+        elev_angle = 0
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
@@ -4067,7 +4068,7 @@ class VISUAL:
         plt.tight_layout()
         # plt.savefig(f'fig/ciliate_multi_phase_elst{spring_factor}.png', bbox_inches = 'tight', format='png')
         plt.savefig(f'fig/ciliate_multi_phase_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # plt.show()
+        plt.show()
 
     def multi_kymograph(self):
         # Plotting
@@ -6198,8 +6199,9 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim/"
 
-        # force = True
-        # path = "data/ic_hpc_sim_free_with_force/"
+        force = False
+        path = "data/ic_hpc_sim_free_with_force2/"
+        path = "data/ic_hpc_sim_free_continue/"
 
         # force = True
         # path = 'data/tilt_test/makeup_pattern_with_force/'

@@ -33,7 +33,8 @@ def cartesian_to_spherical(x):
     return r, theta, phi
 
 path_heldfixed = "data/ic_hpc_sim/"
-path_free = "data/ic_hpc_sim_free_test/"
+path_free = "data/ic_hpc_sim_free_with_force2/"
+path_free = "data/ic_hpc_sim_free_continue/"
 
 fil_references = np.load(f"{path_heldfixed}fil_ref_data.npy")
 nfil = int(np.shape(fil_references)[0]/3)
@@ -42,6 +43,7 @@ for i in range(nfil):
     fil_references_sphpolar[i] = cartesian_to_spherical(fil_references[3*i: 3*i+3])
 
 phase_data_heldfixed = np.load(f"{path_heldfixed}phase_data.npy")
+phase_data_free = np.load(f"{path_free}phase_data.npy")
 r_data_heldfixed = np.load(f"{path_heldfixed}r_data.npy")
 k_data_heldfixed = np.load(f"{path_heldfixed}k_data.npy")
 
@@ -68,8 +70,18 @@ ax3 = fig3.add_subplot(1,1,1)
 fig4 = plt.figure(dpi=dpi)
 ax4 = fig4.add_subplot(1,1,1)
 
-ncol = np.shape(phase_data_heldfixed)[1]
-nrow = np.shape(phase_data_heldfixed)[0]
+plot_phase_data = 'free'
+
+if plot_phase_data == 'fixed':
+    ncol = np.shape(phase_data_heldfixed)[1]
+    nrow = np.shape(phase_data_heldfixed)[0]
+elif plot_phase_data == 'free':
+    ncol = np.shape(phase_data_free)[1]
+    nrow = np.shape(phase_data_free)[0]
+else:
+    ncol = 1
+    nrow = 1
+
 fig5, axs = plt.subplots(nrow, ncol, sharex=True, sharey=True)
 axs_flat = axs.ravel()
 for ax5 in axs_flat:
@@ -104,19 +116,22 @@ for fi in range(n_folder_heldfixed):
     fii = 8
     if fi==fii: # symplectic
         ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='black', linewidths=1, zorder=300)
-    if fi==fii: # asym_symplectic
+    if fi==fii: # symplectic 2
         ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='black', linewidths=1, zorder=300)
+    if fi==3: # symplectic 3
+        ax.scatter(plot_x[8], plot_y[8], s=200, marker='+', c='black', linewidths=3, zorder=300)
     if fi==fii: #k=1
         ax.scatter(plot_x[9], plot_y[9], s=100, marker='^', c='black', linewidths=1, zorder=300)
     if fi==fii: #k=2
         ax.scatter(plot_x[7], plot_y[7], s=100, marker='x', c='black', linewidths=2, zorder=300)
 
     
-    # plot fil_phases
-    for simi in range(ncol):
-        if simi in indices_diaplectic or simi in indices_diaplectic_k2:
-            colors = cmap(box(phase_data_heldfixed[fi][simi], vmax)/vmax)
-            axs_flat[int(fi*ncol+simi)].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+    # # plot fil_phases
+    if plot_phase_data == 'fixed':
+        for simi in range(ncol):
+            if simi in indices_diaplectic or simi in indices_diaplectic_k2:
+                colors = cmap(box(phase_data_heldfixed[fi][simi], vmax)/vmax)
+                axs_flat[int(fi*ncol+simi)].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
         
 
 for fi in range(n_folder_free):
@@ -140,6 +155,13 @@ for fi in range(n_folder_free):
     ax3.scatter(plot_x[indices_symplectic], plot_y3[indices_symplectic], s=100, marker='+', c='black')
     ax3.scatter(plot_x[indices_diaplectic], plot_y3[indices_diaplectic], s=50, marker='x', c='b')
 
+    # plot fil_phases
+    if plot_phase_data == 'free':
+        for simi in range(ncol):
+            if simi in indices_symplectic:
+                colors = cmap(box(phase_data_free[fi][simi], vmax)/vmax)
+                axs_flat[int(fi*ncol+simi)].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+        
 
 # ax.scatter(-1, -1, marker='+', c='r', label='Held fixed - Symplectic')
 # ax.scatter(-1, -1, marker='x', c='r', label='Held fixed - Diaplectic')
@@ -176,10 +198,11 @@ ax3.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax3.legend(fontsize=16, frameon=False)
 
 
-ax4.scatter(None, None, s=100, marker='o', c='black', linewidths=1, zorder=300, label='Symplectic')
-ax4.scatter(None, None, s=100, marker='s', c='black', linewidths=1, zorder=300, label='Asymmetric Symplectic')
-ax4.scatter(None, None, s=100, marker='x', c='black', linewidths=2, zorder=300, label='Diaplectic ($\kappa=1$)')
-ax4.scatter(None, None, s=100, marker='^', c='black', linewidths=1, zorder=300, label='Diaplectic ($\kappa=2$)')
+ax4.scatter(None, None, s=100, marker='o', c='black', linewidths=1, zorder=300, label='Symplectic (k=0.005)')
+ax4.scatter(None, None, s=100, marker='s', c='black', linewidths=1, zorder=300, label='Symplectic (k=0.015)')
+ax4.scatter(None, None, s=200, marker='+', c='black', linewidths=3, zorder=300, label='Symplectic (k=0.04)')
+ax4.scatter(None, None, s=100, marker='^', c='black', linewidths=1, zorder=300, label='Diaplectic ($\kappa=1$)')
+ax4.scatter(None, None, s=100, marker='x', c='black', linewidths=2, zorder=300, label='Diaplectic ($\kappa=2$)')
 ax4.legend(fontsize=16, frameon=False)
 ax4.set_axis_off()
 

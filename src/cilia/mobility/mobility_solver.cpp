@@ -1250,7 +1250,8 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
       #else
 
-        // compute ( - r_2 - K^T M^-1 r_1 )
+        // compute ( - r_2 - K^T M^-1 r_1 ) 
+        // note M^-1 r_1 is already computed!!!
         out.multiply_block(3*NSWIM*(NBLOB + NFIL*NSEG), 6*NSWIM, -1.0);
 
         for (int n = 0; n < NSWIM; n++){
