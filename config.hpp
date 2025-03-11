@@ -91,7 +91,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // This enables filaments to be seeded as pair and have difference frequency
 
 
-#define BODY_VELOCITY_TYPE 0
+#define BODY_VELOCITY_TYPE 2
 // 0 = FREE TO SWIM
 // 1 = PRESCRIBED VELOCITIES
 // 2 = PRESCRIBED ROTATION ONLY
@@ -106,7 +106,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // #endif
 
 
-#define OUTPUT_FORCES false
+#define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2

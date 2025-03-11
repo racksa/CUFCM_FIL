@@ -115,7 +115,7 @@ cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pizza
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_free
+	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_no_rotation
 
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	module load cuda/11.4.2 && \

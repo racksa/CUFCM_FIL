@@ -64,15 +64,19 @@ fig7 = plt.figure()
 ax7 = fig7.add_subplot(1,1,1)
 
 plottype = 'avg'
-plottype = 'individual'
+# plottype = 'individual'
 
 if plottype == 'avg':
     n_k = 1
-if plottype == 'individual':
+elif plottype == 'individual':
     n_k = 10
+
 n_tilt = 5
-tilt_angle = np.linspace(0, np.pi/4, n_tilt+1)[:-1]
+tilt_angle = np.linspace(0, 50*np.pi/180, n_tilt+1)[:-1]
 tilt_angle = tilt_angle*180/np.pi
+
+print(tilt_angle)
+
 
 # print(avg_dis_data[0][0::n_tilt], np.mean(avg_dis_data[0][0::n_tilt]))
 # print(avg_dis_data[0][1::n_tilt], np.mean(avg_dis_data[0][1::n_tilt]))
@@ -111,21 +115,32 @@ for fi in range(n_folder):
                 if force:
                     avg_dis_over_k[ti] = avg_dis[ki] #np.mean(avg_rot_speed
 
-            ax.plot(k, avg_speed, marker='+', c=color)
+            # ax.plot(k, avg_speed, marker='+', c=color)
 
-            ax2.plot(k, avg_rot_speed, marker='+', c=color)
+            ax2.plot(k, avg_rot_speed, marker=markers[fi], c=color)
 
-            ax5.scatter(k[:7], r[:7], marker='+', c=colors[fi])
+            ax5.scatter(k[:7], r[:7], marker=markers[fi], c=colors[fi])
 
-        ax3.plot(tilt_angle, avg_speed_over_k, marker='+', c=colors[fi])
+        ax3.plot(tilt_angle, avg_speed_over_k, marker=markers[fi], c=colors[fi])
 
-        ax4.plot(tilt_angle, avg_rot_speed_over_k, marker='+', c=colors[fi])
+        ax4.plot(tilt_angle, avg_rot_speed_over_k, marker=markers[fi], c=colors[fi])
 
         if force:
-            ax6.plot(tilt_angle, avg_dis_over_k, marker='+', c=colors[fi])
+            ax6.plot(tilt_angle, avg_dis_over_k, marker=markers[fi], c=colors[fi])
 
-            ax7.plot(tilt_angle, avg_speed_over_k**2/avg_dis_over_k, marker='+', c=colors[fi])
+            ax7.plot(tilt_angle, avg_speed_over_k**2/avg_dis_over_k, marker=markers[fi], c=colors[fi])
 
+    std3 = np.array([np.std(avg_speed_along_axis_data[fi][ti::n_tilt]) for ti in range(n_tilt)])
+    ax3.scatter(tilt_data[fi]*180/np.pi, avg_speed_along_axis_data[fi], marker=markers[fi], c=colors[fi])
+    ax3.fill_between(tilt_angle, avg_speed_over_k - std3,
+                 avg_speed_over_k + std3, color=colors[fi], alpha=0.2)
+
+    std4 = np.array([np.std(avg_rot_speed_along_axis_data[fi][ti::n_tilt]) for ti in range(n_tilt)])
+    ax4.scatter(tilt_data[fi]*180/np.pi, avg_rot_speed_along_axis_data[fi], marker=markers[fi], c=colors[fi])
+    ax4.fill_between(tilt_angle, avg_rot_speed_over_k - std4,
+                 avg_rot_speed_over_k + std4, color=colors[fi], alpha=0.2)
+
+    
     ax3.plot(np.nan, np.nan, marker=markers[fi], c=colors[fi], label = labels[fi])
     ax4.plot(np.nan, np.nan, marker=markers[fi], c=colors[fi], label = labels[fi])
 
@@ -170,6 +185,9 @@ ax.set_ylabel(r'$<V>T/L$')
 ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r'$<\Omega>T$')
 
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((0, 2))  # Forces 10^4 notation when values are large
+ax3.yaxis.set_major_formatter(formatter)
 ax3.set_xlabel(r'$\chi(deg)$')
 ax3.set_ylabel(r'$<V>T/L$')
 ax3.legend(fontsize=16, frameon=False)

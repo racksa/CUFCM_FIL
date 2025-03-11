@@ -34,7 +34,7 @@ def cartesian_to_spherical(x):
 
 path_heldfixed = "data/ic_hpc_sim/"
 path_free = "data/ic_hpc_sim_free_with_force2/"
-path_free = "data/ic_hpc_sim_free_continue/"
+# path_free = "data/ic_hpc_sim_free_continue/"
 
 fil_references = np.load(f"{path_heldfixed}fil_ref_data.npy")
 nfil = int(np.shape(fil_references)[0]/3)

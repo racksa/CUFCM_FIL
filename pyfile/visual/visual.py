@@ -80,7 +80,7 @@ class VISUAL:
         self.dir = f"data/ic_hpc_sim/{self.date}/"        
 
         self.date = '20240311_4'
-        self.dir = f"data/ic_hpc_sim_free_continue/{self.date}/"
+        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
         # self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
@@ -119,9 +119,9 @@ class VISUAL:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        # self.date = '20250303_flowfield_sym'
-        # self.date = '20250225_flowfield_sym'
-        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        self.date = '20250225_flowfield_sym'
+        # self.date = '20250311_flowfield_sym_backflow'
+        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250302'
         # # self.date = '20250228'
@@ -202,8 +202,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000000
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 11
+        self.frames_setting = 3000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3718,6 +3718,7 @@ class VISUAL:
             seg_states = np.array(seg_states_str.split()[1:], dtype=float)
             body_states = np.array(body_states_str.split()[1:], dtype=float)
             body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             fil_phases = fil_states[:self.nfil]
@@ -3813,7 +3814,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 64
+            nx = 128
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -3861,6 +3862,10 @@ class VISUAL:
             flow_y = reshape_func(flow_y, nx, ny ,nz)
             flow_z = reshape_func(flow_z, nx, ny ,nz)
 
+            flow_x -= body_vels[0]
+            flow_y -= body_vels[1]
+            flow_z -= body_vels[2]
+            print(f"body vels = {body_vels[:3]}")
             print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
             
 
@@ -3961,6 +3966,7 @@ class VISUAL:
                     seg_states_str = seg_states_f.readline()
                     body_states_str = body_states_f.readline()
                     fil_states_str = fil_states_f.readline()
+                    body_vels_str = body_vels_f.readline()
             
             ax.axis('off')
             ax.set_aspect('equal')
