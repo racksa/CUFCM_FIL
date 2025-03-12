@@ -238,10 +238,10 @@ class DRIVER:
                         tilt_angle = 0.0
                         wavnum = 0.0
                         wavnum_dia = 0.0
-                        fene_model = 1
+                        fene_model = 0
                         omega_spread = 0.0
                         force_noise_mag = 0.0
-                        pair_dp = 0.0
+                        pair_dp = 1.0
                         
 
                         # # ishikawa pnas

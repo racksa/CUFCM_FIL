@@ -79,9 +79,12 @@ class VISUAL:
         self.date = '20240311_3'
         self.dir = f"data/ic_hpc_sim/{self.date}/"        
 
-        self.date = '20240311_4'
+        self.date = '20240311_1'
         self.dir = f"data/ic_hpc_sim_free/{self.date}/"
         # self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
+
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free_new/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -119,9 +122,9 @@ class VISUAL:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        self.date = '20250225_flowfield_sym'
+        # self.date = '20250225_flowfield_sym'
         # self.date = '20250311_flowfield_sym_backflow'
-        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250302'
         # # self.date = '20250228'
@@ -202,8 +205,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 11
-        self.frames_setting = 3000
+        self.plot_end_frame_setting = 100000
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3731,25 +3734,35 @@ class VISUAL:
             np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
 
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
+            focus = 0.8
             # shift = np.zeros(3)
 
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
 
                 if view == 'top':
-                    circle=plt.Circle((shift[1], shift[2]), self.radius, color='Grey', zorder=99)
-                    ax.scatter(shift[1], shift[2], c='black', zorder = 999)
+                    circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
+                    ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
                 if view == 'side':
-                    circle=plt.Circle((shift[0], shift[1]), self.radius, color='Grey', zorder=99)
-                    ax.plot([shift[0], shift[0]], [self.radius+shift[1], -self.radius+shift[1]], c='black', linestyle='dashed', zorder = 999, linewidth=0.5)
-                    ax.scatter([shift[0]], [-self.radius+shift[1]], c='black', zorder = 100, s=5)
-                    ax.scatter([shift[0]], [self.radius+shift[1]], c='black', zorder = 100, s=5)
+                    circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
+                    R = np.identity(3)
+                    R = util.rot_mat(body_states[3 : 7])
+                    body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
+                    body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
+                    body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
+                    
+                    # Plot body axis
+                    ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
+                            [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
+                            c='black', linestyle='dashed',zorder=100)
+                    ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                    ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
 
                 ax.add_patch(circle)
 
 
                 for blob in range(self.nblob):
-                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos + shift
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
                     blob_force = blob_forces[3*blob : 3*blob+3]
 
                     source_pos_list[blob] = blob_pos
@@ -3767,7 +3780,7 @@ class VISUAL:
                     # fil_color = 'black'
 
                     for seg in range(self.nseg):
-                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos + shift
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] +shift
                         seg_data[seg] = seg_pos
                         seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
                         seg_force = seg_force[:3]
@@ -3814,7 +3827,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 128
+            nx = 256
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -3862,9 +3875,9 @@ class VISUAL:
             flow_y = reshape_func(flow_y, nx, ny ,nz)
             flow_z = reshape_func(flow_z, nx, ny ,nz)
 
-            flow_x -= body_vels[0]
-            flow_y -= body_vels[1]
-            flow_z -= body_vels[2]
+            # flow_x -= body_vels[0]
+            # flow_y -= body_vels[1]
+            # flow_z -= body_vels[2]
             print(f"body vels = {body_vels[:3]}")
             print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
             
@@ -3890,6 +3903,7 @@ class VISUAL:
                 vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
             speed_limit = np.max(vel)*0.5
+            speed_limit = 100.0
 
             print(f"elapsed time = {time.time() - start_time}")
 
@@ -3931,10 +3945,19 @@ class VISUAL:
             # qfac = 10
             # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
             ax.set_aspect('equal')
-            ax.set_xlim((0, Lx))
-            ax.set_ylim((0, Ly))
+            if view=='top':
+                ax.set_xlim((Lx*(1-focus), Lx*focus))
+                ax.set_ylim((Ly*(1-focus), Ly*focus))
+            if view=='side':
+                ax.set_xlim((Ly*(1-focus), Ly*focus))
+                ax.set_ylim((Lz*(1-focus), Lz*focus))
             ax.set_xlabel('y')
             ax.set_ylabel('z')
+
+            if(self.video):
+                ax.axis('off')
+                ax.set_aspect('equal')
+                fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{t}.png', bbox_inches = 'tight', format='png', transparent=True)
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -3953,7 +3976,7 @@ class VISUAL:
                     fil_states_str = fil_states_f.readline()
 
             FFwriter = animation.FFMpegWriter(fps=10)
-            # ani.save(f'fig/flowfield_2D_{self.nfil}fil_anim_5.mp4', writer=FFwriter)
+            ani.save(f'fig/flowfield_FFCM_{self.date}_anim.mp4', writer=FFwriter)
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")

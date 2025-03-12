@@ -313,11 +313,11 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             q_angle *= 0.5*swimmers[n].filaments[i].omega0/PI;
 
             // Apply the torsional spring force
-            Real Qbar = 0.0;
-            for (int ii = 0; ii < gen_angle_force_refs.size(); ii++){
-              Qbar += std::abs(gen_angle_force_refs[ii]);
-            }
-            Qbar /= gen_angle_force_refs.size();
+            // Real Qbar = 0.0;
+            // for (int ii = 0; ii < gen_angle_force_refs.size(); ii++){
+            //   Qbar += std::abs(gen_angle_force_refs[ii]);
+            // }
+            // Qbar /= gen_angle_force_refs.size();
 
             Real k_scaling = (swimmers[n].filaments[i].omega0*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH);
 
@@ -328,7 +328,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
                 fene_factor = 0.5*swimmers[n].filaments[i].shape_rotation_angle * (1 + pow(swimmers[n].filaments[i].shape_rotation_angle, 2)/pow(max_angle,2)*std::exp(std::abs(swimmers[n].filaments[i].shape_rotation_angle) - max_angle));
               }else{
                 fene_factor = swimmers[n].filaments[i].shape_rotation_angle;
-                // fene_factor = swimmers[n].filaments[i].shape_rotation_angle/std::abs(1.0 - pow(swimmers[n].filaments[i].shape_rotation_angle / max_angle, 2));
               }
             }
             
@@ -351,13 +350,6 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             std::mt19937 gen{rd()};
             std::normal_distribution<Real> d(0,1);
             Real noise = d(gen);
-
-            // Real Qbarp = 0.0;
-            // for (int ii = 0; ii < gen_phase_force_refs.size(); ii++){
-            //   Qbarp += std::abs(gen_phase_force_refs[ii]);
-            // }
-            // Qbarp /= gen_phase_force_refs.size();
-            // std::cout << i << "     " << Qbarp << std::endl;
             
             q_phase += FORCE_NOISE_MAG*noise;
 
