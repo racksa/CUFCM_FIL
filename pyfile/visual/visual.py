@@ -76,15 +76,15 @@ class VISUAL:
         self.dir = f"data/tilt_test/{self.date}/"
 
 
-        self.date = '20240311_3'
+        self.date = '20240311_1'
         self.dir = f"data/ic_hpc_sim/{self.date}/"        
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free/{self.date}/"
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
         # self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free_new/{self.date}/"
+        self.date = '20240311_7'
+        self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
 
         # self.date = 'combined_analysis_force_rerun'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -123,8 +123,8 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20250225_flowfield_sym'
-        # self.date = '20250311_flowfield_sym_backflow'
-        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        self.date = '20250311_flowfield_sym_free'
+        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250302'
         # # self.date = '20250228'
@@ -205,8 +205,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 100000
-        self.frames_setting = 30000
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 1
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1036,13 +1036,14 @@ class VISUAL:
 
                 avg_posterior_phase = np.mean(phases_inter[:128])
                 avg_anterior_phase = np.mean(phases_inter[-128:])
+                print(phases_inter)
                 # print(i, avg_posterior_phase, avg_anterior_phase)
                 avg_posterior_phase_array[i-self.plot_start_frame] = avg_posterior_phase
                 avg_anterior_phase_array[i-self.plot_start_frame] = avg_anterior_phase
+                # wavenumber_array[i-self.plot_start_frame] = np.mean(util.box(phases_inter[:128] - phases_inter[-128:], 2*np.pi))/(2*np.pi)
+                # print(util.box(phases_inter[:128] - phases_inter[-128:], 2*np.pi))
 
-        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) + 2
-
-        print(np.mean(wavenumber_array))
+        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) 
 
         ax2.plot(time_array, wavenumber_array, c='black')
         # ax2.plot(time_array, avg_anterior_phase_array, c='r')
@@ -1271,7 +1272,7 @@ class VISUAL:
         ax5.plot(time_array, r_array)
         ax5.set_ylim(0)
         ax5.set_xlabel('t/T')
-        ax5.set_ylabel('<r>')
+        ax5.set_ylabel('r')
         ax5.set_xlim(time_array[0], time_array[-1])
         # ax5.set_xticks(np.linspace(0, 40, 5))
 
@@ -1737,7 +1738,7 @@ class VISUAL:
         plt.show()
 
     def ciliate(self):
-        show_flow_field = False
+        show_flow_field = True
         self.select_sim()
 
         def stokeslet(x, x0, f0):
@@ -2457,7 +2458,7 @@ class VISUAL:
         ax.set_xlim(time_array[0], time_array[-1])
         ax.plot(time_array, dissipation_array)
         ax.set_xlabel(r'$t/T$')
-        ax.set_ylabel(r'$PT^2/\mu L^3$')
+        ax.set_ylabel(r'$PT^2/\eta L^3$')
         fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         # plt.show()
 
@@ -3620,7 +3621,7 @@ class VISUAL:
     def flow_field_FFCM(self):
 
         view = 'top'
-        view = 'side'
+        # view = 'side'
 
         def find_pos(line, symbol):
             """Find position of symbol
@@ -3734,7 +3735,7 @@ class VISUAL:
             np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
 
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
-            focus = 0.8
+            focus = 1.0
             # shift = np.zeros(3)
 
             for swim in range(int(self.pars['NSWIM'])):
@@ -3997,6 +3998,290 @@ class VISUAL:
             fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
+
+    def flow_field_polar(self):
+        from scipy.special import legendre
+        from scipy.special import lpmv
+        
+        @cuda.jit(device=True)
+        def stokeslet_device(x, x0, f0, result):
+            dis_x = x[0] - x0[0]
+            dis_y = x[1] - x0[1]
+            dis_z = x[2] - x0[2]
+            r = (dis_x**2 + dis_y**2 + dis_z**2)**0.5
+            
+            coeff = 1 / (8. * np.pi * r)
+            dot_product = f0[0] * dis_x + f0[1] * dis_y + f0[2] * dis_z
+            vector_term_x = dot_product * dis_x / (8. * np.pi * r**3)
+            vector_term_y = dot_product * dis_y / (8. * np.pi * r**3)
+            vector_term_z = dot_product * dis_z / (8. * np.pi * r**3)
+            
+            result[0] = coeff*f0[0] + vector_term_x
+            result[1] = coeff*f0[1] + vector_term_y
+            result[2] = coeff*f0[2] + vector_term_z
+
+        @cuda.jit
+        def compute_v_list_kernel(pos_list, source_pos_list, source_force_list, v_list):
+            pi = cuda.grid(1)
+            if pi < pos_list.shape[0]:
+                pos = pos_list[pi]
+                v_temp = cuda.local.array(3, float64)  # Local array for temporary storage
+                v_temp[0] = 0.0
+                v_temp[1] = 0.0
+                v_temp[2] = 0.0
+                for si in range(source_pos_list.shape[0]):
+                    source_pos = source_pos_list[si]
+                    source_force = source_force_list[si]
+                    temp_result = cuda.local.array(3, dtype=float64)
+                    stokeslet_device(pos, source_pos, source_force, temp_result)
+                    v_temp[0] += temp_result[0]
+                    v_temp[1] += temp_result[1]
+                    v_temp[2] += temp_result[2]
+                v_list[pi, 0] += v_temp[0]
+                v_list[pi, 1] += v_temp[1]
+                v_list[pi, 2] += v_temp[2]
+
+        # need to test
+        self.select_sim()
+
+        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        body_vels_f = open(self.simName + '_body_vels.dat', "r")
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+
+        # Flow field
+        n_theta = 15
+        n_r = 1
+        n_phi = 2
+        n_field_point = n_theta*n_r*n_phi
+
+        r_ratio = 1 + (self.fillength/self.radius)
+        r_list = np.linspace(r_ratio, 2.6, n_r)*self.radius
+        theta_list = np.linspace(0, np.pi, n_theta)
+        phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1] - np.pi/2
+
+        R, Phi, Theta = np.meshgrid(r_list, phi_list, theta_list, indexing='ij')
+
+        r_flat = R.ravel()
+        theta_flat = Theta.ravel()
+        phi_flat = Phi.ravel()
+
+        X = R * np.sin(Theta) * np.cos(Phi)
+        Y = R * np.sin(Theta) * np.sin(Phi)
+        Z = R * np.cos(Theta)
+
+        x_flat = X.ravel()
+        y_flat = Y.ravel()
+        z_flat = Z.ravel()
+
+        pos_list = np.column_stack((x_flat, y_flat, z_flat))
+
+        v_data = np.zeros((self.frames, n_field_point, 3))
+        ur_data = np.zeros((self.frames, n_field_point))
+        utheta_data = np.zeros((self.frames, n_field_point))
+        uphi_data = np.zeros((self.frames, n_field_point))
+
+        n_coeffs = 3
+        An_data = np.zeros((self.frames, n_coeffs))
+        Bn_data = np.zeros((self.frames, n_coeffs))
+
+        def P(N, x):
+            return legendre(N)(x)
+
+        def V(N, x):
+            return -2./N/(N+1)*lpmv(1, N, x)
+
+        def extract_An(n, theta_list, u_r_list):
+            """
+            Extract A_n coefficient in Legendre expansion of u(r),
+            where u(r) = sum A_n * P_n(cos(theta))
+
+            Parameters:
+                n (int): The order of the Legendre polynomial
+                theta_list (np.ndarray): Array of theta values in [0, pi]
+                u_r_list (np.ndarray): Corresponding values of u(r)
+
+            Returns:
+                float: The A_n coefficient
+            """
+            cos_theta = np.cos(theta_list)
+            sin_theta = np.sin(theta_list)
+            Pn = P(n, cos_theta)  # P_n(cos(theta)) evaluated at each theta
+
+            integrand = u_r_list * Pn * sin_theta
+
+            An = (2 * n + 1) / 2 * np.trapz(integrand, theta_list)
+            return An
+        
+        def extract_Bn(n, theta_list, u_theta_list):
+            """
+            Extract B_n coefficient in the expansion u_theta(theta) = sum B_n * V_n(cos(theta)),
+            where V_n(x) = -2/(n(n+1)) * lpmv(1, n, x)
+
+            Parameters:
+                n (int): Index (n >= 1)
+                theta_list (np.ndarray): Array of theta values in [0, pi]
+                u_theta_list (np.ndarray): Corresponding values of u_theta(theta)
+
+            Returns:
+                float: The B_n coefficient
+            """
+            cos_theta = np.cos(theta_list)
+            sin_theta = np.sin(theta_list)
+            Vn = V(n, cos_theta)  # V_n(cos(theta)) evaluated at each theta
+            
+            numerator = np.trapz(u_theta_list * Vn * sin_theta, theta_list)
+            denominator = np.trapz(Vn * Vn * sin_theta, theta_list)
+            
+            Bn = numerator / denominator
+            return Bn
+
+        
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+
+            seg_forces_str = seg_forces_f.readline()
+            blob_forces_str = blob_forces_f.readline()
+            seg_states_str = seg_states_f.readline()
+            body_states_str = body_states_f.readline()
+            body_vels_str = body_vels_f.readline()
+
+            if(i>=self.plot_start_frame):
+                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                body_states = np.array(body_states_str.split()[1:], dtype=float)
+                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+
+                source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+                source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+                v_list = np.zeros(np.shape(pos_list))
+
+                
+                for swim in range(int(self.pars['NSWIM'])):
+                    body_pos = body_states[7*swim : 7*swim+3]
+                    R = util.rot_mat(body_states[3:7])
+                    body_axis = np.matmul(R, np.array([0,0,1]))
+                    body_vel = body_vels[6*swim : 6*swim+3]
+                    body_speed_along_axis = np.sum(body_vel * body_axis)
+
+                    circle=plt.Circle((0, 0), self.radius, color='Grey', zorder=99)
+                    ax.add_patch(circle)
+
+                    for blob in range(self.nblob):
+                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
+                        blob_force = blob_forces[3*blob : 3*blob+3]
+                        source_pos_list[blob] = blob_pos 
+                        source_force_list[blob] = blob_force
+                    for fil in range(self.nfil):
+                        fil_i = int(3*fil*self.nseg)
+                        seg_data = np.zeros((self.nseg, 3))
+                        for seg in range(self.nseg):
+                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
+                            seg_data[seg] = seg_pos
+                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                            seg_force = seg_force[:3]
+                            source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
+                            source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
+                
+                d_pos_list = cuda.to_device(pos_list)
+                d_source_pos_list = cuda.to_device(source_pos_list)
+                d_source_force_list = cuda.to_device(source_force_list)
+                d_v_list = cuda.to_device(v_list)
+                # Define the grid and block dimensions
+                threads_per_block = 256
+                blocks_per_grid = (pos_list.shape[0] + threads_per_block - 1) // threads_per_block
+                # Launch the kernel
+                compute_v_list_kernel[blocks_per_grid, threads_per_block](d_pos_list, d_source_pos_list, d_source_force_list, d_v_list)
+                # Copy the result back to the host
+                v_list = d_v_list.copy_to_host()
+
+                
+
+                v_data[i-self.plot_start_frame] = v_list
+
+                ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
+                                v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
+                                    v_list[:, 2] * np.cos(theta_flat)
+                utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
+                                v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
+                                    - v_list[:, 2] * np.sin(theta_flat)
+                uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
+
+                for pos in pos_list:
+                    ax.scatter(pos[1], pos[2], c='black', zorder = 999)
+                ax.quiver(pos_list[:,1], pos_list[:,2], v_list[:,1], v_list[:,2], color='b' )
+
+                # e_r
+                ax.quiver(pos_list[:,1], pos_list[:,2], \
+                            np.sin(theta_flat)*np.sin(phi_flat)*ur_list,
+                            np.cos(theta_flat)*ur_list, color='r')
+                # # e_phi
+                # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
+                #             -np.sin(phi_flat)*uphi_list,
+                #             np.cos(phi_flat)*uphi_list,
+                #             np.zeros(n_field_point), length = .5 ,color='r')
+                # e_theta
+                ax.quiver(pos_list[:,1], pos_list[:,2], \
+                            np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
+                            -np.sin(theta_flat)*utheta_list, color='r')
+                    
+
+                ur_list_avg = np.mean(np.reshape(ur_list, (n_phi, n_theta)), axis=0)
+                utheta_list_avg = np.mean(np.reshape(utheta_list, (n_phi, n_theta)), axis=0)
+
+                utheta_list_avg[0] = 0
+                utheta_list_avg[-1] = 0
+
+                # print(np.reshape(ur_list, (n_phi, n_theta)))
+                # # print(ur_list_avg)
+                # print(np.reshape(utheta_list, (n_phi, n_theta)))
+                # print(np.reshape(theta_flat, (n_phi, n_theta)))
+                # print(np.reshape(phi_flat, (n_phi, n_theta)))
+                # print(utheta_list_avg)
+
+                for n in range(n_coeffs):
+                    An_data[i-self.plot_start_frame][n] = extract_An(n, theta_list, ur_list_avg)
+                    if n > 0:
+                        Bn_data[i-self.plot_start_frame][n] = extract_Bn(n, theta_list, utheta_list_avg)
+                
+                print(f'1./3*(2B1-A1) = {1./3*(2*Bn_data[i-self.plot_start_frame][1] - An_data[i-self.plot_start_frame][1])}, \
+                      speed along aixs = {body_speed_along_axis}')
+                    
+                print(An_data[i-self.plot_start_frame][:5], Bn_data[i-self.plot_start_frame][:5])
+
+
+                ur_data[i-self.plot_start_frame] = ur_list
+                utheta_data[i-self.plot_start_frame] = utheta_list
+                uphi_data[i-self.plot_start_frame] = uphi_list
+
+
+                # np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
+                # np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
+                # np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
+
+        t = ur_data.shape[0]/30
+
+        
+        # ax.imshow(ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+
+        # y_ticks = np.linspace(0, 2*np.pi, 5)
+        # y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
+        # ax.set_yticks(ticks=y_ticks, labels=y_labels)
+
+        # ax.set_xlabel(r'$t/T$')
+        # ax.set_ylabel(r'$\theta$')        
+
+        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
+        
+        ax.set_aspect('equal')
+        fig.tight_layout()
+        plt.show()
 
 
 # Multi sims
@@ -4468,7 +4753,7 @@ class VISUAL:
         ax.set_xlabel(r'$t/T$')
         ax.set_ylabel(r'$VT/L$')
         ax2.set_xlabel(r'$t/T$')
-        ax2.set_ylabel(r'$PT^2/\mu L^3$')
+        ax2.set_ylabel(r'$PT^2/\eta L^3$')
         ax3.set_xlabel(r'$t/T$')
         ax3.set_ylabel(r'Efficiency')
 
@@ -4546,13 +4831,13 @@ class VISUAL:
                 # ax.set_ylabel(r'$VT/L$')
                 # ax.set_xlim(time_array[0], time_array[-1])
                 # ax2.set_xlabel(r'$t/T$')
-                # ax2.set_ylabel(r'$PT^2/\mu L^3$')
+                # ax2.set_ylabel(r'$PT^2/\eta L^3$')
                 # ax2.set_xlim(time_array[0], time_array[-1])
                 # ax3.set_xlabel(r'$t/T$')
                 # ax3.set_ylabel(r'Efficiency')
                 # ax3.set_xlim(time_array[0], time_array[-1])
                 # ax4.set_xlabel(r'$t/T$')
-                # ax4.set_ylabel(r'$<PT^2/\mu L^3 N_{fil}>$')
+                # ax4.set_ylabel(r'$<PT^2/\eta L^3 N_{fil}>$')
                 # ax4.set_xlim(time_array[0], time_array[-1])
 
                 # fig.legend(loc=0)
@@ -4835,11 +5120,11 @@ class VISUAL:
         ax.set_xlabel(r'$N_{fil}/4\pi r^2$')
         ax.set_ylabel(r'$<VT/L>$')
         ax2.set_xlabel(r'$N_{fil}/4\pi r^2$')
-        ax2.set_ylabel(r'$<PT^2/\mu L^3>$')
+        ax2.set_ylabel(r'$<PT^2/\eta L^3>$')
         ax3.set_xlabel(r'$N_{fil}/4\pi r^2$')
         ax3.set_ylabel(r'$<Efficiency>$')
         ax4.set_xlabel(r'$N_{fil}/4\pi r^2$')
-        ax4.set_ylabel(r'$<PT^2/\mu L^3 N_{fil}>$')
+        ax4.set_ylabel(r'$<PT^2/\eta L^3 N_{fil}>$')
 
         fig.savefig(f'fig/speed_vs_density.pdf', bbox_inches = 'tight', format='pdf')
         fig2.savefig(f'fig/dissipation_vs_density.pdf', bbox_inches = 'tight', format='pdf')
@@ -5215,6 +5500,7 @@ class VISUAL:
                         print(f"Error: The file '{input_filename}' does not exist.")
             except:
                 print("WARNING: " + self.simName + " not found.")
+
 
 # Summary plot
     def summary_ciliate_speed(self):
@@ -5653,11 +5939,11 @@ class VISUAL:
         ax.set_xlabel(r'$N_{fil}$')
         ax.set_ylabel(r'$<VT/L>$')
         ax2.set_xlabel(r'$N_{fil}$')
-        ax2.set_ylabel(r'$<PT^2/\mu L^3>$')
+        ax2.set_ylabel(r'$<PT^2/\eta L^3>$')
         ax3.set_xlabel(r'$N_{fil}$')
         ax3.set_ylabel(r'$<Efficiency>$')
         ax4.set_xlabel(r'$N_{fil}$')
-        ax4.set_ylabel(r'$<PT^2/\mu L^3 N_{fil}>$')
+        ax4.set_ylabel(r'$<PT^2/\eta L^3 N_{fil}>$')
 
         # fig.savefig(f'fig/ciliate_speed_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/ciliate_dissipation_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
@@ -5777,11 +6063,11 @@ class VISUAL:
         ax.set_xlabel(r'$k$')
         ax.set_ylabel(r'$<VT/L>$')
         ax2.set_xlabel(r'$k$')
-        ax2.set_ylabel(r'$<PT^2/\mu L^3>$')
+        ax2.set_ylabel(r'$<PT^2/\eta L^3>$')
         ax3.set_xlabel(r'$k$')
         ax3.set_ylabel(r'$<Efficiency>$')
         ax4.set_xlabel(r'$k$')
-        ax4.set_ylabel(r'$<PT^2/\mu L^3 N_{fil}>$')
+        ax4.set_ylabel(r'$<PT^2/\eta L^3 N_{fil}>$')
 
         fig.savefig(f'fig/ciliate_speed_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
         fig2.savefig(f'fig/ciliate_dissipation_summary_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
@@ -5919,7 +6205,7 @@ class VISUAL:
         ax.set_xlabel(r'$N_{blob}$')
         ax.set_ylabel(r'$<VT/L>$')
         ax2.set_xlabel(r'$N_{blob}$')
-        ax2.set_ylabel(r'$<PT^2/\mu L^3>$')
+        ax2.set_ylabel(r'$<PT^2/\eta L^3>$')
         ax3.set_xlabel(r'$N_{blob}$')
         ax3.set_ylabel(r'$<Efficiency>$')
         ax4.set_xlabel(r'$N_{blob}$')
@@ -5992,7 +6278,7 @@ class VISUAL:
         ax2 = fig2.add_subplot(1,1,1)
         ax2.set_xlim(0, 1)
         ax2.set_ylim(0, 80000)
-        ax2.set_ylabel(r"$PT^2/\mu L^3$")
+        ax2.set_ylabel(r"$PT^2/\eta L^3$")
         ax2.set_xlabel(r"$t/T$")
 
         for ni, directory in enumerate(N_dirs):
@@ -6228,9 +6514,9 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim/"
 
-        force = False
-        path = "data/ic_hpc_sim_free_with_force2/"
-        path = "data/ic_hpc_sim_free_continue/"
+        force = True
+        path = "data/ic_hpc_sim_free_with_force/"
+        # path = "data/ic_hpc_sim_free_continue/"
 
         # force = True
         # path = 'data/tilt_test/makeup_pattern_with_force/'
@@ -6248,7 +6534,7 @@ class VISUAL:
         
         # make this number very large to include the converged ones
         self.plot_end_frame_setting = 150000
-        self.frames_setting = 300
+        self.frames_setting = 600
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!

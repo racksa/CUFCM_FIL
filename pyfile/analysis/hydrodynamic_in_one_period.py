@@ -181,7 +181,7 @@ ax4.yaxis.set_major_formatter(formatter)
 
 
 ax5.set_xlabel(r'$t/T$')
-ax5.set_ylabel(r'$\mathcal{R}T^2/\mu L^3$')
+ax5.set_ylabel(r'$\mathcal{R}T^2/\eta L^3$')
 ax5.legend(fontsize=16, frameon=False)
 ax5.set_xlim((0, 1))
 

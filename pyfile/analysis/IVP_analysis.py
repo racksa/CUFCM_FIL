@@ -5,6 +5,7 @@ import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import matplotlib.ticker as mticker
 
 # Path to the directory where fonts are stored
 font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
@@ -33,8 +34,10 @@ def cartesian_to_spherical(x):
     return r, theta, phi
 
 path_heldfixed = "data/ic_hpc_sim/"
-path_free = "data/ic_hpc_sim_free_with_force2/"
+path_free = "data/ic_hpc_sim_free_with_force/"
 # path_free = "data/ic_hpc_sim_free_continue/"
+fillength = 2.6*19
+radius = fillength*7.5
 
 fil_references = np.load(f"{path_heldfixed}fil_ref_data.npy")
 nfil = int(np.shape(fil_references)[0]/3)
@@ -54,6 +57,7 @@ avg_speed_data_free = np.load(f"{path_free}avg_speed_data.npy")
 avg_speed_along_axis_data_free = np.load(f"{path_free}avg_speed_along_axis_data.npy")
 avg_rot_speed_along_axis_data_free = np.load(f"{path_free}avg_rot_speed_along_axis_data.npy")
 avg_vz_data_free = np.load(f"{path_free}avg_vz_data.npy")
+dis_data = np.load(f"{path_free}dis_data.npy")
 # eff_data_free = np.load(f"{path_free}eff_data.npy")
 
 n_folder_heldfixed = r_data_heldfixed.shape[0]
@@ -69,8 +73,11 @@ fig3 = plt.figure(dpi=dpi)
 ax3 = fig3.add_subplot(1,1,1)
 fig4 = plt.figure(dpi=dpi)
 ax4 = fig4.add_subplot(1,1,1)
+fig6 = plt.figure(dpi=dpi)
+ax6 = fig6.add_subplot(1,1,1)
 
 plot_phase_data = 'free'
+plot_phase_data = None
 
 if plot_phase_data == 'fixed':
     ncol = np.shape(phase_data_heldfixed)[1]
@@ -82,13 +89,14 @@ else:
     ncol = 1
     nrow = 1
 
-fig5, axs = plt.subplots(nrow, ncol, sharex=True, sharey=True)
-axs_flat = axs.ravel()
-for ax5 in axs_flat:
-    ax5.set_xticklabels([])
-    ax5.set_yticklabels([])
-    ax5.set_xlabel('')
-    ax5.set_ylabel('')
+if plot_phase_data:
+    fig5, axs = plt.subplots(nrow, ncol, sharex=True, sharey=True)
+    axs_flat = axs.ravel()
+    for ax5 in axs_flat:
+        ax5.set_xticklabels([])
+        ax5.set_yticklabels([])
+        ax5.set_xlabel('')
+        ax5.set_ylabel('')
 
 x_scale_offset = 1e-2
 
@@ -150,10 +158,14 @@ for fi in range(n_folder_free):
     plot_y2 = avg_speed_along_axis_data_free[fi]
     ax2.scatter(plot_x[indices_symplectic], plot_y2[indices_symplectic], s=100, marker='+', c='black')
     ax2.scatter(plot_x[indices_diaplectic], plot_y2[indices_diaplectic], s=50, marker='x', c='b')
-    
+
     plot_y3 = avg_rot_speed_along_axis_data_free[fi]
     ax3.scatter(plot_x[indices_symplectic], plot_y3[indices_symplectic], s=100, marker='+', c='black')
     ax3.scatter(plot_x[indices_diaplectic], plot_y3[indices_diaplectic], s=50, marker='x', c='b')
+
+    plot_y6 = 6*np.pi*radius*avg_speed_along_axis_data_free[fi]**2/dis_data[fi]/fillength
+    ax6.scatter(plot_x[indices_symplectic], plot_y6[indices_symplectic], s=100, marker='+', c='black')
+    ax6.scatter(plot_x[indices_diaplectic], plot_y6[indices_diaplectic], s=50, marker='x', c='b')
 
     # plot fil_phases
     if plot_phase_data == 'free':
@@ -198,22 +210,33 @@ ax3.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax3.legend(fontsize=16, frameon=False)
 
 
-ax4.scatter(None, None, s=100, marker='o', c='black', linewidths=1, zorder=300, label='Symplectic (k=0.005)')
-ax4.scatter(None, None, s=100, marker='s', c='black', linewidths=1, zorder=300, label='Symplectic (k=0.015)')
-ax4.scatter(None, None, s=200, marker='+', c='black', linewidths=3, zorder=300, label='Symplectic (k=0.04)')
+ax4.scatter(None, None, s=100, marker='o', c='black', linewidths=1, zorder=300, label='Symplectic ($k=0.005$)')
+ax4.scatter(None, None, s=100, marker='s', c='black', linewidths=1, zorder=300, label='Symplectic ($k=0.015$)')
+ax4.scatter(None, None, s=200, marker='+', c='black', linewidths=3, zorder=300, label='Symplectic ($k=0.04$)')
 ax4.scatter(None, None, s=100, marker='^', c='black', linewidths=1, zorder=300, label='Diaplectic ($\kappa=1$)')
 ax4.scatter(None, None, s=100, marker='x', c='black', linewidths=2, zorder=300, label='Diaplectic ($\kappa=2$)')
 ax4.legend(fontsize=16, frameon=False)
 ax4.set_axis_off()
+
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
+ax6.yaxis.set_major_formatter(formatter)
+ax6.set_xlabel(r'$k$')
+ax6.set_ylabel(r"Efficiency")
+ax6.scatter(None, None, marker='+', c='black', label='Symplectic')
+ax6.scatter(None, None,  marker='x', c='b', label='Diaplectic')
+ax6.legend(fontsize=16, frameon=False)
 
 
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
+fig6.tight_layout()
 fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
 fig2.savefig(f'fig/IVP_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
-fig3.savefig(f'fig/IVP_efficiencies_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+fig3.savefig(f'fig/IVP_rot_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 fig4.savefig(f'fig/IVP_symbols.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+fig6.savefig(f'fig/IVP_efficiencies_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 plt.show()

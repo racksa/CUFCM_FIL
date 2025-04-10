@@ -1,5 +1,35 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+import pandas as pd
+import matplotlib.colors as mcolors
+from matplotlib.lines import Line2D
+import matplotlib.animation as animation
+import configparser
+from sklearn.cluster import KMeans
+import time
+import matplotlib as mpl
+import os
+from scipy.optimize import curve_fit
+from numba import cuda, float64
+from matplotlib.ticker import ScalarFormatter
+import matplotlib.font_manager as fm
+
+# Path to the directory where fonts are stored
+font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+# Choose the TTF or OTF version of CMU Serif Regular
+font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+# Load the font into Matplotlib's font manager
+prop = fm.FontProperties(fname=font_path)
+# Register each font file with Matplotlib's font manager
+for font_file in os.listdir(font_dir):
+    if font_file.endswith('.otf'):
+        fm.fontManager.addfont(os.path.join(font_dir, font_file))
+# Set the global font family to 'serif' and specify CMU Serif
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['CMU Serif']
+plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+plt.rcParams.update({'font.size': 24})
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 
@@ -100,17 +130,17 @@ ax.plot(ra_batchelor_list, vw_batchelor_prl_opposite_list, c='r', label='Paralle
 ax.plot(ra_batchelor_list, vw_batchelor_ognl_opposite_list, c='b', label='Othogonal alignment (opposite) Batchelor(1976)')
 ax.axhline(y=1.0, color='grey', linestyle='-.')
 ax.annotate('Force in same direction', (2.1, 1.02))
-ax.annotate('Force in opposite direction', (2.1, 0.93))
+ax.annotate('Force in opposite direction', (2.1, 0.85))
 ax.set_xlabel(r'$d/R$')
 ax.set_ylabel(r'V/W')
 # ax.set_title('Two sphere settling speed')
-ax.set_xlim(2, 3.2)
-ax.set_ylim(0, 1.7)
+ax.set_xlim(2, 4)
+ax.set_ylim(0, 2.0)
 red_patch = mpatches.Patch(color='r', label='Parallel alignment')
 blue_patch = mpatches.Patch(color='b', label='Othogonal alignment')
 circle_legend = ax.scatter([], [], facecolors='none', edgecolors='black', label='Rigid sphere data')
 line_legend = mlines.Line2D([], [], c='black', label='Batchelor(1976)')
-ax.legend(handles=[red_patch, blue_patch, circle_legend, line_legend])
+ax.legend(handles=[red_patch, blue_patch, circle_legend, line_legend], fontsize=10)
 
 vw_batchelor_prl_list_atr = A11(r_list/a, 1) + A12(r_list/a, 1)
 vw_batchelor_ognl_list_atr = B11(r_list/a, 1) + B12(r_list/a, 1)

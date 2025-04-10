@@ -5,18 +5,30 @@ import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
+from scipy.integrate import quad
+from matplotlib.ticker import ScalarFormatter
+import matplotlib.font_manager as fm
 
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-
-plt.rcParams.update({'font.size': 16})
+# Path to the directory where fonts are stored
+font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+# Choose the TTF or OTF version of CMU Serif Regular
+font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+# Load the font into Matplotlib's font manager
+prop = fm.FontProperties(fname=font_path)
+# Register each font file with Matplotlib's font manager
+for font_file in os.listdir(font_dir):
+    if font_file.endswith('.otf'):
+        fm.fontManager.addfont(os.path.join(font_dir, font_file))
+# Set the global font family to 'serif' and specify CMU Serif
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['CMU Serif']
+plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+plt.rcParams.update({'font.size': 24})
 
 cmap_name = 'coolwarm'
 
 path = "data/ishikawa/20240731_jfm/"
-path = "data/ishikawa/20240827_ishikawa_jfm2/"
+# path = "data/ishikawa/20240827_ishikawa_jfm2/"
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
@@ -57,10 +69,10 @@ for i, filename in enumerate(files):
 
     ax.plot(x, y, ls = 'dotted', alpha=0.5, c=colors[i+1])
 
-legend1 = ax.legend(frameon=False)
-line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label='data' )
+legend1 = ax.legend(frameon=False, fontsize=12, loc='upper center')
+line1, = ax.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label='Present data' )
 line2, = ax.plot([-1, -1.1], [-1, -1.1], ls='dotted', c='black', label=r'$Ito.\ (2019)$')
-legend2 = ax.legend(handles = [line1, line2], loc='upper right')
+legend2 = ax.legend(handles = [line1, line2], fontsize=12, loc='upper right')
 ax.add_artist(legend1)
 ax.set_xlim(0, 1)
 ax.set_xlabel(r'$t/T$')
