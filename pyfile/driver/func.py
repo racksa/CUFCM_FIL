@@ -70,6 +70,11 @@ class DRIVER:
         self.date = '20250311_flowfield_sym_backflow'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'for_paper/giant_swimmer_rerun/'
+        self.exe_name = 'cilia_1e-4_free'
+        self.date = '20250507'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
         # self.category = 'resolution/'
         # self.exe_name = 'cilia_1e-4_squirmer'
         # self.date = '20250220_1e-6_settling'

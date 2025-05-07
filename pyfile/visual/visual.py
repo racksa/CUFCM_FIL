@@ -61,6 +61,7 @@ class VISUAL:
         # self.date = '20240717_rpy_get_drag'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
+
         self.date = '20240724_diaplectic'
         self.date = '20240724_symplectic'
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
@@ -125,6 +126,10 @@ class VISUAL:
         # self.date = '20250225_flowfield_sym'
         self.date = '20250311_flowfield_sym_free'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+
+        self.date = 'combined_analysis'
+        self.dir = f"data/giant_swimmer/{self.date}/"
+
 
         # self.date = '20250302'
         # # self.date = '20250228'
@@ -6514,8 +6519,8 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim/"
 
-        force = True
-        path = "data/ic_hpc_sim_free_with_force/"
+        force = False
+        path = "data/ic_hpc_sim_free_with_force3/"
         # path = "data/ic_hpc_sim_free_continue/"
 
         # force = True
