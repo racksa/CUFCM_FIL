@@ -28,18 +28,20 @@
 # q=9
 # command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
 
-q=19
-nq=20
-command="python3 pyfile/driver/driver.py run ${q} ${nq} 1 HPC"
+
+q=9
+nq=16
+folder="20240311_5"
+command="python3 pyfile/driver/driver.py run ${q} ${nq} 1 $folder HPC"
 
 
 # cp --attributes-only "run_cilia_sim.pbs" "pbs/run_cilia_sim${q}.pbs"
-sed -e "\$a\\$command" "run_cilia_sim.pbs" > "pbs/run_cilia_sim${q}.pbs"
-chmod +x "pbs/run_cilia_sim${q}.pbs"
+sed -e "\$a\\$command" "run_cilia_sim.pbs" > "pbs/sim${q}_${nq}_$folder.pbs"
+chmod +x "pbs/sim${q}_${nq}_$folder.pbs"
 
-JOB_ID=$(qsub pbs/run_cilia_sim${q}.pbs)
+JOB_ID=$(qsub pbs/sim${q}_${nq}_$folder.pbs)
 JOB_ID=${JOB_ID:0:-4}
 echo "Using the normal queue..."
 echo "Job submitted!"
 echo $JOB_ID
-tail -n 1 pbs/run_cilia_sim${q}.pbs
+tail -n 1 pbs/sim${q}_${nq}_$folder.pbs

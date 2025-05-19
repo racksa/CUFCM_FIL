@@ -37,7 +37,7 @@ for value in x:
 
 
 # Plot the colormap
-fig, ax = plt.subplots(figsize=(8, 1))
+fig, ax = plt.subplots(figsize=(12, 1))
 ax.imshow([x], aspect='equal', cmap=cmap)
 x_ticks = np.linspace(-0.5, 99.5, 5)
 # x_ticks_label = [r"{:.2f}$\pi$".format((x+0.5)*2*np.pi/100./np.pi) for x in x_ticks]
@@ -50,7 +50,7 @@ fig.savefig('cmap.pdf', bbox_inches = 'tight', format='pdf')
 fig.savefig('cmap.png', bbox_inches = 'tight', format='png')
 
 
-fig2, ax2 = plt.subplots()  # Adjust figure size as needed
+fig2, ax2 = plt.subplots(figsize=(5, 10))  # Adjust figure size as needed
 ax2.set_visible(False)  # Hide the axis
 
 # Define a colormap and normalize

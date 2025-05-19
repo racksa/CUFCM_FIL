@@ -152,6 +152,7 @@ path = 'data/ishikawa/20240802_pnas_L0.975/'
 
 # plot sim data
 path = "data/ishikawa/20240731_pnas_L1/"
+path = 'data/ishikawa/20240802_pnas_L0.975/'
 # path = "data/ishikawa/20240805_volvox_beat/"
 for ind in range(trunc):
     try:

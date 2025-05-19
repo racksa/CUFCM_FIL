@@ -41,6 +41,7 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-4_instability_double'
         # self.date = '20241028_test'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        
 
 
         # self.category = 'ishikawa/'
@@ -65,15 +66,15 @@ class DRIVER:
         # self.date = '20250125_fixed_correct'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'for_paper/flowfield_example/'
-        self.exe_name = 'cilia_1e-4_free'
-        self.date = '20250311_flowfield_sym_backflow'
+        self.category = 'for_paper/roadmap/'
+        self.exe_name = 'cilia_1e-4'
+        self.date = '20250514'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'for_paper/giant_swimmer_rerun/'
-        self.exe_name = 'cilia_1e-4_free'
-        self.date = '20250507'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'for_paper/giant_swimmer_rerun/'
+        # self.exe_name = 'cilia_1e-4_free'
+        # self.date = '20250507'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'resolution/'
         # self.exe_name = 'cilia_1e-4_squirmer'
@@ -462,7 +463,7 @@ class DRIVER:
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 

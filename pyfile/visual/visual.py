@@ -19,21 +19,24 @@ from beat import *
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.font_manager as fm
 
-# Path to the directory where fonts are stored
-font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
-# Choose the TTF or OTF version of CMU Serif Regular
-font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
-# Load the font into Matplotlib's font manager
-prop = fm.FontProperties(fname=font_path)
-# Register each font file with Matplotlib's font manager
-for font_file in os.listdir(font_dir):
-    if font_file.endswith('.otf'):
-        fm.fontManager.addfont(os.path.join(font_dir, font_file))
-# Set the global font family to 'serif' and specify CMU Serif
-plt.rcParams['font.family'] = 'serif'
-plt.rcParams['font.serif'] = ['CMU Serif']
-plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
-plt.rcParams.update({'font.size': 24})
+try:
+    # Path to the directory where fonts are stored
+    font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+    # Choose the TTF or OTF version of CMU Serif Regular
+    font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+    # Load the font into Matplotlib's font manager
+    prop = fm.FontProperties(fname=font_path)
+    # Register each font file with Matplotlib's font manager
+    for font_file in os.listdir(font_dir):
+        if font_file.endswith('.otf'):
+            fm.fontManager.addfont(os.path.join(font_dir, font_file))
+    # Set the global font family to 'serif' and specify CMU Serif
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['CMU Serif']
+    plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+    plt.rcParams.update({'font.size': 24})
+except:    
+    print("WARNING: CMU font not found. Using default font.")
 
 
 # mpl.rcParams['mathtext.fontset'] = 'stix'
@@ -67,27 +70,20 @@ class VISUAL:
         self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
 
-        self.date = '20240710_free'
-        self.dir = f"data/tilt_test/IVP/{self.date}/"
-
         # self.date = '20241028_test'
         # self.dir = f"data/instability/{self.date}/"
 
-        self.date = 'IVP'
-        self.dir = f"data/tilt_test/{self.date}/"
+        # self.date = 'IVP'
+        # self.dir = f"data/tilt_test/{self.date}/"
 
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim/{self.date}/"        
+        self.date = '20240311_3'
+        self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
         # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free/{self.date}/"
-        # self.dir = f"data/ic_hpc_sim_free_with_force2/{self.date}/"
+        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
 
-        self.date = '20240311_7'
-        self.dir = f"data/ic_hpc_sim_free_with_force/{self.date}/"
-
-        # self.date = 'combined_analysis_force_rerun'
+        # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
 
         # self.date = '20240827_jfm2'
@@ -124,11 +120,25 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20250225_flowfield_sym'
-        self.date = '20250311_flowfield_sym_free'
-        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # # self.date = '20250311_flowfield_dia_free'
+        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        self.date = 'combined_analysis'
-        self.dir = f"data/giant_swimmer/{self.date}/"
+        # self.date = '20250514'
+        # self.dir = f"data/for_paper/roadmap/{self.date}/"
+
+        # self.date = 'combined_analysis'
+        # self.dir = f"data/giant_swimmer/{self.date}/"
+
+        self.date = '20250516_force'
+        self.date = '20250507'
+        self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
+
+        # 0 159 0.26613479909344223
+        # 1 639 0.5116854492585097
+        # 5 4291 1.1861245202801034
+        # 2 1128 1.6790971529670298
+        # 3 1763 0.7534197514210584
+        # 4 2539 0.8731784841874483
 
 
         # self.date = '20250302'
@@ -210,8 +220,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 1
+        self.plot_end_frame_setting = 889
+        self.frames_setting = 30
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1000,6 +1010,7 @@ class VISUAL:
         avg_posterior_phase_array = np.zeros(self.frames)
         avg_anterior_phase_array = np.zeros(self.frames)
         fil_phases_ref = np.zeros(self.nfil)
+        wavenumber_array = np.zeros(self.frames)
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -1041,15 +1052,16 @@ class VISUAL:
 
                 avg_posterior_phase = np.mean(phases_inter[:128])
                 avg_anterior_phase = np.mean(phases_inter[-128:])
-                print(phases_inter)
+                # print(phases_inter)
                 # print(i, avg_posterior_phase, avg_anterior_phase)
                 avg_posterior_phase_array[i-self.plot_start_frame] = avg_posterior_phase
                 avg_anterior_phase_array[i-self.plot_start_frame] = avg_anterior_phase
-                # wavenumber_array[i-self.plot_start_frame] = np.mean(util.box(phases_inter[:128] - phases_inter[-128:], 2*np.pi))/(2*np.pi)
+                wavenumber_array[i-self.plot_start_frame] = np.mean(util.box(phases_inter[:128] - phases_inter[-128:], 2*np.pi))/(2*np.pi)
                 # print(util.box(phases_inter[:128] - phases_inter[-128:], 2*np.pi))
 
-        wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi) 
+        # wavenumber_array = (avg_posterior_phase_array - avg_anterior_phase_array)/(2*np.pi)
 
+        ax2.set_title(f"mean_wavenumber={np.mean(wavenumber_array)}")
         ax2.plot(time_array, wavenumber_array, c='black')
         # ax2.plot(time_array, avg_anterior_phase_array, c='r')
         # ax2.plot(time_array, avg_posterior_phase_array, c='b')
@@ -1743,7 +1755,7 @@ class VISUAL:
         plt.show()
 
     def ciliate(self):
-        show_flow_field = True
+        show_flow_field = False
         self.select_sim()
 
         def stokeslet(x, x0, f0):
@@ -1809,7 +1821,7 @@ class VISUAL:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
-        elev_angle = 0
+        elev_angle = 180
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
@@ -1918,8 +1930,8 @@ class VISUAL:
                     
                     visible = np.sum(fil_base*plane_normal)
                     if visible > -0.5:
-                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', zorder = 100, alpha = alpha)
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', zorder = 100, alpha = alpha)
 
                 if(show_flow_field):
                     for blob in range(int(self.pars['NBLOB'])):
@@ -2003,7 +2015,7 @@ class VISUAL:
     def ciliate_eco(self):        
         self.select_sim()
             
-        s_ref_filename = 'input/forcing/fulford_and_blake_reference_s_values_NSEG=20_SEP=2.600000.dat'
+        s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
 
         fil_references_sphpolar = np.zeros((self.nfil,3))
         for i in range(self.nfil):
@@ -2037,7 +2049,7 @@ class VISUAL:
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
         elev_angle = 0
         elev_angle_rad = elev_angle/180*np.pi
-        azim_angle = 0
+        azim_angle = 90
         azim_angle_rad = azim_angle/180*np.pi
         plane_normal = np.array([1, 0, 0])
         rot_mat = np.array([
@@ -2085,6 +2097,8 @@ class VISUAL:
             seg_states = np.array(seg_states_str.split()[1:], dtype=float)
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            body_states=np.array([0,0,0,1,0,0,0])
             
             fil_phases = fil_states[:self.nfil]
             fil_angles = fil_states[self.nfil:]
@@ -2136,6 +2150,7 @@ class VISUAL:
                     # Show only one side of the sphere
                     visible = np.sum(fil_base*plane_normal)
                     # visible = 1
+                    # if visible > -0. and fil_references_sphpolar[fil, 2] > 0.28:
                     if visible > -0.:
                         ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100,)
 
@@ -3692,13 +3707,14 @@ class VISUAL:
         global frame
         frame = 0
 
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+
         fig = plt.figure()
         ax = fig.add_subplot()
         cmap_name = 'hsv'
+        cmap_name2= 'Reds'
         cmap = plt.get_cmap(cmap_name)
-
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot()
 
         def animation_func(t):
             global frame
@@ -3740,7 +3756,7 @@ class VISUAL:
             np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
 
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
-            focus = 1.0
+            focus = 0.8
             # shift = np.zeros(3)
 
             for swim in range(int(self.pars['NSWIM'])):
@@ -3909,7 +3925,7 @@ class VISUAL:
                 vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
             speed_limit = np.max(vel)*0.5
-            speed_limit = 100.0
+            speed_limit = 100.0/self.fillength
 
             print(f"elapsed time = {time.time() - start_time}")
 
@@ -3923,7 +3939,7 @@ class VISUAL:
             # Specify the bounds of imshow, also shift the pixels to the right positions
             y_lower, y_upper, z_lower, z_upper = 0-0.5*dx, Ly+0.5*dx, 0-0.5*dx, Lz+0.5*dx
 
-            cmap_name2= 'Reds'
+            
 
             # append one row and col to the vel pixels to match the positions of grid points
             nrows, ncols = vel.shape 
@@ -3933,7 +3949,7 @@ class VISUAL:
             new_vel[:nrows, ncols] = vel[:, 0]
             new_vel[nrows, ncols] = vel[0, 0]
 
-            phi_var_plot = ax.imshow(new_vel, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+            phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
 
             # plot speed values over distance
             ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
@@ -3952,13 +3968,21 @@ class VISUAL:
             # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
             ax.set_aspect('equal')
             if view=='top':
+                ax.set_xticks(np.linspace(0, Lx, 5))
+                ax.set_yticks(np.linspace(0, Ly, 5))
+                ax.set_xticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_yticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
                 ax.set_xlim((Lx*(1-focus), Lx*focus))
                 ax.set_ylim((Ly*(1-focus), Ly*focus))
             if view=='side':
+                ax.set_xticks(np.linspace(0, Ly, 5))
+                ax.set_yticks(np.linspace(0, Lz, 5))
+                ax.set_xticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_yticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
                 ax.set_xlim((Ly*(1-focus), Ly*focus))
                 ax.set_ylim((Lz*(1-focus), Lz*focus))
-            ax.set_xlabel('y')
-            ax.set_ylabel('z')
+            # ax.set_xlabel('y')
+            # ax.set_ylabel('z')
 
             if(self.video):
                 ax.axis('off')
@@ -3997,11 +4021,23 @@ class VISUAL:
                     fil_states_str = fil_states_f.readline()
                     body_vels_str = body_vels_f.readline()
             
-            ax.axis('off')
+            # ax.axis('off')
             ax.set_aspect('equal')
+
+            from matplotlib.colors import Normalize
+            from matplotlib.cm import ScalarMappable
+            vmin = 0
+            vmax = 100/self.fillength
+            norm = Normalize(vmin=vmin, vmax=vmax)
+            sm = ScalarMappable(cmap=cmap_name2, norm=norm)
+            sm.set_array([])
+            cbar = plt.colorbar(sm)
+            # cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")    
+
             # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
-            fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            # fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
     def flow_field_polar(self):
@@ -5472,9 +5508,10 @@ class VISUAL:
                 output_filenames = [self.dir + f"psi{afix}.dat",
                                     self.dir + f"bodystate{afix}.dat",
                                     ]
-                # output_filenames = [f"data/tilt_test/output/{self.date}/" + f"psi{afix}.dat",
-                                    # f"data/tilt_test/output/{self.date}/" + f"bodystate{afix}.dat",
-                                    # ]
+                
+                output_filenames = [f"data/ic_hpc_sim_rerun/{self.date}/" + f"psi{afix}.dat",
+                                    f"data/ic_hpc_sim_rerun/{self.date}/" + f"bodystate{afix}.dat",
+                                    ]
         
                 for i, name in enumerate(input_filenames):
                     input_filename = name
@@ -6517,10 +6554,10 @@ class VISUAL:
         plt.rcParams.update({'font.size': 27})
 
         force = False
-        path = "data/ic_hpc_sim/"
+        path = "data/ic_hpc_sim_rerun/"
 
-        force = False
-        path = "data/ic_hpc_sim_free_with_force3/"
+        # force = True
+        # path = "data/ic_hpc_sim_free_with_force3/"
         # path = "data/ic_hpc_sim_free_continue/"
 
         # force = True
@@ -6539,7 +6576,7 @@ class VISUAL:
         
         # make this number very large to include the converged ones
         self.plot_end_frame_setting = 150000
-        self.frames_setting = 600
+        self.frames_setting = 1350
 
         # Extract num_sim from the first folder
         # All folders should have the same num_sim!
@@ -6565,7 +6602,6 @@ class VISUAL:
             print(self.dir)
             self.read_rules()
 
-
             k_arrays = self.pars_list['spring_factor']
             tilt_arrays = self.pars_list['tilt_angle']
             phase_arrays = np.zeros((np.shape(k_arrays)[0], int(self.pars_list["nfil"][0])))
@@ -6580,6 +6616,9 @@ class VISUAL:
             eff_arrays = np.zeros(np.shape(k_arrays))
             
             for ind in range(self.num_sim):
+
+                start_time = time.time()
+                
                 self.index = ind
 
                 # try:
@@ -6588,8 +6627,6 @@ class VISUAL:
                 body_pos_array = np.zeros((self.frames, 3))
                 body_axis_array = np.zeros((self.frames, 3))
                 body_q_array = np.zeros((self.frames, 4))
-
-                
 
                 fil_references_sphpolar = np.zeros((self.nfil,3))
                 for i in range(self.nfil):
@@ -6633,10 +6670,11 @@ class VISUAL:
                         body_axis_array[t-self.plot_start_frame] = body_axis
 
                         if force:
+
                             seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
                             seg_vels = np.array(seg_vels_str.split()[1:], dtype=float)
                             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-
+                            
                             # Need to patch this for diffeent output format....
                             if(len(body_vels_str.split())==6):
                                 body_vels= np.array(body_vels_str.split(), dtype=float)
@@ -6652,11 +6690,10 @@ class VISUAL:
                             speed = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
                             dis = np.sum(blob_forces * blob_vels) + np.sum(seg_forces * seg_vels)
                             dis = dis/self.fillength**3
-                            eff = 6*np.pi*self.radius*speed**2/dis
+                            # eff = 6*np.pi*self.radius*speed**2/dis
 
                             dis_arrays[ind] += dis
-                            eff_arrays[ind] += eff
-                
+                            # eff_arrays[ind] += eff
                 
                 body_vel_array = np.diff(body_pos_array, axis=0)/self.dt/self.fillength
                 body_vz_array = body_vel_array[:,0]
@@ -6683,6 +6720,10 @@ class VISUAL:
                 # except:
                 #     print("Something went wrong")
                 #     pass
+
+                time_elapsed = time.time()-start_time
+                print(f'time_elapsed for one sim = {time_elapsed:.2f} seconds')
+                print(f'estimated total finishing time = {(time_elapsed*(self.num_sim-ind-1) + time_elapsed*self.num_sim*(len(folders)-fi-1))/60:.2f} minutes')
 
             phase_data[fi] = phase_arrays
             r_data[fi] = r_arrays
@@ -6738,6 +6779,7 @@ class VISUAL:
 
         plt.show()
 
+    
     def view_bisection(self):
         colormap = 'twilight_shifted'
         # colormap = 'hsv'

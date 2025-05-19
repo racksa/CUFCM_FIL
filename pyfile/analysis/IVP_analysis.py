@@ -33,8 +33,8 @@ def cartesian_to_spherical(x):
     
     return r, theta, phi
 
-path_heldfixed = "data/ic_hpc_sim/"
-path_free = "data/ic_hpc_sim_free_with_force/"
+path_heldfixed = "data/ic_hpc_sim_rerun/"
+path_free = "data/ic_hpc_sim_free_with_force3/"
 # path_free = "data/ic_hpc_sim_free_continue/"
 fillength = 2.6*19
 radius = fillength*7.5
@@ -57,8 +57,10 @@ avg_speed_data_free = np.load(f"{path_free}avg_speed_data.npy")
 avg_speed_along_axis_data_free = np.load(f"{path_free}avg_speed_along_axis_data.npy")
 avg_rot_speed_along_axis_data_free = np.load(f"{path_free}avg_rot_speed_along_axis_data.npy")
 avg_vz_data_free = np.load(f"{path_free}avg_vz_data.npy")
-dis_data = np.load(f"{path_free}dis_data.npy")
-# eff_data_free = np.load(f"{path_free}eff_data.npy")
+try:
+    dis_data = np.load(f"{path_free}dis_data.npy")
+except:
+    pass
 
 n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder_free = r_data_free.shape[0]
@@ -121,17 +123,17 @@ for fi in range(n_folder_heldfixed):
     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=s, marker=marker, c=color)
 
     #special points for paper
-    fii = 8
+    fii = 2
     if fi==fii: # symplectic
         ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='black', linewidths=1, zorder=300)
     if fi==fii: # symplectic 2
         ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='black', linewidths=1, zorder=300)
-    if fi==3: # symplectic 3
-        ax.scatter(plot_x[8], plot_y[8], s=200, marker='+', c='black', linewidths=3, zorder=300)
-    if fi==fii: #k=1
-        ax.scatter(plot_x[9], plot_y[9], s=100, marker='^', c='black', linewidths=1, zorder=300)
-    if fi==fii: #k=2
-        ax.scatter(plot_x[7], plot_y[7], s=100, marker='x', c='black', linewidths=2, zorder=300)
+    if fi==fii: # symplectic 3
+        ax.scatter(plot_x[7], plot_y[7], s=200, marker='+', c='black', linewidths=3, zorder=300)
+    if fi==6: #k=1
+        ax.scatter(plot_x[10], plot_y[10], s=100, marker='^', c='black', linewidths=1, zorder=300)
+    if fi==6: #k=2
+        ax.scatter(plot_x[9], plot_y[9], s=100, marker='x', c='black', linewidths=2, zorder=300)
 
     
     # # plot fil_phases
@@ -163,9 +165,12 @@ for fi in range(n_folder_free):
     ax3.scatter(plot_x[indices_symplectic], plot_y3[indices_symplectic], s=100, marker='+', c='black')
     ax3.scatter(plot_x[indices_diaplectic], plot_y3[indices_diaplectic], s=50, marker='x', c='b')
 
-    plot_y6 = 6*np.pi*radius*avg_speed_along_axis_data_free[fi]**2/dis_data[fi]/fillength
-    ax6.scatter(plot_x[indices_symplectic], plot_y6[indices_symplectic], s=100, marker='+', c='black')
-    ax6.scatter(plot_x[indices_diaplectic], plot_y6[indices_diaplectic], s=50, marker='x', c='b')
+    try:
+        plot_y6 = 6*np.pi*radius*avg_speed_along_axis_data_free[fi]**2/dis_data[fi]/fillength
+        ax6.scatter(plot_x[indices_symplectic], plot_y6[indices_symplectic], s=100, marker='+', c='black')
+        ax6.scatter(plot_x[indices_diaplectic], plot_y6[indices_diaplectic], s=50, marker='x', c='b')
+    except:
+        pass
 
     # plot fil_phases
     if plot_phase_data == 'free':

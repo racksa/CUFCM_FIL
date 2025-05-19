@@ -119,7 +119,7 @@ for fi in range(n_folder):
 
             ax2.plot(k, avg_rot_speed, marker=markers[fi], c=color)
 
-            ax5.scatter(k[:7], r[:7], marker=markers[fi], c=colors[fi])
+            ax5.scatter(k[:-1], r[:-1], marker='.', s=50, c=colors[fi])
 
         ax3.plot(tilt_angle, avg_speed_over_k, marker=markers[fi], c=colors[fi])
 
@@ -203,8 +203,8 @@ ax4.legend(fontsize=16, frameon=False)
 # ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax4.set_xlim(tilt_angle[0], tilt_angle[-1])
 
-ax5.scatter(-.1, -.1, marker='+', c='red', label='Symplectic')
-ax5.scatter(-.1, -.1, marker='+', c='blue', label='Diaplectic')
+ax5.scatter(-.1, -.1, marker='.', c=colors[1], s=50, label='Symplectic')
+ax5.scatter(-.1, -.1, marker='.', c=colors[0], s=50, label='Diaplectic')
 ax5.set_xlabel(r'$k$')
 ax5.set_ylabel(r'$<r>$')
 ax5.legend(fontsize=16, frameon=False)
