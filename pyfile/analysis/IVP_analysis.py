@@ -67,7 +67,7 @@ n_folder_free = r_data_free.shape[0]
 
 dpi = 100
 
-fig = plt.figure(dpi=dpi)
+fig = plt.figure(dpi=dpi*2)
 ax = fig.add_subplot(1,1,1)
 fig2 = plt.figure(dpi=dpi)
 ax2 = fig2.add_subplot(1,1,1)
@@ -114,26 +114,27 @@ for fi in range(n_folder_heldfixed):
     indices_diaplectic = np.where((plot_y  < .4) & (plot_y > 0.04))[0]
     indices_diaplectic_k2 = np.where(plot_y  < 0.04)[0]
 
-    marker = '.'
+    marker_fixed = '^'
+    marker_free = 'x'
     color = 'r'
-    s = 50
+    s = 30
 
-    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=s, marker=marker, c=color)
-    ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=s, marker=marker, c=color)
-    ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=s, marker=marker, c=color)
+    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=s, facecolor='none', marker=marker_fixed, edgecolor='black')
+    ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=s, facecolor='none', marker=marker_fixed, edgecolor='b')
+    ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=s, facecolor='none', marker=marker_fixed, edgecolor='b')
 
     #special points for paper
     fii = 2
     if fi==fii: # symplectic
-        ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='black', linewidths=1, zorder=300)
+        ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='r', linewidths=1, zorder=300)
     if fi==fii: # symplectic 2
-        ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='black', linewidths=1, zorder=300)
+        ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='r', linewidths=1, zorder=300)
     if fi==fii: # symplectic 3
-        ax.scatter(plot_x[7], plot_y[7], s=200, marker='+', c='black', linewidths=3, zorder=300)
+        ax.scatter(plot_x[7], plot_y[7], s=200, marker='+', c='r', linewidths=3, zorder=300)
     if fi==6: #k=1
-        ax.scatter(plot_x[10], plot_y[10], s=100, marker='^', c='black', linewidths=1, zorder=300)
+        ax.scatter(plot_x[10], plot_y[10], s=100, marker='^', c='r', linewidths=1, zorder=300)
     if fi==6: #k=2
-        ax.scatter(plot_x[9], plot_y[9], s=100, marker='x', c='black', linewidths=2, zorder=300)
+        ax.scatter(plot_x[9], plot_y[9], s=100, marker='x', c='r', linewidths=2, zorder=300)
 
     
     # # plot fil_phases
@@ -150,12 +151,12 @@ for fi in range(n_folder_free):
     indices_symplectic = np.where(plot_y > .4)[0]
     indices_diaplectic = np.where(plot_y  < .4)[0]
 
-    marker = '.'
+    marker_free = 'o'
     color = 'b'
-    s = 50
+    s = 30
 
-    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=s, marker=marker, c=color)
-    ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=s, marker=marker, c=color)
+    ax.scatter(plot_x[indices_symplectic], plot_y[indices_symplectic], s=s, facecolor='none', marker=marker_free, edgecolors='black')
+    ax.scatter(plot_x[indices_diaplectic], plot_y[indices_diaplectic], s=s, facecolor='none', marker=marker_free, edgecolors='blue')
 
     plot_y2 = avg_speed_along_axis_data_free[fi]
     ax2.scatter(plot_x[indices_symplectic], plot_y2[indices_symplectic], s=100, marker='+', c='black')
@@ -189,14 +190,20 @@ for fi in range(n_folder_free):
 # ax.scatter(-1, -1, marker='x', c='black', s=100, label='Symplectic')
 # ax.scatter(-1, -1, marker='+', c='black', s=100, label='Diaplectic')
 # ax.scatter(-1, -1, marker='P', c='black', s=100, label='Diaplectic(#k=2)')
-ax.scatter(-1, -1, marker='.', c='r', s=50, label='Fixed')
-ax.scatter(-1, -1, marker='.', c='b', s=50, label='Free')
+
+from matplotlib.legend_handler import HandlerTuple
+fixed_legend1 = ax.scatter(-1, -1, marker='^', facecolor='none', edgecolors='black', s=30)
+fixed_legend2 = ax.scatter(-1, -1, marker='^', facecolor='none', edgecolors='blue', s=30)
+free_legend1 = ax.scatter(-1, -1, marker='o', facecolor='none', edgecolors='black', s=30)
+free_legend2 = ax.scatter(-1, -1, marker='o', facecolor='none', edgecolors='blue', s=30)
 
 ax.set_xlabel(r'$k$')
 ax.set_ylabel(r'$<r>$')
 ax.set_ylim(0)
 ax.set_xlim(0, 0.09 / x_scale_offset)
-ax.legend(fontsize=16, frameon=False)
+ax.legend([ (free_legend1, free_legend2), (fixed_legend1, fixed_legend2)], ['free', 'fixed'],\
+           fontsize=16, frameon=False, handler_map={tuple: HandlerTuple(ndivide=None)})
+
 
 
 ax.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
@@ -207,6 +214,11 @@ ax2.set_ylabel(r"$<V>T/L$")
 ax2.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax2.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax2.legend(fontsize=16, frameon=False)
+ax2.set_ylim(0, 0.17)
+ax2.set_xticks(np.array([0, 0.02, 0.04, 0.06, 0.08]) / x_scale_offset)
+ax2.set_box_aspect(0.5) 
+ax2.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
+             fontsize=20, ha='right')
 
 ax3.set_xlabel(r'$k$')
 ax3.set_ylabel(r"$<\Omega>T$")
@@ -215,11 +227,11 @@ ax3.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax3.legend(fontsize=16, frameon=False)
 
 
-ax4.scatter(None, None, s=100, marker='o', c='black', linewidths=1, zorder=300, label='Symplectic ($k=0.005$)')
-ax4.scatter(None, None, s=100, marker='s', c='black', linewidths=1, zorder=300, label='Symplectic ($k=0.015$)')
-ax4.scatter(None, None, s=200, marker='+', c='black', linewidths=3, zorder=300, label='Symplectic ($k=0.04$)')
-ax4.scatter(None, None, s=100, marker='^', c='black', linewidths=1, zorder=300, label='Diaplectic ($\kappa=1$)')
-ax4.scatter(None, None, s=100, marker='x', c='black', linewidths=2, zorder=300, label='Diaplectic ($\kappa=2$)')
+ax4.scatter(None, None, s=100, marker='o', c='r', linewidths=1, zorder=300, label='Symplectic ($k=0.005$)')
+ax4.scatter(None, None, s=100, marker='s', c='r', linewidths=1, zorder=300, label='Symplectic ($k=0.015$)')
+ax4.scatter(None, None, s=200, marker='+', c='r', linewidths=3, zorder=300, label='Symplectic ($k=0.04$)')
+ax4.scatter(None, None, s=100, marker='^', c='r', linewidths=1, zorder=300, label='Diaplectic ($\kappa=1$)')
+ax4.scatter(None, None, s=100, marker='x', c='r', linewidths=2, zorder=300, label='Diaplectic ($\kappa=2$)')
 ax4.legend(fontsize=16, frameon=False)
 ax4.set_axis_off()
 
@@ -231,6 +243,11 @@ ax6.set_ylabel(r"Efficiency")
 ax6.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax6.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax6.legend(fontsize=16, frameon=False)
+ax6.set_ylim(0, 5e-4)
+ax6.set_xticks(np.array([0, 0.02, 0.04, 0.06, 0.08]) / x_scale_offset)
+ax6.set_box_aspect(0.5) 
+ax6.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
+             fontsize=20, ha='right')
 
 
 fig.tight_layout()

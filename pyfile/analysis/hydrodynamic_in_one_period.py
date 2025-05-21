@@ -25,34 +25,40 @@ plt.rcParams.update({'font.size': 24})
 
 cmap_name = 'coolwarm'
 
-# path = "data/ic_hpc_sim_free/20240311_1/"
-path = "data/ic_hpc_sim_free_with_force/20240311_1/"
-index = 1 # symplectic
-index2 = 0 # diaplectic
+# path = "data/ic_hpc_sim_free_with_force/20240311_1/"
+# index = 1 # symplectic
+# index2 = 0 # diaplectic
 
-path = "data/for_paper/hydrodynamics_in_one_period/20250302/"
-index = 0 # symplectic
+path1 = "data/for_paper/hydrodynamics_in_one_period/20250302/"
+path2 = "data/for_paper/hydrodynamics_in_one_period/20250302/"
+index1 = 0 # symplectic
+index2 = 1 # diaplectic
+force = True
+
+path1 = "data/for_paper/flowfield_example/20250522_flowfield_free/"
+path2 = "data/for_paper/flowfield_example/20250522_flowfield_free/"
+index1 = 0 # symplectic
 index2 = 1 # diaplectic
 force = True
 
 
-r_data = np.load(f"{path}r_array_index{index}.npy")
-time_data = np.load(f"{path}time_array_index{index}.npy")
-body_speed_data = np.load(f"{path}body_speed_array_index{index}.npy")
-body_rot_speed_data = np.load(f"{path}body_rot_speed_array_index{index}.npy")
-num_eff_beat_data = np.load(f"{path}num_eff_beat_array_index{index}.npy")
+r_data = np.load(f"{path1}r_array_index{index1}.npy")
+time_data = np.load(f"{path1}time_array_index{index1}.npy")
+body_speed_data = np.load(f"{path1}body_speed_array_index{index1}.npy")
+body_rot_speed_data = np.load(f"{path1}body_rot_speed_array_index{index1}.npy")
+num_eff_beat_data = np.load(f"{path1}num_eff_beat_array_index{index1}.npy")
 if force:
-    dissipation_data = np.load(f"{path}dissipation_array_index{index}.npy")
-    efficiency_data = np.load(f"{path}efficiency_array_index{index}.npy")
+    dissipation_data = np.load(f"{path1}dissipation_array_index{index1}.npy")
+    efficiency_data = np.load(f"{path1}efficiency_array_index{index1}.npy")
 
-r_data2 = np.load(f"{path}r_array_index{index2}.npy")
-time_data2 = np.load(f"{path}time_array_index{index2}.npy")
-body_speed_data2 = np.load(f"{path}body_speed_array_index{index2}.npy")
-body_rot_speed_data2 = np.load(f"{path}body_rot_speed_array_index{index2}.npy")
-num_eff_beat_data2 = np.load(f"{path}num_eff_beat_array_index{index2}.npy")
+r_data2 = np.load(f"{path2}r_array_index{index2}.npy")
+time_data2 = np.load(f"{path2}time_array_index{index2}.npy")
+body_speed_data2 = np.load(f"{path2}body_speed_array_index{index2}.npy")
+body_rot_speed_data2 = np.load(f"{path2}body_rot_speed_array_index{index2}.npy")
+num_eff_beat_data2 = np.load(f"{path2}num_eff_beat_array_index{index2}.npy")
 if force:
-    dissipation_data2 = np.load(f"{path}dissipation_array_index{index2}.npy")
-    efficiency_data2 = np.load(f"{path}efficiency_array_index{index2}.npy")
+    dissipation_data2 = np.load(f"{path2}dissipation_array_index{index2}.npy")
+    efficiency_data2 = np.load(f"{path2}efficiency_array_index{index2}.npy")
 
 num_frame = len(time_data)
 
@@ -159,16 +165,19 @@ ax1.plot(-1, -1, marker=dia_marker, c='blue', label='Diaplectic')
 ax1.legend(loc='upper left', fontsize=16, frameon=False)
 ax1.set_xlim((0, 1))
 ax1.set_ylim((0, 1))
+ax1.set_box_aspect(0.5) 
 
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'No. of effective strokes')
 ax2.legend(fontsize=16, frameon=False)
 ax2.set_xlim((0, 1))
+ax2.set_box_aspect(0.5) 
 
 ax3.set_xlabel(r'$t/T$')
 ax3.set_ylabel(r"$VT/L$")
 ax3.legend(fontsize=16, frameon=False)
 ax3.set_xlim((0, 1))
+ax3.set_box_aspect(0.5) 
 # ax3.set_ylim((np.min(body_speed_data)-0.1*np.ptp(body_speed_data), np.max(body_speed_data)+0.1*np.ptp(body_speed_data)))
 
 ax4.set_xlabel(r'$t/T$')
@@ -178,12 +187,14 @@ ax4.set_xlim((0, 1))
 formatter = mticker.ScalarFormatter(useMathText=True)
 formatter.set_powerlimits((-4, -4))  # Forces 10^-5 notation
 ax4.yaxis.set_major_formatter(formatter)
+ax4.set_box_aspect(0.5) 
 
 
 ax5.set_xlabel(r'$t/T$')
 ax5.set_ylabel(r'$\mathcal{R}T^2/\eta L^3$')
 ax5.legend(fontsize=16, frameon=False)
 ax5.set_xlim((0, 1))
+ax5.set_box_aspect(0.5) 
 
 
 formatter = mticker.ScalarFormatter(useMathText=True)
@@ -194,6 +205,7 @@ ax6.set_xlabel(r'$t/T$')
 ax6.set_ylabel(r'$Efficiency$')
 ax6.legend(fontsize=16, frameon=False)
 ax6.set_xlim((0, 1))
+ax6.set_box_aspect(0.5) 
 
 fig1.tight_layout()
 fig2.tight_layout()
@@ -201,10 +213,10 @@ fig3.tight_layout()
 fig4.tight_layout()
 fig5.tight_layout()
 fig6.tight_layout()
-fig1.savefig(f'fig/r_1T_index{index}.pdf', bbox_inches = 'tight', format='pdf')
-fig2.savefig(f'fig/num_beat_1T_index{index}.pdf', bbox_inches = 'tight', format='pdf')
-fig3.savefig(f'fig/speed_1T_index{index}.pdf', bbox_inches = 'tight', format='pdf')
-fig4.savefig(f'fig/rot_speed_1T_index{index}.pdf', bbox_inches = 'tight', format='pdf')
-fig5.savefig(f'fig/dissipation_1T_index{index}.pdf', bbox_inches = 'tight', format='pdf')
-fig6.savefig(f'fig/efficiency_1T_index{index}.pdf', bbox_inches = 'tight', format='pdf')
+fig1.savefig(f'fig/r_1T.pdf', bbox_inches = 'tight', format='pdf')
+fig2.savefig(f'fig/num_beat_1T.pdf', bbox_inches = 'tight', format='pdf')
+fig3.savefig(f'fig/speed_1T.pdf', bbox_inches = 'tight', format='pdf')
+fig4.savefig(f'fig/rot_speed_1T.pdf', bbox_inches = 'tight', format='pdf')
+fig5.savefig(f'fig/dissipation_1T.pdf', bbox_inches = 'tight', format='pdf')
+fig6.savefig(f'fig/efficiency_1T.pdf', bbox_inches = 'tight', format='pdf')
 plt.show()

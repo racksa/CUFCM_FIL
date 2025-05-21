@@ -71,6 +71,16 @@ class DRIVER:
         self.date = '20250514'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'for_paper/sanity_check/'
+        self.exe_name = 'cilia_1e-4_free'
+        self.date = '20250519'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'for_paper/flowfield_example/'
+        self.exe_name = 'cilia_1e-8_free_300'
+        self.date = '20250522_flowfield_free'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
         # self.category = 'for_paper/giant_swimmer_rerun/'
         # self.exe_name = 'cilia_1e-4_free'
         # self.date = '20250507'
@@ -123,7 +133,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (5, 1, 1, 1)
+        self.sweep_shape = (16, 1, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -236,10 +246,10 @@ class DRIVER:
                         ny=400
                         nz=400
                         boxsize=4000 *(i+1)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        spring_factor = round(0.005, 3)
+                        spring_factor = round(0.005 + 0.005*i, 3)
+                        # spring_factor = round(0.005, 3)
                         period = 1
-                        sim_length = 1
+                        sim_length = 1000
                         # tilt_angle = i*1./18*3.141592653
                         tilt_angle = 0.0
                         wavnum = 0.0

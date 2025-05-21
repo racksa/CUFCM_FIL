@@ -93,9 +93,8 @@ class VISUAL:
         # # self.date = '20240822_ishikawa_resolution6'
         # # self.date = '20240902_real_volvox'
         # # self.date = '20240903_real_volvox_seg20'
-
-        # self.date = '20240802_pnas_L0.975'
-        # self.dir = f"data/ishikawa/{self.date}/"
+        self.date = '20240802_pnas_L0.975'
+        self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
         # self.dir = f"data/volvox/{self.date}/"
@@ -120,8 +119,12 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20250225_flowfield_sym'
-        # # self.date = '20250311_flowfield_dia_free'
-        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # self.date = '20250311_flowfield_dia_free'
+        self.date = '20250522_flowfield_free'
+        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+
+        # self.date = '20250519'
+        # self.dir = f"data/for_paper/sanity_check/{self.date}/"
 
         # self.date = '20250514'
         # self.dir = f"data/for_paper/roadmap/{self.date}/"
@@ -129,20 +132,13 @@ class VISUAL:
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
 
-        self.date = '20250516_force'
-        self.date = '20250507'
-        self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
+        # self.date = '20250516_force'
+        # # self.date = '20250507'
+        # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
 
-        # 0 159 0.26613479909344223
-        # 1 639 0.5116854492585097
-        # 5 4291 1.1861245202801034
-        # 2 1128 1.6790971529670298
-        # 3 1763 0.7534197514210584
-        # 4 2539 0.8731784841874483
-
-
+        
+        # self.date = '20250228'
         # self.date = '20250302'
-        # # self.date = '20250228'
         # self.dir = f"data/for_paper/hydrodynamics_in_one_period/{self.date}/"
 
 
@@ -220,8 +216,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 889
-        self.frames_setting = 30
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -2097,8 +2093,6 @@ class VISUAL:
             seg_states = np.array(seg_states_str.split()[1:], dtype=float)
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
-
-            body_states=np.array([0,0,0,1,0,0,0])
             
             fil_phases = fil_states[:self.nfil]
             fil_angles = fil_states[self.nfil:]
@@ -3641,7 +3635,9 @@ class VISUAL:
     def flow_field_FFCM(self):
 
         view = 'top'
-        # view = 'side'
+        view = 'side'
+
+        center_at_swimmer = True
 
         def find_pos(line, symbol):
             """Find position of symbol
@@ -3761,6 +3757,9 @@ class VISUAL:
 
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
+                
+                if center_at_swimmer:
+                    shift -= body_pos
 
                 if view == 'top':
                     circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
@@ -3849,7 +3848,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 256
+            nx = 128
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -4093,15 +4092,25 @@ class VISUAL:
 
         fig = plt.figure()
         ax = fig.add_subplot()
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot()
 
         # Flow field
-        n_theta = 15
+        n_theta = 50
         n_r = 1
-        n_phi = 2
+        n_phi = 50
         n_field_point = n_theta*n_r*n_phi
+        
+        # Read flow field from file instead of recomputing
+        read_flowfield_from_file = True
+        
+        plot_envelope = False
 
-        r_ratio = 1 + (self.fillength/self.radius)
-        r_list = np.linspace(r_ratio, 2.6, n_r)*self.radius
+        # r_ratio = 1 + (self.fillength/self.radius)
+        # r_list = np.linspace(r_ratio, 2.6, n_r)*self.radius
+        r_list = np.linspace(self.radius + 1*self.fillength, self.radius + 1.8*self.fillength, n_r)
         theta_list = np.linspace(0, np.pi, n_theta)
         phi_list = np.linspace(0, 2*np.pi, n_phi+1)[:-1] - np.pi/2
 
@@ -4125,8 +4134,14 @@ class VISUAL:
         ur_data = np.zeros((self.frames, n_field_point))
         utheta_data = np.zeros((self.frames, n_field_point))
         uphi_data = np.zeros((self.frames, n_field_point))
+        speed_data = np.zeros((self.frames))
+        squirmer_speed_data = np.zeros((self.frames))
+        time_data = (np.arange(self.frames) + self.plot_start_frame)/self.period
 
-        n_coeffs = 3
+        if read_flowfield_from_file:
+            v_data = np.load(f'{self.dir}/v_data_index{self.index}.npy')
+
+        n_coeffs = 2
         An_data = np.zeros((self.frames, n_coeffs))
         Bn_data = np.zeros((self.frames, n_coeffs))
 
@@ -4181,147 +4196,164 @@ class VISUAL:
             Bn = numerator / denominator
             return Bn
 
-        
-        for i in range(self.plot_end_frame):
-            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+        if not read_flowfield_from_file:
 
-            seg_forces_str = seg_forces_f.readline()
-            blob_forces_str = blob_forces_f.readline()
-            seg_states_str = seg_states_f.readline()
-            body_states_str = body_states_f.readline()
-            body_vels_str = body_vels_f.readline()
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
 
-            if(i>=self.plot_start_frame):
-                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
-                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
-                body_states = np.array(body_states_str.split()[1:], dtype=float)
-                body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+                seg_forces_str = seg_forces_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+                body_vels_str = body_vels_f.readline()
 
-                source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
-                source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
-                v_list = np.zeros(np.shape(pos_list))
+                if(i>=self.plot_start_frame):
+                    seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                    blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                    seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                    body_states = np.array(body_states_str.split()[1:], dtype=float)
+                    body_vels = np.array(body_vels_str.split()[1:], dtype=float)
 
-                
-                for swim in range(int(self.pars['NSWIM'])):
-                    body_pos = body_states[7*swim : 7*swim+3]
-                    R = util.rot_mat(body_states[3:7])
-                    body_axis = np.matmul(R, np.array([0,0,1]))
-                    body_vel = body_vels[6*swim : 6*swim+3]
-                    body_speed_along_axis = np.sum(body_vel * body_axis)
+                    source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+                    source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+                    v_list = np.zeros(np.shape(pos_list))
 
-                    circle=plt.Circle((0, 0), self.radius, color='Grey', zorder=99)
-                    ax.add_patch(circle)
-
-                    for blob in range(self.nblob):
-                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
-                        blob_force = blob_forces[3*blob : 3*blob+3]
-                        source_pos_list[blob] = blob_pos 
-                        source_force_list[blob] = blob_force
-                    for fil in range(self.nfil):
-                        fil_i = int(3*fil*self.nseg)
-                        seg_data = np.zeros((self.nseg, 3))
-                        for seg in range(self.nseg):
-                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
-                            seg_data[seg] = seg_pos
-                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
-                            seg_force = seg_force[:3]
-                            source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
-                            source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
-                
-                d_pos_list = cuda.to_device(pos_list)
-                d_source_pos_list = cuda.to_device(source_pos_list)
-                d_source_force_list = cuda.to_device(source_force_list)
-                d_v_list = cuda.to_device(v_list)
-                # Define the grid and block dimensions
-                threads_per_block = 256
-                blocks_per_grid = (pos_list.shape[0] + threads_per_block - 1) // threads_per_block
-                # Launch the kernel
-                compute_v_list_kernel[blocks_per_grid, threads_per_block](d_pos_list, d_source_pos_list, d_source_force_list, d_v_list)
-                # Copy the result back to the host
-                v_list = d_v_list.copy_to_host()
-
-                
-
-                v_data[i-self.plot_start_frame] = v_list
-
-                ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
-                                v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
-                                    v_list[:, 2] * np.cos(theta_flat)
-                utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
-                                v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
-                                    - v_list[:, 2] * np.sin(theta_flat)
-                uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
-
-                for pos in pos_list:
-                    ax.scatter(pos[1], pos[2], c='black', zorder = 999)
-                ax.quiver(pos_list[:,1], pos_list[:,2], v_list[:,1], v_list[:,2], color='b' )
-
-                # e_r
-                ax.quiver(pos_list[:,1], pos_list[:,2], \
-                            np.sin(theta_flat)*np.sin(phi_flat)*ur_list,
-                            np.cos(theta_flat)*ur_list, color='r')
-                # # e_phi
-                # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
-                #             -np.sin(phi_flat)*uphi_list,
-                #             np.cos(phi_flat)*uphi_list,
-                #             np.zeros(n_field_point), length = .5 ,color='r')
-                # e_theta
-                ax.quiver(pos_list[:,1], pos_list[:,2], \
-                            np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
-                            -np.sin(theta_flat)*utheta_list, color='r')
                     
+                    for swim in range(int(self.pars['NSWIM'])):
+                        body_pos = body_states[7*swim : 7*swim+3]
+                        R = util.rot_mat(body_states[3:7])
+                        body_axis = np.matmul(R, np.array([0,0,1]))
+                        body_vel = body_vels[6*swim : 6*swim+3]
+                        body_speed_along_axis = np.sum(body_vel * body_axis)
+                                            
+                        if plot_envelope:
+                            circle=plt.Circle((0, 0), self.radius, color='Grey', zorder=99)
+                            ax.add_patch(circle)
 
-                ur_list_avg = np.mean(np.reshape(ur_list, (n_phi, n_theta)), axis=0)
-                utheta_list_avg = np.mean(np.reshape(utheta_list, (n_phi, n_theta)), axis=0)
+                        for blob in range(self.nblob):
+                            blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
+                            blob_force = blob_forces[3*blob : 3*blob+3]
+                            source_pos_list[blob] = blob_pos 
+                            source_force_list[blob] = blob_force
+                        for fil in range(self.nfil):
+                            fil_i = int(3*fil*self.nseg)
+                            seg_data = np.zeros((self.nseg, 3))
+                            for seg in range(self.nseg):
+                                seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
+                                seg_data[seg] = seg_pos
+                                seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                                seg_force = seg_force[:3]
+                                source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
+                                source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
 
-                utheta_list_avg[0] = 0
-                utheta_list_avg[-1] = 0
+                    d_pos_list = cuda.to_device(pos_list)
+                    d_source_pos_list = cuda.to_device(source_pos_list)
+                    d_source_force_list = cuda.to_device(source_force_list)
+                    d_v_list = cuda.to_device(v_list)
+                    # Define the grid and block dimensions
+                    threads_per_block = 256
+                    blocks_per_grid = (pos_list.shape[0] + threads_per_block - 1) // threads_per_block
+                    # Launch the kernel
+                    compute_v_list_kernel[blocks_per_grid, threads_per_block](d_pos_list, d_source_pos_list, d_source_force_list, d_v_list)
+                    # Copy the result back to the host
+                    v_data[i-self.plot_start_frame] = d_v_list.copy_to_host()
 
-                # print(np.reshape(ur_list, (n_phi, n_theta)))
-                # # print(ur_list_avg)
-                # print(np.reshape(utheta_list, (n_phi, n_theta)))
-                # print(np.reshape(theta_flat, (n_phi, n_theta)))
-                # print(np.reshape(phi_flat, (n_phi, n_theta)))
-                # print(utheta_list_avg)
+                    v_list = v_data[i-self.plot_start_frame]
 
-                for n in range(n_coeffs):
-                    An_data[i-self.plot_start_frame][n] = extract_An(n, theta_list, ur_list_avg)
-                    if n > 0:
-                        Bn_data[i-self.plot_start_frame][n] = extract_Bn(n, theta_list, utheta_list_avg)
-                
-                print(f'1./3*(2B1-A1) = {1./3*(2*Bn_data[i-self.plot_start_frame][1] - An_data[i-self.plot_start_frame][1])}, \
-                      speed along aixs = {body_speed_along_axis}')
+                    v_list -= body_vel
+
+                    ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
+                                    v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
+                                        v_list[:, 2] * np.cos(theta_flat)
+                    utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
+                                    v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
+                                        - v_list[:, 2] * np.sin(theta_flat)
+                    uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
+
+                    if plot_envelope:
+                        for pos in pos_list:
+                            ax.scatter(pos[1], pos[2], c='black', zorder = 999)
+                        ax.quiver(pos_list[:,1], pos_list[:,2], v_list[:,1], v_list[:,2], color='black' )
+
+                        # e_r
+                        ax.quiver(pos_list[:,1], pos_list[:,2], \
+                                    np.sin(theta_flat)*np.sin(phi_flat)*ur_list,
+                                    np.cos(theta_flat)*ur_list, color='r')
+                        # # e_phi
+                        # ax.quiver(pos_list[:,0], pos_list[:,1], pos_list[:,2], \
+                        #             -np.sin(phi_flat)*uphi_list,
+                        #             np.cos(phi_flat)*uphi_list,
+                        #             np.zeros(n_field_point), length = .5 ,color='r')
+                        # e_theta
+                        ax.quiver(pos_list[:,1], pos_list[:,2], \
+                                    np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
+                                    -np.sin(theta_flat)*utheta_list, color='b')
+                        
+
+                    ur_list_avg = np.mean(np.reshape(ur_list, (n_phi, n_theta)), axis=0)
+                    utheta_list_avg = np.mean(np.reshape(utheta_list, (n_phi, n_theta)), axis=0)
+
+                    utheta_list_avg[0] = 0
+                    utheta_list_avg[-1] = 0
+
+                    for n in range(1, n_coeffs):
+                        An_data[i-self.plot_start_frame][n] = extract_An(n, theta_list, ur_list_avg)
+                        if n > 0:
+                            Bn_data[i-self.plot_start_frame][n] = extract_Bn(n, theta_list, utheta_list_avg)
                     
-                print(An_data[i-self.plot_start_frame][:5], Bn_data[i-self.plot_start_frame][:5])
+                    print(f'1./3*(2B1-A1) = {1./3*(2*Bn_data[i-self.plot_start_frame][1] - An_data[i-self.plot_start_frame][1])}, \
+                        \nspeed along aixs = {body_speed_along_axis}')
+                    print(f'ratio = {1./3*(2*Bn_data[i-self.plot_start_frame][1] - An_data[i-self.plot_start_frame][1]) / body_speed_along_axis}')
+                    print(f"An = {An_data[i-self.plot_start_frame][:5]}", f"Bn = {Bn_data[i-self.plot_start_frame][:5]}", '\n')
 
+                    reconstructed_ur_list = np.zeros(n_theta)
+                    reconstructed_utheta_list = np.zeros(n_theta)
+                    for n in range(1, n_coeffs):
+                        reconstructed_ur_list += An_data[i-self.plot_start_frame][n] * P(n, np.cos(theta_list))
+                        reconstructed_utheta_list += Bn_data[i-self.plot_start_frame][n] * V(n, np.cos(theta_list)) 
 
-                ur_data[i-self.plot_start_frame] = ur_list
-                utheta_data[i-self.plot_start_frame] = utheta_list
-                uphi_data[i-self.plot_start_frame] = uphi_list
+                    speed_data[i-self.plot_start_frame] = body_speed_along_axis
+                    squirmer_speed_data[i-self.plot_start_frame] = 1./3*(2*Bn_data[i-self.plot_start_frame][1] - An_data[i-self.plot_start_frame][1])
+                    ur_data[i-self.plot_start_frame] = ur_list
+                    utheta_data[i-self.plot_start_frame] = utheta_list
+                    uphi_data[i-self.plot_start_frame] = uphi_list
 
+                    if self.frames == 1:
+                        ax2.plot(theta_list, ur_list_avg, c='r', label=r'$u_r$')
+                        ax2.plot(theta_list, reconstructed_ur_list, c='r', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
 
-                # np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
-                # np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
-                # np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
+                        ax2.plot(theta_list, utheta_list_avg, c='b', label=r'$u_{\theta}$')
+                        ax2.plot(theta_list, reconstructed_utheta_list, c='b', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
 
-        t = ur_data.shape[0]/30
+            np.save(f'{self.dir}/time_data_index{self.index}.npy', time_data)
+            np.save(f'{self.dir}/speed_data_index{self.index}.npy', speed_data)
+            np.save(f'{self.dir}/squirmer_speed_data_index{self.index}.npy', squirmer_speed_data)
 
-        
-        # ax.imshow(ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
+        else:
+            time_data = np.load(f'{self.dir}/time_data_index{self.index}.npy')
+            speed_data = np.load(f'{self.dir}/speed_data_index{self.index}.npy')
+            squirmer_speed_data = np.load(f'{self.dir}/squirmer_speed_data_index{self.index}.npy')
 
-        # y_ticks = np.linspace(0, 2*np.pi, 5)
-        # y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
-        # ax.set_yticks(ticks=y_ticks, labels=y_labels)
-
-        # ax.set_xlabel(r'$t/T$')
-        # ax.set_ylabel(r'$\theta$')        
-
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
-        
         ax.set_aspect('equal')
+
+        ax3.plot(time_data, speed_data/self.fillength, c='black', label=r'Present data')
+        ax3.scatter(time_data[::3], squirmer_speed_data[::3]/self.fillength, marker='^', c='black', label=r'$Squirmer$')
+        ax3.set_ylabel(r'$VT/L$')
+        ax3.set_xlabel(r'$t/T$')
+        ax3.set_xlim(0, 1)
+        ax3.legend(fontsize=16, frameon=False)
+
+        ax2.legend()
+        ax2.set_xticks(ticks=[0, np.pi/2, np.pi], labels=[r'$0$', r'$\pi/2$', r'$\pi$'])
+        ax2.set_xlim(0, np.pi)
+        
+        
         fig.tight_layout()
+        fig2.tight_layout()
+        fig3.tight_layout()
+
+        fig3.savefig(f'fig/comparison_to_squirmer_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+
         plt.show()
 
 

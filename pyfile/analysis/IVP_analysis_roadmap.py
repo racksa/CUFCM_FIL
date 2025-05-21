@@ -55,7 +55,7 @@ fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 
 ax.plot(time_array_symplectic, r_array_symplectic, c='black')
-ax.plot(time_array_diaplectic, r_array_diaplectic, c='blue')
+ax.plot(time_array_diaplectic, r_array_diaplectic, c='lightgrey')
 ax.scatter(stamp_x_symplectic, stamp_y_symplectic, marker='^', facecolor='none', s= 100, color='black')
 ax.scatter(stamp_x_diaplectic, stamp_y_diaplectic, marker='o', facecolor='none', s= 100, color='black')
 ax.set_xticks(np.linspace(0, 100, 5))

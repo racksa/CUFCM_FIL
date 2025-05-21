@@ -91,7 +91,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // This enables filaments to be seeded as pair and have difference frequency
 
 
-#define BODY_VELOCITY_TYPE 1
+#define BODY_VELOCITY_TYPE 0
 // 0 = FREE TO SWIM
 // 1 = PRESCRIBED VELOCITIES
 // 2 = PRESCRIBED ROTATION ONLY
@@ -106,7 +106,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // #endif
 
 
-#define OUTPUT_FORCES true
+#define OUTPUT_FORCES false
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -118,7 +118,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 4
+  #define SHAPE_SEQUENCE 1
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -380,7 +380,7 @@ extern Real REV_RATIO;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 30
+  #define SAVES_PER_PERIOD 300
 
 #endif
 
