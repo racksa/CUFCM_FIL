@@ -50,6 +50,10 @@ num_eff_beat_data = np.load(f"{path1}num_eff_beat_array_index{index1}.npy")
 if force:
     dissipation_data = np.load(f"{path1}dissipation_array_index{index1}.npy")
     efficiency_data = np.load(f"{path1}efficiency_array_index{index1}.npy")
+try:
+    squirmer_speed_data = np.load(f"{path1}squirmer_speed_array_index{index1}.npy")
+except:
+    pass
 
 r_data2 = np.load(f"{path2}r_array_index{index2}.npy")
 time_data2 = np.load(f"{path2}time_array_index{index2}.npy")
@@ -59,6 +63,10 @@ num_eff_beat_data2 = np.load(f"{path2}num_eff_beat_array_index{index2}.npy")
 if force:
     dissipation_data2 = np.load(f"{path2}dissipation_array_index{index2}.npy")
     efficiency_data2 = np.load(f"{path2}efficiency_array_index{index2}.npy")
+try:
+    squirmer_speed_data2 = np.load(f"{path2}squirmer_speed_array_index{index2}.npy")
+except:
+    pass
 
 num_frame = len(time_data)
 
@@ -122,8 +130,23 @@ ax12.plot(time_data[:-1], r_data2[:-1], marker=dia_marker, c='blue')
 ax2.plot(time_data[:-1], num_eff_beat_data[:-1], marker=sym_marker, c='black', label='Symplectic')
 ax2.plot(time_data[:-1], num_eff_beat_data2[:-1], marker=dia_marker, c='blue', label='Diaplectic')
 
-ax3.plot(time_data[:-1], body_speed_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')
-ax3.plot(time_data[:-1], body_speed_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')
+# Plot the lines
+line_sym = ax3.plot(time_data[:-1], body_speed_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')[0]
+line_dia = ax3.plot(time_data[:-1], body_speed_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')[0]
+try:
+    ax3.scatter(time_data[0:-1:10], squirmer_speed_data[:num_frame-1:10]/49.4, marker="^", c='black')
+    ax3.scatter(time_data[0:-1:10], squirmer_speed_data2[:num_frame-1:10]/49.4, marker="^", c='blue')
+
+    squirmer_legend1 = ax3.scatter([], [], marker='^', c='black')
+    squirmer_legend2 = ax3.scatter([], [], marker='^', c='blue')
+    from matplotlib.legend_handler import HandlerTuple
+    ax3.legend([line_sym, line_dia, (squirmer_legend1, squirmer_legend2)],
+               [ 'Symplectic', 'Diaplectic', 'Squirmer',],
+               fontsize=16, frameon=False,
+               handler_map={tuple: HandlerTuple(ndivide=None)})
+except:
+    ax3.legend(fontsize=16, frameon=False)
+
 
 ax4.plot(time_data[:-1], body_rot_speed_data[:num_frame-1], marker=sym_marker, c='black', label='Symplectic')
 ax4.plot(time_data[:-1], body_rot_speed_data2[:num_frame-1], marker=dia_marker, c='blue', label='Diaplectic')
@@ -165,19 +188,18 @@ ax1.plot(-1, -1, marker=dia_marker, c='blue', label='Diaplectic')
 ax1.legend(loc='upper left', fontsize=16, frameon=False)
 ax1.set_xlim((0, 1))
 ax1.set_ylim((0, 1))
-ax1.set_box_aspect(0.5) 
+ax1.set_box_aspect(1) 
 
 ax2.set_xlabel(r'$t/T$')
 ax2.set_ylabel(r'No. of effective strokes')
 ax2.legend(fontsize=16, frameon=False)
 ax2.set_xlim((0, 1))
-ax2.set_box_aspect(0.5) 
+ax2.set_box_aspect(1) 
 
 ax3.set_xlabel(r'$t/T$')
 ax3.set_ylabel(r"$VT/L$")
-ax3.legend(fontsize=16, frameon=False)
 ax3.set_xlim((0, 1))
-ax3.set_box_aspect(0.5) 
+ax3.set_box_aspect(1) 
 # ax3.set_ylim((np.min(body_speed_data)-0.1*np.ptp(body_speed_data), np.max(body_speed_data)+0.1*np.ptp(body_speed_data)))
 
 ax4.set_xlabel(r'$t/T$')
@@ -187,14 +209,14 @@ ax4.set_xlim((0, 1))
 formatter = mticker.ScalarFormatter(useMathText=True)
 formatter.set_powerlimits((-4, -4))  # Forces 10^-5 notation
 ax4.yaxis.set_major_formatter(formatter)
-ax4.set_box_aspect(0.5) 
+ax4.set_box_aspect(1) 
 
 
 ax5.set_xlabel(r'$t/T$')
 ax5.set_ylabel(r'$\mathcal{R}T^2/\eta L^3$')
 ax5.legend(fontsize=16, frameon=False)
 ax5.set_xlim((0, 1))
-ax5.set_box_aspect(0.5) 
+ax5.set_box_aspect(1) 
 
 
 formatter = mticker.ScalarFormatter(useMathText=True)
@@ -205,7 +227,7 @@ ax6.set_xlabel(r'$t/T$')
 ax6.set_ylabel(r'$Efficiency$')
 ax6.legend(fontsize=16, frameon=False)
 ax6.set_xlim((0, 1))
-ax6.set_box_aspect(0.5) 
+ax6.set_box_aspect(1) 
 
 fig1.tight_layout()
 fig2.tight_layout()

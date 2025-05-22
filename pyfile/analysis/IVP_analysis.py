@@ -100,7 +100,7 @@ if plot_phase_data:
         ax5.set_xlabel('')
         ax5.set_ylabel('')
 
-x_scale_offset = 1e-2
+x_scale_offset = 1
 
 colormap = 'hsv'
 colormap = 'twilight_shifted'
@@ -196,13 +196,14 @@ fixed_legend1 = ax.scatter(-1, -1, marker='^', facecolor='none', edgecolors='bla
 fixed_legend2 = ax.scatter(-1, -1, marker='^', facecolor='none', edgecolors='blue', s=30)
 free_legend1 = ax.scatter(-1, -1, marker='o', facecolor='none', edgecolors='black', s=30)
 free_legend2 = ax.scatter(-1, -1, marker='o', facecolor='none', edgecolors='blue', s=30)
+ax.legend([ (free_legend1, free_legend2), (fixed_legend1, fixed_legend2)], ['free', 'fixed'],\
+           fontsize=16, frameon=False, handler_map={tuple: HandlerTuple(ndivide=None)})
+
 
 ax.set_xlabel(r'$k$')
 ax.set_ylabel(r'$<r>$')
 ax.set_ylim(0)
 ax.set_xlim(0, 0.09 / x_scale_offset)
-ax.legend([ (free_legend1, free_legend2), (fixed_legend1, fixed_legend2)], ['free', 'fixed'],\
-           fontsize=16, frameon=False, handler_map={tuple: HandlerTuple(ndivide=None)})
 
 
 
@@ -214,11 +215,40 @@ ax2.set_ylabel(r"$<V>T/L$")
 ax2.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax2.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax2.legend(fontsize=16, frameon=False)
+ax2.set_xlim(0,)
 ax2.set_ylim(0, 0.17)
 ax2.set_xticks(np.array([0, 0.02, 0.04, 0.06, 0.08]) / x_scale_offset)
-ax2.set_box_aspect(0.5) 
-ax2.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
-             fontsize=20, ha='right')
+ax2.set_box_aspect(0.7) 
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((0, 4))  # Forces 10^4 notation when values are large
+ax2.yaxis.set_major_formatter(formatter)
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((0, 2))  # Forces 10^4 notation when values are large
+ax2.xaxis.set_major_formatter(formatter)
+
+indices_symplectic = np.where(r_data_free > .4)
+indices_diaplectic = np.where(r_data_free  < .4)
+print(indices_symplectic)
+sym_speed = avg_speed_along_axis_data_free[indices_symplectic]
+dia_speed = avg_speed_along_axis_data_free[indices_diaplectic]
+sym_eff = 6*np.pi*radius*sym_speed**2/dis_data[indices_symplectic]/fillength
+dia_eff = 6*np.pi*radius*dia_speed**2/dis_data[indices_diaplectic]/fillength
+
+
+
+
+std2 = np.std(sym_speed)
+mean2 = np.mean(sym_speed)
+ax2.hlines(mean2, color='black', linestyle='--', linewidth=2, xmin=0, xmax=0.08)
+# ax2.fill_between(np.linspace(0, 1, 20), mean2 - std2,
+#                 mean2 + std2, color=colors[fi], alpha=0.2)
+
+std6 = np.std(sym_eff)
+mean6 = np.mean(sym_eff)
+ax6.hlines(mean6, color='black', linestyle='--', linewidth=2, xmin=0, xmax=0.08)
+# ax6.fill_between(tilt_angle, avg_rot_speed_over_k - std4,
+#                 avg_rot_speed_over_k + std4, color=colors[fi], alpha=0.2)
+
 
 ax3.set_xlabel(r'$k$')
 ax3.set_ylabel(r"$<\Omega>T$")
@@ -235,20 +265,22 @@ ax4.scatter(None, None, s=100, marker='x', c='r', linewidths=2, zorder=300, labe
 ax4.legend(fontsize=16, frameon=False)
 ax4.set_axis_off()
 
-formatter = mticker.ScalarFormatter(useMathText=True)
-formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
-ax6.yaxis.set_major_formatter(formatter)
+
 ax6.set_xlabel(r'$k$')
 ax6.set_ylabel(r"Efficiency")
 ax6.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax6.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax6.legend(fontsize=16, frameon=False)
+ax6.set_xlim(0,)
 ax6.set_ylim(0, 5e-4)
 ax6.set_xticks(np.array([0, 0.02, 0.04, 0.06, 0.08]) / x_scale_offset)
-ax6.set_box_aspect(0.5) 
-ax6.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
-             fontsize=20, ha='right')
-
+ax6.set_box_aspect(0.7) 
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
+ax6.yaxis.set_major_formatter(formatter)
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((0, 2))  # Forces 10^4 notation when values are large
+ax6.xaxis.set_major_formatter(formatter)
 
 fig.tight_layout()
 fig2.tight_layout()

@@ -106,7 +106,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // #endif
 
 
-#define OUTPUT_FORCES false
+#define OUTPUT_FORCES true
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -380,7 +380,7 @@ extern Real REV_RATIO;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 300
+  #define SAVES_PER_PERIOD 30
 
 #endif
 

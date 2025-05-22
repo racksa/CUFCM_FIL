@@ -80,8 +80,8 @@ class VISUAL:
         self.date = '20240311_3'
         self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+        self.date = '20240311_7'
+        self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -93,8 +93,8 @@ class VISUAL:
         # # self.date = '20240822_ishikawa_resolution6'
         # # self.date = '20240902_real_volvox'
         # # self.date = '20240903_real_volvox_seg20'
-        self.date = '20240802_pnas_L0.975'
-        self.dir = f"data/ishikawa/{self.date}/"
+        # self.date = '20240802_pnas_L0.975'
+        # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
         # self.dir = f"data/volvox/{self.date}/"
@@ -119,7 +119,7 @@ class VISUAL:
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20250225_flowfield_sym'
-        # self.date = '20250311_flowfield_dia_free'
+        # self.date = '20250311_flowfield_sym_free'
         self.date = '20250522_flowfield_free'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
@@ -137,7 +137,7 @@ class VISUAL:
         # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
 
         
-        # self.date = '20250228'
+        # # self.date = '20250228'
         # self.date = '20250302'
         # self.dir = f"data/for_paper/hydrodynamics_in_one_period/{self.date}/"
 
@@ -216,8 +216,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 15000
+        self.frames_setting = 4500
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -4104,7 +4104,7 @@ class VISUAL:
         n_field_point = n_theta*n_r*n_phi
         
         # Read flow field from file instead of recomputing
-        read_flowfield_from_file = True
+        read_flowfield_from_file = False
         
         plot_envelope = False
 
@@ -4136,10 +4136,7 @@ class VISUAL:
         uphi_data = np.zeros((self.frames, n_field_point))
         speed_data = np.zeros((self.frames))
         squirmer_speed_data = np.zeros((self.frames))
-        time_data = (np.arange(self.frames) + self.plot_start_frame)/self.period
-
-        if read_flowfield_from_file:
-            v_data = np.load(f'{self.dir}/v_data_index{self.index}.npy')
+        time_data = np.arange(self.frames)/self.period
 
         n_coeffs = 2
         An_data = np.zeros((self.frames, n_coeffs))
@@ -4325,14 +4322,15 @@ class VISUAL:
                         ax2.plot(theta_list, utheta_list_avg, c='b', label=r'$u_{\theta}$')
                         ax2.plot(theta_list, reconstructed_utheta_list, c='b', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
 
-            np.save(f'{self.dir}/time_data_index{self.index}.npy', time_data)
-            np.save(f'{self.dir}/speed_data_index{self.index}.npy', speed_data)
-            np.save(f'{self.dir}/squirmer_speed_data_index{self.index}.npy', squirmer_speed_data)
+            np.save(f'{self.dir}time_array_index{self.index}.npy', time_data)
+            np.save(f'{self.dir}speed_array_index{self.index}.npy', speed_data)
+            np.save(f'{self.dir}squirmer_speed_array_index{self.index}.npy', squirmer_speed_data)
 
         else:
-            time_data = np.load(f'{self.dir}/time_data_index{self.index}.npy')
-            speed_data = np.load(f'{self.dir}/speed_data_index{self.index}.npy')
-            squirmer_speed_data = np.load(f'{self.dir}/squirmer_speed_data_index{self.index}.npy')
+            time_data = np.load(f'{self.dir}time_array_index{self.index}.npy')
+            speed_data = np.load(f'{self.dir}speed_array_index{self.index}.npy')
+            squirmer_speed_data = np.load(f'{self.dir}squirmer_speed_array_index{self.index}.npy')
+
 
         ax.set_aspect('equal')
 

@@ -107,7 +107,7 @@ print(avg_wavenumbers)
 
 ax.plot(RoL, avg_body_speed, color='black', marker='+')
 ax2.plot(RoL, avg_wavenumbers, color='black', marker='+')
-ax3.plot(RoL, avg_dissipation/1e4, color='blue', marker='+')
+ax3.plot(RoL, avg_dissipation/1e4, color='black', marker='+', linestyle='dashed')
 ax4.plot(RoL, cilia_array_length/avg_wavenumbers/L, color='black', marker='+')
 
 
@@ -118,20 +118,22 @@ from matplotlib.cm import ScalarMappable
 ax.set_xlabel(r'$R/L$')
 ax.set_ylabel(r'$<V>T/L$')  
 ax.set_ylim(0.0, 0.2)
-# ax.set_xlim(0, 0.06)
-# ax.legend()
+
+speed_line = ax.plot([None], [None], c='black', marker='+', linestyle='solid')[0]
+dissipation_line = ax.plot([None], [None], c='black', marker='+', linestyle='dashed')[0]
+ax.legend([speed_line, dissipation_line], ['Speed', 'Dissipation'], fontsize=16, frameon=False, loc='upper left')
 
 ax2.set_xlabel(r'$R/L$')
 ax2.set_ylabel(r'$Wavenumber$')
 
 ax3.annotate(r'$\times 10^{4}$', 
              xy=(1, 1), xycoords='axes fraction', 
-             fontsize=20, ha='left', va='bottom', color='b')
+             fontsize=20, ha='left', va='bottom', color='black')
 
 
 ax3.set_xlabel(r'$R/L$')
-ax3.set_ylabel(r'$<\mathcal{R}>T^2/\mu L^3$', color='blue')
-ax3.tick_params(axis="y", labelcolor='blue')
+ax3.set_ylabel(r'$<\mathcal{R}>T^2/\mu L^3$', color='black')
+ax3.tick_params(axis="y", labelcolor='black')
 
 ax4.set_xlabel(r'$R/L$')
 ax4.set_ylabel(r'$\lambda/L$')
