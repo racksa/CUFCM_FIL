@@ -73,15 +73,15 @@ class VISUAL:
         # self.date = '20241028_test'
         # self.dir = f"data/instability/{self.date}/"
 
-        # self.date = 'IVP'
-        # self.dir = f"data/tilt_test/{self.date}/"
+        self.date = '20240710_free'
+        self.dir = f"data/tilt_test/IVP/{self.date}/"
 
 
-        self.date = '20240311_3'
-        self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
+        # self.date = '20240311_3'
+        # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
-        self.date = '20240311_7'
-        self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free_with_force5/{self.date}/"
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -120,13 +120,12 @@ class VISUAL:
 
         # self.date = '20250225_flowfield_sym'
         # self.date = '20250311_flowfield_sym_free'
-        self.date = '20250522_flowfield_free'
-        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # self.date = '20250311_flowfield_dia_free'
+        # self.date = '20250522_flowfield_free'
+        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        # self.date = '20250519'
-        # self.dir = f"data/for_paper/sanity_check/{self.date}/"
-
-        # self.date = '20250514'
+        # self.date = '20250602'
+        # # self.date = '20250514'
         # self.dir = f"data/for_paper/roadmap/{self.date}/"
 
         # self.date = 'combined_analysis'
@@ -216,8 +215,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 15000
-        self.frames_setting = 4500
+        self.plot_end_frame_setting = 30100
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3632,10 +3631,7 @@ class VISUAL:
         # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
         plt.show()
     
-    def flow_field_FFCM(self):
-
-        view = 'top'
-        view = 'side'
+    def flow_field_FFCM_series(self):
 
         center_at_swimmer = True
 
@@ -3703,19 +3699,24 @@ class VISUAL:
         global frame
         frame = 0
 
+        fig_num = 3
+        fig_index = 0
+        frame_gap = 100
+        plot_frames = np.array([self.plot_end_frame-1-frame_gap*i for i in range(fig_num)])
+
+        fig, axes = plt.subplots(2, fig_num, figsize=(4*fig_num, 7), constrained_layout=True)
+
         fig2 = plt.figure()
         ax2 = fig2.add_subplot()
 
-        fig = plt.figure()
-        ax = fig.add_subplot()
         cmap_name = 'hsv'
         cmap_name2= 'Reds'
         cmap = plt.get_cmap(cmap_name)
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
 
         def animation_func(t):
             global frame
-
-            ax.cla()
 
             seg_forces_str = seg_forces_f.readline()
             blob_forces_str = blob_forces_f.readline()
@@ -3723,16 +3724,6 @@ class VISUAL:
             body_states_str = body_states_f.readline()
             body_vels_str = body_vels_f.readline()
             fil_states_str = fil_states_f.readline()
-
-            while(not frame % self.plot_interval == 0):
-                seg_forces_str = seg_forces_f.readline()
-                blob_forces_str = blob_forces_f.readline()
-                seg_states_str = seg_states_f.readline()
-                body_states_str = body_states_f.readline()
-                body_vels_str = body_vels_f.readline()
-                fil_states_str = fil_states_f.readline()
-                frame += 1
-            print(f'frame={frame}')
 
             seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
@@ -3752,241 +3743,246 @@ class VISUAL:
             np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
 
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
-            focus = 0.8
-            # shift = np.zeros(3)
-
-            for swim in range(int(self.pars['NSWIM'])):
-                body_pos = body_states[7*swim : 7*swim+3]
-                
-                if center_at_swimmer:
-                    shift -= body_pos
-
-                if view == 'top':
-                    circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
-                    ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
-                if view == 'side':
-                    circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
-                    R = np.identity(3)
-                    R = util.rot_mat(body_states[3 : 7])
-                    body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
-                    body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
-                    body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
+            
+            for rep in range(2):
+                if rep == 0:
+                    view = 'side'
+                else:
+                    view = 'top'
                     
-                    # Plot body axis
-                    ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
-                            [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
-                            c='black', linestyle='dashed',zorder=100)
-                    ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
-                    ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                ax = axes[rep][fig_index]
+                ax.cla()
 
-                ax.add_patch(circle)
+                # shift = np.zeros(3)
 
-
-                for blob in range(self.nblob):
-                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
-                    blob_force = blob_forces[3*blob : 3*blob+3]
-
-                    source_pos_list[blob] = blob_pos
-                    source_force_list[blob] = blob_force
-
-                for fil in range(self.nfil):
-                    fil_i = int(3*fil*self.nseg)
-                    seg_data = np.zeros((self.nseg, 3))
-
-                    # color
-                    alpha = 1
-                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
-                    # b&w
-                    # alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
-                    # fil_color = 'black'
-
-                    for seg in range(self.nseg):
-                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] +shift
-                        seg_data[seg] = seg_pos
-                        seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
-                        seg_force = seg_force[:3]
-
-                        source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
-                        source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
+                for swim in range(int(self.pars['NSWIM'])):
+                    body_pos = body_states[7*swim : 7*swim+3]
                     
-                    fil_plot_data[fil] = seg_data
-                    # only plot fil when the fil is facing us. this is done by checking the base of the filament
-                    if view == 'side':
-                        if(seg_data[0, 0]>shift[0]):
-                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
-                        # if(seg_data[0, 0]<shift[0]):
-                        #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98, alpha = alpha)
+                    if center_at_swimmer:
+                        shift -= body_pos
+
                     if view == 'top':
-                        if(seg_data[0, 2]>shift[2]):
-                            ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
-                        # if(seg_data[0, 0]<shift[2]):
-                        #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
+                        circle=plt.Circle((shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
+                        ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
+                    if view == 'side':
+                        circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
+                        R = np.identity(3)
+                        R = util.rot_mat(body_states[3 : 7])
+                        body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
+                        body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
+                        body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
+                        
+                        # Plot body axis
+                        ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
+                                [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
+                                c='black', linestyle='dashed',zorder=100)
+                        ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                        ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+
+                    ax.add_patch(circle)
 
 
-            np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
-            np.savetxt(f'{self.dir}flowfield/flow_force{frame}.dat', source_force_list, delimiter=' ')
-            np.savetxt(f'{self.dir}flowfield/flow_body_vels{frame}.dat', body_vels, delimiter=' ')
+                    for blob in range(self.nblob):
+                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
+                        blob_force = blob_forces[3*blob : 3*blob+3]
 
-            info_file_name = 'simulation_info'
-            pardict, filedict = read_info(info_file_name)
+                        source_pos_list[blob] = blob_pos
+                        source_force_list[blob] = blob_force
 
-            import subprocess
-            file_dir = f'{self.dir}flowfield/'
-            frame = self.plot_end_frame - 1
-            for file in os.listdir(file_dir):
-                if f'flow_pos{frame}' in file:
-                    filedict['$posfile']  = file_dir + file
-                if f'flow_force{frame}' in file:
-                    filedict['$forcefile']  = file_dir + file
-                if f'flow_torque{frame}' in file:
-                    filedict['$torquefile']  = file_dir + file
+                    for fil in range(self.nfil):
+                        fil_i = int(3*fil*self.nseg)
+                        seg_data = np.zeros((self.nseg, 3))
 
-            Lx = self.boxsize
-            Ly = Lx/self.nx*self.ny
-            Lz = Lx/self.nx*self.nz
+                        # color
+                        alpha = 1
+                        fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                        # b&w
+                        # alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                        # fil_color = 'black'
 
-            yx_ratio = self.ny/self.nx
-            zx_ratio = self.nz/self.nx
+                        for seg in range(self.nseg):
+                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] +shift
+                            seg_data[seg] = seg_pos
+                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                            seg_force = seg_force[:3]
 
-            nx = 128
-            ny = int(nx*yx_ratio)
-            nz = int(nx*zx_ratio)
+                            source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
+                            source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
+                        
+                        fil_plot_data[fil] = seg_data
+                        # only plot fil when the fil is facing us. this is done by checking the base of the filament
+                        if view == 'side':
+                            # if(seg_data[0, 0]>shift[0]+body_pos[0]):
+                            #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                            if(seg_data[0, 1]<shift[1]+body_pos[1]):
+                                ax.plot(seg_data[:,0], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                        if view == 'top':
+                            if(seg_data[0, 2]>shift[2]+body_pos[2]):
+                                ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+                            # if(seg_data[0, 0]<shift[2]):
+                            #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
 
-            pardict['checkerror'] = 0
-            pardict['repeat']=     1
-            pardict['prompt']=     10
 
-            pardict['rh']=         1
+                np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
+                np.savetxt(f'{self.dir}flowfield/flow_force{frame}.dat', source_force_list, delimiter=' ')
+                np.savetxt(f'{self.dir}flowfield/flow_body_vels{frame}.dat', body_vels, delimiter=' ')
 
-            pardict['N']=          self.N
-            pardict['beta']=       20
-            pardict['nx']=         nx
-            pardict['ny']=         ny
-            pardict['nz']=         nz
-            pardict['boxsize']=    self.boxsize
-            dicts = [pardict, filedict]
+                info_file_name = 'simulation_info'
+                pardict, filedict = read_info(info_file_name)
 
-            for dic in dicts:
-                for key in dic:
-                    replace(key, str(dic[key]), info_file_name)
+                import subprocess
+                file_dir = f'{self.dir}flowfield/'
+                for file in os.listdir(file_dir):
+                    if f'flow_pos{frame}' in file:
+                        filedict['$posfile']  = file_dir + file
+                    if f'flow_force{frame}' in file:
+                        filedict['$forcefile']  = file_dir + file
+                    if f'flow_torque{frame}' in file:
+                        filedict['$torquefile']  = file_dir + file
 
-            subprocess.call("bin/FLOWFIELD", shell=True)
+                Lx = self.boxsize
+                Ly = Lx/self.nx*self.ny
+                Lz = Lx/self.nx*self.nz
 
-            os.system(f'mv -f data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
-            os.system(f'mv -f data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
-            os.system(f'mv -f data/simulation/flow_z.dat {file_dir}flow_z{frame}.dat')
+                yx_ratio = self.ny/self.nx
+                zx_ratio = self.nz/self.nx
 
-            start_time = time.time()
-            # Define file paths
-            flow_x_path = f'{file_dir}flow_x{frame}.dat'
-            flow_y_path = f'{file_dir}flow_y{frame}.dat'
-            flow_z_path = f'{file_dir}flow_z{frame}.dat'
-            pos_path = filedict['$posfile']
+                nx = 128
+                ny = int(nx*yx_ratio)
+                nz = int(nx*zx_ratio)
 
-            # Load flow data
-            with open(flow_x_path, "r") as flow_x_f, open(flow_y_path, "r") as flow_y_f, open(flow_z_path, "r") as flow_z_f:
-                flow_x = np.array(flow_x_f.readline().split(), dtype=float)
-                flow_y = np.array(flow_y_f.readline().split(), dtype=float)
-                flow_z = np.array(flow_z_f.readline().split(), dtype=float)
+                pardict['checkerror'] = 0
+                pardict['repeat']=     1
+                pardict['prompt']=     10
+                pardict['rh']=         1
+                pardict['N']=          self.N
+                pardict['beta']=       20
+                pardict['nx']=         nx
+                pardict['ny']=         ny
+                pardict['nz']=         nz
+                pardict['boxsize']=    self.boxsize
+                dicts = [pardict, filedict]
 
-            print(f"elapsed time = {time.time() - start_time}")
+                for dic in dicts:
+                    for key in dic:
+                        replace(key, str(dic[key]), info_file_name)
 
-            start_time = time.time()
-            flow_x = reshape_func(flow_x, nx, ny ,nz)
-            flow_y = reshape_func(flow_y, nx, ny ,nz)
-            flow_z = reshape_func(flow_z, nx, ny ,nz)
+                subprocess.call("bin/FLOWFIELD", shell=True)
+                os.system(f'mv -f data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
+                os.system(f'mv -f data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
+                os.system(f'mv -f data/simulation/flow_z.dat {file_dir}flow_z{frame}.dat')
 
-            # flow_x -= body_vels[0]
-            # flow_y -= body_vels[1]
-            # flow_z -= body_vels[2]
-            print(f"body vels = {body_vels[:3]}")
-            print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
-            
+                start_time = time.time()
+                # Define file paths
+                flow_x_path = f'{file_dir}flow_x{frame}.dat'
+                flow_y_path = f'{file_dir}flow_y{frame}.dat'
+                flow_z_path = f'{file_dir}flow_z{frame}.dat'
+                pos_path = filedict['$posfile']
 
-            X = np.linspace(0, Lx, nx)
-            Y = np.linspace(0, Ly, ny)
-            Z = np.linspace(0, Lz, nz)
+                # Load flow data
+                with open(flow_x_path, "r") as flow_x_f, open(flow_y_path, "r") as flow_y_f, open(flow_z_path, "r") as flow_z_f:
+                    flow_x = np.array(flow_x_f.readline().split(), dtype=float)
+                    flow_y = np.array(flow_y_f.readline().split(), dtype=float)
+                    flow_z = np.array(flow_z_f.readline().split(), dtype=float)
 
-            W = 0.0
-            dx = Lx/nx
-            nxh = int(nx/2)
-            nyh = int(ny/2)
-            nzh = int(nz/2)
+                print(f"elapsed time = {time.time() - start_time}")
 
-            x = nxh
-            y = nyh
-            z = nzh
+                start_time = time.time()
+                flow_x = reshape_func(flow_x, nx, ny ,nz)
+                flow_y = reshape_func(flow_y, nx, ny ,nz)
+                flow_z = reshape_func(flow_z, nx, ny ,nz)
 
-            if view == 'side':
-                vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+                print(f"body vels = {body_vels[:3]}")
+                print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
                 
-            if view == 'top':
-                vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
+                X = np.linspace(0, Lx, nx)
+                Y = np.linspace(0, Ly, ny)
+                Z = np.linspace(0, Lz, nz)
 
-            speed_limit = np.max(vel)*0.5
-            speed_limit = 100.0/self.fillength
+                W = 0.0
+                dx = Lx/nx
+                nxh = int(nx/2)
+                nyh = int(ny/2)
+                nzh = int(nz/2+body_pos[2]/dx)
 
-            print(f"elapsed time = {time.time() - start_time}")
+                x = nxh
+                y = nyh
+                z = nzh
 
-            start_time = time.time()
-            
-            if view == 'side':
-                ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
-            if view == 'top':
-                ax.streamplot(X, Y, flow_x[z,:,:], flow_y[z,:,:], color='black')
+                if view == 'side':
+                    # vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+                    vel = np.sqrt(flow_x[:,y,:]**2 + flow_y[:,y,:]**2 + flow_z[:,y,:]**2)
+                if view == 'top':
+                    vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
-            # Specify the bounds of imshow, also shift the pixels to the right positions
-            y_lower, y_upper, z_lower, z_upper = 0-0.5*dx, Ly+0.5*dx, 0-0.5*dx, Lz+0.5*dx
+                speed_limit = 100.0/self.fillength
 
-            
+                print(f"elapsed time = {time.time() - start_time}")
 
-            # append one row and col to the vel pixels to match the positions of grid points
-            nrows, ncols = vel.shape 
-            new_vel = np.zeros((nrows + 1, ncols + 1))
-            new_vel[:nrows, :ncols] = vel
-            new_vel[nrows, :ncols] = vel[0, :]
-            new_vel[:nrows, ncols] = vel[:, 0]
-            new_vel[nrows, ncols] = vel[0, 0]
+                start_time = time.time()
+                
+                if view == 'side':
+                    # ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
+                    ax.streamplot(X, Z, flow_x[:,y,:], flow_z[:,y,:], color='black')
+                if view == 'top':
+                    ax.streamplot(X, Y, flow_x[z,:,:], flow_y[z,:,:], color='black')
 
-            phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+                # Specify the bounds of imshow, also shift the pixels to the right positions
+                # y_lower, y_upper, z_lower, z_upper = 0-0.5*dx, Ly+0.5*dx, 0-0.5*dx, Lz+0.5*dx
+                x_lower, x_upper, z_lower, z_upper = 0-0.5*dx, Lx+0.5*dx, 0-0.5*dx, Lz+0.5*dx
 
-            # plot speed values over distance
-            ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
-            ax2.vlines(-self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+                # append one row and col to the vel pixels to match the positions of grid points
+                nrows, ncols = vel.shape 
+                new_vel = np.zeros((nrows + 1, ncols + 1))
+                new_vel[:nrows, :ncols] = vel
+                new_vel[nrows, :ncols] = vel[0, :]
+                new_vel[:nrows, ncols] = vel[:, 0]
+                new_vel[nrows, ncols] = vel[0, 0]
 
-            ax2.plot(np.linspace(-.5*Ly, .5*Ly-dx, ny), vel[nzh,:]/self.fillength, color='black')
-            ax2.set_ylim(0)
-            ax2.set_xlim((-.5*Ly, .5*Ly))
-            ax2.set_xlabel(f'$d$')
-            ax2.set_ylabel(r'$|{u}_{flow}|T/L$')
-            fig2.tight_layout()
+                # phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+                phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[x_lower, x_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
 
-            print(f"elapsed time = {time.time() - start_time}")
+                # plot speed values over distance
+                ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+                ax2.vlines(-self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+                ax2.plot(np.linspace(-.5*Ly, .5*Ly-dx, ny), vel[nzh,:]/self.fillength, color='black')
+                ax2.set_ylim(0)
+                ax2.set_xlim((-.5*Ly, .5*Ly))
+                ax2.set_xlabel(f'$d$')
+                ax2.set_ylabel(r'$|{u}_{flow}|T/L$')
+                fig2.tight_layout()
 
-            # qfac = 10
-            # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
-            ax.set_aspect('equal')
-            if view=='top':
-                ax.set_xticks(np.linspace(0, Lx, 5))
-                ax.set_yticks(np.linspace(0, Ly, 5))
-                ax.set_xticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_yticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_xlim((Lx*(1-focus), Lx*focus))
-                ax.set_ylim((Ly*(1-focus), Ly*focus))
-            if view=='side':
-                ax.set_xticks(np.linspace(0, Ly, 5))
-                ax.set_yticks(np.linspace(0, Lz, 5))
-                ax.set_xticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_yticklabels([rf'{i:.1f}$H$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_xlim((Ly*(1-focus), Ly*focus))
-                ax.set_ylim((Lz*(1-focus), Lz*focus))
-            # ax.set_xlabel('y')
-            # ax.set_ylabel('z')
+                print(f"elapsed time = {time.time() - start_time}")
 
-            if(self.video):
-                ax.axis('off')
+                # qfac = 10
+                # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
                 ax.set_aspect('equal')
-                fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{t}.png', bbox_inches = 'tight', format='png', transparent=True)
+                if view=='top':
+                    sidex = Lx
+                    sidey = Ly
+                if view=='side':
+                    sidex = Ly
+                    sidey = Lz
+                focus = 0.8
+                # ax.set_xticks(np.linspace(0, sidex, 5))
+                # ax.set_yticks(np.linspace(0, sidey, 5))
+                # ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                # ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+
+                ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
+                ax.set_xticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
+                ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_xlim((sidex*(1-focus), Ly*focus))
+                ax.set_ylim((sidey*(1-focus), Lz*focus))
+                if not fig_index == 0:
+                    ax.set_yticklabels([])         # Hide tick labels
+                    ax.set_ylabel('')              # Hide axis label (if any)
+                    ax.tick_params(labelleft=False)  # Also disables tick marks
+                if not rep == 1:
+                    ax.set_xticklabels([])
+                    ax.set_xlabel('')              # Hide axis label (if any)
+                    ax.tick_params(labelbottom=False)  # Also disables tick marks
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -4009,9 +4005,10 @@ class VISUAL:
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                if(i==self.plot_end_frame-1):
+                if(i in plot_frames):
                     frame = i
                     animation_func(i)
+                    fig_index += 1
                 else:
                     seg_forces_str = seg_forces_f.readline()
                     blob_forces_str = blob_forces_f.readline()
@@ -4021,22 +4018,25 @@ class VISUAL:
                     body_vels_str = body_vels_f.readline()
             
             # ax.axis('off')
-            ax.set_aspect('equal')
-
-            from matplotlib.colors import Normalize
-            from matplotlib.cm import ScalarMappable
+            for ax in axes.flat:
+                ax.set_aspect('equal')
+            
             vmin = 0
-            vmax = 100/self.fillength
+            vmax = 100 / self.fillength  # Replace with actual value if running
             norm = Normalize(vmin=vmin, vmax=vmax)
+
+            # Create ScalarMappable
             sm = ScalarMappable(cmap=cmap_name2, norm=norm)
-            sm.set_array([])
-            cbar = plt.colorbar(sm)
-            # cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")    
+            sm.set_array([])  # Required but unused
+            cbar = fig.colorbar(sm, ax=axes.ravel().tolist(), location='right')
+            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")
+
+            # fig.tight_layout()
 
             # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig.savefig(f'fig/flowfieldFFCM_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             # fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            # fig3.savefig(f'fig/flowfieldFFCM_colorbar_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
     def flow_field_polar(self):
@@ -4096,15 +4096,20 @@ class VISUAL:
         ax2 = fig2.add_subplot()
         fig3 = plt.figure()
         ax3 = fig3.add_subplot()
+        fig4 = plt.figure()
+        ax4 = fig4.add_subplot()
+        fig5 = plt.figure()
+        ax5 = fig5.add_subplot()
 
         # Flow field
-        n_theta = 50
         n_r = 1
         n_phi = 50
+        n_theta = 50
         n_field_point = n_theta*n_r*n_phi
+
         
         # Read flow field from file instead of recomputing
-        read_flowfield_from_file = False
+        read_flowfield_from_file = True
         
         plot_envelope = False
 
@@ -4117,8 +4122,9 @@ class VISUAL:
         R, Phi, Theta = np.meshgrid(r_list, phi_list, theta_list, indexing='ij')
 
         r_flat = R.ravel()
-        theta_flat = Theta.ravel()
         phi_flat = Phi.ravel()
+        theta_flat = Theta.ravel()
+        
 
         X = R * np.sin(Theta) * np.cos(Phi)
         Y = R * np.sin(Theta) * np.sin(Phi)
@@ -4138,7 +4144,7 @@ class VISUAL:
         squirmer_speed_data = np.zeros((self.frames))
         time_data = np.arange(self.frames)/self.period
 
-        n_coeffs = 2
+        n_coeffs = 20
         An_data = np.zeros((self.frames, n_coeffs))
         Bn_data = np.zeros((self.frames, n_coeffs))
 
@@ -4293,7 +4299,7 @@ class VISUAL:
                     utheta_list_avg[0] = 0
                     utheta_list_avg[-1] = 0
 
-                    for n in range(1, n_coeffs):
+                    for n in range(0, n_coeffs):
                         An_data[i-self.plot_start_frame][n] = extract_An(n, theta_list, ur_list_avg)
                         if n > 0:
                             Bn_data[i-self.plot_start_frame][n] = extract_Bn(n, theta_list, utheta_list_avg)
@@ -4315,44 +4321,502 @@ class VISUAL:
                     utheta_data[i-self.plot_start_frame] = utheta_list
                     uphi_data[i-self.plot_start_frame] = uphi_list
 
-                    if self.frames == 1:
-                        ax2.plot(theta_list, ur_list_avg, c='r', label=r'$u_r$')
-                        ax2.plot(theta_list, reconstructed_ur_list, c='r', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
-
-                        ax2.plot(theta_list, utheta_list_avg, c='b', label=r'$u_{\theta}$')
-                        ax2.plot(theta_list, reconstructed_utheta_list, c='b', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
-
             np.save(f'{self.dir}time_array_index{self.index}.npy', time_data)
             np.save(f'{self.dir}speed_array_index{self.index}.npy', speed_data)
             np.save(f'{self.dir}squirmer_speed_array_index{self.index}.npy', squirmer_speed_data)
-
+            np.save(f'{self.dir}ur_array_index{self.index}.npy', ur_data)
+            np.save(f'{self.dir}utheta_array_index{self.index}.npy', utheta_data)
+            np.save(f'{self.dir}uphi_array_index{self.index}.npy', uphi_data)
+            np.save(f'{self.dir}An_index{self.index}.npy', An_data)
+            np.save(f'{self.dir}Bn_index{self.index}.npy', Bn_data)
+            np.save(f'{self.dir}shape_data_index{self.index}.npy', np.array([n_r, n_phi, n_theta, n_field_point]))
         else:
             time_data = np.load(f'{self.dir}time_array_index{self.index}.npy')
             speed_data = np.load(f'{self.dir}speed_array_index{self.index}.npy')
             squirmer_speed_data = np.load(f'{self.dir}squirmer_speed_array_index{self.index}.npy')
-
+            ur_data = np.load(f'{self.dir}ur_array_index{self.index}.npy')
+            utheta_data = np.load(f'{self.dir}utheta_array_index{self.index}.npy')
+            uphi_data = np.load(f'{self.dir}uphi_array_index{self.index}.npy')
+            An_data = np.load(f'{self.dir}An_index{self.index}.npy')
+            Bn_data = np.load(f'{self.dir}Bn_index{self.index}.npy')
+            shape_data = np.load(f'{self.dir}shape_data_index{self.index}.npy')
+            n_phi = shape_data[1]
+            n_theta = shape_data[2]
 
         ax.set_aspect('equal')
 
+        # ax2.plot(theta_list, ur_data, c='r', label=r'$u_r$')
+        # ax2.plot(theta_list, reconstructed_ur_list, c='r', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
+        # ax2.plot(theta_list, utheta_list_avg, c='b', label=r'$u_{\theta}$')
+        # ax2.plot(theta_list, reconstructed_utheta_list, c='b', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
+        
+        ur_list_avg = np.mean(np.reshape(ur_data[-1], (n_phi, n_theta)), axis=0)
+        utheta_list_avg = np.mean(np.reshape(utheta_data[-1], (n_phi, n_theta)), axis=0)
+        ax2.plot(theta_list, ur_list_avg, c='black', label=r'$u_r$')
+        ax2.plot(theta_list, utheta_list_avg, c='red', label=r'$u_{\theta}$')
+        ax2.legend()
+        ax2.set_xticks(ticks=[0, np.pi/2, np.pi], labels=[r'$0$', r'$\pi/2$', r'$\pi$'])
+        ax2.set_xlim(0, np.pi)
+
+        from matplotlib.ticker import FormatStrFormatter
         ax3.plot(time_data, speed_data/self.fillength, c='black', label=r'Present data')
         ax3.scatter(time_data[::3], squirmer_speed_data[::3]/self.fillength, marker='^', c='black', label=r'$Squirmer$')
         ax3.set_ylabel(r'$VT/L$')
         ax3.set_xlabel(r'$t/T$')
         ax3.set_xlim(0, 1)
         ax3.legend(fontsize=16, frameon=False)
+        ax3.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
-        ax2.legend()
-        ax2.set_xticks(ticks=[0, np.pi/2, np.pi], labels=[r'$0$', r'$\pi/2$', r'$\pi$'])
-        ax2.set_xlim(0, np.pi)
+        ax4.plot(time_data, An_data[:,1], c='black', label=r'$A_1$')
+        ax4.plot(time_data, An_data[:,2], c='black', linestyle='dashed', label=r'$A_2$')
+        ax4.plot(time_data, Bn_data[:,1], c='red', label=r'$B_1$')
+        ax4.plot(time_data, Bn_data[:,2], c='red', linestyle='dashed', label=r'$B_2$')
+        ax4.set_ylabel(r'$A_n, B_n$')
+        ax4.set_xlabel(r'$t/T$')
+        ax4.legend(fontsize=16, frameon=False)
+        ax4.set_xlim(0, 1)
         
+
+        ax5.plot(np.arange(n_coeffs), An_data[-1], c='black', label=r'$A_n$')
+        ax5.plot(np.arange(n_coeffs), Bn_data[-1], c='red', label=r'$B_n$')
+        ax5.set_ylabel(r'$A_n, B_n$')
+        ax5.set_xlabel(r'$n$')
+        ax5.legend(fontsize=16, frameon=False)
+        ax5.set_xlim(0, n_coeffs-1)
         
         fig.tight_layout()
         fig2.tight_layout()
         fig3.tight_layout()
+        fig4.tight_layout()
+        fig5.tight_layout()
 
         fig3.savefig(f'fig/comparison_to_squirmer_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-
+        fig4.savefig(f'fig/first_mode_vs_t_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
+
+    def flow_field_FFCM(self):
+
+        view = 'top'
+        view = 'side'
+
+        center_at_swimmer = True
+
+        def find_pos(line, symbol):
+            """Find position of symbol
+            """
+            for char_pos, c in enumerate(line):
+                if c == symbol:
+                    return char_pos+1
+            print("Failed to find symbol in string")
+            return 0
+
+        def find_key(key, lines):
+            """Find the row the key belongs to
+            """
+            for i in range(len(lines)):
+                if lines[i].find(key) == 0:
+                    return i
+            print("Failed to find key in file")
+            return -1
+
+        def replace(key, value, fileName):
+            """Replace value in file by key
+            """
+            infoFile = open(fileName, 'r')
+            lines = infoFile.readlines()
+            row = find_key(key, lines)
+            lines[row] = lines[row][:len(key)+1] + value + '\n'
+            infoFile = open(fileName, 'w')
+            infoFile.writelines(lines)
+            infoFile.close()
+
+        def read_info(fileName, symbol='='):
+            """Read info and create dict
+            """
+            ret_pardict = {}
+            ret_filedict = {}
+            infoFile = open(fileName, 'r')
+            lines = infoFile.readlines()
+            print(lines)
+            print(fileName)
+            for row in range(len(lines)):
+                if not lines[row][0] == '$' or lines[row][0] == ' ':
+                    sep = find_pos(lines[row], symbol)
+                    ret_pardict[lines[row][:sep-1]] = float(lines[row][sep:])
+                elif lines[row][0] == '$':
+                    sep = find_pos(lines[row], symbol)
+                    ret_filedict[lines[row][:sep-1]] = lines[row][sep:].replace("\n", "")
+            infoFile.close()
+            return ret_pardict, ret_filedict
+        
+        def reshape_func(flow, nx, ny, nz):
+            return np.reshape(flow, (nz, ny, nx), order='C') # z-major
+
+        # need to test
+        self.select_sim()
+
+        seg_forces_f = open(self.simName + '_seg_forces.dat', "r")
+        blob_forces_f = open(self.simName + '_blob_forces.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        body_vels_f = open(self.simName + '_body_vels.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        global frame
+        frame = 0
+
+        fig = plt.figure()
+        ax = fig.add_subplot()
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+
+        cmap_name = 'hsv'
+        cmap_name2= 'Reds'
+        cmap = plt.get_cmap(cmap_name)
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+
+        def animation_func(t):
+            global frame
+
+            ax.cla()
+            
+
+            seg_forces_str = seg_forces_f.readline()
+            blob_forces_str = blob_forces_f.readline()
+            seg_states_str = seg_states_f.readline()
+            body_states_str = body_states_f.readline()
+            body_vels_str = body_vels_f.readline()
+            fil_states_str = fil_states_f.readline()
+
+            while(not frame % self.plot_interval == 0):
+                seg_forces_str = seg_forces_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+                body_vels_str = body_vels_f.readline()
+                fil_states_str = fil_states_f.readline()
+                frame += 1
+
+            seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+            blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+            seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+            body_states = np.array(body_states_str.split()[1:], dtype=float)
+            body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+            fil_phases = fil_states[:self.nfil]
+            fil_plot_data = np.zeros((self.nfil, self.nseg, 3))
+
+            # Create arrays to store pos and force of all particles
+            source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+            source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+            os.system(f'mkdir {self.dir}flowfield/')
+            np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
+
+            shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
+            focus = 0.8
+            # shift = np.zeros(3)
+
+            for swim in range(int(self.pars['NSWIM'])):
+                body_pos = body_states[7*swim : 7*swim+3]
+                
+                if center_at_swimmer:
+                    shift -= body_pos
+
+                if view == 'top':
+                    circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
+                    ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
+                if view == 'side':
+                    circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
+                    R = np.identity(3)
+                    R = util.rot_mat(body_states[3 : 7])
+                    body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
+                    body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
+                    body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
+                    
+                    # Plot body axis
+                    ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
+                            [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
+                            c='black', linestyle='dashed',zorder=100)
+                    ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                    ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+
+                ax.add_patch(circle)
+
+
+                for blob in range(self.nblob):
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
+                    blob_force = blob_forces[3*blob : 3*blob+3]
+
+                    source_pos_list[blob] = blob_pos
+                    source_force_list[blob] = blob_force
+
+                for fil in range(self.nfil):
+                    fil_i = int(3*fil*self.nseg)
+                    seg_data = np.zeros((self.nseg, 3))
+
+                    # color
+                    alpha = 1
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    # b&w
+                    # alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    # fil_color = 'black'
+
+                    for seg in range(self.nseg):
+                        seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] +shift
+                        seg_data[seg] = seg_pos
+                        seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                        seg_force = seg_force[:3]
+
+                        source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
+                        source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
+                    
+                    fil_plot_data[fil] = seg_data
+                    # only plot fil when the fil is facing us. this is done by checking the base of the filament
+                    if view == 'side':
+                        if(seg_data[0, 0]>shift[0]):
+                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                        # if(seg_data[0, 0]<shift[0]):
+                        #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98, alpha = alpha)
+                    if view == 'top':
+                        if(seg_data[0, 2]>shift[2]):
+                            ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+                        # if(seg_data[0, 0]<shift[2]):
+                        #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
+
+
+            np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
+            np.savetxt(f'{self.dir}flowfield/flow_force{frame}.dat', source_force_list, delimiter=' ')
+            np.savetxt(f'{self.dir}flowfield/flow_body_vels{frame}.dat', body_vels, delimiter=' ')
+
+            info_file_name = 'simulation_info'
+            pardict, filedict = read_info(info_file_name)
+
+            import subprocess
+            file_dir = f'{self.dir}flowfield/'
+            for file in os.listdir(file_dir):
+                if f'flow_pos{frame}' in file:
+                    filedict['$posfile']  = file_dir + file
+                if f'flow_force{frame}' in file:
+                    filedict['$forcefile']  = file_dir + file
+                if f'flow_torque{frame}' in file:
+                    filedict['$torquefile']  = file_dir + file
+
+            Lx = self.boxsize
+            Ly = Lx/self.nx*self.ny
+            Lz = Lx/self.nx*self.nz
+
+            yx_ratio = self.ny/self.nx
+            zx_ratio = self.nz/self.nx
+
+            nx = 128
+            ny = int(nx*yx_ratio)
+            nz = int(nx*zx_ratio)
+
+            pardict['checkerror'] = 0
+            pardict['repeat']=     1
+            pardict['prompt']=     10
+
+            pardict['rh']=         1
+
+            pardict['N']=          self.N
+            pardict['beta']=       20
+            pardict['nx']=         nx
+            pardict['ny']=         ny
+            pardict['nz']=         nz
+            pardict['boxsize']=    self.boxsize
+            dicts = [pardict, filedict]
+
+            for dic in dicts:
+                for key in dic:
+                    replace(key, str(dic[key]), info_file_name)
+
+            subprocess.call("bin/FLOWFIELD", shell=True)
+
+            os.system(f'mv -f data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
+            os.system(f'mv -f data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
+            os.system(f'mv -f data/simulation/flow_z.dat {file_dir}flow_z{frame}.dat')
+
+            start_time = time.time()
+            # Define file paths
+            flow_x_path = f'{file_dir}flow_x{frame}.dat'
+            flow_y_path = f'{file_dir}flow_y{frame}.dat'
+            flow_z_path = f'{file_dir}flow_z{frame}.dat'
+            pos_path = filedict['$posfile']
+
+            # Load flow data
+            with open(flow_x_path, "r") as flow_x_f, open(flow_y_path, "r") as flow_y_f, open(flow_z_path, "r") as flow_z_f:
+                flow_x = np.array(flow_x_f.readline().split(), dtype=float)
+                flow_y = np.array(flow_y_f.readline().split(), dtype=float)
+                flow_z = np.array(flow_z_f.readline().split(), dtype=float)
+
+            print(f"elapsed time = {time.time() - start_time}")
+
+            start_time = time.time()
+            flow_x = reshape_func(flow_x, nx, ny ,nz)
+            flow_y = reshape_func(flow_y, nx, ny ,nz)
+            flow_z = reshape_func(flow_z, nx, ny ,nz)
+
+            # flow_x -= body_vels[0]
+            # flow_y -= body_vels[1]
+            # flow_z -= body_vels[2]
+            print(f"body vels = {body_vels[:3]}")
+            print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
+            
+
+            X = np.linspace(0, Lx, nx)
+            Y = np.linspace(0, Ly, ny)
+            Z = np.linspace(0, Lz, nz)
+
+            W = 0.0
+            dx = Lx/nx
+            nxh = int(nx/2)
+            nyh = int(ny/2)
+            nzh = int(nz/2)
+
+            x = nxh
+            y = nyh
+            z = nzh
+
+            if view == 'side':
+                vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
+                
+            if view == 'top':
+                vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
+
+            speed_limit = np.max(vel)*0.5
+            speed_limit = 100.0/self.fillength
+
+            print(f"elapsed time = {time.time() - start_time}")
+
+            start_time = time.time()
+            
+            if view == 'side':
+                ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
+            if view == 'top':
+                ax.streamplot(X, Y, flow_x[z,:,:], flow_y[z,:,:], color='black')
+
+            # Specify the bounds of imshow, also shift the pixels to the right positions
+            y_lower, y_upper, z_lower, z_upper = 0-0.5*dx, Ly+0.5*dx, 0-0.5*dx, Lz+0.5*dx
+
+            
+
+            # append one row and col to the vel pixels to match the positions of grid points
+            nrows, ncols = vel.shape 
+            new_vel = np.zeros((nrows + 1, ncols + 1))
+            new_vel[:nrows, :ncols] = vel
+            new_vel[nrows, :ncols] = vel[0, :]
+            new_vel[:nrows, ncols] = vel[:, 0]
+            new_vel[nrows, ncols] = vel[0, 0]
+
+            phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+
+            # plot speed values over distance
+            ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+            ax2.vlines(-self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
+
+            ax2.plot(np.linspace(-.5*Ly, .5*Ly-dx, ny), vel[nzh,:]/self.fillength, color='black')
+            ax2.set_ylim(0)
+            ax2.set_xlim((-.5*Ly, .5*Ly))
+            ax2.set_xlabel(f'$d$')
+            ax2.set_ylabel(r'$|{u}_{flow}|T/L$')
+            fig2.tight_layout()
+
+            print(f"elapsed time = {time.time() - start_time}")
+
+            # qfac = 10
+            # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
+            ax.set_aspect('equal')
+            if view=='top':
+                ax.set_xticks(np.linspace(0, Lx, 5))
+                ax.set_yticks(np.linspace(0, Ly, 5))
+                ax.set_xticklabels([rf'{(i*Lx/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_yticklabels([rf'{(i*Ly/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_xlim((Lx*(1-focus), Lx*focus))
+                ax.set_ylim((Ly*(1-focus), Ly*focus))
+            if view=='side':
+                ax.set_xticks(np.linspace(0, Ly, 5))
+                ax.set_yticks(np.linspace(0, Lz, 5))
+                ax.set_xticklabels([rf'{(i*Lx/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_yticklabels([rf'{(i*Ly/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                ax.set_xlim((Ly*(1-focus), Ly*focus))
+                ax.set_ylim((Lz*(1-focus), Lz*focus))
+            # ax.set_xlabel('y')
+            # ax.set_ylabel('z')
+
+            # if(self.video):
+                # fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{t}.png', bbox_inches = 'tight', format='png', transparent=True)
+
+        if(self.video):
+            vmin = 0
+            vmax = 100 / self.fillength  # Replace with actual value if running
+            norm = Normalize(vmin=vmin, vmax=vmax)
+
+            # Create ScalarMappable
+            sm = ScalarMappable(cmap=cmap_name2, norm=norm)
+            sm.set_array([])  # Required but unused
+
+            # Add the colorbar to the figure
+            cbar = fig.colorbar(sm)
+            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i>=self.plot_start_frame):
+                    frame = i
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
+                    # plt.show()
+                    break
+                else:
+                    seg_forces_str = seg_forces_f.readline()
+                    blob_forces_str = blob_forces_f.readline()
+                    seg_states_str = seg_states_f.readline()
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+
+            FFwriter = animation.FFMpegWriter(fps=10)
+            ani.save(f'fig/flowfield_FFCM_{self.date}_anim.mp4', writer=FFwriter)
+        else:
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i==self.plot_end_frame-1):
+                    frame = i
+                    animation_func(i)
+                else:
+                    seg_forces_str = seg_forces_f.readline()
+                    blob_forces_str = blob_forces_f.readline()
+                    seg_states_str = seg_states_f.readline()
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+                    body_vels_str = body_vels_f.readline()
+            
+            # ax.axis('off')
+            ax.set_aspect('equal')
+
+            # Define colour map and normalization
+            vmin = 0
+            vmax = 100 / self.fillength  # Replace with actual value if running
+            norm = Normalize(vmin=vmin, vmax=vmax)
+            # Create ScalarMappable
+            sm = ScalarMappable(cmap=cmap_name2, norm=norm)
+            sm.set_array([])  # Required but unused
+            # Create a figure just for the colorbar
+            fig3, ax3 = plt.subplots(figsize=(1.7, 4))  # Adjust size as needed
+            fig3.subplots_adjust(left=0.5, right=0.7)  # Narrow colourbar
+            # Add the colorbar to the figure
+            cbar = fig3.colorbar(sm, cax=ax3)
+            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")
+            fig3.tight_layout()
+
+            # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            # fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig3.savefig(f'fig/flowfieldFFCM_colorbar_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            plt.show()
 
 
 # Multi sims
@@ -6586,14 +7050,14 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim_rerun/"
 
-        # force = True
-        # path = "data/ic_hpc_sim_free_with_force3/"
+        force = True
+        path = "data/ic_hpc_sim_free_with_force5/"
         # path = "data/ic_hpc_sim_free_continue/"
 
         # force = True
         # path = 'data/tilt_test/makeup_pattern_with_force/'
         # path = 'data/tilt_test/makeup_pattern/'
-        # path = 'data/tilt_test/IVP/'1
+        # path = 'data/tilt_test/IVP/'
 
         # import re
         # def sort_key(s):

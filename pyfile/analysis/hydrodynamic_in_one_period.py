@@ -75,6 +75,7 @@ time_data = np.linspace(0, 1+1./num_frame, num_frame)
 # n_folder_heldfixed = r_data_heldfixed.shape[0]
 n_folder = r_data.shape[0]
 
+figsize=(6,6)
 fig1 = plt.figure()
 ax1 = fig1.add_subplot(1,1,1)
 ax12 = ax1.twinx()
