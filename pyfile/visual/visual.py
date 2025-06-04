@@ -121,10 +121,10 @@ class VISUAL:
         # self.date = '20250225_flowfield_sym'
         # self.date = '20250311_flowfield_sym_free'
         # self.date = '20250311_flowfield_dia_free'
-        # self.date = '20250522_flowfield_free'
-        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        self.date = '20250522_flowfield_free'
+        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        # self.date = '20250602'
+        # self.date = '20250603'
         # # self.date = '20250514'
         # self.dir = f"data/for_paper/roadmap/{self.date}/"
 
@@ -215,8 +215,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 30100
-        self.frames_setting = 30000
+        self.plot_end_frame_setting = 300
+        self.frames_setting = 1
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -3741,14 +3741,15 @@ class VISUAL:
             source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
             os.system(f'mkdir {self.dir}flowfield/')
             np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
-
-            shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
             
             for rep in range(2):
+                shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
+
                 if rep == 0:
                     view = 'side'
                 else:
                     view = 'top'
+                
                     
                 ax = axes[rep][fig_index]
                 ax.cla()
@@ -3823,9 +3824,9 @@ class VISUAL:
                             #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
 
 
-                np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
-                np.savetxt(f'{self.dir}flowfield/flow_force{frame}.dat', source_force_list, delimiter=' ')
-                np.savetxt(f'{self.dir}flowfield/flow_body_vels{frame}.dat', body_vels, delimiter=' ')
+                np.savetxt(f'{self.dir}flowfield/flow_pos{frame}_{view}.dat', source_pos_list, delimiter=' ')
+                np.savetxt(f'{self.dir}flowfield/flow_force{frame}_{view}.dat', source_force_list, delimiter=' ')
+                np.savetxt(f'{self.dir}flowfield/flow_body_vels{frame}_{view}.dat', body_vels, delimiter=' ')
 
                 info_file_name = 'simulation_info'
                 pardict, filedict = read_info(info_file_name)
@@ -3833,9 +3834,9 @@ class VISUAL:
                 import subprocess
                 file_dir = f'{self.dir}flowfield/'
                 for file in os.listdir(file_dir):
-                    if f'flow_pos{frame}' in file:
+                    if f'flow_pos{frame}_{view}' in file:
                         filedict['$posfile']  = file_dir + file
-                    if f'flow_force{frame}' in file:
+                    if f'flow_force{frame}_{view}' in file:
                         filedict['$forcefile']  = file_dir + file
                     if f'flow_torque{frame}' in file:
                         filedict['$torquefile']  = file_dir + file
@@ -3847,7 +3848,7 @@ class VISUAL:
                 yx_ratio = self.ny/self.nx
                 zx_ratio = self.nz/self.nx
 
-                nx = 128
+                nx = 256
                 ny = int(nx*yx_ratio)
                 nz = int(nx*zx_ratio)
 
@@ -3903,7 +3904,7 @@ class VISUAL:
                 dx = Lx/nx
                 nxh = int(nx/2)
                 nyh = int(ny/2)
-                nzh = int(nz/2+body_pos[2]/dx)
+                nzh = int(nz/2)
 
                 x = nxh
                 y = nyh
@@ -3970,7 +3971,7 @@ class VISUAL:
                 # ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
 
                 ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
-                ax.set_xticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
+                ax.set_yticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
                 ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
                 ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
                 ax.set_xlim((sidex*(1-focus), Ly*focus))
@@ -4040,6 +4041,12 @@ class VISUAL:
             plt.show()
 
     def flow_field_polar(self):
+        # Read flow field from file instead of recomputing
+        read_flowfield_from_file = False
+        
+        plot_envelope = False
+
+
         from scipy.special import legendre
         from scipy.special import lpmv
         
@@ -4089,6 +4096,11 @@ class VISUAL:
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
         body_vels_f = open(self.simName + '_body_vels.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
         fig = plt.figure()
         ax = fig.add_subplot()
@@ -4106,12 +4118,6 @@ class VISUAL:
         n_phi = 50
         n_theta = 50
         n_field_point = n_theta*n_r*n_phi
-
-        
-        # Read flow field from file instead of recomputing
-        read_flowfield_from_file = True
-        
-        plot_envelope = False
 
         # r_ratio = 1 + (self.fillength/self.radius)
         # r_list = np.linspace(r_ratio, 2.6, n_r)*self.radius
@@ -4143,6 +4149,7 @@ class VISUAL:
         speed_data = np.zeros((self.frames))
         squirmer_speed_data = np.zeros((self.frames))
         time_data = np.arange(self.frames)/self.period
+        phase_data = np.zeros((self.frames, self.nfil))
 
         n_coeffs = 20
         An_data = np.zeros((self.frames, n_coeffs))
@@ -4209,6 +4216,7 @@ class VISUAL:
                 seg_states_str = seg_states_f.readline()
                 body_states_str = body_states_f.readline()
                 body_vels_str = body_vels_f.readline()
+                fil_states_str = fil_states_f.readline()
 
                 if(i>=self.plot_start_frame):
                     seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
@@ -4216,6 +4224,8 @@ class VISUAL:
                     seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                     body_states = np.array(body_states_str.split()[1:], dtype=float)
                     body_vels = np.array(body_vels_str.split()[1:], dtype=float)
+                    fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                    fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
 
                     source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
                     source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
@@ -4320,6 +4330,7 @@ class VISUAL:
                     ur_data[i-self.plot_start_frame] = ur_list
                     utheta_data[i-self.plot_start_frame] = utheta_list
                     uphi_data[i-self.plot_start_frame] = uphi_list
+                    phase_data[i-self.plot_start_frame] = fil_states[:self.nfil]
 
             np.save(f'{self.dir}time_array_index{self.index}.npy', time_data)
             np.save(f'{self.dir}speed_array_index{self.index}.npy', speed_data)
@@ -4352,11 +4363,31 @@ class VISUAL:
         
         ur_list_avg = np.mean(np.reshape(ur_data[-1], (n_phi, n_theta)), axis=0)
         utheta_list_avg = np.mean(np.reshape(utheta_data[-1], (n_phi, n_theta)), axis=0)
-        ax2.plot(theta_list, ur_list_avg, c='black', label=r'$u_r$')
-        ax2.plot(theta_list, utheta_list_avg, c='red', label=r'$u_{\theta}$')
-        ax2.legend()
+        ax2.plot(theta_list, ur_list_avg/self.fillength, c='black', linestyle='-', label=r'$u_r$')
+        ax2.plot(theta_list, utheta_list_avg/self.fillength, c='black', linestyle='dashed', label=r'$u_{\theta}$')
+        ax2.legend(fontsize=16, frameon=False)
         ax2.set_xticks(ticks=[0, np.pi/2, np.pi], labels=[r'$0$', r'$\pi/2$', r'$\pi$'])
         ax2.set_xlim(0, np.pi)
+        ax2.set_xlabel(r'$\theta$')
+        ax2.set_ylabel(r'$UT/L$')
+
+        lower_y = 0.1
+        upper_y = 1.3
+        x_start, x_end = 0, np.pi
+        mask = np.where((phase_data[-1] < upper_y) & (phase_data[-1] > lower_y))
+        maski = np.where(~((phase_data[-1] < upper_y) & (phase_data[-1] > lower_y)))
+        ax22 = ax2.twinx()
+        ax22.hlines(lower_y, x_start, x_end, color='grey', linestyle='dashed')
+        ax22.hlines(upper_y, x_start, x_end, color='grey', linestyle='dashed')
+        x = np.linspace(x_start, x_end, 100)
+        ax22.fill_between(x, lower_y, upper_y, color='grey', alpha=0.3)
+        ax22.text((x_start + x_end) / 2, (lower_y + upper_y) / 2, 'Effective strokes',
+                ha='center', va='center', fontsize=16, color='b', weight='bold')
+        ax22.scatter(fil_references_sphpolar[:,2][mask], phase_data[-1][mask], marker='+', s=10, c='b', label='$effective strokes$')
+        ax22.scatter(fil_references_sphpolar[:,2][maski], phase_data[-1][maski], marker='+', s=10, c='black', label=r'$recovery strokes$')
+        ax22.set_ylim(0, 2*np.pi)
+        ax22.set_ylabel(r'$\psi_1$')
+        ax22.set_yticks(ticks=[0, np.pi, 2*np.pi], labels=[r'$0$', r'$\pi$', r'$2\pi$'])
 
         from matplotlib.ticker import FormatStrFormatter
         ax3.plot(time_data, speed_data/self.fillength, c='black', label=r'Present data')
@@ -4382,7 +4413,7 @@ class VISUAL:
         ax5.set_ylabel(r'$A_n, B_n$')
         ax5.set_xlabel(r'$n$')
         ax5.legend(fontsize=16, frameon=False)
-        ax5.set_xlim(0, n_coeffs-1)
+        ax5.set_xlim(1, n_coeffs-1)
         
         fig.tight_layout()
         fig2.tight_layout()
@@ -4390,15 +4421,16 @@ class VISUAL:
         fig4.tight_layout()
         fig5.tight_layout()
 
+        fig2.savefig(f'fig/flowfield_polar_{self.date}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         fig3.savefig(f'fig/comparison_to_squirmer_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         fig4.savefig(f'fig/first_mode_vs_t_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
     def flow_field_FFCM(self):
 
         view = 'top'
-        view = 'side'
+        # view = 'side'
 
         center_at_swimmer = True
 
@@ -4491,14 +4523,14 @@ class VISUAL:
             body_vels_str = body_vels_f.readline()
             fil_states_str = fil_states_f.readline()
 
-            while(not frame % self.plot_interval == 0):
-                seg_forces_str = seg_forces_f.readline()
-                blob_forces_str = blob_forces_f.readline()
-                seg_states_str = seg_states_f.readline()
-                body_states_str = body_states_f.readline()
-                body_vels_str = body_vels_f.readline()
-                fil_states_str = fil_states_f.readline()
-                frame += 1
+            # while(not frame % self.plot_interval == 0):
+            #     seg_forces_str = seg_forces_f.readline()
+            #     blob_forces_str = blob_forces_f.readline()
+            #     seg_states_str = seg_states_f.readline()
+            #     body_states_str = body_states_f.readline()
+            #     body_vels_str = body_vels_f.readline()
+            #     fil_states_str = fil_states_f.readline()
+            #     frame += 1
 
             seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
@@ -4518,8 +4550,7 @@ class VISUAL:
             np.savetxt(f'{self.dir}flowfield/flow_torque{frame}.dat', source_pos_list, delimiter=' ')
 
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
-            focus = 0.8
-            # shift = np.zeros(3)
+        
 
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
@@ -4613,7 +4644,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 128
+            nx = 64
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -4661,9 +4692,6 @@ class VISUAL:
             flow_y = reshape_func(flow_y, nx, ny ,nz)
             flow_z = reshape_func(flow_z, nx, ny ,nz)
 
-            # flow_x -= body_vels[0]
-            # flow_y -= body_vels[1]
-            # flow_z -= body_vels[2]
             print(f"body vels = {body_vels[:3]}")
             print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
             
@@ -4688,7 +4716,6 @@ class VISUAL:
             if view == 'top':
                 vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
-            speed_limit = np.max(vel)*0.5
             speed_limit = 100.0/self.fillength
 
             print(f"elapsed time = {time.time() - start_time}")
@@ -4718,7 +4745,6 @@ class VISUAL:
             # plot speed values over distance
             ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
             ax2.vlines(-self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
-
             ax2.plot(np.linspace(-.5*Ly, .5*Ly-dx, ny), vel[nzh,:]/self.fillength, color='black')
             ax2.set_ylim(0)
             ax2.set_xlim((-.5*Ly, .5*Ly))
@@ -4732,21 +4758,23 @@ class VISUAL:
             # ax.quiver(X[::qfac], Y[::qfac], flow_x[z, ::qfac,::qfac]-W, flow_y[z,::qfac,::qfac])
             ax.set_aspect('equal')
             if view=='top':
-                ax.set_xticks(np.linspace(0, Lx, 5))
-                ax.set_yticks(np.linspace(0, Ly, 5))
-                ax.set_xticklabels([rf'{(i*Lx/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_yticklabels([rf'{(i*Ly/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_xlim((Lx*(1-focus), Lx*focus))
-                ax.set_ylim((Ly*(1-focus), Ly*focus))
+                sidex = Lx
+                sidey = Ly
             if view=='side':
-                ax.set_xticks(np.linspace(0, Ly, 5))
-                ax.set_yticks(np.linspace(0, Lz, 5))
-                ax.set_xticklabels([rf'{(i*Lx/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_yticklabels([rf'{(i*Ly/self.radius):.1f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_xlim((Ly*(1-focus), Ly*focus))
-                ax.set_ylim((Lz*(1-focus), Lz*focus))
-            # ax.set_xlabel('y')
-            # ax.set_ylabel('z')
+                sidex = Lx
+                sidey = Lz
+            focus = 0.8
+            # ax.set_xticks(np.linspace(0, sidex, 5))
+            # ax.set_yticks(np.linspace(0, sidey, 5))
+            # ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            # ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+
+            ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
+            ax.set_yticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
+            ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            ax.set_xlim((sidex*(1-focus), Ly*focus))
+            ax.set_ylim((sidey*(1-focus), Lz*focus))
 
             # if(self.video):
                 # fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{t}.png', bbox_inches = 'tight', format='png', transparent=True)

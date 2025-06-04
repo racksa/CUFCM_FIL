@@ -111,14 +111,14 @@ def cartesian_to_spherical(x):
         x (float, float, float): cartesian-coordinate.
     
     Returns:
-        tuple: (r, theta, phi), where r is the radial distance, theta is the polar angle (azimuthal angle),
-               and phi is the elevation angle (zenith angle).
+        tuple: (r, theta, phi), where r is the radial distance, phi is the azimuthal angle,
+               and theta is the elevation angle (zenith angle).
     """
     r = np.sqrt(x[0]**2 + x[1]**2 + x[2]**2)
-    theta = np.arctan2(x[1], x[0])
-    phi = np.arccos(x[2] / r)
+    phi = np.arctan2(x[1], x[0])
+    theta = np.arccos(x[2] / r)
     
-    return r, theta, phi
+    return r, phi, theta
 
 def spherical_to_cartesian(r, phi, theta):
     """
