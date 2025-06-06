@@ -131,7 +131,9 @@ int main(int argc, char** argv){
   TOTAL_TIME_STEPS = SIM_LENGTH*STEPS_PER_PERIOD+1;
 
   #if WRITE_GENERALISED_FORCES
-    TOTAL_TIME_STEPS = STEPS_PER_PERIOD;
+    PERIOD = 1.0;
+    DT = 1.0/STEPS_PER_PERIOD;
+    TOTAL_TIME_STEPS = 300;
   #endif
 
   // Filenames 

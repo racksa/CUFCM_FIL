@@ -14,4 +14,4 @@
 #
 export OPENBLAS_NUM_THREADS=1
 export CUDA_VISIBLE_DEVICES=0
-./bin/cilia
+./bin/cilia_1e-4

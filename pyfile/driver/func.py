@@ -68,7 +68,7 @@ class DRIVER:
 
         self.category = 'for_paper/roadmap/'
         self.exe_name = 'cilia_1e-4'
-        self.date = '20250602'
+        self.date = '20250607_oldforcing'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'for_paper/flowfield_example/'

@@ -39,19 +39,6 @@ except:
     print("WARNING: CMU font not found. Using default font.")
 
 
-# mpl.rcParams['mathtext.fontset'] = 'stix'
-# mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-# mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-# mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-
-# plt.rcParams.update({'font.size': 24})
-
-# plt.rcParams.update({
-#     "mathtext.fontset": "cm",   # Use Computer Modern (LaTeX-like)
-#     "font.family": "serif",
-#     "font.serif": ["Computer Modern Roman"],
-# })
-
 class VISUAL:
 
     def __init__(self):
@@ -80,8 +67,8 @@ class VISUAL:
         # self.date = '20240311_3'
         # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
-        self.date = '20240311_1'
-        self.dir = f"data/ic_hpc_sim_free_with_force5/{self.date}/"
+        # self.date = '20240311_1'
+        # self.dir = f"data/ic_hpc_sim_free_with_force5/{self.date}/"
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -124,9 +111,15 @@ class VISUAL:
         self.date = '20250522_flowfield_free'
         self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        # self.date = '20250603'
-        # # self.date = '20250514'
-        # self.dir = f"data/for_paper/roadmap/{self.date}/"
+        self.date = '20250605'
+        self.date = '20250514'
+        self.date = '20250606'
+        self.date = '20250607_oldforcing'
+        self.dir = f"data/for_paper/roadmap/{self.date}/"
+
+        # self.date = '20240710_free'
+        # self.dir = f"data/tilt_test/IVP/{self.date}/"
+
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -215,8 +208,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 300
-        self.frames_setting = 1
+        self.plot_end_frame_setting = 3000
+        self.frames_setting = 3000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1805,7 +1798,7 @@ class VISUAL:
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
         # Create the sphere data points
-        num_points = 300
+        num_points = 30
         u = np.linspace(0, 2 * np.pi, num_points)
         v = np.linspace(0, np.pi, num_points)
         x = self.radius * np.outer(np.cos(u), np.sin(v))
@@ -1970,13 +1963,14 @@ class VISUAL:
                     #           np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
                     #           -np.sin(theta_flat)*utheta_list, length = .5 ,color='r')
                     
+            ax.set_aspect('equal')
 
         if(self.video):
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i>=self.plot_start_frame):
                     plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-                    ani = animation.FuncAnimation(fig, animation_func, frames=500, interval=10, repeat=False)
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
                     # plt.show()
                     break
                 else:
@@ -1988,7 +1982,9 @@ class VISUAL:
                     fil_states_str = fil_states_f.readline()
 
             FFwriter = animation.FFMpegWriter(fps=10)
-            ani.save(f'fig/ciliate_{self.nfil}fil_anim.mp4', writer=FFwriter)
+            ani.save(f'fig/ciliate_{self.date}_{self.nfil}fil_anim_index{self.index}.mp4', writer=FFwriter)
+                
+            # ani.save(f'fig/ciliate_{self.nfil}fil_anim.mp4', writer=FFwriter)
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -2042,9 +2038,9 @@ class VISUAL:
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
         # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
-        elev_angle = 0
+        elev_angle = 180
         elev_angle_rad = elev_angle/180*np.pi
-        azim_angle = 90
+        azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
         plane_normal = np.array([1, 0, 0])
         rot_mat = np.array([
@@ -2053,10 +2049,10 @@ class VISUAL:
             [0, 0, 1]
         ])
         rot_mat2 = np.array([
-            [np.cos(-elev_angle_rad), 0, -np.sin(-elev_angle_rad)],
-            [0, 1, 0],
+            [np.cos(-elev_angle_rad), 0., -np.sin(-elev_angle_rad)],
+            [0., 1., 0.],
             [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
-        ])
+        ], dtype=object)
         
         plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
 
@@ -2159,13 +2155,16 @@ class VISUAL:
                     frame = i
                     plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
                     ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
-                    plt.show()
-                    # FFwriter = animation.FFMpegWriter(fps=10)
-                    # ani.save(f'fig/ciliate_{nfil}fil_anim.mp4', writer=FFwriter)
+                    # plt.show()
+                    break
                 else:
                     body_states_str = body_states_f.readline()
                     seg_states_str = seg_states_f.readline()
                     fil_states_str = fil_states_f.readline()
+                
+                FFwriter = animation.FFMpegWriter(fps=10)
+                ani.save(f'fig/ciliate_{self.date}_{self.nfil}fil_anim_index{self.index}.mp4', writer=FFwriter)
+                
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -4030,7 +4029,7 @@ class VISUAL:
             sm = ScalarMappable(cmap=cmap_name2, norm=norm)
             sm.set_array([])  # Required but unused
             cbar = fig.colorbar(sm, ax=axes.ravel().tolist(), location='right')
-            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")
+            cbar.set_label(r"$u_{flow}T/L$")
 
             # fig.tight_layout()
 
@@ -4430,7 +4429,7 @@ class VISUAL:
     def flow_field_FFCM(self):
 
         view = 'top'
-        # view = 'side'
+        view = 'side'
 
         center_at_swimmer = True
 
@@ -4515,7 +4514,6 @@ class VISUAL:
 
             ax.cla()
             
-
             seg_forces_str = seg_forces_f.readline()
             blob_forces_str = blob_forces_f.readline()
             seg_states_str = seg_states_f.readline()
@@ -4523,14 +4521,14 @@ class VISUAL:
             body_vels_str = body_vels_f.readline()
             fil_states_str = fil_states_f.readline()
 
-            # while(not frame % self.plot_interval == 0):
-            #     seg_forces_str = seg_forces_f.readline()
-            #     blob_forces_str = blob_forces_f.readline()
-            #     seg_states_str = seg_states_f.readline()
-            #     body_states_str = body_states_f.readline()
-            #     body_vels_str = body_vels_f.readline()
-            #     fil_states_str = fil_states_f.readline()
-            #     frame += 1
+            while(not frame % self.plot_interval == 0):
+                seg_forces_str = seg_forces_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+                body_vels_str = body_vels_f.readline()
+                fil_states_str = fil_states_f.readline()
+                frame += 1
 
             seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
             blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
@@ -4570,11 +4568,11 @@ class VISUAL:
                     body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
                     
                     # Plot body axis
-                    ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
-                            [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
-                            c='black', linestyle='dashed',zorder=100)
-                    ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
-                    ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                    # ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
+                    #         [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
+                    #         c='black', linestyle='dashed',zorder=100)
+                    # ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                    # ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
 
                 ax.add_patch(circle)
 
@@ -4776,6 +4774,8 @@ class VISUAL:
             ax.set_xlim((sidex*(1-focus), Ly*focus))
             ax.set_ylim((sidey*(1-focus), Lz*focus))
 
+            frame += 1
+
             # if(self.video):
                 # fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{t}.png', bbox_inches = 'tight', format='png', transparent=True)
 
@@ -4790,7 +4790,7 @@ class VISUAL:
 
             # Add the colorbar to the figure
             cbar = fig.colorbar(sm)
-            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")
+            cbar.set_label(r"$u_{flow}T/L$")
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i>=self.plot_start_frame):
@@ -4807,7 +4807,7 @@ class VISUAL:
                     fil_states_str = fil_states_f.readline()
 
             FFwriter = animation.FFMpegWriter(fps=10)
-            ani.save(f'fig/flowfield_FFCM_{self.date}_anim.mp4', writer=FFwriter)
+            ani.save(f'fig/flowfield_FFCM_{self.date}_anim_index{self.index}.mp4', writer=FFwriter)
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -4837,13 +4837,223 @@ class VISUAL:
             fig3.subplots_adjust(left=0.5, right=0.7)  # Narrow colourbar
             # Add the colorbar to the figure
             cbar = fig3.colorbar(sm, cax=ax3)
-            cbar.set_label(r"$|\mathbf{u}_{flow}|T/L$")
+            cbar.set_label(r"$u_{flow}T/L$")
             fig3.tight_layout()
 
             # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             # fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             fig3.savefig(f'fig/flowfieldFFCM_colorbar_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            plt.show()
+
+    def ciliate_2D(self):
+
+        view = 'top'
+        view = 'side'
+
+        center_at_swimmer = True
+
+        # need to test
+        self.select_sim()
+
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        global frame
+        frame = 0
+
+        fig = plt.figure(dpi=200)
+        ax = fig.add_subplot()
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+
+        cmap_name = 'hsv'
+        cmap_name2= 'Reds'
+        cmap = plt.get_cmap(cmap_name)
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+
+        def animation_func(t):
+            global frame
+            print(frame)
+            ax.cla()
+            ax.axis('off')
+            
+            seg_states_str = seg_states_f.readline()
+            body_states_str = body_states_f.readline()
+            fil_states_str = fil_states_f.readline()
+
+            while(not frame % self.plot_interval == 0):
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+                fil_states_str = fil_states_f.readline()
+                frame += 1
+
+            seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+            body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+            fil_phases = fil_states[:self.nfil]
+            fil_angles = fil_states[self.nfil:]
+            fil_plot_data = np.zeros((self.nfil, self.nseg, 3))
+
+            shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
+        
+            for swim in range(int(self.pars['NSWIM'])):
+                body_pos = body_states[7*swim : 7*swim+3]
+                
+                if center_at_swimmer:
+                    shift -= body_pos
+
+                if view == 'top':
+                    circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
+                    ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
+                if view == 'side':
+                    circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
+                    R = np.identity(3)
+                    R = util.rot_mat(body_states[3 : 7])
+                    body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
+                    body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
+                    body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
+                    
+                    # Plot body axis
+                    # ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
+                    #         [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
+                    #         c='black', linestyle='dashed',zorder=100)
+                    # ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                    # ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+
+                ax.add_patch(circle)
+
+
+                for blob in range(self.nblob):
+                    blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
+                
+                
+                
+                
+                
+                for fil in range(self.nfil):
+                    fil_i = int(3*fil*self.nseg)
+                    seg_data = np.zeros((self.nseg, 3))
+
+                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                    s = np.linspace(0, 1, 20)
+                    # R_ref(q)
+                    Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+                    # R(\psi_2) rotation about the z-axis
+                    Rtheta = rotation_matrix = np.array([
+                        [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
+                        [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
+                        [0, 0, 1]
+                    ])
+                    for seg in range(self.nseg):
+                        ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
+                        seg_pos = fil_base + ref + shift
+                        seg_data[seg] = seg_pos
+                    # for seg in range(self.nseg):
+                    #     seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] + shift
+                    #     seg_data[seg] = seg_pos
+                    #     if fil == 0:
+                    #         print(seg_pos)
+
+                    # color
+                    alpha = 1
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    # b&w
+                    # alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    # fil_color = 'black'
+
+                    
+                    
+                    fil_plot_data[fil] = seg_data
+                    # only plot fil when the fil is facing us. this is done by checking the base of the filament
+                    if view == 'side':
+                        if(seg_data[0, 0]>shift[0]):
+                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                    if view == 'top':
+                        if(seg_data[0, 2]>shift[2]):
+                            ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+            Lx = self.boxsize
+            Ly = Lx/self.nx*self.ny
+            Lz = Lx/self.nx*self.nz
+
+            ax.set_aspect('equal')
+            ax.axis('off')
+            if view=='top':
+                sidex = Lx
+                sidey = Ly
+            if view=='side':
+                sidex = Lx
+                sidey = Lz
+            focus = 0.65
+
+            ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
+            ax.set_yticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
+            ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            ax.set_xlim((sidex*(1-focus), Ly*focus))
+            ax.set_ylim((sidey*(1-focus), Lz*focus))
+
+            frame += 1
+
+        if(self.video):
+            vmin = 0
+            vmax = 100 / self.fillength  # Replace with actual value if running
+            norm = Normalize(vmin=vmin, vmax=vmax)
+            ax.set_aspect('equal')
+
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i>=self.plot_start_frame):
+                    frame = i
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
+                    # plt.show()
+                    break
+                else:
+                    seg_states_str = seg_states_f.readline()
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+
+            FFwriter = animation.FFMpegWriter(fps=10)
+            ani.save(f'fig/ciliate_2D_FFCM_{self.date}_anim_index{self.index}.mp4', writer=FFwriter)
+        else:
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i==self.plot_end_frame-1):
+                    frame = i
+                    animation_func(i)
+                else:
+                    seg_states_str = seg_states_f.readline()
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+            
+            # ax.axis('off')
+            # ax.set_aspect('equal')
+
+            # # Define colour map and normalization
+            # vmin = 0
+            # vmax = 100 / self.fillength  # Replace with actual value if running
+            # norm = Normalize(vmin=vmin, vmax=vmax)
+            # # Create ScalarMappable
+            # sm = ScalarMappable(cmap=cmap_name2, norm=norm)
+            # sm.set_array([])  # Required but unused
+            # # Create a figure just for the colorbar
+            # fig3, ax3 = plt.subplots(figsize=(1.7, 4))  # Adjust size as needed
+            # fig3.subplots_adjust(left=0.5, right=0.7)  # Narrow colourbar
+            # # Add the colorbar to the figure
+            # cbar = fig3.colorbar(sm, cax=ax3)
+            # cbar.set_label(r"$u_{flow}T/L$")
+            # fig3.tight_layout()
+
+            # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            # fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            # fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            # fig3.savefig(f'fig/flowfieldFFCM_colorbar_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
 

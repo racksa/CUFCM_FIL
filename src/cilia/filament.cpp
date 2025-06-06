@@ -235,7 +235,7 @@ void filament::initial_setup(const Real *const base_pos,
 
       omega0 = 2.0*PI + noise;
 
-      std::cout << id << "   " << omega0 << std::endl;
+      // std::cout << id << "   " << omega0 << std::endl;
 
       if (PAIR==1){
         if (id/NPAIR == 1){
@@ -1142,7 +1142,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
             Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
             Real curr_frac_estimate = fitted_curve_length(curr_s_estimate, psi)/total_length;
 
-            while (std::abs(curr_frac_estimate - target_fraction) > 0.001/Real(NSEG_PER_CILIA)){
+            while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG_PER_CILIA)){
 
               if (curr_frac_estimate > target_fraction){
 
@@ -1233,6 +1233,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       }
 
     }
+
 
   #elif BUILD_A_BEAT
 
