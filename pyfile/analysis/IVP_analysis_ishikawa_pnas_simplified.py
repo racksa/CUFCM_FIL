@@ -234,6 +234,9 @@ ax4.set_ylim(0.92, 1.06)
 ax4.set_xlabel(r'$t/T$')
 ax4.set_ylabel(r'$L$')
 
+ax.set_box_aspect(0.7) 
+ax2.set_box_aspect(0.7) 
+
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()

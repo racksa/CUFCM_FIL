@@ -67,8 +67,8 @@ class VISUAL:
         # self.date = '20240311_3'
         # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free_with_force5/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free_with_force4/{self.date}/"
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -108,14 +108,15 @@ class VISUAL:
         # self.date = '20250225_flowfield_sym'
         # self.date = '20250311_flowfield_sym_free'
         # self.date = '20250311_flowfield_dia_free'
-        self.date = '20250522_flowfield_free'
-        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # self.date = '20250522_flowfield_free'
+        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        self.date = '20250605'
-        self.date = '20250514'
-        self.date = '20250606'
-        self.date = '20250607_oldforcing'
-        self.dir = f"data/for_paper/roadmap/{self.date}/"
+        # self.date = '20250605'
+        # self.date = '20250514_fixed'
+        # self.date = '20250609'
+        # # self.date = '20250514_free'
+        # self.date = '20250610_temp'
+        # self.dir = f"data/for_paper/roadmap/{self.date}/"
 
         # self.date = '20240710_free'
         # self.dir = f"data/tilt_test/IVP/{self.date}/"
@@ -156,6 +157,10 @@ class VISUAL:
 
         # self.date = '20240507'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
+
+        # self.date = '20250214_1e-6_squirmer'
+        # self.date = '20250214_1e-6_settling'
+        # self.dir = f"data/resolution/{self.date}/"
 
         self.pars_list = {
                      "index": [],
@@ -208,8 +213,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 3000
-        self.frames_setting = 3000
+        self.plot_end_frame_setting = 207000
+        self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1296,8 +1301,8 @@ class VISUAL:
         fig2.tight_layout()
         fig5.tight_layout()
         fig6.tight_layout()
-        fig5.savefig(f'fig/oder_parameter_index{self.index}.png', bbox_inches = 'tight', format='png')
-        fig6.savefig(f'fig/num_effective_stroke_index{self.index}.png', bbox_inches = 'tight', format='png')
+        fig5.savefig(f'fig/oder_parameter_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png')
+        fig6.savefig(f'fig/num_effective_stroke_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png')
         plt.show()
 
     def phase_diff(self):
@@ -4690,8 +4695,8 @@ class VISUAL:
             flow_y = reshape_func(flow_y, nx, ny ,nz)
             flow_z = reshape_func(flow_z, nx, ny ,nz)
 
-            print(f"body vels = {body_vels[:3]}")
-            print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
+            # print(f"body vels = {body_vels[:3]}")
+            # print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
             
 
             X = np.linspace(0, Lx, nx)
@@ -7288,8 +7293,8 @@ class VISUAL:
         force = False
         path = "data/ic_hpc_sim_rerun/"
 
-        force = True
-        path = "data/ic_hpc_sim_free_with_force5/"
+        # force = True
+        # path = "data/ic_hpc_sim_free_with_force5/"
         # path = "data/ic_hpc_sim_free_continue/"
 
         # force = True
@@ -7953,9 +7958,9 @@ class VISUAL:
 
     def squirmer_fixed_ratio(self):
         
-        # self.date = '20250220_1e-6_settling'
+        # self.date = '20250214_1e-6_settling'
         # self.dir = f"data/resolution/{self.date}/"
-        # self.date = '20250220_1e-6_squirmer'
+        # self.date = '20250214_1e-6_squirmer'
         # self.dir = f"data/resolution/{self.date}/"
 
         # option = 1: settling
@@ -8098,6 +8103,7 @@ class VISUAL:
         for label in ax.get_xticklabels():
             label.set_rotation(0)
 
+        ax.set_box_aspect(0.7) 
         fig.tight_layout()
 
         keyword = 'settling'

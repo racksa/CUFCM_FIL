@@ -12,13 +12,27 @@ import time
 import matplotlib as mpl
 import os
 from scipy.optimize import curve_fit
+import matplotlib.font_manager as fm
 
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+try:
+    # Path to the directory where fonts are stored
+    font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+    # Choose the TTF or OTF version of CMU Serif Regular
+    font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+    # Load the font into Matplotlib's font manager
+    prop = fm.FontProperties(fname=font_path)
+    # Register each font file with Matplotlib's font manager
+    for font_file in os.listdir(font_dir):
+        if font_file.endswith('.otf'):
+            fm.fontManager.addfont(os.path.join(font_dir, font_file))
+    # Set the global font family to 'serif' and specify CMU Serif
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['CMU Serif']
+    plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+    plt.rcParams.update({'font.size': 24})
+except:    
+    print("WARNING: CMU font not found. Using default font.")
 
-plt.rcParams.update({'font.size': 24})
 
 cmap_name = 'hsv'
 
@@ -80,7 +94,7 @@ def fitted_shape(s, phase):
 
 
 # Plotting
-fig = plt.figure(figsize=(10, 4), dpi=600)
+fig = plt.figure(dpi=200)
 ax = fig.add_subplot(projection='3d')
 ax.set_proj_type('ortho')
 fig2 = plt.figure()
@@ -170,7 +184,7 @@ sm = ScalarMappable(cmap=cmap_name, norm=norm)
 sm.set_array([])
 cax = fig.add_axes([ax.get_position().x1+0.01,ax.get_position().y0,0.02,ax.get_position().height])
 cbar =plt.colorbar(sm, cax=cax)
-cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), [r'$0$', r'$\pi/3$', r'$2\pi/3$', r'$\pi$', r'$4\pi/3$', r'$5\pi/3$', r'$2\pi$'])
 cbar.set_label(r"$\psi_1$")
 
 ax2.set_ylim(-30, 30)

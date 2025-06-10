@@ -100,6 +100,7 @@ for p in range(num_frame):
     phase = 2*np.pi/num_frame*p
 
     # color
+    cmap_name = 'hsv'
     cmap = plt.get_cmap(cmap_name)
     fil_color = cmap(phase/(2*np.pi))
 

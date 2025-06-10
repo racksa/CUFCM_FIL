@@ -192,6 +192,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 2 = Filaments are placed on a rectangular grid only compatable with cuFCM.
   // 3 = Filaments are placed on a lattice compatable with cuFCM.
 
+  // Force to use the rectangular seeding if write genralised forces
+  #if WRITE_GENERALISED_FORCES
+    #define SEEDING_TYPE 0
+  #endif
+
   // Define one lattice size and leave the other blank to have it automatically calculated to fit the number of filaments.
   // Leave both blank to have the code attempt to make a regular lattice.
   // If values are given for both, the code will use FIL_LATTICE_X_NUM and re-calculate FIL_LATTICE_Y_NUM.

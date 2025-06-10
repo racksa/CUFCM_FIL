@@ -1142,7 +1142,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
             Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
             Real curr_frac_estimate = fitted_curve_length(curr_s_estimate, psi)/total_length;
 
-            while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG_PER_CILIA)){
+            while (std::abs(curr_frac_estimate - target_fraction) > 0.001/Real(NSEG_PER_CILIA)){
 
               if (curr_frac_estimate > target_fraction){
 
