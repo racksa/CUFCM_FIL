@@ -71,6 +71,11 @@ class DRIVER:
         self.date = '20250610_temp'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'tempcheck/makeup_pattern_with_force/'
+        self.exe_name = 'cilia_1e-4'
+        self.date = '20240724_symplectic'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
         # self.category = 'for_paper/flowfield_example/'
         # self.exe_name = 'cilia_1e-8_free_300'
         # # self.exe_name = 'cilia_1e-4_free'
@@ -85,11 +90,6 @@ class DRIVER:
         # self.category = 'resolution/'
         # self.exe_name = 'cilia_1e-4_squirmer'
         # self.date = '20250220_1e-6_settling'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'regular_wall_sim/'
-        # self.exe_name = 'cilia_1e-4_squirmer'
-        # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'pizza_sim/'

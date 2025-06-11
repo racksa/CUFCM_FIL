@@ -683,7 +683,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     void filament::fill_fourier_coeff_mats(){
 
-      #if FULFORD_AND_BLAKE_BEAT
+      #if FULFORD_AND_BLAKE_BEAT || FULFORD_AND_BLAKE_BEAT_NO_WALL
 
         // See Table 1 of Ito, Omori and Ishikawa (2019).
         // We use a transposed layout because of how these matrices are applied.
@@ -2317,6 +2317,10 @@ void filament::write_backup(std::ofstream& data_file) const {
     #if FULFORD_AND_BLAKE_BEAT
 
       return std::string("input/forcing/fulford_and_blake_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
+
+    #elif FULFORD_AND_BLAKE_BEAT_NO_WALL
+
+      return std::string("input/forcing/nowall_fulford_and_blake_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
 
     #elif CORAL_LARVAE_BEAT
 

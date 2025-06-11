@@ -12,6 +12,8 @@
 #include "omp.h"
 #include "../../general/util.hpp"
 #include "../../../config.hpp"
+#include <filesystem>
+namespace fs = std::filesystem;
 
 mobility_solver::~mobility_solver(){}
 
@@ -3272,5 +3274,53 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
 
     seg_forces_file << std::endl;
     seg_forces_file.close();
+  #endif
+}
+
+void mobility_solver::write_generalised_forces(){
+  #if !WRITE_GENERALISED_FORCES
+
+    std::string dst_dir = SIMULATION_DIR + "generalised_forces/";
+    fs::create_directories(dst_dir); // Ensure directory exists
+
+    // List of source filenames
+    std::vector<std::string> source_files = {
+        reference_phase_generalised_force_file_name(),
+        reference_angle_generalised_force_file_name(),
+        reference_s_values_file_name()
+    };
+
+    for (const auto& src_path : source_files) {
+        fs::path src(src_path);
+        fs::path dst = fs::path(dst_dir) / src.filename();  // Preserve filename
+        fs::copy_file(src, dst, fs::copy_options::overwrite_existing);
+    }
+    // int num_saves;
+    // std::ifstream generalised_phase_force_file(reference_phase_generalised_force_file_name());
+    // std::string full_path = SIMULATION_DIR + reference_phase_generalised_force_file_name();
+    // fs::create_directories(fs::path(full_path).parent_path());
+
+    // if (generalised_phase_force_file.good()){
+    //   generalised_phase_force_file >> num_saves;
+    //   generalised_phase_force_file.close();
+    // }
+
+    // std::ofstream g_phase_force_file(SIMULATION_DIR + reference_phase_generalised_force_file_name());
+    // std::ofstream g_angle_force_file(SIMULATION_DIR + reference_angle_generalised_force_file_name());
+    // g_phase_force_file << num_saves << " ";
+    // g_angle_force_file << num_saves << " ";
+
+    // for (int n = 0; n < num_saves; n++){
+    //   #if DYNAMIC_PHASE_EVOLUTION
+    //     g_phase_force_file << gen_phase_force_refs[n] << " ";
+    //   #endif
+    //   #if DYNAMIC_SHAPE_ROTATION
+    //     g_angle_force_file << gen_angle_force_refs[n] << " ";
+    //   #endif
+    // }
+    // g_phase_force_file << "\n";
+    // g_phase_force_file.close();
+    // g_angle_force_file << "\n";
+    // g_angle_force_file.close();
   #endif
 }

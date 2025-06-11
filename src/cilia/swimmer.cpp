@@ -1106,13 +1106,11 @@ void swimmer::write_reference_positions() const {
   #if PRESCRIBED_CILIA
 
     std::ofstream fil_q_file(SIMULATION_NAME+std::string("_fil_q.dat"));
-
     for (int n = 0; n < NFIL; n++){
 
       fil_q_file << filaments[n].body_q_ref.scalar_part << " " << filaments[n].body_q_ref.vector_part[0] << " " << filaments[n].body_q_ref.vector_part[1] << " " << filaments[n].body_q_ref.vector_part[2] << " " ;
 
     }
-
     fil_q_file << "\n";
     fil_q_file.close();
 

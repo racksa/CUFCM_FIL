@@ -113,17 +113,23 @@ class VISUAL:
 
         # self.date = '20250605'
         # self.date = '20250514_fixed'
-        # self.date = '20250609'
+        self.date = '20250609'
         # # self.date = '20250514_free'
         # self.date = '20250610_temp'
-        # self.dir = f"data/for_paper/roadmap/{self.date}/"
+        self.dir = f"data/for_paper/roadmap/{self.date}/"
 
         # self.date = '20240710_free'
         # self.dir = f"data/tilt_test/IVP/{self.date}/"
 
 
-        # self.date = 'combined_analysis'
-        # self.dir = f"data/giant_swimmer/{self.date}/"
+        self.date = '20240311_1'
+        self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+        self.dir = f"data/tempcheck/ic_hpc_sim_free_with_force3/{self.date}/"
+
+        self.date = '20240724_symplectic'
+        self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
+        # self.dir = f"data/tempcheck/makeup_pattern_with_force/{self.date}/"
+
 
         # self.date = '20250516_force'
         # # self.date = '20250507'
@@ -213,7 +219,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 207000
+        self.plot_end_frame_setting = 163
         self.frames_setting = 30000
 
         self.plot_end_frame = self.plot_end_frame_setting

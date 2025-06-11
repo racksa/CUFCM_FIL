@@ -260,6 +260,7 @@ int main(int argc, char** argv){
   // Initialise the simulation
   chosen_mobility_solver mobility;
   mobility.initialise();
+  mobility.write_generalised_forces();
 
   #if !(PRESCRIBED_CILIA || NO_CILIA_SQUIRMER)
 
