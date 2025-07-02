@@ -76,6 +76,12 @@ class DRIVER:
         self.date = '20240724_symplectic'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
+        self.category = 'for_paper/flowfield_example/'
+        self.date = '20250522_flowfield_free_tilt_rerun'
+        self.exe_name = 'cilia_1e-4'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        
+
         # self.category = 'for_paper/flowfield_example/'
         # self.exe_name = 'cilia_1e-8_free_300'
         # # self.exe_name = 'cilia_1e-4_free'

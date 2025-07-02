@@ -39,6 +39,7 @@ avg_speed_along_axis_data = np.load(f"{path}avg_speed_along_axis_data.npy")
 avg_rot_speed_data = np.load(f"{path}avg_rot_speed_data.npy")
 avg_rot_speed_along_axis_data = np.load(f"{path}avg_rot_speed_along_axis_data.npy")
 
+print(tilt_data[0], k_data[0])
 if force:
     avg_dis_data = np.load(f"{path}dis_data.npy")
 
@@ -65,7 +66,7 @@ ax7 = fig7.add_subplot(1,1,1)
 
 plottype = 'avg'
 # plottype = 'individual'
-
+n_k = 1
 if plottype == 'avg':
     n_k = 1
 elif plottype == 'individual':
@@ -119,7 +120,7 @@ for fi in range(n_folder):
 
             ax2.plot(k, avg_rot_speed, marker=markers[fi], c=color)
 
-            ax5.scatter(k[:-1], r[:-1], marker='.', s=50, c=colors[fi])
+            ax5.scatter(k[:-2], r[:-2], marker='.', s=50, c=colors[fi])
 
         ax3.plot(tilt_angle, avg_speed_over_k, marker=markers[fi], c=colors[fi])
 
