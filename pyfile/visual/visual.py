@@ -5071,13 +5071,17 @@ class VISUAL:
         new_pole_phi = 1.2
         new_pole_theta = -1.2
 
+
+        # new_pole_phi = 0
+        # new_pole_theta = 0
+
         s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
         s_ref = np.loadtxt(s_ref_filename)
-        num_ref_phase = s_ref[0]
+        # num_ref_phase = s_ref[0]
         num_seg = int(s_ref[1])
-        num_frame = 13
-        num_points = 30
-        radius = 1
+        # num_frame = 13
+        # num_points = 30
+        # radius = 1
         L = (num_seg-1)*2.6
         
         fil_references_sphpolar = np.zeros((self.nfil,3))
@@ -5130,9 +5134,19 @@ class VISUAL:
         colormap_angle = 'bwr'
 
         ncol = 6
-        nrow = 5
+        nrow = 6
 
         fig, axs = plt.subplots(nrow, ncol, figsize=(ncol*2, nrow*1.4))
+
+        # First remove all subplots in row 5
+        for col in range(ncol):
+            fig.delaxes(axs[5, col])
+
+        # Now create a new subplot that spans the entire row 5
+        ax_big = fig.add_subplot(nrow, 1, nrow)  # nrow rows, 1 column, position nrow
+
+        # ax_big = plt.subplot2grid((nrow, ncol), (0, 0), colspan=6, rowspan=nrow-1)
+
         
         for rowi, row in enumerate(axs):
             if rowi < 2:
@@ -5146,8 +5160,9 @@ class VISUAL:
                 for ax in row:
                     ax.set_box_aspect(1)\
 
-        indices = np.linspace(self.plot_end_frame -1 - (ncol-1)*5, self.plot_end_frame-1, ncol)
-
+        frame_gap = 5
+        indices = np.linspace(self.plot_end_frame -1 - (ncol-1)*frame_gap, self.plot_end_frame-1, ncol)
+        start_frame = self.plot_end_frame - 1 - (ncol-1)*frame_gap
 
         from matplotlib.colors import Normalize
         from matplotlib.cm import ScalarMappable
@@ -5163,10 +5178,10 @@ class VISUAL:
         frame = 0
         import scipy.interpolate
 
-        def animation_func(t):
+        def animation_func(t, key_frame):
             global frame
             # ax.cla()
-            fig.suptitle(f'k={self.spring_factor}')
+            fig.suptitle(rf'$k={self.spring_factor}, \chi={self.tilt_angle/np.pi*180}^\circ $')
 
             body_states_str = body_states_f.readline()
             fil_states_str = fil_states_f.readline()
@@ -5179,127 +5194,155 @@ class VISUAL:
             phases = fil_states[:self.nfil]
             angles = fil_states[self.nfil:]
 
-            axs[0][t].set_xlim(-np.pi, np.pi)
-            axs[0][t].set_ylim(0, np.pi)
-            axs[0][t].set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
-            axs[0][t].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
-            axs[0][t].invert_yaxis()
-            axs[0][t].set_xlabel(r'$\phi$')
-            axs[0][t].set_ylabel(r'$\theta$')
-
-            axs[1][t].set_xlim(-np.pi, np.pi)
-            axs[1][t].set_ylim(0, np.pi)
-            axs[1][t].set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
-            axs[1][t].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
-            axs[1][t].invert_yaxis()
-            axs[1][t].set_xlabel(r'$\phi$')
-            axs[1][t].set_ylabel(r'$\theta$')
-
-            axs[2][t].set_xlim(-1.2*self.radius, 3.6*self.radius)
-            axs[2][t].set_ylim(-1.2*self.radius, 1.2*self.radius)
-            axs[2][t].axis('off')
-            # axs[2][t].set_xticks(np.linspace(-2*self.radius, 6*self.radius, 3), [r'$-2R$', r'$0$', r'$2R$'])
-            # axs[2][t].set_yticks(np.linspace(-2*self.radius, 2*self.radius, 3), [r'$-2R$', r'$0$', r'$2R$'])
-            
-            axs[3][t].set_xlim(0, np.pi)
-            axs[3][t].set_ylim(0, 2*np.pi)
-            axs[3][t].set_xticks(np.linspace(0, np.pi, 3), [r'$0$', r'$\pi/2$', r'$\pi$'])
-            axs[3][t].set_yticks(np.linspace(0, 2*np.pi, 3), ['0', 'π', '2π'])
-            axs[3][t].set_xlabel(r'$\theta$')
-            axs[3][t].set_ylabel(r'$\psi_1$')
-
-            axs[4][t].set_xlim(-np.pi, np.pi)
-            axs[4][t].set_ylim(0, 2*np.pi)
-            axs[4][t].set_xticks(np.linspace(-np.pi, np.pi, 3), [r'$-\pi$', r'$0$', r'$\pi$'])
-            axs[4][t].set_yticks(np.linspace(0, 2*np.pi, 3), ['0', 'π', '2π'])
-            axs[4][t].set_xlabel(r'$\phi$')
-            axs[4][t].set_ylabel(r'$\psi_1$')
-
-            fig.tight_layout()
-
-            cmap = mpl.colormaps[colormap]
-            colors = cmap(phases/vmax)
-
-            cmap_angle = mpl.colormaps[colormap_angle]
-            colors_angle = cmap_angle((angles - vmin_angle)/vrange_angle)
-
-            # Interpolation
-            if (self.interpolate):
-                n1, n2 = 128, 128
-                offset = 0.2
-                azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
-                polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
-                xx, yy = np.meshgrid(azim_grid, polar_grid)
-                xx, yy = xx.ravel(), yy.ravel()
-
                 
-                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='nearest')
-                axs[0][t].scatter(xx, yy, c=colors_inter)
-                        
-            else:
-            # Individual filaments
-                axs[0][t].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
-                axs[1][t].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors_angle)
-            
-            circle=plt.Circle((0, 0), self.radius, color='Grey', zorder=99)
-            axs[2][t].add_patch(circle)
 
-            circle=plt.Circle((2.4*self.radius, 0), self.radius, color='Grey', zorder=99)
-            axs[2][t].add_patch(circle)
+            if key_frame:
+                axs[0][frame].set_xlim(-np.pi, np.pi)
+                axs[0][frame].set_ylim(0, np.pi)
+                axs[0][frame].set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
+                axs[0][frame].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
+                axs[0][frame].invert_yaxis()
+                axs[0][frame].set_xlabel(r'$\phi$')
+                axs[0][frame].set_ylabel(r'$\theta$')
 
-            for swim in range(self.nswim):
-                # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
-                body_pos = body_states[7*swim : 7*swim+3]
-                R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
+                axs[1][frame].set_xlim(-np.pi, np.pi)
+                axs[1][frame].set_ylim(0, np.pi)
+                axs[1][frame].set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
+                axs[1][frame].set_yticks(np.linspace(0, np.pi, 3), ['0', 'π/2', 'π'])
+                axs[1][frame].invert_yaxis()
+                axs[1][frame].set_xlabel(r'$\phi$')
+                axs[1][frame].set_ylabel(r'$\theta$')
 
-                body_pos = np.ones(3)
-                R = np.identity(3)
+                axs[2][frame].set_xlim(-1.2*self.radius, 3.6*self.radius)
+                axs[2][frame].set_ylim(-1.2*self.radius, 1.2*self.radius)
+                axs[2][frame].axis('off')
+                # axs[2][frame].set_xticks(np.linspace(-2*self.radius, 6*self.radius, 3), [r'$-2R$', r'$0$', r'$2R$'])
+                # axs[2][frame].set_yticks(np.linspace(-2*self.radius, 2*self.radius, 3), [r'$-2R$', r'$0$', r'$2R$'])
+                
+                axs[3][frame].set_xlim(0, np.pi)
+                axs[3][frame].set_ylim(0, 2*np.pi)
+                axs[3][frame].set_xticks(np.linspace(0, np.pi, 3), [r'$0$', r'$\pi/2$', r'$\pi$'])
+                axs[3][frame].set_yticks(np.linspace(0, 2*np.pi, 3), ['0', 'π', '2π'])
+                axs[3][frame].set_xlabel(r'$\theta$')
+                axs[3][frame].set_ylabel(r'$\psi_1$')
 
-                # Robot arm to find segment position (Ignored plane rotation!)
-                for fil in range(self.nfil):
-                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
-                    fil_data = np.zeros((self.nseg, 3))
+                axs[4][frame].set_xlim(-np.pi, np.pi)
+                axs[4][frame].set_ylim(0, 2*np.pi)
+                axs[4][frame].set_xticks(np.linspace(-np.pi, np.pi, 3), [r'$-\pi$', r'$0$', r'$\pi$'])
+                axs[4][frame].set_yticks(np.linspace(0, 2*np.pi, 3), ['0', 'π', '2π'])
+                axs[4][frame].set_xlabel(r'$\phi$')
+                axs[4][frame].set_ylabel(r'$\psi_1$')
 
-                    cmap_name = 'hsv'
-                    # cmap_name = 'twilight_shifted'
-                    cmap = plt.get_cmap(cmap_name)
-                    fil_color = cmap(phases[fil]/(2*np.pi))
-                    alpha = 0.1 + 0.9*np.sin(phases[fil]/2)
 
-                    s = np.linspace(0, 1, 20)
-                    Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+                fig.tight_layout()
 
-                    Rtheta = np.array([
-                        [np.cos(angles[fil]), -np.sin(angles[fil]), 0],
-                        [np.sin(angles[fil]), np.cos(angles[fil]), 0],
-                        [0, 0, 1]
-                    ])
-                    for seg in range(0, int(self.pars['NSEG'])):
-                        ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], phases[fil]))
-                        seg_pos = fil_base + ref
-                        fil_data[seg] = seg_pos
+                cmap = mpl.colormaps[colormap]
+                colors = cmap(phases/vmax)
 
-                    # Show only one side of the sphere
-                    # visible = np.sum(fil_base*plane_normal)
-                    # visible = 1
-                    # if visible > -0. and fil_references_sphpolar[fil, 2] > 0.28:
-                    if fil_base[0] > -0.:
-                        axs[2][t].plot(fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=1, zorder = 100, alpha = alpha)
-                    if fil_base[2] > 0.:
-                        axs[2][t].plot(fil_data[:,0]+2.4*self.radius, fil_data[:,1], c=fil_color, linewidth=1, zorder = 100, alpha = alpha)
+                cmap_angle = mpl.colormaps[colormap_angle]
+                colors_angle = cmap_angle((angles - vmin_angle)/vrange_angle)
 
-            axs[3][t].scatter(fil_references_sphpolar[:,2], phases, s= 1, c='black')
-            axs[4][t].scatter(fil_references_sphpolar[:,1], phases, s= 1, c='black')
+                # Interpolation
+                if (self.interpolate):
+                    n1, n2 = 128, 128
+                    offset = 0.2
+                    azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
+                    polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
+                    xx, yy = np.meshgrid(azim_grid, polar_grid)
+                    xx, yy = xx.ravel(), yy.ravel()
 
+                    
+                    colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='nearest')
+                    axs[0][frame].scatter(xx, yy, c=colors_inter)
+                            
+                else:
+                    axs[0][frame].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+                    axs[1][frame].scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors_angle)
+                
+                circle=plt.Circle((0, 0), self.radius, color='Grey', zorder=99)
+                axs[2][frame].add_patch(circle)
+
+                circle=plt.Circle((2.4*self.radius, 0), self.radius, color='Grey', zorder=99)
+                axs[2][frame].add_patch(circle)
+
+                for swim in range(self.nswim):
+                    body_pos = body_states[7*swim : 7*swim+3]
+                    R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
+
+                    body_pos = np.ones(3)
+                    R = np.identity(3)
+
+                    # Robot arm to find segment position (Ignored plane rotation!)
+                    for fil in range(self.nfil):
+                        fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                        fil_data = np.zeros((self.nseg, 3))
+
+                        cmap_name = 'hsv'
+                        # cmap_name = 'twilight_shifted'
+                        cmap = plt.get_cmap(cmap_name)
+                        fil_color = cmap(phases[fil]/(2*np.pi))
+                        alpha = 0.1 + 0.9*np.sin(phases[fil]/2)
+
+                        s = np.linspace(0, 1, 20)
+                        Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+
+                        Rtheta = np.array([
+                            [np.cos(angles[fil]), -np.sin(angles[fil]), 0],
+                            [np.sin(angles[fil]), np.cos(angles[fil]), 0],
+                            [0, 0, 1]
+                        ])
+                        for seg in range(0, int(self.pars['NSEG'])):
+                            ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], phases[fil]))
+                            seg_pos = fil_base + ref
+                            fil_data[seg] = seg_pos
+
+                        # Show only one side of the sphere
+                        # visible = np.sum(fil_base*plane_normal)
+                        # visible = 1
+                        # if visible > -0. and fil_references_sphpolar[fil, 2] > 0.28:
+                        if fil_base[0] > -0.:
+                            axs[2][frame].plot(fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=1, zorder = 100, alpha = alpha)
+                        if fil_base[2] > 0.:
+                            axs[2][frame].plot(fil_data[:,0]+2.4*self.radius, fil_data[:,1], c=fil_color, linewidth=1, zorder = 100, alpha = alpha)
+
+                axs[3][frame].scatter(fil_references_sphpolar[:,2], phases, s= 1, c='black')
+                axs[4][frame].scatter(fil_references_sphpolar[:,1], phases, s= 1, c='black')
 
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-            if(i in indices):
-                animation_func(frame)
-                frame += 1
+            if(i > self.plot_end_frame - ncol*frame_gap):
+                animation_func(i, i in indices)
+                if(i in indices):
+                    frame += 1
             else:
                 fil_states_str = fil_states_f.readline()
+                body_states_str = body_states_f.readline()
+        
+        # Plot r vs time
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        r_array = np.zeros(self.frames)
+        
+        fil_states_f.close()
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        for i in range(self.plot_end_frame):
+            fil_states_str = fil_states_f.readline()
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            
+            phases = fil_states[:self.nfil]
+            angles = fil_states[self.nfil:]
+
+            r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*phases))/self.nfil)
+        
+        ax_big.plot(time_array, r_array, c='black')
+        # ax_big.set_ylim(0)
+        ax_big.set_xlabel('t/T')
+        ax_big.set_ylabel('r')
+        ax_big.set_xlim(time_array[0], time_array[-1])
+        
 
         
         # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
