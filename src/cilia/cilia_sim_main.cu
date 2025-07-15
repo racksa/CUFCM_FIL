@@ -75,7 +75,7 @@ int main(int argc, char** argv){
   FENE_MODEL = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fene_model"));
   FORCE_NOISE_MAG = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_noise_mag"));
   OMEGA_SPREAD = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "omega_spread"));
-
+  INDEX = std::stoi(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "index"));
 
   FIL_X_DIM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_dim"));
   FIL_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_spacing"));
@@ -83,7 +83,8 @@ int main(int argc, char** argv){
   BLOB_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
   HEX_NUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
   REV_RATIO = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
-  
+  TWOFIL_ANGLE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "twofil_angle"));
+
   GEN_FORCE_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "force_mag"));
   SIMULATION_DIR = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_dir");
   SIMULATION_FILE = data_from_ini(GLOBAL_FILE_NAME, "Filenames", "simulation_file");

@@ -30,6 +30,7 @@ Real DIMENSIONLESS_FORCE = 220.0;
 int FENE_MODEL = 0;
 Real FORCE_NOISE_MAG = 0.0;
 Real OMEGA_SPREAD = 0.0;
+int INDEX = 0; // Used to identify the cilia in the simulation, e.g. for writing to file.
 
 Real FIL_X_DIM = 1;
 Real FIL_Y_DIM = 1;
@@ -39,6 +40,7 @@ Real BLOB_Y_DIM = 1;
 Real BLOB_SPACING = DL*NSEG;
 Real HEX_NUM = 1;
 Real REV_RATIO = 0;
+Real TWOFIL_ANGLE = 0.0;
 
 std::string SIMULATION_DIR = "data/expr_sims/global/";
 std::string SIMULATION_FILE = "cilia";

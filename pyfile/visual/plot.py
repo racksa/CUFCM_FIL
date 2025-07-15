@@ -11,7 +11,7 @@ list_of_single_options = ['plot', 'plot_eco', 'plot_fil', 'phase', 'wavenumber',
                    'ciliate_svd', 'ciliate_dmd', 'kymograph', 'copy_phases',
                    'periodic_solution', 'find_periodicity', 'spherical_contour', 'flow_field_2D', 
                    'flow_field_kymograph', 'flow_field_FFCM','flow_field_polar','flow_field_FFCM_series', 'ciliate_2D',
-                   'phase_serial']
+                   'phase_serial', 'twofil']
 # list_of_multi_options = ['multi_phase', 'multi_ciliate', 'multi_ciliate_traj',
 #                          'multi_ciliate_speed', 'multi_timing', 'multi_ciliate_svd',
 #                          'multi_check_overlap', 'multi_ciliate_dissipation',

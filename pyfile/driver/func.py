@@ -81,6 +81,11 @@ class DRIVER:
         self.exe_name = 'cilia_1e-4'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
+        self.category = 'for_paper/twofil/'
+        self.date = '20250715_2'
+        self.exe_name = 'cilia_1e-4_twofil'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        
 
         # self.category = 'for_paper/flowfield_example/'
         # self.exe_name = 'cilia_1e-8_free_300'
@@ -127,6 +132,7 @@ class DRIVER:
                      "blob_x_dim": [],
                      "hex_num": [],
                      "reverse_fil_direction_ratio": [],
+                     "twofil_angle": [],
                      "pair_dp": [],
                      "wavnum": [],
                      "wavnum_dia": [],
@@ -135,7 +141,7 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (16, 1, 1, 1)
+        self.sweep_shape = (1, 20, 1, 1)
         # self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
@@ -191,6 +197,8 @@ class DRIVER:
                         pair_dp = 1.0
                         wavnum = 0.0
                         wavnum_dia = 0.0
+                        ar = round(1, 2)
+                        spring_factor = round(0.005, 3)
                         period = 1
                         dimensionless_force = 220.
                         fene_model = 0
@@ -203,31 +211,34 @@ class DRIVER:
                         blob_x_dim=200
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
+                        twofil_angle = 0.0
 
-                        # # planar triangle
-                        # nfil = int(32)
-                        # nblob = int(1600)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # spring_factor = round(0.05, 3)
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=400
-                        # fil_spacing=40.0
-                        # blob_spacing=5.0
-                        # fil_x_dim=1
-                        # blob_x_dim=10
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # sim_length = 1
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
+                        # # two fil
+                        nfil = int(2)
+                        nblob = int(0)
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        spring_factor = round(0.005, 3)
+                        nx=int(128)
+                        ny=int(128)
+                        nz=int(128)
+                        boxsize=400
+                        fil_spacing=50.0 + 5.0*j
+                        blob_spacing=5.0
+                        fil_x_dim=1
+                        blob_x_dim=10
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
+                        twofil_angle = 3.1415926/2./4.*i
+                        twofil_angle = 3.1415926/4.
+                        sim_length = 50
+                        force_noise_mag = 0.0
+                        omega_spread = 0.0
+                        pair_dp = 1.0
+                        fene_model = 0
 
-                        # # # callibration
+                        # # callibration
                         # nfil = int(1)
                         # nblob = int(0)
                         # nseg = 20
@@ -239,27 +250,27 @@ class DRIVER:
                         # pair_dp = 1.0
 
                         # # # IVP sim
-                        nfil = 639
-                        nblob = 40961
-                        ar = 15.0
+                        # nfil = 639
+                        # nblob = 40961
+                        # ar = 15.0
                         
-                        nseg = 20
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000 *(i+1)
-                        spring_factor = round(0.005 + 0.005*i, 3)
-                        # spring_factor = round(0.005, 3)
-                        period = 1
-                        sim_length = 1000
-                        # tilt_angle = i*1./18*3.141592653
-                        tilt_angle = 0.0
-                        wavnum = 0.0
-                        wavnum_dia = 0.0
-                        fene_model = 0
-                        omega_spread = 0.0
-                        force_noise_mag = 0.0
-                        pair_dp = 1.0
+                        # nseg = 20
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000 *(i+1)
+                        # spring_factor = round(0.005 + 0.005*i, 3)
+                        # # spring_factor = round(0.005, 3)
+                        # period = 1
+                        # sim_length = 1000
+                        # # tilt_angle = i*1./18*3.141592653
+                        # tilt_angle = 0.0
+                        # wavnum = 0.0
+                        # wavnum_dia = 0.0
+                        # fene_model = 0
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
+                        # pair_dp = 1.0
                         
 
                         # # ishikawa pnas
@@ -395,6 +406,7 @@ class DRIVER:
                         self.pars_list["fil_x_dim"].append(fil_x_dim)
                         self.pars_list["blob_x_dim"].append(blob_x_dim)
                         self.pars_list["hex_num"].append(hex_num)
+                        self.pars_list["twofil_angle"].append(twofil_angle)
                         self.pars_list["reverse_fil_direction_ratio"].append(reverse_fil_direction_ratio)
                         self.pars_list["pair_dp"].append(pair_dp)
                         self.pars_list["wavnum"].append(wavnum)
@@ -467,7 +479,7 @@ class DRIVER:
             
             for key, value in self.pars_list.items():
                 self.write_ini("Parameters", key, float(self.pars_list[key][i]))
-            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp_{self.pars_list['force_noise_mag'][i]:.4f}noise_{self.pars_list['omega_spread'][i]:.4f}ospread"
+            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp_{self.pars_list['force_noise_mag'][i]:.4f}noise_{self.pars_list['omega_spread'][i]:.4f}ospread_{self.pars_list['index'][i]:.0f}index"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
             self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
@@ -475,7 +487,7 @@ class DRIVER:
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 

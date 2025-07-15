@@ -134,6 +134,10 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
         Real fil_grid_step_y = fil_grid_step_x;
         Real fil_grid_step_z = fil_grid_step_x;
 
+      #elif TWOFIL_SEEDING
+        // Place holder
+        const int fil_grid_dim_y = 0.0;
+      
       #endif
 
     #endif
@@ -281,7 +285,27 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
           }
         }
       }
+    
+    #elif TWOFIL_SEEDING
+      
+      std::cout << "Two-filament seeding is not implemented for infinite plane wall." << std::endl;
+      filament_references[0] = 0.0;
+      filament_references[1] = 0.0;
+      filament_references[2] = 1.3;
+      Real *const fil_x_address1 = &x_segs_address[3*0*NSEG];
+      Real *const fil_f_address1 = &f_segs_address[6*0*NSEG];
+      filaments[0].initial_setup(&filament_references[0], dir, strain_twist, data_from_file, fil_x_address1, fil_f_address1, 0, body.q);
+
+      filament_references[3] = FIL_SPACING*std::cos(TWOFIL_ANGLE);
+      filament_references[4] = FIL_SPACING*std::sin(TWOFIL_ANGLE);
+      filament_references[5] = 1.3;
+      Real *const fil_x_address2 = &x_segs_address[3*1*NSEG];
+      Real *const fil_f_address2 = &f_segs_address[6*1*NSEG];
+      filaments[1].initial_setup(&filament_references[3], dir, strain_twist, data_from_file, fil_x_address2, fil_f_address2, 1, body.q);
+
     #endif
+
+
 
   #elif SADDLE_BODIES
 

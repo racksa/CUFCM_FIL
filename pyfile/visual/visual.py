@@ -22,19 +22,19 @@ import matplotlib.font_manager as fm
 try:
     # Path to the directory where fonts are stored
     font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
-    # Choose the TTF or OTF version of CMU Serif Regular
-    font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
-    # Load the font into Matplotlib's font manager
-    prop = fm.FontProperties(fname=font_path)
-    # Register each font file with Matplotlib's font manager
-    for font_file in os.listdir(font_dir):
-        if font_file.endswith('.otf'):
-            fm.fontManager.addfont(os.path.join(font_dir, font_file))
-    # Set the global font family to 'serif' and specify CMU Serif
-    plt.rcParams['font.family'] = 'serif'
-    plt.rcParams['font.serif'] = ['CMU Serif']
-    plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
-    plt.rcParams.update({'font.size': 24})
+    # # Choose the TTF or OTF version of CMU Serif Regular
+    # font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+    # # Load the font into Matplotlib's font manager
+    # prop = fm.FontProperties(fname=font_path)
+    # # Register each font file with Matplotlib's font manager
+    # for font_file in os.listdir(font_dir):
+    #     if font_file.endswith('.otf'):
+    #         fm.fontManager.addfont(os.path.join(font_dir, font_file))
+    # # Set the global font family to 'serif' and specify CMU Serif
+    # plt.rcParams['font.family'] = 'serif'
+    # plt.rcParams['font.serif'] = ['CMU Serif']
+    # plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+    # plt.rcParams.update({'font.size': 24})
 except:    
     print("WARNING: CMU font not found. Using default font.")
 
@@ -60,15 +60,21 @@ class VISUAL:
         # self.date = '20241028_test'
         # self.dir = f"data/instability/{self.date}/"
 
-        self.date = '20240710_free'
-        self.dir = f"data/tilt_test/IVP/{self.date}/"
+        # self.date = '20240710_free'
+        # self.dir = f"data/tilt_test/IVP/{self.date}/"
 
 
-        # self.date = '20240311_3'
+        # self.date = '20240311_10'
         # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
-        self.date = '20240311_3'
-        self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+        # self.date = '20240311_7'
+        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+
+        # self.date = '20240311_1'
+        # self.dir = f"data/for_paper/IVP_free/{self.date}/"
+
+        self.date = '20250715_2'
+        self.dir = f"data/for_paper/twofil/{self.date}/"
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -191,6 +197,7 @@ class VISUAL:
                      "blob_x_dim": [],
                      "hex_num": [],
                      "reverse_fil_direction_ratio": [],
+                     "twofil_angle": [],
                      "pair_dp": [],
                      "wavnum": [],
                      "wavnum_dia": [],
@@ -293,6 +300,19 @@ class VISUAL:
         self.nblob = int(self.pars_list['nblob'][self.index])
         self.ar = self.pars_list['ar'][self.index]
         self.spring_factor = self.pars_list['spring_factor'][self.index]
+
+        try:
+            self.tilt_angle = self.pars_list['tilt_angle'][self.index]
+        except:
+            pass
+        try:
+            self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
+            self.omega_spread = self.pars_list['omega_spread'][self.index]
+        except:
+            self.force_noise_mag = 0.0
+            self.omega_spread = 0.0
+        
+        self.pair_dp = self.pars_list['pair_dp'][self.index]
         try:
             self.nx = self.pars_list['nx'][self.index]
             self.ny = self.pars_list['ny'][self.index]
@@ -307,47 +327,86 @@ class VISUAL:
             pass
 
         
-        try:
-            self.tilt_angle = self.pars_list['tilt_angle'][self.index]
-            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
-            open(self.simName + '_fil_references.dat')
-        except:
-            try:
-                self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
-                self.omega_spread = self.pars_list['omega_spread'][self.index]
-                self.pair_dp = self.pars_list['pair_dp'][self.index]
-                self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise_{self.omega_spread:.4f}ospread"
-                open(self.simName + '_fil_references.dat')
-            except:
-                try:
-                    self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
-                    self.pair_dp = self.pars_list['pair_dp'][self.index]
-                    self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise"
-                    open(self.simName + '_fil_references.dat')
-                except:
-                    try:
-                        self.pair_dp = self.pars_list['pair_dp'][self.index]
-                        string = f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
-                        self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
-                        open(self.simName + '_fil_references.dat')
-                    except:
-                        self.tilt_angle = 0.
-                        self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
-                        try:
-                            open(self.simName + '_fil_references.dat')
-                        except:
-                            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
-                        try:
-                            open(self.simName + '_fil_references.dat')
-                        except:
-                            self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
         
-        try:
-            self.fil_spacing = self.pars_list['fil_spacing'][self.index]
-            self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
-        except:
-            pass
+        #     try:
+        #         self.tilt_angle = self.pars_list['tilt_angle'][self.index]
+        #         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
+        #         open(self.simName + '_fil_references.dat')
+        #     except:
+        #         try:
+        #             self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
+        #             self.omega_spread = self.pars_list['omega_spread'][self.index]
+        #             self.pair_dp = self.pars_list['pair_dp'][self.index]
+        #             try:
+        #                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise_{self.omega_spread:.4f}ospread"
+        #                 open(self.simName + '_fil_references.dat')
+        #             except:
+        #                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise_{self.omega_spread:.4f}ospread_{self.index:.0f}index"
+        #                 open(self.simName + '_fil_references.dat')
+        #         except:
+        #             try:
+        #                 self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
+        #                 self.pair_dp = self.pars_list['pair_dp'][self.index]
+        #                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise"
+        #                 open(self.simName + '_fil_references.dat')
+        #             except:
+        #                 try:
+        #                     self.pair_dp = self.pars_list['pair_dp'][self.index]
+        #                     string = f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
+        #                     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
+        #                     open(self.simName + '_fil_references.dat')
+        #                 except:
+        #                     self.tilt_angle = 0.
+        #                     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
+        #                     try:
+        #                         open(self.simName + '_fil_references.dat')
+        #                     except:
+        #                         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
+        #                     try:
+        #                         open(self.simName + '_fil_references.dat')
+        #                     except:
+        #                         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
+                                
+        # try:
+        #     self.fil_spacing = self.pars_list['fil_spacing'][self.index]
+        #     self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
+        # except:
+        #     pass
 
+        # Define possible filename templates, ordered from most recent to oldest
+        templates = [
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}noise_{omega_spread:.4f}ospread_{index:.0f}index",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}noise_{omega_spread:.4f}ospread",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}noise",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.3f}torsion",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.2f}torsion",
+        ]
+
+        # Try each template until one matches a file that exists
+        for template in templates:
+            simName = self.dir + template.format(
+                nfil=self.nfil, nblob=self.nblob, ar=self.ar,
+                spring_factor=self.spring_factor,
+                tilt_angle=self.tilt_angle,
+                pair_dp=self.pair_dp,
+                force_noise_mag=self.force_noise_mag,
+                omega_spread=self.omega_spread,
+                index=self.index
+            )
+            try:
+                self.simName = simName
+                open(self.simName + '_fil_references.dat')
+                break
+            except:
+                pass
+            # if os.path.exists(simName + '_fil_references.dat'):
+            #     self.simName = simName
+            #     break
+        else:
+            raise FileNotFoundError("No matching simulation file found.")
         
         self.fil_references = myIo.read_fil_references(self.simName + '_fil_references.dat')
         try:
@@ -5072,8 +5131,8 @@ class VISUAL:
         new_pole_theta = -1.2
 
 
-        # new_pole_phi = 0
-        # new_pole_theta = 0
+        new_pole_phi = 0
+        new_pole_theta = 0
 
         s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
         s_ref = np.loadtxt(s_ref_filename)
@@ -5349,199 +5408,95 @@ class VISUAL:
         plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}_k{self.spring_factor}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
 
-    def phase_custom_coor(self):
+    def twofil(self):
+        def set_axes_equal(ax):
+            '''Make axes of 3D plot have equal scale so that spheres look like spheres, etc.'''
+            x_limits = ax.get_xlim3d()
+            y_limits = ax.get_ylim3d()
+            z_limits = ax.get_zlim3d()
+
+            x_range = abs(x_limits[1] - x_limits[0])
+            x_middle = np.mean(x_limits)
+            y_range = abs(y_limits[1] - y_limits[0])
+            y_middle = np.mean(y_limits)
+            z_range = abs(z_limits[1] - z_limits[0])
+            z_middle = np.mean(z_limits)
+
+            max_range = max([x_range, y_range, z_range])
+
+            ax.set_xlim3d([x_middle - max_range/2, x_middle + max_range/2])
+            ax.set_ylim3d([y_middle - max_range/2, y_middle + max_range/2])
+            ax.set_zlim3d([z_middle - max_range/2, z_middle + max_range/2])
+
 
         self.select_sim()
-        
-        fil_states_f = open(self.simName + '_true_states.dat', "r")
 
-        # Plotting
-        # colormap = 'cividis'
-        colormap = 'twilight_shifted'
-        colormap = 'hsv'
-        # colormap = 'Greys'
-
-        # colormap = 'binary'
+        draw_filaments = False
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
-        fil_references_sphpolar = np.zeros((self.nfil,3))
-        for i in range(self.nfil):
-            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(projection='3d')
+        ax2.set_proj_type('ortho')
+        elev_angle = 30
+        elev_angle_rad = elev_angle/180*np.pi
+        azim_angle = 30
+        azim_angle_rad = azim_angle/180*np.pi
+        ax2.view_init(elev=elev_angle, azim=azim_angle, roll=0)
+        ax2.dist=10.8
 
-        r = util.cartesian_to_spherical(self.fil_references[0: 3])[0]
-        new_north_pole = np.array([r, -0.8*np.pi, 0.75*np.pi]) 
-        def rotate_points(points, chosen_point):
-            r0, phi0, theta0 = chosen_point
-            
-            # Convert all points to Cartesian coordinates
-            xyz = np.array([util.spherical_to_cartesian(r, phi, theta) for r, phi, theta in points])
-            
-            # Rotation matrices
-            Rz = np.array([
-                [np.cos(-phi0), -np.sin(-phi0), 0],
-                [np.sin(-phi0),  np.cos(-phi0), 0],
-                [0,             0,              1]
-            ])
-            
-            Ry = np.array([
-                [ np.cos(-theta0), 0, np.sin(-theta0)],
-                [0,               1, 0              ],
-                [-np.sin(-theta0), 0, np.cos(-theta0)]
-            ])
-            
-            R = Ry @ Rz  # Combined rotation
-            
-            # Apply rotation
-            rotated_xyz = xyz @ R.T
-            
-            # Convert back to spherical coordinates
-            rotated_sph = np.array([util.cartesian_to_spherical(x) for x in rotated_xyz])
-            
-            return rotated_sph
-        
-        fil_references_sphpolar = rotate_points(fil_references_sphpolar, new_north_pole)
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        phase_diff_array = np.zeros(self.frames)
         
 
 
-        from matplotlib.colors import Normalize
-        from matplotlib.cm import ScalarMappable
-        vmin = 0
-        vmax = 2*np.pi
-        if(self.angle):
-            vmin = -.2*np.pi
-            vmax = .2*np.pi
-        norm = Normalize(vmin=vmin, vmax=vmax)
-        sm = ScalarMappable(cmap=colormap, norm=norm)
-        sm.set_array([])
-        # cbar = plt.colorbar(sm)
-        # cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-        # cbar.set_label(r"$\psi_1$")    
-
-        plt.rcParams.update({'font.size': 48})
-
-        global frame
-        frame = 0
-        import scipy.interpolate
-
-        def animation_func(t):
-            global frame
-            ax.cla()
-
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
             fil_states_str = fil_states_f.readline()
-            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+            seg_states_str = seg_states_f.readline()
 
-            
-            variables = fil_states[:self.nfil]
-            if self.angle:
-                variables = fil_states[self.nfil:]
+            if(i>=self.plot_start_frame):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                # phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
 
-            # ax.set_title(rf"${frame}$")
-            # ax.set_ylabel(r"$\theta$")
-            # ax.set_xlabel(r"$\phi$")
-            
+                if draw_filaments:
+                    for swim in range(self.nswim):
+                        for fil in range(self.nfil):
+                            fil_base = self.fil_references[3*fil : 3*fil+3]
+                            fil_data = np.zeros((self.nseg, 3))
+                            fil_i = int(3*fil*self.nseg)
 
-            ax.set_xlim(-np.pi, np.pi)
-            ax.set_ylim(0, np.pi)
-            # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
-            # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
-            ax.set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
-            ax.set_yticks(np.linspace(0, np.pi, 3), ['', 'π/2', 'π'])
-            ax.invert_yaxis()
+                            for seg in range(self.nseg):
+                                seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                                fil_data[seg] = seg_pos
+                            ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], zorder = 100)
 
 
-            ax.set_xticklabels([])
+        ax.plot(time_array, phase_diff_array)
+        ax.set_xlabel('t/T')
+        ax.set_ylabel('$\Delta$')
+        ax.set_xlim(time_array[0], time_array[-1])
+        # ax.set_ylim(0)
+        ax.grid()
 
-            fig.tight_layout()
+        ax2.set_xlabel('x')
+        ax2.set_ylabel('y')
+        ax2.set_zlabel('z')
 
-            cmap = mpl.colormaps[colormap]
-            colors = cmap(variables/vmax)
+        # ax2.plot(time_array, phase1_array)
+        # ax2.plot(time_array, phase2_array)
+        set_axes_equal(ax2)
 
-            # Interpolation
-            if (self.interpolate):
-                n1, n2 = 128, 128
-                offset = 0.2
-                azim_grid = np.linspace(min(fil_references_sphpolar[:,1])+offset, max(fil_references_sphpolar[:,1])-offset, n1)
-                polar_grid = np.linspace(min(fil_references_sphpolar[:,2])+offset, max(fil_references_sphpolar[:,2])-offset, n2)
-                xx, yy = np.meshgrid(azim_grid, polar_grid)
-                xx, yy = xx.ravel(), yy.ravel()
-
-                
-                colors_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), colors, (xx, yy), method='nearest')
-                ax.scatter(xx, yy, c=colors_inter)
-
-                # # Find the region that takes a certain color (say white)
-                # white_band = np.where(np.all(colors_inter>np.array([0.75, 0.75, 0.75, 0]), axis=1))
-                # mean_x = np.angle(np.mean(np.exp(xx[white_band]*1j)))
-                # ax.scatter(mean_x, np.mean(yy[white_band]), c='black', s = 200, marker='s')
-
-                # # Contour (Doesn't work very well because of the discontinuity...)
-                # phases_inter = scipy.interpolate.griddata((fil_references_sphpolar[:,1],fil_references_sphpolar[:,2]), variables, (xx, yy), method='linear')
-                # xx_grid = np.reshape(xx, (n1, n2))
-                # yy_grid = np.reshape(yy, (n1, n2))
-                # phases_grid = np.reshape(phases_inter, (n1, n2))
-                # levels = np.linspace(0, 2*np.pi, 3)[1:-1]
-                # contour = ax.contour(xx_grid, yy_grid, phases_grid, levels=levels, cmap='hsv')
-                # ax.clabel(contour, levels)
-                # # Find centeroid of contours
-                # for i, line in enumerate(contour.collections):
-                #     paths = line.get_paths()
-                #     centers_of_contour = list()
-                #     lengths = [len(path) for path in paths]
-                #     max_length = max(lengths)
-                #     for p, path in enumerate(paths):
-                #         if(len(path)==max_length):
-                #             points = path.vertices
-                #             center = np.mean(points, axis=0)
-                #             centers_of_contour.append(center)
-                #             ax.scatter(center[0], center[1], s = 100)
-                #             break
-                        
-            else:
-            # Individual filaments
-                ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
-                
-                # # Find the region that takes a certain color (say white)
-                # white_band = np.where(np.all(colors>np.array([0.75, 0.75, 0.75, 0]), axis=1))
-                # ax.scatter(fil_references_sphpolar[:,1][white_band], fil_references_sphpolar[:,2][white_band], marker='x')
-                # mean_x = np.angle(np.mean(np.exp(fil_references_sphpolar[:,1][white_band]*1j)))
-                # ax.scatter(mean_x, np.mean(fil_references_sphpolar[:,2][white_band]), c='black', s = 200, marker='s')
-                
-
-            frame += 1
-
-        if(self.video):
-            for i in range(self.plot_end_frame):
-                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                if(i>=self.plot_start_frame):
-                    frame = i
-                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
-                    # plt.show()    
-                    FFwriter = animation.FFMpegWriter(fps=16)
-                    ani.save(f'fig/fil_phase_index{self.index}_{self.date}_anim.mp4', writer=FFwriter)
-                    ## when save, need to comment out plt.show() and be patient!
-                    break
-                else:
-                    # fil_phases_str = fil_phases_f.readline()
-                    fil_states_str = fil_states_f.readline()
-        else:
-            for i in range(self.plot_end_frame):
-                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                if(i==self.plot_end_frame-1):
-                    animation_func(i)
-                else:
-                    fil_states_str = fil_states_f.readline()
-                    # fil_phases_str = fil_phases_f.readline()
-                    # if(self.angle):
-                    #     fil_angles_str = fil_angles_f.readline()
-                    frame += 1
-
-            
-            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
-            plt.show()
+        fig.tight_layout()
+        # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+        
+        plt.show()
 
 # Multi sims
     def multi_phase(self):
@@ -6727,10 +6682,6 @@ class VISUAL:
                                     self.dir + f"bodystate{afix}.dat",
                                     ]
                 
-                output_filenames = [f"data/ic_hpc_sim_rerun/{self.date}/" + f"psi{afix}.dat",
-                                    f"data/ic_hpc_sim_rerun/{self.date}/" + f"bodystate{afix}.dat",
-                                    ]
-        
                 for i, name in enumerate(input_filenames):
                     input_filename = name
                     output_filename = output_filenames[i]
@@ -6761,6 +6712,58 @@ class VISUAL:
             except:
                 print("WARNING: " + self.simName + " not found.")
 
+    def multi_twofil(self):
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+
+        d_list = np.zeros(self.num_sim)
+        angle_list = np.zeros(self.num_sim)
+        phase_diff_list = np.zeros(self.num_sim)
+
+        for sim in range(self.num_sim):
+            self.index = sim
+            self.select_sim()
+
+            fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+            time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+            phase_diff_array = np.zeros(self.frames)
+            d_list[sim] = self.pars_list['fil_spacing'][sim]
+            angle_list[sim] = self.pars_list['twofil_angle'][sim]
+
+
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                fil_states_str = fil_states_f.readline()
+
+                if(i>=self.plot_start_frame):
+                    fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                    fil_phases = fil_states[:self.nfil]
+                    phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+
+            phase_diff_list[sim] = np.mean(phase_diff_array[-900:])
+
+            ax.plot(time_array, phase_diff_array, c='black', alpha=0.1+0.9*sim/float(self.num_sim), label=f"index={self.index}")
+            ax.set_xlabel('t/T')
+            ax.set_ylabel('$\Delta$')
+            ax.set_xlim(time_array[0], time_array[-1])
+            # ax.set_ylim(0)
+            ax.grid()
+
+        x_list = d_list*np.cos(angle_list)
+        y_list = d_list*np.sin(angle_list)
+        ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Reds', s=100)
+            
+        fig.tight_layout()
+        fig2.tight_layout()
+        # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+            
+        plt.show()
 
 # Summary plot
     def summary_ciliate_speed(self):

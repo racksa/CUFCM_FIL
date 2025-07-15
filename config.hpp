@@ -91,7 +91,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // This enables filaments to be seeded as pair and have difference frequency
 
 
-#define BODY_VELOCITY_TYPE 0
+#define BODY_VELOCITY_TYPE 1
 // 0 = FREE TO SWIM
 // 1 = PRESCRIBED VELOCITIES
 // 2 = PRESCRIBED ROTATION ONLY
@@ -118,7 +118,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 7
+  #define SHAPE_SEQUENCE 1
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -176,7 +176,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define BODY_OR_SURFACE_TYPE 2
+#define BODY_OR_SURFACE_TYPE 0
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -187,16 +187,17 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #if BODY_OR_SURFACE_TYPE==0 //only compatible with RPY
 
-  #define SEEDING_TYPE 0
+  #define INFINITE_PLANE_WALL_SEEDING_TYPE 4
   // Valid options:
   // 0 = Filaments are placed on a rectangular grid.
   // 1 = Filaments are placed on a hexagonal grid.
   // 2 = Filaments are placed on a rectangular grid only compatable with cuFCM.
   // 3 = Filaments are placed on a lattice compatable with cuFCM.
+  // 4 = Filaments are placed in a two-filament pair configuration.
 
   // Force to use the rectangular seeding if write genralised forces
   #if WRITE_GENERALISED_FORCES
-    #define SEEDING_TYPE 0
+    #define INFINITE_PLANE_WALL_SEEDING_TYPE 0
   #endif
 
   // Define one lattice size and leave the other blank to have it automatically calculated to fit the number of filaments.
@@ -248,7 +249,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 4
+#define MOBILITY_TYPE 1
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).
@@ -296,6 +297,7 @@ extern Real DIMENSIONLESS_FORCE;
 extern int FENE_MODEL;
 extern Real FORCE_NOISE_MAG;
 extern Real OMEGA_SPREAD;
+extern int INDEX;
 
 extern Real FIL_X_DIM;
 extern Real FIL_Y_DIM;
@@ -304,6 +306,7 @@ extern Real BLOB_X_DIM;
 extern Real BLOB_Y_DIM;
 extern Real BLOB_SPACING;
 extern Real HEX_NUM;
+extern Real TWOFIL_ANGLE;
 extern Real REV_RATIO;
 
 
@@ -505,10 +508,11 @@ extern Real REV_RATIO;
   #endif
   #define MU 1.0
 
-  #define RECTANGULAR_SEEDING (SEEDING_TYPE==0)
-  #define HEXAGONAL_SEEDING (SEEDING_TYPE==1)
-  #define FCM_RECTANGULAR_SEEDING (SEEDING_TYPE==2)
-  #define FCM_LATTICE_SEEDING (SEEDING_TYPE==3)
+  #define RECTANGULAR_SEEDING (INFINITE_PLANE_WALL_SEEDING_TYPE==0)
+  #define HEXAGONAL_SEEDING (INFINITE_PLANE_WALL_SEEDING_TYPE==1)
+  #define FCM_RECTANGULAR_SEEDING (INFINITE_PLANE_WALL_SEEDING_TYPE==2)
+  #define FCM_LATTICE_SEEDING (INFINITE_PLANE_WALL_SEEDING_TYPE==3)
+  #define TWOFIL_SEEDING (INFINITE_PLANE_WALL_SEEDING_TYPE==4)
 
 #endif
 
