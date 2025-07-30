@@ -23,18 +23,18 @@ try:
     # Path to the directory where fonts are stored
     font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
     # # Choose the TTF or OTF version of CMU Serif Regular
-    # font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
-    # # Load the font into Matplotlib's font manager
-    # prop = fm.FontProperties(fname=font_path)
-    # # Register each font file with Matplotlib's font manager
-    # for font_file in os.listdir(font_dir):
-    #     if font_file.endswith('.otf'):
-    #         fm.fontManager.addfont(os.path.join(font_dir, font_file))
-    # # Set the global font family to 'serif' and specify CMU Serif
-    # plt.rcParams['font.family'] = 'serif'
-    # plt.rcParams['font.serif'] = ['CMU Serif']
-    # plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
-    # plt.rcParams.update({'font.size': 24})
+    font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+    # Load the font into Matplotlib's font manager
+    prop = fm.FontProperties(fname=font_path)
+    # Register each font file with Matplotlib's font manager
+    for font_file in os.listdir(font_dir):
+        if font_file.endswith('.otf'):
+            fm.fontManager.addfont(os.path.join(font_dir, font_file))
+    # Set the global font family to 'serif' and specify CMU Serif
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['CMU Serif']
+    plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+    plt.rcParams.update({'font.size': 24})
 except:    
     print("WARNING: CMU font not found. Using default font.")
 
@@ -64,17 +64,23 @@ class VISUAL:
         # self.dir = f"data/tilt_test/IVP/{self.date}/"
 
 
-        # self.date = '20240311_10'
-        # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
+        self.date = '20240311_8'
+        self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
 
         # self.date = '20240311_7'
         # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
 
-        # self.date = '20240311_1'
-        # self.dir = f"data/for_paper/IVP_free/{self.date}/"
+        self.date = '20240311_3'
+        self.dir = f"data/for_paper/IVP_free/{self.date}/"
 
-        self.date = '20250715_2'
-        self.dir = f"data/for_paper/twofil/{self.date}/"
+        self.date = '20250728'
+        self.dir = f"data/for_paper/roadmap/{self.date}/"
+
+        # self.date = '20250728'
+        # self.dir = f"data/for_paper/twofil/{self.date}/"
+
+        self.date = '20250729'
+        self.dir = f"data/for_paper/multifil/{self.date}/"
 
         # self.date = 'combined_analysis'
         # self.dir = f"data/giant_swimmer/{self.date}/"
@@ -117,12 +123,7 @@ class VISUAL:
         # self.date = '20250522_flowfield_free'
         # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        # self.date = '20250605'
-        # self.date = '20250514_fixed'
-        # self.date = '20250609'
-        # # # self.date = '20250514_free'
-        # # self.date = '20250610_temp'
-        # self.dir = f"data/for_paper/roadmap/{self.date}/"
+        
 
         # # self.date = '20240710_free'
         # # self.dir = f"data/tilt_test/IVP/{self.date}/"
@@ -138,7 +139,7 @@ class VISUAL:
 
 
         # self.date = '20250516_force'
-        # # self.date = '20250507'
+        # self.date = '20250507'
         # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
 
         
@@ -226,8 +227,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 1630000
-        self.frames_setting = 30000
+        self.plot_end_frame_setting = 100000000
+        self.frames_setting = 300000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -893,8 +894,12 @@ class VISUAL:
 
         # colormap = 'binary'
 
+        plt.rcParams.update({'font.size': 48})
+        
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
         fil_references_sphpolar = np.zeros((self.nfil,3))
         for i in range(self.nfil):
             fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
@@ -914,7 +919,7 @@ class VISUAL:
         # cbar.ax.set_yticks(np.linspace(vmin, vmax, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
         # cbar.set_label(r"$\psi_1$")    
 
-        plt.rcParams.update({'font.size': 48})
+        
 
         global frame
         frame = 0
@@ -928,31 +933,33 @@ class VISUAL:
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
 
-            
-            variables = fil_states[:self.nfil]
-            if self.angle:
-                variables = fil_states[self.nfil:]
-
-            # ax.set_title(rf"${frame}$")
-            # ax.set_ylabel(r"$\theta$")
-            # ax.set_xlabel(r"$\phi$")
+            fil_phases = fil_states[:self.nfil]
             
 
             ax.set_xlim(-np.pi, np.pi)
             ax.set_ylim(0, np.pi)
             # ax.set_xticks(np.linspace(-np.pi, np.pi, 5), ['-π', '-π/2', '0', 'π/2', 'π'])
             # ax.set_yticks(np.linspace(0, np.pi, 5), ['0', 'π/4', 'π/2', '3π/4', 'π'])
-            ax.set_xticks(np.linspace(-np.pi, np.pi, 3), ['-π', '0', 'π'])
-            ax.set_yticks(np.linspace(0, np.pi, 3), ['', 'π/2', 'π'])
+            ax.set_xticks(np.linspace(-np.pi, np.pi, 3), [r'$-\pi$', '0', r'$\pi$'])
+            ax.set_yticks(np.linspace(0, np.pi, 3), [r'', r'$\pi/2$', r'$\pi$'])
             ax.invert_yaxis()
+            # ax.set_xlabel(r"$\phi$")
+            # ax.set_ylabel(r"$\theta$")
+            # ax.set_xticklabels([])
 
 
-            ax.set_xticklabels([])
+            ax2.set_xlim(0, np.pi)
+            ax2.set_ylim(0, 2*np.pi)
+            ax2.set_xticks(np.linspace(0, np.pi, 3), [r'$0$', r'$\pi/2$', r'$\pi$'])
+            ax2.set_yticks(np.linspace(0, 2*np.pi, 3), [r'$0$', r'$\pi$', r'$2\pi$'])
+            # ax2.set_xlabel(r"$\theta$")
+            # ax2.set_ylabel(r"$\psi_1$")
 
             fig.tight_layout()
+            fig2.tight_layout()
 
             cmap = mpl.colormaps[colormap]
-            colors = cmap(variables/vmax)
+            colors = cmap(fil_phases/vmax)
 
             # Interpolation
             if (self.interpolate):
@@ -1003,6 +1010,9 @@ class VISUAL:
                 # ax.scatter(fil_references_sphpolar[:,1][white_band], fil_references_sphpolar[:,2][white_band], marker='x')
                 # mean_x = np.angle(np.mean(np.exp(fil_references_sphpolar[:,1][white_band]*1j)))
                 # ax.scatter(mean_x, np.mean(fil_references_sphpolar[:,2][white_band]), c='black', s = 200, marker='s')
+            
+            
+            ax2.scatter(fil_references_sphpolar[:,2], fil_phases, c='black')
                 
 
             frame += 1
@@ -1029,14 +1039,12 @@ class VISUAL:
                     animation_func(i)
                 else:
                     fil_states_str = fil_states_f.readline()
-                    # fil_phases_str = fil_phases_f.readline()
-                    # if(self.angle):
-                    #     fil_angles_str = fil_angles_f.readline()
                     frame += 1
 
             
-            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            fig.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig2.savefig(f'fig/wave_index{self.index}_{self.date}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
     def wavenumber(self):
@@ -1241,11 +1249,7 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
-        # fig3 = plt.figure()
-        # ax3 = fig3.add_subplot(1,1,1)
-        # fig4 = plt.figure()
-        # ax4 = fig4.add_subplot(1,1,1)
-        fig5 = plt.figure()
+        fig5 = plt.figure(figsize=(12, 2))
         ax5 = fig5.add_subplot(1,1,1)
         fig6 = plt.figure()
         ax6 = fig6.add_subplot(1,1,1)
@@ -1344,12 +1348,17 @@ class VISUAL:
         # ax4.set_xlim(time_array[0], time_array[-1])
         # ax4.set_ylim(0)
 
-        ax5.plot(time_array, r_array)
-        ax5.set_ylim(0)
-        ax5.set_xlabel('t/T')
-        ax5.set_ylabel('r')
+        
+        ax5.plot(time_array, r_array, c='black')
+        # ax5.set_ylim(0)
+        ax5.set_xlabel(r'$t/T$')
+        ax5.set_ylabel(r'$r$')
         ax5.set_xlim(time_array[0], time_array[-1])
-        # ax5.set_xticks(np.linspace(0, 40, 5))
+        ax5.set_box_aspect(0.1)
+        
+        
+        # ax5.set_xticks(np.linspace(44, 45, 6))
+        # ax5.set_xticklabels(['0', '0.2', '0.4', '0.6', '0.8', '1.0'])
 
         ax6.plot(time_array, effective_beat_array)
         ax6.set_xlabel('t/T')
@@ -1366,8 +1375,78 @@ class VISUAL:
         fig2.tight_layout()
         fig5.tight_layout()
         fig6.tight_layout()
-        fig5.savefig(f'fig/oder_parameter_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png')
+        fig5.savefig(f'fig/oder_parameter_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig6.savefig(f'fig/num_effective_stroke_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png')
+        plt.show()
+
+    def roadmap(self):
+        self.select_sim()
+
+        fig = plt.figure(figsize=(12, 2))
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        r_array = np.zeros(self.frames)
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        for fil in range(self.nfil):
+            fil_references_sphpolar[fil] = util.cartesian_to_spherical(self.fil_references[3*fil: 3*fil+3])
+        azim_array = fil_references_sphpolar[:,1]
+        polar_array = fil_references_sphpolar[:,2]
+        sorted_indices = np.argsort(polar_array)
+        fil_phases_sorted = np.array([])
+        fil_angles_sorted = np.array([])
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                fil_phases = util.box(fil_phases, 2*np.pi)
+                fil_angles = fil_states[self.nfil:]
+
+                fil_angles_sorted = fil_angles[sorted_indices]
+                fil_phases_sorted = fil_phases[sorted_indices]
+
+                r_array[i-self.plot_start_frame] = np.abs(np.sum(np.exp(1j*fil_phases))/self.nfil)
+
+        # temp
+        # time_array = np.arange(self.frames)/self.period
+        # hightlight_points = np.array([0, 6, 12, 18, 24])
+        # hightlight_x = time_array[hightlight_points]
+        # hightlight_y = r_array[hightlight_points]
+        # ax5.scatter(hightlight_x, hightlight_y, c='black', s=100, marker='x', label='Hightlighted points')
+        
+        
+        ax.plot(time_array, r_array, c='black')
+        # ax5.set_ylim(0)
+        ax.set_xlabel(r'$t/T$')
+        ax.set_ylabel(r'$r$')
+        ax.set_xlim(time_array[0], time_array[-1])
+        ax.set_box_aspect(0.1)
+        
+        truncated_frame = int(self.plot_end_frame/2)
+        ax2.plot(time_array[:truncated_frame], r_array[:truncated_frame], c='black')
+        ax2.set_xlabel(r'$t/T$')
+        ax2.set_ylabel(r'$r$')
+        ax2.set_xlim(time_array[0], time_array[truncated_frame-1])
+
+        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
+
+        # fig.savefig(f'fig/fil_coordination_parameter_one_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/fil_coordination_parameter_two_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig3.savefig(f'fig/fil_clustering_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.tight_layout()
+        fig2.tight_layout()
+        # fig5.savefig(f'fig/oder_parameter_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+        # fig6.savefig(f'fig/num_effective_stroke_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png')
         plt.show()
 
     def phase_diff(self):
@@ -5126,27 +5205,23 @@ class VISUAL:
     def phase_serial(self):
 
         self.select_sim()
-
-        new_pole_phi = 1.2
-        new_pole_theta = -1.2
-
-
-        new_pole_phi = 0
-        new_pole_theta = 0
-
-        s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
-        s_ref = np.loadtxt(s_ref_filename)
-        # num_ref_phase = s_ref[0]
-        num_seg = int(s_ref[1])
-        # num_frame = 13
-        # num_points = 30
-        # radius = 1
-        L = (num_seg-1)*2.6
-        
         fil_references_sphpolar = np.zeros((self.nfil,3))
         for i in range(self.nfil):
             fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
 
+
+        new_pole_phi = 1.2
+        new_pole_theta = -1.2
+
+        # new_pole_phi = 0
+        # new_pole_theta = 0
+
+        s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
+        s_ref = np.loadtxt(s_ref_filename)
+        num_seg = int(s_ref[1])
+        L = (num_seg-1)*2.6
+        
+        
         r = util.cartesian_to_spherical(self.fil_references[0: 3])[0]
         new_north_pole = np.array([r, new_pole_phi, new_pole_theta]) 
         def rotate_points(points, chosen_point):
@@ -5407,6 +5482,211 @@ class VISUAL:
         # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}_k{self.spring_factor}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
+        
+    def full_plot(self):
+
+        self.select_sim()
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
+        
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        # Plotting
+        # colormap = 'cividis'
+        colormap = 'twilight_shifted'
+        colormap = 'hsv'
+        # colormap = 'Greys'
+
+        plt.rcParams.update({'font.size': 48})
+
+        new_pole_phi = 1.2
+        new_pole_theta = -0.9
+
+        new_pole_phi = 0
+        new_pole_theta = -0.2
+
+        s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
+        s_ref = np.loadtxt(s_ref_filename)
+        num_seg = int(s_ref[1])
+        L = (num_seg-1)*2.6
+        r = util.cartesian_to_spherical(self.fil_references[0: 3])[0]
+        new_north_pole = np.array([r, new_pole_phi, new_pole_theta]) 
+        def rotate_points(points, chosen_point):
+            r0, phi0, theta0 = chosen_point
+            
+            # Convert all points to Cartesian coordinates
+            xyz = np.array([util.spherical_to_cartesian(r, phi, theta) for r, phi, theta in points])
+            
+            # Rotation matrices
+            Rz = np.array([
+                [np.cos(-phi0), -np.sin(-phi0), 0],
+                [np.sin(-phi0),  np.cos(-phi0), 0],
+                [0,             0,              1]
+            ])
+            
+            Ry = np.array([
+                [ np.cos(-theta0), 0, np.sin(-theta0)],
+                [0,               1, 0              ],
+                [-np.sin(-theta0), 0, np.cos(-theta0)]
+            ])
+            
+            R = Ry @ Rz  # Combined rotation
+    
+            # Apply rotation
+            rotated_xyz = xyz @ R.T
+            
+            # Convert back to spherical coordinates
+            rotated_sph = np.array([util.cartesian_to_spherical(x) for x in rotated_xyz])
+            
+            return rotated_sph
+        
+        fil_references_sphpolar = rotate_points(fil_references_sphpolar, new_north_pole)
+        for i in range(self.nfil):
+            self.fil_references[3*i: 3*i+3] = util.spherical_to_cartesian(*fil_references_sphpolar[i])
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig2_2 = plt.figure()
+        ax2_2 = fig2_2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+        fig3_2 = plt.figure()
+        ax3_2 = fig3_2.add_subplot(1,1,1)
+        
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        vmin = 0
+        vmax = 2*np.pi
+        if(self.angle):
+            vmin = -.2*np.pi
+            vmax = .2*np.pi
+        norm = Normalize(vmin=vmin, vmax=vmax)
+        sm = ScalarMappable(cmap=colormap, norm=norm)
+        sm.set_array([])  
+
+        global frame
+        frame = 0
+        import scipy.interpolate
+
+        def animation_func(t):
+            global frame
+            ax.cla()
+
+            fil_states_str = fil_states_f.readline()
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            fil_phases = fil_states[:self.nfil]
+            fil_angles = fil_states[self.nfil:]
+            
+
+            ax.set_xlim(-np.pi, np.pi)
+            ax.set_ylim(0, np.pi)
+            ax.set_xticks(np.linspace(-np.pi, np.pi, 3), [r'$-\pi$', '0', r'$\pi$'])
+            ax.set_yticks(np.linspace(0, np.pi, 3), [r'', r'$\pi/2$', r'$\pi$'])
+            ax.invert_yaxis()
+
+            ax2.set_xlim(0, np.pi)
+            ax2.set_ylim(0, 2*np.pi)
+            ax2.set_xticks(np.linspace(0, np.pi, 3), [r'$0$', r'$\pi/2$', r'$\pi$'])
+            ax2.set_yticks(np.linspace(0, 2*np.pi, 3), [r'$0$', r'$\pi$', r'$2\pi$'])
+            
+            ax2_2.set_xlim(-np.pi, np.pi)
+            ax2_2.set_ylim(0, 2*np.pi)
+            ax2_2.set_xticks(np.linspace(-np.pi, np.pi, 3), [r'$-\pi$', '0', r'$\pi$'])
+            ax2_2.set_yticks(np.linspace(0, 2*np.pi, 3), [r'$0$', r'$\pi$', r'$2\pi$'])
+
+            ax3.set_aspect('equal')
+            ax3.set_xlim(-1.2*self.radius, 1.2*self.radius)
+            ax3.set_ylim(-1.2*self.radius, 1.2*self.radius)
+            ax3.set_xlim(-.4*self.radius, .4*self.radius)
+            ax3.set_ylim(0.7*self.radius, 1.2*self.radius)
+            ax3.axis('off')
+
+            ax3_2.set_aspect('equal')
+            ax3_2.set_xlim(-1.2*self.radius, 1.2*self.radius)
+            ax3_2.set_ylim(-1.2*self.radius, 1.2*self.radius)
+            ax3_2.axis('off')
+            
+            fig.tight_layout()
+            fig2.tight_layout()
+            fig2_2.tight_layout()
+            fig3.tight_layout()
+            fig3_2.tight_layout()
+
+            cmap = mpl.colormaps[colormap]
+            colors = cmap(fil_phases/vmax)
+
+
+            ax.scatter(fil_references_sphpolar[:,1], fil_references_sphpolar[:,2], c=colors)
+                
+            ax2.scatter(fil_references_sphpolar[:,2], fil_phases, c='black')
+                
+            ax2_2.scatter(fil_references_sphpolar[:,1], fil_phases, c='black')
+
+            circle=plt.Circle((0, 0), self.radius+2, color='Grey', zorder=0)
+            ax3.add_patch(circle)
+
+            circle2=plt.Circle((0, 0), self.radius+2, color='Grey', zorder=0)
+            ax3_2.add_patch(circle2)
+
+            for swim in range(self.nswim):
+                body_pos = np.ones(3)
+                R = np.identity(3)
+
+                # Robot arm to find segment position (Ignored plane rotation!)
+                for fil in range(self.nfil):
+                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                    fil_data = np.zeros((self.nseg, 3))
+
+                    cmap_name = 'hsv'
+                    # cmap_name = 'twilight_shifted'
+                    cmap = plt.get_cmap(cmap_name)
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    alpha = 1
+
+                    s = np.linspace(0, 1, 20)
+                    Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+
+                    Rtheta = np.array([
+                        [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
+                        [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
+                        [0, 0, 1]
+                    ])
+                    for seg in range(0, int(self.pars['NSEG'])):
+                        ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
+                        seg_pos = fil_base + ref
+                        fil_data[seg] = seg_pos
+
+                    ax3.plot(fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=2, zorder = fil_base[0], alpha = alpha)
+                    ax3_2.plot(fil_data[:,1], -fil_data[:,0], c=fil_color, linewidth=2, zorder = fil_base[2], alpha = alpha)
+
+
+            frame += 1
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            if(i==self.plot_end_frame-1):
+                animation_func(i)
+            else:
+                fil_states_str = fil_states_f.readline()
+                frame += 1
+
+        parent_folder = os.path.basename(os.path.dirname(self.dir.rstrip('/')))
+        # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        fig.savefig(f'fig/fil_phase_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig2.savefig(f'fig/wave_theta_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig2_2.savefig(f'fig/wave_phi_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig3.savefig(f'fig/side_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig3_2.savefig(f'fig/top_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        plt.show()
 
     def twofil(self):
         def set_axes_equal(ax):
@@ -5431,8 +5711,6 @@ class VISUAL:
 
         self.select_sim()
 
-        draw_filaments = False
-
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
@@ -5440,10 +5718,33 @@ class VISUAL:
         ax2.set_proj_type('ortho')
         elev_angle = 30
         elev_angle_rad = elev_angle/180*np.pi
-        azim_angle = 30
+        azim_angle = -60
         azim_angle_rad = azim_angle/180*np.pi
         ax2.view_init(elev=elev_angle, azim=azim_angle, roll=0)
-        ax2.dist=10.8
+        ax2.dist=7.8
+        
+
+        ax2.grid(False)
+        ax2.set_xticks([])
+        ax2.set_yticks([])
+        ax2.set_zticks([])
+        ax2.set_xlabel('')
+        ax2.set_ylabel('')
+        ax2.set_zlabel('')
+        # Remove the axis panes (the background faces)
+        ax2.w_xaxis.pane.set_visible(False)
+        ax2.w_yaxis.pane.set_visible(False)
+        ax2.w_zaxis.pane.set_visible(False)
+
+        # Remove the axis lines (the 3D box edges)
+        ax2.w_xaxis.line.set_visible(False)
+        ax2.w_yaxis.line.set_visible(False)
+        ax2.w_zaxis.line.set_visible(False)
+
+        
+
+        cmap_name = 'hsv'
+        cmap = plt.get_cmap(cmap_name)
 
 
         fil_states_f = open(self.simName + '_true_states.dat', "r")
@@ -5451,7 +5752,6 @@ class VISUAL:
 
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
         phase_diff_array = np.zeros(self.frames)
-        
 
 
         for i in range(self.plot_end_frame):
@@ -5463,19 +5763,76 @@ class VISUAL:
                 fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                 seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                 fil_phases = fil_states[:self.nfil]
-                # phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+                phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
 
-                if draw_filaments:
+                if (i==self.plot_end_frame-1):
                     for swim in range(self.nswim):
                         for fil in range(self.nfil):
                             fil_base = self.fil_references[3*fil : 3*fil+3]
                             fil_data = np.zeros((self.nseg, 3))
                             fil_i = int(3*fil*self.nseg)
 
+                            fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                            fil_color = 'black'
+
                             for seg in range(self.nseg):
                                 seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
                                 fil_data[seg] = seg_pos
-                            ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], zorder = 100)
+                            ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+
+                    print(self.fil_references[0])
+                    ref1 = np.array([self.fil_references[0], self.fil_references[1], 0.0])
+                    ref2 = np.array([self.fil_references[3], self.fil_references[4], 0.0])
+                    xx = np.linalg.norm(ref1 - ref2)
+                    center = np.array([self.fil_references[0] + self.fil_references[3], \
+                                       self.fil_references[1] + self.fil_references[4], \
+                                       0.0 + 0.0])*0.5
+                    
+                    x = np.linspace(center[0] - xx*0.5 - self.fillength, center[0] + xx*0.5 + self.fillength, 10)
+                    y = np.linspace(center[1] - xx*0.5 - self.fillength, center[1] + xx*0.5 + self.fillength, 10)
+                    xv, yv = np.meshgrid(x, y)
+                    zv = np.zeros_like(xv)  # z = 0 plane
+                    ax2.plot_surface(xv, yv, zv, alpha=0.3, color='grey', zorder=-1)
+
+
+                    # Horizontal projection line (same y)
+                    ax2.plot(
+                        [ref1[0], ref2[0]],
+                        [ref1[1], ref1[1]],  # y fixed
+                        [0, 0],
+                        color='k', linestyle='dashed', linewidth=1
+                    )
+
+                    # Vertical projection line (same x)
+                    ax2.plot(
+                        [ref2[0], ref2[0]],  # x fixed
+                        [ref1[1], ref2[1]],
+                        [0, 0],
+                        color='k', linestyle='dashed', linewidth=1
+                    )
+
+                    # Optional: draw the diagonal line connecting the two points
+                    ax2.plot(
+                        [ref1[0], ref2[0]],
+                        [ref1[1], ref2[1]],
+                        [0, 0],
+                        color='grey', linewidth=1, label=f'd = {xx:.2f}'
+                    )
+
+
+
+                    arrow_origin = np.array([
+                        x[0],  # min x
+                        y[0],  # min y
+                        0      # z = 0
+                    ])
+
+                    # Define direction vectors for each axis
+                    arrow_length = self.fillength  # or adjust manually
+
+                    ax2.quiver(*arrow_origin, arrow_length, 0, 0, color='black', linewidth=2)  # x-axis (red)
+                    ax2.quiver(*arrow_origin, 0, arrow_length, 0, color='black', linewidth=2)  # y-axis (green)
+                    ax2.quiver(*arrow_origin, 0, 0, arrow_length, color='black', linewidth=2)  # z-axis (blue)
 
 
         ax.plot(time_array, phase_diff_array)
@@ -5485,18 +5842,331 @@ class VISUAL:
         # ax.set_ylim(0)
         ax.grid()
 
-        ax2.set_xlabel('x')
-        ax2.set_ylabel('y')
-        ax2.set_zlabel('z')
+        # ax2.set_xlabel('x')
+        # ax2.set_ylabel('y')
+        # ax2.set_zlabel('z')
 
         # ax2.plot(time_array, phase1_array)
         # ax2.plot(time_array, phase2_array)
         set_axes_equal(ax2)
 
         fig.tight_layout()
+        # fig2.tight_layout()
         # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+
         
         plt.show()
+
+    def multifil(self):
+        def set_axes_equal(ax):
+            '''Make axes of 3D plot have equal scale so that spheres look like spheres, etc.'''
+            x_limits = ax.get_xlim3d()
+            y_limits = ax.get_ylim3d()
+            z_limits = ax.get_zlim3d()
+
+            x_range = abs(x_limits[1] - x_limits[0])
+            x_middle = np.mean(x_limits)
+            y_range = abs(y_limits[1] - y_limits[0])
+            y_middle = np.mean(y_limits)
+            z_range = abs(z_limits[1] - z_limits[0])
+            z_middle = np.mean(z_limits)
+
+            max_range = max([x_range, y_range, z_range])
+
+            ax.set_xlim3d([x_middle - max_range/2, x_middle + max_range/2])
+            ax.set_ylim3d([y_middle - max_range/2, y_middle + max_range/2])
+            ax.set_zlim3d([z_middle - max_range/2, z_middle + max_range/2])
+
+
+        self.select_sim()
+
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(projection='3d')
+        ax2.set_proj_type('ortho')
+        elev_angle = 30
+        elev_angle_rad = elev_angle/180*np.pi
+        azim_angle = -60
+        azim_angle_rad = azim_angle/180*np.pi
+        ax2.view_init(elev=elev_angle, azim=azim_angle, roll=0)
+        ax2.dist=3.8
+        
+
+        # ax2.grid(False)
+        # ax2.set_xticks([])
+        # ax2.set_yticks([])
+        # ax2.set_zticks([])
+        # ax2.set_xlabel('')
+        # ax2.set_ylabel('')
+        # ax2.set_zlabel('')
+        # ax2.w_xaxis.pane.set_visible(False)
+        # ax2.w_yaxis.pane.set_visible(False)
+        # ax2.w_zaxis.pane.set_visible(False)
+        # ax2.w_xaxis.line.set_visible(False)
+        # ax2.w_yaxis.line.set_visible(False)
+        # ax2.w_zaxis.line.set_visible(False)
+
+        
+
+        cmap_name = 'hsv'
+        cmap = plt.get_cmap(cmap_name)
+
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+
+        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        phase_diff_array = np.zeros(self.frames)
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+            seg_states_str = seg_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+
+                if (i==self.plot_end_frame-1):
+                    for swim in range(self.nswim):
+                        for fil in range(self.nfil):
+                            fil_base = self.fil_references[3*fil : 3*fil+3]
+                            fil_data = np.zeros((self.nseg, 3))
+                            fil_i = int(3*fil*self.nseg)
+
+                            fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                            fil_color = 'black'
+
+                            for seg in range(self.nseg):
+                                seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                                fil_data[seg] = seg_pos
+                            ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+
+                    print(self.fil_references[0])
+                    ref1 = np.array([self.fil_references[0], self.fil_references[1], 0.0])
+                    ref2 = np.array([self.fil_references[3], self.fil_references[4], 0.0])
+                    xx = np.linalg.norm(ref1 - ref2)
+                    center = np.array([self.fil_references[0] + self.fil_references[3], \
+                                       self.fil_references[1] + self.fil_references[4], \
+                                       0.0 + 0.0])*0.5
+                    
+                    x = np.linspace(center[0] - xx*0.5 - self.fillength, center[0] + xx*0.5 + self.fillength, 10)
+                    y = np.linspace(center[1] - xx*0.5 - self.fillength, center[1] + xx*0.5 + self.fillength, 10)
+                    xv, yv = np.meshgrid(x, y)
+                    zv = np.zeros_like(xv)  # z = 0 plane
+                    ax2.plot_surface(xv, yv, zv, alpha=0.3, color='grey', zorder=-1)
+
+        ax.plot(time_array, phase_diff_array)
+        ax.set_xlabel('t/T')
+        ax.set_ylabel('$\Delta$')
+        ax.set_xlim(time_array[0], time_array[-1])
+        # ax.set_ylim(0)
+        ax.grid()
+
+        # ax2.set_xlabel('x')
+        # ax2.set_ylabel('y')
+        # ax2.set_zlabel('z')
+
+        # ax2.plot(time_array, phase1_array)
+        # ax2.plot(time_array, phase2_array)
+        set_axes_equal(ax2)
+
+        fig.tight_layout()
+        # fig2.tight_layout()
+        # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+
+        
+        plt.show()
+
+
+    def find_pole(self):
+
+        draw_phase = False
+        read_phase = True
+
+        self.select_sim()
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        fil_references = np.zeros((self.nfil, 3))
+        
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        # Plotting
+        colormap = 'hsv'
+
+        plt.rcParams.update({'font.size': 6})
+
+        estimated_new_phi = 0.0
+        estimated_new_theta = 0.0
+
+        nphi = 196
+        ntheta = 196
+
+        phi_range = estimated_new_phi + np.linspace(0, np.pi-np.pi/nphi, nphi)
+        theta_range = estimated_new_theta + np.linspace(0, np.pi-np.pi/ntheta, ntheta)
+        
+
+
+        s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
+        s_ref = np.loadtxt(s_ref_filename)
+        num_seg = int(s_ref[1])
+        L = (num_seg-1)*2.6
+        r = util.cartesian_to_spherical(self.fil_references[0: 3])[0]
+        
+        def rotate_points(points, chosen_point):
+            r0, phi0, theta0 = chosen_point
+            
+            # Convert all points to Cartesian coordinates
+            xyz = np.array([util.spherical_to_cartesian(r, phi, theta) for r, phi, theta in points])
+            
+            # Rotation matrices
+            Rz = np.array([
+                [np.cos(-phi0), -np.sin(-phi0), 0],
+                [np.sin(-phi0),  np.cos(-phi0), 0],
+                [0,             0,              1]
+            ])
+            
+            Ry = np.array([
+                [ np.cos(-theta0), 0, np.sin(-theta0)],
+                [0,               1, 0              ],
+                [-np.sin(-theta0), 0, np.cos(-theta0)]
+            ])
+            
+            R = Ry @ Rz  # Combined rotation
+    
+            # Apply rotation
+            rotated_xyz = xyz @ R.T
+            
+            # Convert back to spherical coordinates
+            rotated_sph = np.array([util.cartesian_to_spherical(x) for x in rotated_xyz])
+            
+            return rotated_sph
+
+
+        if draw_phase:
+            fig, axs = plt.subplots(nphi, ntheta, figsize=(ntheta*2, nphi*1.4))
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+
+
+        def objective_function(fil_phases, new_pole_phi, new_pole_theta):
+            new_north_pole = np.array([r, new_pole_phi, new_pole_theta]) 
+            rotated_references = rotate_points(fil_references_sphpolar, new_north_pole)
+
+            n1, n2 = 64, 64
+            offset = 0.2
+            azim_grid = np.linspace(min(rotated_references[:,1])+offset, max(rotated_references[:,1])-offset, n1)
+            polar_grid = np.linspace(min(rotated_references[:,2])+offset, max(rotated_references[:,2])-offset, n2)
+            xx, yy = np.meshgrid(azim_grid, polar_grid)
+            xx, yy = xx.ravel(), yy.ravel()
+
+            
+            cmap = mpl.colormaps[colormap]
+            colors = cmap(fil_phases/vmax)
+
+            colors_inter = scipy.interpolate.griddata((rotated_references[:,1],rotated_references[:,2]), colors, (xx, yy), method='nearest')
+            phases_inter = scipy.interpolate.griddata((rotated_references[:,1],rotated_references[:,2]), fil_phases, (xx, yy), method='nearest')
+            variations = np.zeros(n2)
+            # for theta in range(int(n2*0.1), n2-int(n2*0.1)):
+            for theta in range(0, n2):
+                variations[theta] = np.abs(np.sum(np.exp(1j*phases_inter[theta*n1:(theta+1)*n1]))/ n1)
+
+
+            return xx, yy, colors_inter, np.mean(variations)
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        vmin = 0
+        vmax = 2*np.pi
+        if(self.angle):
+            vmin = -.2*np.pi
+            vmax = .2*np.pi
+        norm = Normalize(vmin=vmin, vmax=vmax)
+        sm = ScalarMappable(cmap=colormap, norm=norm)
+        sm.set_array([])  
+
+        global frame
+        frame = 0
+        import scipy.interpolate
+
+        def animation_func(t):
+            global frame
+
+            fil_states_str = fil_states_f.readline()
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+            fil_phases = fil_states[:self.nfil]
+            fil_angles = fil_states[self.nfil:]
+
+            plt.rcParams.update({'font.size': 12})
+            var_array = np.zeros((nphi, ntheta))
+
+            for phi_ind, phi in enumerate(phi_range):
+                for theta_ind, theta in enumerate(theta_range):
+                    if not read_phase:
+                        xx, yy, colors_inter, variations = objective_function(fil_phases, phi, theta)
+                        var_array[phi_ind, theta_ind] = variations
+                    if draw_phase:
+                        axs[phi_ind, theta_ind].scatter(xx, yy, c=colors_inter)
+                        axs[phi_ind, theta_ind].set_xlim(-np.pi, np.pi)
+                        axs[phi_ind, theta_ind].set_ylim(0, np.pi)
+                        axs[phi_ind, theta_ind].invert_yaxis()
+                        axs[phi_ind, theta_ind].axis('off') 
+                        axs[phi_ind, theta_ind].set_title(fr'$\phi={phi:.1f}, \theta={theta:.1f}$', fontsize=12)
+            
+            if read_phase:
+                var_array = np.load(f'{self.dir}/var_array_index{self.index}.npy')
+            if not read_phase:
+                np.save(f'{self.dir}/var_array_index{self.index}.npy', var_array)
+
+            dx = phi_range[1] - phi_range[0]
+            dy = theta_range[1] - theta_range[0]
+            img = ax2.imshow(var_array, cmap='Greys')
+            fontsize = 24
+            num_ticks = 4
+            ax2.set_xlabel(r'$\theta$', fontsize=fontsize)
+            ax2.set_ylabel(r'$\phi$', fontsize=fontsize)
+            ax2.set_xticks(np.linspace(0, ntheta-ntheta/num_ticks, num_ticks))
+            ax2.set_xticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
+            ax2.set_yticks(np.linspace(0, nphi-nphi/num_ticks, num_ticks))
+            ax2.set_yticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
+            ax2.tick_params(axis='both', labelsize=fontsize)
+            ax2.set_aspect('equal', adjustable='box') 
+            norm = Normalize(vmin=np.min(var_array), vmax=np.max(var_array))
+            sm = ScalarMappable(cmap='Greys', norm=norm)
+            sm.set_array([])
+            # ax2.set_box_aspect(0.5)
+            cbar = fig2.colorbar(sm)
+
+            
+            if draw_phase:
+                fig.tight_layout()
+            fig2.tight_layout()
+
+            frame += 1
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            if(i==self.plot_end_frame-1):
+                animation_func(i)
+            else:
+                fil_states_str = fil_states_f.readline()
+                frame += 1
+
+        parent_folder = os.path.basename(os.path.dirname(self.dir.rstrip('/')))
+        if draw_phase:
+            fig.savefig(f'fig/rotation_{parent_folder}_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig2.savefig(f'fig/objective_function_{parent_folder}_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+        plt.show()
+
 
 # Multi sims
     def multi_phase(self):
@@ -5549,6 +6219,7 @@ class VISUAL:
                 try:
                     self.index = ind
                     self.select_sim()
+                    print(self.plot_end_frame)
 
                     fil_references_sphpolar = np.zeros((self.nfil,3))
                     
@@ -6714,54 +7385,239 @@ class VISUAL:
 
     def multi_twofil(self):
 
+        read_phases = True
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
         fig3 = plt.figure()
         ax3 = fig3.add_subplot(1,1,1)
+        fig4 = plt.figure()
+        ax4 = fig4.add_subplot(1,1,1)
 
         d_list = np.zeros(self.num_sim)
         angle_list = np.zeros(self.num_sim)
         phase_diff_list = np.zeros(self.num_sim)
 
+        not_found_list = []
+        
         for sim in range(self.num_sim):
             self.index = sim
-            self.select_sim()
+            try:
+                self.select_sim()
+                if not read_phases:
+                    fil_states_f = open(self.simName + '_true_states.dat', "r")
 
-            fil_states_f = open(self.simName + '_true_states.dat', "r")
+                    time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+                    phase_diff_array = np.zeros(self.frames)
+                    d_list[sim] = self.pars_list['fil_spacing'][sim]
+                    angle_list[sim] = self.pars_list['twofil_angle'][sim]
 
-            time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
-            phase_diff_array = np.zeros(self.frames)
-            d_list[sim] = self.pars_list['fil_spacing'][sim]
-            angle_list[sim] = self.pars_list['twofil_angle'][sim]
+                    for i in range(self.plot_end_frame):
+                        print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                        fil_states_str = fil_states_f.readline()
 
+                        if(i>=self.plot_start_frame):
+                            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                            fil_phases = fil_states[:self.nfil]
+                            phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
 
-            for i in range(self.plot_end_frame):
-                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                fil_states_str = fil_states_f.readline()
+                    phase_diff_list[sim] = np.mean(phase_diff_array[-6000:])
+                    ax.plot(time_array, phase_diff_array, c='black', alpha=0.1+0.9*sim/float(self.num_sim), label=f"index={self.index}")
 
-                if(i>=self.plot_start_frame):
-                    fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-                    fil_phases = fil_states[:self.nfil]
-                    phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
-
-            phase_diff_list[sim] = np.mean(phase_diff_array[-900:])
-
-            ax.plot(time_array, phase_diff_array, c='black', alpha=0.1+0.9*sim/float(self.num_sim), label=f"index={self.index}")
-            ax.set_xlabel('t/T')
-            ax.set_ylabel('$\Delta$')
+            except:
+                not_found_list.append(self.index)
+                print(f"WARNING: sim {self.index} not found.")
+        print(f"Not found sims: {not_found_list}")
+            
+        if read_phases:
+            angle_list = np.load(f'{self.dir}angle_list.npy')
+            d_list = np.load(f'{self.dir}d_list.npy')
+            phase_diff_list = np.load(f'{self.dir}phase_diff_list.npy')
+        else:
+            np.save(f'{self.dir}angle_list.npy', angle_list)
+            np.save(f'{self.dir}d_list.npy', d_list)
+            np.save(f'{self.dir}phase_diff_list.npy', phase_diff_list)
+            
+            ax.set_ylabel('$\Delta \psi_1$')
             ax.set_xlim(time_array[0], time_array[-1])
-            # ax.set_ylim(0)
             ax.grid()
 
-        x_list = d_list*np.cos(angle_list)
-        y_list = d_list*np.sin(angle_list)
-        ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Reds', s=100)
+        x_list = np.round(d_list*np.cos(angle_list)).astype(int)
+        y_list = np.round(d_list*np.sin(angle_list)).astype(int)
+        unique_x = np.unique(x_list)
+        unique_y = np.unique(y_list)
+        phase_diff_list[1] = 0.0
+        try:
+            dx = unique_x[1] - unique_x[0]
+            dy = unique_y[1] - unique_y[0]
+        except:
+            dx = 1
+            dy = 1
+        nx = len(unique_x)
+        ny = len(unique_y)
+        phases_img = np.reshape(phase_diff_list, (nx, ny))
+        
+        ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
+        # ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Greys', s=100, vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list), edgecolors='black', linewidths=0.1)
+        ax2.set_xlabel(r'$\Delta x$')
+        ax2.set_ylabel(r'$\Delta y$')
+        ax2.set_aspect('equal')
+        norm = Normalize(vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
+        sm = ScalarMappable(cmap='Greys', norm=norm)
+        sm.set_array([])
+        # ax2.set_box_aspect(0.5)
+        cbar = fig2.colorbar(sm)
+
+        ax3.scatter(d_list/self.fillength, phase_diff_list)
+        ax3.set_xlabel('d/L')
+        ax3.set_ylabel('$<\Delta \psi_1>$')
+        
+        wavelength = 2*np.pi*d_list/phase_diff_list
+
+        A = 4*np.pi*(7.5*self.fillength)**2
+        sim_avg_d = (A/40961/4/np.pi)**.5
+
+        ax4.plot(d_list/self.fillength, wavelength/self.fillength, 'o', c='black', label='Wavelength')
+        ax4.set_xlabel('d/L')
+        ax4.set_ylabel('Wavelength (L)')
+
+        # Fit line y = mx + c
+        # m, c = np.polyfit(d_list/self.fillength, phase_diff_list, deg=1)  # degree 1 for a line
+        # wavelength = 2*np.pi/m
+        # print(wavelength)
             
         fig.tight_layout()
         fig2.tight_layout()
-        # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+        fig3.tight_layout()
+        fig4.tight_layout()
+
+        fig.savefig(f'fig/phase_diff_vs_time.png', bbox_inches = 'tight', format='png')
+        fig2.savefig(f'fig/phase_diff_heatmap.png', bbox_inches = 'tight', format='png')
+        # fig3.savefig(f'fig/phase_diff_vs_distance.png', bbox_inches = 'tight', format='png')
+        # fig4.savefig(f'fig/wavelength_vs_distance.png', bbox_inches = 'tight', format='png')
+            
+        plt.show()
+
+    def multi_multifil(self):
+
+        read_phases = False
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        fig = plt.figure()
+        ax = fig.add_subplot(1,1,1)
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+        fig4 = plt.figure()
+        ax4 = fig4.add_subplot(1,1,1)
+
+        d_list = np.zeros(self.num_sim)
+        angle_list = np.zeros(self.num_sim)
+        phase_diff_list = np.zeros(self.num_sim)
+
+        not_found_list = []
+        
+        for sim in range(self.num_sim):
+            self.index = sim
+            try:
+                self.select_sim()
+                if not read_phases:
+                    fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+                    time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+                    phase_diff_array = np.zeros(self.frames)
+                    d_list[sim] = self.pars_list['fil_spacing'][sim]
+                    angle_list[sim] = self.pars_list['twofil_angle'][sim]
+
+                    for i in range(self.plot_end_frame):
+                        print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                        fil_states_str = fil_states_f.readline()
+
+                        if(i>=self.plot_start_frame):
+                            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                            fil_phases = fil_states[:self.nfil]
+                            phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+
+                    phase_diff_list[sim] = np.mean(phase_diff_array[-6000:])
+                    ax.plot(time_array, phase_diff_array, c='black', alpha=0.1+0.9*sim/float(self.num_sim), label=f"index={self.index}")
+
+            except:
+                not_found_list.append(self.index)
+                print(f"WARNING: sim {self.index} not found.")
+        print(f"Not found sims: {not_found_list}")
+            
+        if read_phases:
+            angle_list = np.load(f'{self.dir}angle_list.npy')
+            d_list = np.load(f'{self.dir}d_list.npy')
+            phase_diff_list = np.load(f'{self.dir}phase_diff_list.npy')
+        else:
+            np.save(f'{self.dir}angle_list.npy', angle_list)
+            np.save(f'{self.dir}d_list.npy', d_list)
+            np.save(f'{self.dir}phase_diff_list.npy', phase_diff_list)
+            
+            ax.set_ylabel('$\Delta \psi_1$')
+            ax.set_xlim(time_array[0], time_array[-1])
+            ax.grid()
+
+        x_list = np.round(d_list*np.cos(angle_list)).astype(int)
+        y_list = np.round(d_list*np.sin(angle_list)).astype(int)
+        unique_x = np.unique(x_list)
+        unique_y = np.unique(y_list)
+        phase_diff_list[1] = 0.0
+        try:
+            dx = unique_x[1] - unique_x[0]
+            dy = unique_y[1] - unique_y[0]
+        except:
+            dx = 1
+            dy = 1
+        nx = len(unique_x)
+        ny = len(unique_y)
+        phases_img = np.reshape(phase_diff_list, (nx, ny))
+        
+        ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
+        # ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Greys', s=100, vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list), edgecolors='black', linewidths=0.1)
+        ax2.set_xlabel(r'$\Delta x$')
+        ax2.set_ylabel(r'$\Delta y$')
+        ax2.set_aspect('equal')
+        norm = Normalize(vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
+        sm = ScalarMappable(cmap='Greys', norm=norm)
+        sm.set_array([])
+        # ax2.set_box_aspect(0.5)
+        cbar = fig2.colorbar(sm)
+
+        ax3.scatter(d_list/self.fillength, phase_diff_list)
+        ax3.set_xlabel('d/L')
+        ax3.set_ylabel('$<\Delta \psi_1>$')
+        
+        wavelength = 2*np.pi*d_list/phase_diff_list
+
+        A = 4*np.pi*(7.5*self.fillength)**2
+        sim_avg_d = (A/40961/4/np.pi)**.5
+
+        ax4.plot(d_list/self.fillength, wavelength/self.fillength, 'o', c='black', label='Wavelength')
+        ax4.set_xlabel('d/L')
+        ax4.set_ylabel('Wavelength (L)')
+
+        # Fit line y = mx + c
+        # m, c = np.polyfit(d_list/self.fillength, phase_diff_list, deg=1)  # degree 1 for a line
+        # wavelength = 2*np.pi/m
+        # print(wavelength)
+            
+        fig.tight_layout()
+        fig2.tight_layout()
+        fig3.tight_layout()
+        fig4.tight_layout()
+
+        fig.savefig(f'fig/phase_diff_vs_time.png', bbox_inches = 'tight', format='png')
+        fig2.savefig(f'fig/phase_diff_heatmap.png', bbox_inches = 'tight', format='png')
+        # fig3.savefig(f'fig/phase_diff_vs_distance.png', bbox_inches = 'tight', format='png')
+        # fig4.savefig(f'fig/wavelength_vs_distance.png', bbox_inches = 'tight', format='png')
             
         plt.show()
 

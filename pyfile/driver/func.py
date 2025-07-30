@@ -67,25 +67,30 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.category = 'for_paper/roadmap/'
-        self.exe_name = 'cilia_1e-4'
-        self.date = '20250610_temp'
+        self.exe_name = 'cilia_1e-4_fixed'
+        self.date = '20250728'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'tempcheck/makeup_pattern_with_force/'
-        self.exe_name = 'cilia_1e-4'
-        self.date = '20240724_symplectic'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'tempcheck/makeup_pattern_with_force/'
+        # self.exe_name = 'cilia_1e-4'
+        # self.date = '20240724_symplectic'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'for_paper/flowfield_example/'
-        self.date = '20250522_flowfield_free_tilt_rerun'
-        self.exe_name = 'cilia_1e-4'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'for_paper/flowfield_example/'
+        # self.date = '20250522_flowfield_free_tilt_rerun'
+        # self.exe_name = 'cilia_1e-4'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
         self.category = 'for_paper/twofil/'
-        self.date = '20250715_2'
+        self.date = '20250729'
         self.exe_name = 'cilia_1e-4_twofil'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        
+
+        self.category = 'for_paper/multifil/'
+        self.date = '20250729'
+        self.exe_name = 'cilia_1e-4_plane'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
 
         # self.category = 'for_paper/flowfield_example/'
         # self.exe_name = 'cilia_1e-8_free_300'
@@ -141,11 +146,10 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        self.sweep_shape = (1, 20, 1, 1)
-        # self.sweep_shape = (6, 1, 1, 1)
+        # self.sweep_shape = (40, 60, 1, 1) #twofil
+        self.sweep_shape = (8, 8, 1, 1)
 
         self.num_sim = 0
-
         self.current_thread = 0
         self.num_thread = 1
         self.cuda_device = 0
@@ -181,7 +185,6 @@ class DRIVER:
             # Save the changes back to the file
             with open(self.globals_name, 'w') as configfile:
                 ini.write(configfile, space_around_delimiters=False)
-
 
     def create_rules(self):
         # Define the rule of sweeping simulations
@@ -224,15 +227,41 @@ class DRIVER:
                         ny=int(128)
                         nz=int(128)
                         boxsize=400
-                        fil_spacing=50.0 + 5.0*j
                         blob_spacing=5.0
                         fil_x_dim=1
                         blob_x_dim=10
                         hex_num=2
                         reverse_fil_direction_ratio=0.0
-                        twofil_angle = 3.1415926/2./4.*i
-                        twofil_angle = 3.1415926/4.
-                        sim_length = 50
+                        x = 4.0*i
+                        y = 4.0*j
+                        fil_spacing = (x**2 + y**2)**.5
+                        import numpy as np
+                        twofil_angle = np.arctan2(y, x)
+                        sim_length = 200
+                        force_noise_mag = 0.0
+                        omega_spread = 0.0
+                        pair_dp = 1.0
+                        fene_model = 0
+
+                        # plane
+                        nfil = int(2 + 4 * i)
+                        nblob = int(0)
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        spring_factor = round(0.005, 3)
+                        nx=int(128)
+                        ny=int(128)
+                        nz=int(128)
+                        boxsize=400
+                        fil_spacing = 40.0 + 20.0*j
+                        blob_spacing=50.0
+                        fil_x_dim=1
+                        blob_x_dim=10
+                        hex_num=0
+                        reverse_fil_direction_ratio=0.0
+                        twofil_angle = 0.0
+                        sim_length = 20
                         force_noise_mag = 0.0
                         omega_spread = 0.0
                         pair_dp = 1.0
@@ -487,7 +516,8 @@ class DRIVER:
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
+            # self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.category}psi.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 

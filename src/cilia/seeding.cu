@@ -1578,23 +1578,11 @@
 
       #if HEXAGONAL_WALL_SEEDING
         std::cout << "Seeking an hexagonal placement for the blobs..." << std::endl;
-        // Real blob_step_x;
-        // int blob_grid_dim_x;
-        // int hex_num;
-        // Real rev_ratio;
-        // blob_step_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
-        // blob_grid_dim_x = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_x_dim"));
-        // hex_num = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
-        // rev_ratio = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
-        // hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, blob_step_x, blob_grid_dim_x, hex_num, rev_ratio);
+        
         hexagonal_seeding(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, BLOB_SPACING, BLOB_X_DIM, HEX_NUM, REV_RATIO);
       
       #elif CENTRIC_WALL_SEEDING
         Real disc_radius = BLOB_SPACING*my_sqrt(NBLOB);
-        // std::ifstream in("separation.dat"); // using the 6th number as input
-        // for (int di=0; di<6; di++){
-        //   in >> disc_radius;
-        // }
         std::cout << "Seeking an centric placement for the blobs..." << std::endl;
         equal_area_seeding_centric(blob_references, polar_dir_refs, azi_dir_refs, normal_refs, NBLOB, shape, disc_radius, 0.0);
       #endif

@@ -118,7 +118,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 1
+  #define SHAPE_SEQUENCE 4
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -187,12 +187,12 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #if BODY_OR_SURFACE_TYPE==0 //only compatible with RPY
 
-  #define INFINITE_PLANE_WALL_SEEDING_TYPE 4
+  #define INFINITE_PLANE_WALL_SEEDING_TYPE 0
   // Valid options:
-  // 0 = Filaments are placed on a rectangular grid.
+  // 0 = Filaments are placed on a rectangular grid. //deprecated
   // 1 = Filaments are placed on a hexagonal grid.
-  // 2 = Filaments are placed on a rectangular grid only compatable with cuFCM.
-  // 3 = Filaments are placed on a lattice compatable with cuFCM.
+  // 2 = Filaments are placed on a rectangular grid only compatable with cuFCM. //deprecated
+  // 3 = Filaments are placed on a lattice compatable with cuFCM. //deprecated
   // 4 = Filaments are placed in a two-filament pair configuration.
 
   // Force to use the rectangular seeding if write genralised forces
