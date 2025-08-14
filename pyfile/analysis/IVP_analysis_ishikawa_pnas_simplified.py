@@ -209,7 +209,7 @@ ax.add_artist(legend11)
 ax.set_xlim(0, 1)
 ax.set_ylim(-0.6)
 ax.set_xlabel(r'$t/T$')
-ax.set_ylabel(r'$V_zT/L$')
+ax.set_ylabel(r'$VT/L$')
 
 legend21 = ax2.legend(loc='center', frameon=False)
 # line1, = ax2.plot([-1, -1.1], [-1, -1.1], ls='-', c='black', label=r'$L=0.975$' )

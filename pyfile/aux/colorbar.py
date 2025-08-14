@@ -50,7 +50,7 @@ fig.savefig('cmap.pdf', bbox_inches = 'tight', format='pdf')
 fig.savefig('cmap.png', bbox_inches = 'tight', format='png')
 
 
-fig2, ax2 = plt.subplots(figsize=(5, 10))  # Adjust figure size as needed
+fig2, ax2 = plt.subplots(figsize=(5, 6))  # Adjust figure size as needed
 ax2.set_visible(False)  # Hide the axis
 
 # Define a colormap and normalize
@@ -65,7 +65,7 @@ sm.set_array([])  # Dummy array for the colorbar
 
 # Add colorbar
 cbar = plt.colorbar(sm, ax=ax2, orientation='vertical')
-cbar.ax.set_yticks(np.linspace(0, 2*np.pi, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
+cbar.ax.set_yticks(np.linspace(0, 2*np.pi, 7), [r'$0$', r'$\pi/3$', r'$2\pi/3$', r'$\pi$', r'$4\pi/3$', r'$5\pi/3$', r'2$\pi$'])
 cbar.set_label(rf"$\psi_1$")
 
 # Customize colorbar label

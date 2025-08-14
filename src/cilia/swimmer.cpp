@@ -288,7 +288,6 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
     
     #elif TWOFIL_SEEDING
       
-      std::cout << "Two-filament seeding is not implemented for infinite plane wall." << std::endl;
       filament_references[0] = 0.0;
       filament_references[1] = 0.0;
       filament_references[2] = 1.3;

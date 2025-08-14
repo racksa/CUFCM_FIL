@@ -73,13 +73,13 @@ class VISUAL:
         self.date = '20240311_3'
         self.dir = f"data/for_paper/IVP_free/{self.date}/"
 
-        self.date = '20250728'
-        self.dir = f"data/for_paper/roadmap/{self.date}/"
-
         # self.date = '20250728'
+        # self.dir = f"data/for_paper/roadmap/{self.date}/"
+
+        # self.date = '20250716'
         # self.dir = f"data/for_paper/twofil/{self.date}/"
 
-        self.date = '20250729'
+        self.date = '20250802'
         self.dir = f"data/for_paper/multifil/{self.date}/"
 
         # self.date = 'combined_analysis'
@@ -120,9 +120,12 @@ class VISUAL:
         # self.date = '20250225_flowfield_sym'
         # self.date = '20250311_flowfield_sym_free'
         # self.date = '20250311_flowfield_dia_free'
-        # self.date = '20250522_flowfield_free'
-        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        self.date = '20250522_flowfield_free'
+        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
+        # self.date = '20250516_force'
+        # # self.date = '20250507'
+        # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
         
 
         # # self.date = '20240710_free'
@@ -138,9 +141,7 @@ class VISUAL:
         # self.dir = f"data/tempcheck/makeup_pattern_with_force/{self.date}/"
 
 
-        # self.date = '20250516_force'
-        # self.date = '20250507'
-        # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
+        
 
         
         # # self.date = '20250228'
@@ -227,7 +228,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 100000000
+        self.plot_end_frame_setting = 300
         self.frames_setting = 300000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -2485,13 +2486,13 @@ class VISUAL:
         ax1.plot(time_array[:-1], body_speed_along_axis_array)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
-        ax1.set_ylabel(r"$<V⋅e_1>/L$")
+        ax1.set_ylabel(r"$V⋅e_1/L$")
         ax1.set_xlabel(r"$t/T$")
 
         ax2.plot(time_array[:-1], body_rot_speed_along_axis_array)
         # ax2.set_xlim(time_array[0], time_array[-1])
         # ax2.plot(time_array, body_vel_array[:,2]/self.fillength)
-        ax2.set_ylabel(r"$<Ω⋅e_1>$")
+        ax2.set_ylabel(r"$Ω⋅e_1$")
         ax2.set_xlabel(r"$t/T$")
 
         # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
@@ -3844,12 +3845,12 @@ class VISUAL:
         global frame
         frame = 0
 
-        fig_num = 3
+        fig_num = 5
         fig_index = 0
-        frame_gap = 100
+        frame_gap = 6
         plot_frames = np.array([self.plot_end_frame-1-frame_gap*i for i in range(fig_num)])
 
-        fig, axes = plt.subplots(2, fig_num, figsize=(4*fig_num, 7), constrained_layout=True)
+        fig, axes = plt.subplots(2, fig_num, figsize=(3.5*fig_num, 5.75), constrained_layout=True)
 
         fig2 = plt.figure()
         ax2 = fig2.add_subplot()
@@ -3919,11 +3920,11 @@ class VISUAL:
                         body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
                         
                         # Plot body axis
-                        ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
-                                [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
-                                c='black', linestyle='dashed',zorder=100)
-                        ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
-                        ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                        # ax.plot([body_axis_z[1]+body_pos[1]+shift[1], -body_axis_z[1]+body_pos[1]+shift[1]],  \
+                        #         [body_axis_z[2]+body_pos[2]+shift[2], -body_axis_z[2]+body_pos[2]+shift[2]], \
+                        #         c='black', linestyle='dashed',zorder=100)
+                        # ax.scatter([body_axis_z[1]+body_pos[1]+shift[1]], [body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
+                        # ax.scatter([-body_axis_z[1]+body_pos[1]+shift[1]], [-body_axis_z[2]+body_pos[2]+shift[2]], c='black', zorder=100)
 
                     ax.add_patch(circle)
 
@@ -4187,9 +4188,13 @@ class VISUAL:
 
     def flow_field_polar(self):
         # Read flow field from file instead of recomputing
-        read_flowfield_from_file = False
+        read_flowfield_from_file = True
         
         plot_envelope = False
+
+        fontsize = 24
+
+        plt.rcParams.update({'font.size': fontsize})
 
 
         from scipy.special import legendre
@@ -4257,6 +4262,8 @@ class VISUAL:
         ax4 = fig4.add_subplot()
         fig5 = plt.figure()
         ax5 = fig5.add_subplot()
+        fig6 = plt.figure()
+        ax6 = fig6.add_subplot()
 
         # Flow field
         n_r = 1
@@ -4295,6 +4302,8 @@ class VISUAL:
         squirmer_speed_data = np.zeros((self.frames))
         time_data = np.arange(self.frames)/self.period
         phase_data = np.zeros((self.frames, self.nfil))
+        body_q_data = np.zeros((self.frames, 4))
+        body_axis_data = np.zeros((self.frames, 3))
 
         n_coeffs = 20
         An_data = np.zeros((self.frames, n_coeffs))
@@ -4476,20 +4485,44 @@ class VISUAL:
                     utheta_data[i-self.plot_start_frame] = utheta_list
                     uphi_data[i-self.plot_start_frame] = uphi_list
                     phase_data[i-self.plot_start_frame] = fil_states[:self.nfil]
+                    body_q_data[i-self.plot_start_frame] = body_states[3:7]
+                    R = util.rot_mat(body_states[3:7])
+                    body_axis_data[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,1]))
+                
+            body_rot_vel_array = util.compute_angular_velocity(body_q_data, self.dt)
+            body_rot_speed_along_axis_array = np.sum(body_rot_vel_array * body_axis_data[:-1], axis=1)
 
             np.save(f'{self.dir}time_array_index{self.index}.npy', time_data)
             np.save(f'{self.dir}speed_array_index{self.index}.npy', speed_data)
             np.save(f'{self.dir}squirmer_speed_array_index{self.index}.npy', squirmer_speed_data)
+            np.save(f'{self.dir}phase_array_index{self.index}.npy', phase_data)
             np.save(f'{self.dir}ur_array_index{self.index}.npy', ur_data)
             np.save(f'{self.dir}utheta_array_index{self.index}.npy', utheta_data)
             np.save(f'{self.dir}uphi_array_index{self.index}.npy', uphi_data)
             np.save(f'{self.dir}An_index{self.index}.npy', An_data)
             np.save(f'{self.dir}Bn_index{self.index}.npy', Bn_data)
             np.save(f'{self.dir}shape_data_index{self.index}.npy', np.array([n_r, n_phi, n_theta, n_field_point]))
+            np.save(f'{self.dir}body_q_data_index{self.index}.npy', body_q_data)
+            np.save(f'{self.dir}body_axis_data_index{self.index}.npy', body_axis_data)
         else:
+            for i in range(self.plot_end_frame):
+                body_states_str = body_states_f.readline()
+
+                if(i>=self.plot_start_frame):
+                    body_states = np.array(body_states_str.split()[1:], dtype=float)
+                    body_q_data[i-self.plot_start_frame] = body_states[3:7]
+                    R = util.rot_mat(body_states[3:7])
+                    body_axis_data[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,1]))
+            body_rot_vel_data = util.compute_angular_velocity(body_q_data, self.dt)
+            body_rot_speed_along_axis_data = np.sum(body_rot_vel_data * body_axis_data[:-1], axis=1)
+
+            np.save(f'{self.dir}body_q_data_index{self.index}.npy', body_q_data)
+            np.save(f'{self.dir}body_axis_data_index{self.index}.npy', body_axis_data)
+
             time_data = np.load(f'{self.dir}time_array_index{self.index}.npy')
             speed_data = np.load(f'{self.dir}speed_array_index{self.index}.npy')
             squirmer_speed_data = np.load(f'{self.dir}squirmer_speed_array_index{self.index}.npy')
+            phase_data = np.load(f'{self.dir}phase_array_index{self.index}.npy')
             ur_data = np.load(f'{self.dir}ur_array_index{self.index}.npy')
             utheta_data = np.load(f'{self.dir}utheta_array_index{self.index}.npy')
             uphi_data = np.load(f'{self.dir}uphi_array_index{self.index}.npy')
@@ -4498,7 +4531,10 @@ class VISUAL:
             shape_data = np.load(f'{self.dir}shape_data_index{self.index}.npy')
             n_phi = shape_data[1]
             n_theta = shape_data[2]
+            # body_q_data = np.load(f'{self.dir}body_q_data_index{self.index}.npy')
+            # body_axis_data = np.load(f'{self.dir}body_axis_data_index{self.index}.npy')
 
+        
         ax.set_aspect('equal')
 
         # ax2.plot(theta_list, ur_data, c='r', label=r'$u_r$')
@@ -4506,33 +4542,35 @@ class VISUAL:
         # ax2.plot(theta_list, utheta_list_avg, c='b', label=r'$u_{\theta}$')
         # ax2.plot(theta_list, reconstructed_utheta_list, c='b', linestyle='dashed', label=r'$reconstructed u_{\theta}$')
         
-        ur_list_avg = np.mean(np.reshape(ur_data[-1], (n_phi, n_theta)), axis=0)
-        utheta_list_avg = np.mean(np.reshape(utheta_data[-1], (n_phi, n_theta)), axis=0)
+        ur_list_avg = np.mean(np.reshape(ur_data[self.plot_end_frame-1], (n_phi, n_theta)), axis=0)
+        utheta_list_avg = np.mean(np.reshape(utheta_data[self.plot_end_frame-1], (n_phi, n_theta)), axis=0)
         ax2.plot(theta_list, ur_list_avg/self.fillength, c='black', linestyle='-', label=r'$u_r$')
         ax2.plot(theta_list, utheta_list_avg/self.fillength, c='black', linestyle='dashed', label=r'$u_{\theta}$')
-        ax2.legend(fontsize=16, frameon=False)
+        ax2.legend(frameon=False)
         ax2.set_xticks(ticks=[0, np.pi/2, np.pi], labels=[r'$0$', r'$\pi/2$', r'$\pi$'])
         ax2.set_xlim(0, np.pi)
+        ax2.set_ylim(-1.5, 4)
         ax2.set_xlabel(r'$\theta$')
-        ax2.set_ylabel(r'$UT/L$')
+        ax2.set_ylabel(r'$u_{flow}T/L$')
 
-        lower_y = 0.1
+        lower_y = 0.0
         upper_y = 1.3
         x_start, x_end = 0, np.pi
-        mask = np.where((phase_data[-1] < upper_y) & (phase_data[-1] > lower_y))
-        maski = np.where(~((phase_data[-1] < upper_y) & (phase_data[-1] > lower_y)))
+        mask = np.where((phase_data[self.plot_end_frame-1] < upper_y) & (phase_data[self.plot_end_frame-1] > lower_y))
+        maski = np.where(~((phase_data[self.plot_end_frame-1] < upper_y) & (phase_data[self.plot_end_frame-1] > lower_y)))
         ax22 = ax2.twinx()
         ax22.hlines(lower_y, x_start, x_end, color='grey', linestyle='dashed')
         ax22.hlines(upper_y, x_start, x_end, color='grey', linestyle='dashed')
         x = np.linspace(x_start, x_end, 100)
         ax22.fill_between(x, lower_y, upper_y, color='grey', alpha=0.3)
         ax22.text((x_start + x_end) / 2, (lower_y + upper_y) / 2, 'Effective strokes',
-                ha='center', va='center', fontsize=16, color='b', weight='bold')
-        ax22.scatter(fil_references_sphpolar[:,2][mask], phase_data[-1][mask], marker='+', s=10, c='b', label='$effective strokes$')
-        ax22.scatter(fil_references_sphpolar[:,2][maski], phase_data[-1][maski], marker='+', s=10, c='black', label=r'$recovery strokes$')
+                ha='center', va='center', color='b', weight='bold')
+        ax22.scatter(fil_references_sphpolar[:,2][mask], phase_data[self.plot_end_frame-1][mask], marker='+', s=10, c='b', label='$effective strokes$')
+        ax22.scatter(fil_references_sphpolar[:,2][maski], phase_data[self.plot_end_frame-1][maski], marker='+', s=10, c='black', label=r'$recovery strokes$')
         ax22.set_ylim(0, 2*np.pi)
         ax22.set_ylabel(r'$\psi_1$')
         ax22.set_yticks(ticks=[0, np.pi, 2*np.pi], labels=[r'$0$', r'$\pi$', r'$2\pi$'])
+
 
         from matplotlib.ticker import FormatStrFormatter
         ax3.plot(time_data, speed_data/self.fillength, c='black', label=r'Present data')
@@ -4540,36 +4578,50 @@ class VISUAL:
         ax3.set_ylabel(r'$VT/L$')
         ax3.set_xlabel(r'$t/T$')
         ax3.set_xlim(0, 1)
-        ax3.legend(fontsize=16, frameon=False)
+        ax3.set_ylim(-1, 1.5)
+        ax3.legend(frameon=False)
         ax3.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
-        ax4.plot(time_data, An_data[:,1], c='black', label=r'$A_1$')
-        ax4.plot(time_data, An_data[:,2], c='black', linestyle='dashed', label=r'$A_2$')
-        ax4.plot(time_data, Bn_data[:,1], c='red', label=r'$B_1$')
-        ax4.plot(time_data, Bn_data[:,2], c='red', linestyle='dashed', label=r'$B_2$')
-        ax4.set_ylabel(r'$A_n, B_n$')
+        ax4.plot(time_data, An_data[:,1]/self.fillength, c='black', label=r'$A_1$')
+        ax4.plot(time_data, An_data[:,2]/self.fillength, c='black', linestyle='dashed', label=r'$A_2$')
+        ax4.plot(time_data, Bn_data[:,1]/self.fillength, c='red', label=r'$B_1$')
+        ax4.plot(time_data, Bn_data[:,2]/self.fillength, c='red', linestyle='dashed', label=r'$B_2$')
+        ax4.set_ylabel(r'$A_n, B_nT/L$')
         ax4.set_xlabel(r'$t/T$')
-        ax4.legend(fontsize=16, frameon=False)
+        ax4.legend(frameon=False)
         ax4.set_xlim(0, 1)
+        ax4.set_ylim(-3, 4)
         
 
-        ax5.plot(np.arange(n_coeffs), An_data[-1], c='black', label=r'$A_n$')
-        ax5.plot(np.arange(n_coeffs), Bn_data[-1], c='red', label=r'$B_n$')
-        ax5.set_ylabel(r'$A_n, B_n$')
+        ax5.plot(np.arange(n_coeffs), An_data[self.plot_end_frame-1]/self.fillength, c='black', label=r'$A_n$')
+        ax5.plot(np.arange(n_coeffs), Bn_data[self.plot_end_frame-1]/self.fillength, c='red', label=r'$B_n$')
+        ax5.set_ylabel(r'$A_n, B_nT/L$')
         ax5.set_xlabel(r'$n$')
-        ax5.legend(fontsize=16, frameon=False)
+        ax5.legend(frameon=False)
         ax5.set_xlim(1, n_coeffs-1)
+        ax5.set_ylim(-4, 4)
+
+        ax6.plot(time_data[:-1], body_rot_speed_along_axis_data, c='black')
+        ax6.set_ylabel(r'$\Omega$')
+        ax6.set_xlabel(r'$t/T$')
+        ax6.set_xlim(0, 1)
+        ax6.legend(frameon=False)
+        import matplotlib.ticker as ticker
+        ax6.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
+        ax6.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
         
         fig.tight_layout()
         fig2.tight_layout()
         fig3.tight_layout()
         fig4.tight_layout()
         fig5.tight_layout()
+        fig6.tight_layout()
 
-        fig2.savefig(f'fig/flowfield_polar_{self.date}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        fig3.savefig(f'fig/comparison_to_squirmer_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        fig4.savefig(f'fig/first_mode_vs_t_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+        fig2.savefig(f'fig/flowfield_polar_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig3.savefig(f'fig/comparison_to_squirmer_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig4.savefig(f'fig/first_mode_vs_t_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig6.savefig(f'fig/body_rot_speed_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
 
     def flow_field_FFCM(self):
@@ -5713,6 +5765,9 @@ class VISUAL:
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
+
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(projection='3d')
         ax2.set_proj_type('ortho')
@@ -5751,6 +5806,8 @@ class VISUAL:
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
 
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
+        phase1_array = np.zeros(self.frames)
+        phase2_array = np.zeros(self.frames)
         phase_diff_array = np.zeros(self.frames)
 
 
@@ -5763,7 +5820,11 @@ class VISUAL:
                 fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                 seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                 fil_phases = fil_states[:self.nfil]
-                phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+                fil_angles = fil_states[self.nfil:]
+                phase1_array[i-self.plot_start_frame] = fil_angles[0]
+                phase2_array[i-self.plot_start_frame] = fil_angles[1]
+                phase_diff_array[i-self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[0] - fil_phases[1])))
+                # phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])
 
                 if (i==self.plot_end_frame-1):
                     for swim in range(self.nswim):
@@ -5842,6 +5903,14 @@ class VISUAL:
         # ax.set_ylim(0)
         ax.grid()
 
+        ax3.plot(time_array, phase1_array)
+        ax3.plot(time_array, phase2_array)
+        ax3.set_xlabel(r'$t/T$')
+        ax3.set_ylabel(r'$\psi_1$')
+        ax3.set_xlim(time_array[0], time_array[-1])
+        # ax3.set_ylim(0, 2*np.pi)
+        ax3.grid()
+
         # ax2.set_xlabel('x')
         # ax2.set_ylabel('y')
         # ax2.set_zlabel('z')
@@ -5851,6 +5920,7 @@ class VISUAL:
         set_axes_equal(ax2)
 
         fig.tight_layout()
+        fig3.tight_layout()
         # fig2.tight_layout()
         # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
 
@@ -5890,24 +5960,27 @@ class VISUAL:
         azim_angle = -60
         azim_angle_rad = azim_angle/180*np.pi
         ax2.view_init(elev=elev_angle, azim=azim_angle, roll=0)
-        ax2.dist=3.8
+        # ax2.dist=3.8
+
+        fig3 = plt.figure()
+        ax3 = fig3.add_subplot(1,1,1)
         
 
-        # ax2.grid(False)
-        # ax2.set_xticks([])
-        # ax2.set_yticks([])
-        # ax2.set_zticks([])
-        # ax2.set_xlabel('')
-        # ax2.set_ylabel('')
-        # ax2.set_zlabel('')
-        # ax2.w_xaxis.pane.set_visible(False)
-        # ax2.w_yaxis.pane.set_visible(False)
-        # ax2.w_zaxis.pane.set_visible(False)
-        # ax2.w_xaxis.line.set_visible(False)
-        # ax2.w_yaxis.line.set_visible(False)
-        # ax2.w_zaxis.line.set_visible(False)
+        ax2.grid(False)
+        ax2.set_xticks([])
+        ax2.set_yticks([])
+        ax2.set_zticks([])
+        ax2.set_xlabel('')
+        ax2.set_ylabel('')
+        ax2.set_zlabel('')
+        ax2.w_xaxis.pane.set_visible(False)
+        ax2.w_yaxis.pane.set_visible(False)
+        ax2.w_zaxis.pane.set_visible(False)
+        ax2.w_xaxis.line.set_visible(False)
+        ax2.w_yaxis.line.set_visible(False)
+        ax2.w_zaxis.line.set_visible(False)
 
-        
+        print(self.nfil, self.pars_list['fil_spacing'][self.index])
 
         cmap_name = 'hsv'
         cmap = plt.get_cmap(cmap_name)
@@ -5919,6 +5992,8 @@ class VISUAL:
         time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
         phase_diff_array = np.zeros(self.frames)
 
+        fil_base_array = np.zeros((self.nfil, 3))
+
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -5929,12 +6004,18 @@ class VISUAL:
                 fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                 seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                 fil_phases = fil_states[:self.nfil]
-                phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+                fil_phases = util.box(fil_phases, 2*np.pi)
+
+                fil1i = int(self.nfil/2 - 1)
+                fil2i = int(self.nfil/2)
+
+                phase_diff_array[i-self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[fil1i] - fil_phases[fil2i])))
 
                 if (i==self.plot_end_frame-1):
                     for swim in range(self.nswim):
                         for fil in range(self.nfil):
                             fil_base = self.fil_references[3*fil : 3*fil+3]
+                            fil_base_array[fil] = fil_base
                             fil_data = np.zeros((self.nseg, 3))
                             fil_i = int(3*fil*self.nseg)
 
@@ -5946,19 +6027,30 @@ class VISUAL:
                                 fil_data[seg] = seg_pos
                             ax2.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
 
-                    print(self.fil_references[0])
+
                     ref1 = np.array([self.fil_references[0], self.fil_references[1], 0.0])
-                    ref2 = np.array([self.fil_references[3], self.fil_references[4], 0.0])
+                    ref2 = np.array([self.fil_references[self.nfil*3-3], self.fil_references[self.nfil*3-2], 0.0])
                     xx = np.linalg.norm(ref1 - ref2)
-                    center = np.array([self.fil_references[0] + self.fil_references[3], \
-                                       self.fil_references[1] + self.fil_references[4], \
-                                       0.0 + 0.0])*0.5
+                    center = (ref1+ref2)*0.5
                     
-                    x = np.linspace(center[0] - xx*0.5 - self.fillength, center[0] + xx*0.5 + self.fillength, 10)
+                    x = np.linspace(center[0] - xx*0.05 - self.fillength, center[0] + xx*0.05 + self.fillength, 10)
                     y = np.linspace(center[1] - xx*0.5 - self.fillength, center[1] + xx*0.5 + self.fillength, 10)
                     xv, yv = np.meshgrid(x, y)
                     zv = np.zeros_like(xv)  # z = 0 plane
                     ax2.plot_surface(xv, yv, zv, alpha=0.3, color='grey', zorder=-1)
+
+                    arrow_origin = np.array([
+                        x[0],  # min x
+                        y[0],  # min y
+                        0      # z = 0
+                    ])
+
+                    # Define direction vectors for each axis
+                    arrow_length = self.fillength*5  # or adjust manually
+
+                    ax2.quiver(*arrow_origin, arrow_length, 0, 0, color='black', linewidth=2)  # x-axis (red)
+                    ax2.quiver(*arrow_origin, 0, arrow_length, 0, color='black', linewidth=2)  # y-axis (green)
+                    ax2.quiver(*arrow_origin, 0, 0, arrow_length, color='black', linewidth=2)  # z-axis (blue)
 
         ax.plot(time_array, phase_diff_array)
         ax.set_xlabel('t/T')
@@ -5966,6 +6058,12 @@ class VISUAL:
         ax.set_xlim(time_array[0], time_array[-1])
         # ax.set_ylim(0)
         ax.grid()
+
+        ax3.plot(fil_base_array[:,1]/self.fillength, fil_phases, marker='+', c='black')
+        ax3.set_xlabel(r"$y/L$")
+        ax3.set_ylabel(r"$\psi_1$")
+        ax3.set_yticks([0, np.pi, 2*np.pi])
+        ax3.set_yticklabels([r'$0$', r'$\pi$', r'$2\pi$'])
 
         # ax2.set_xlabel('x')
         # ax2.set_ylabel('y')
@@ -5977,11 +6075,11 @@ class VISUAL:
 
         fig.tight_layout()
         # fig2.tight_layout()
-        # fig.savefig(f'fig/phase_diff{self.index}.png', bbox_inches = 'tight', format='png')
+        fig3.tight_layout()
+        fig3.savefig(f'fig/phases_multifil_{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
 
         
         plt.show()
-
 
     def find_pole(self):
 
@@ -6128,11 +6226,11 @@ class VISUAL:
 
             dx = phi_range[1] - phi_range[0]
             dy = theta_range[1] - theta_range[0]
-            img = ax2.imshow(var_array, cmap='Greys')
+            img = ax2.imshow(var_array.T, cmap='Greys', )
             fontsize = 24
             num_ticks = 4
-            ax2.set_xlabel(r'$\theta$', fontsize=fontsize)
-            ax2.set_ylabel(r'$\phi$', fontsize=fontsize)
+            ax2.set_xlabel(r'$\phi$', fontsize=fontsize)
+            ax2.set_ylabel(r'$\theta$', fontsize=fontsize)
             ax2.set_xticks(np.linspace(0, ntheta-ntheta/num_ticks, num_ticks))
             ax2.set_xticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
             ax2.set_yticks(np.linspace(0, nphi-nphi/num_ticks, num_ticks))
@@ -6144,6 +6242,8 @@ class VISUAL:
             sm.set_array([])
             # ax2.set_box_aspect(0.5)
             cbar = fig2.colorbar(sm)
+            cbar.set_label('Objective func.', fontsize=fontsize)
+            cbar.ax.tick_params(labelsize=fontsize)
 
             
             if draw_phase:
@@ -7393,13 +7493,16 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
+        fig2_2 = plt.figure()
+        ax2_2 = fig2_2.add_subplot(1,1,1)
         fig3 = plt.figure()
         ax3 = fig3.add_subplot(1,1,1)
         fig4 = plt.figure()
         ax4 = fig4.add_subplot(1,1,1)
 
-        d_list = np.zeros(self.num_sim)
-        angle_list = np.zeros(self.num_sim)
+
+        d_list = np.array(self.pars_list['fil_spacing'])
+        angle_list = np.array(self.pars_list['twofil_angle'])
         phase_diff_list = np.zeros(self.num_sim)
 
         not_found_list = []
@@ -7413,8 +7516,6 @@ class VISUAL:
 
                     time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
                     phase_diff_array = np.zeros(self.frames)
-                    d_list[sim] = self.pars_list['fil_spacing'][sim]
-                    angle_list[sim] = self.pars_list['twofil_angle'][sim]
 
                     for i in range(self.plot_end_frame):
                         print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -7423,7 +7524,11 @@ class VISUAL:
                         if(i>=self.plot_start_frame):
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                             fil_phases = fil_states[:self.nfil]
-                            phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+
+                            fil1i = 0
+                            fil2i = 1
+
+                            phase_diff_array[i-self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[fil1i] - fil_phases[fil2i])))
 
                     phase_diff_list[sim] = np.mean(phase_diff_array[-6000:])
                     ax.plot(time_array, phase_diff_array, c='black', alpha=0.1+0.9*sim/float(self.num_sim), label=f"index={self.index}")
@@ -7450,7 +7555,16 @@ class VISUAL:
         y_list = np.round(d_list*np.sin(angle_list)).astype(int)
         unique_x = np.unique(x_list)
         unique_y = np.unique(y_list)
-        phase_diff_list[1] = 0.0
+        # phase_diff_list[1] = 0.0
+
+        epsilon = 1e-5
+        mask = np.abs(phase_diff_list) > epsilon
+        wavelength_list = np.empty_like(phase_diff_list)
+        wavelength_list[mask] = 2 * np.pi * y_list[mask] / phase_diff_list[mask]
+        wavelength_list[~mask] = np.nan  # or set to 0 or another placeholder
+
+        print(phase_diff_list)
+
         try:
             dx = unique_x[1] - unique_x[0]
             dy = unique_y[1] - unique_y[0]
@@ -7460,6 +7574,7 @@ class VISUAL:
         nx = len(unique_x)
         ny = len(unique_y)
         phases_img = np.reshape(phase_diff_list, (nx, ny))
+        wavelengths_img = np.reshape(wavelength_list, (nx, ny))
         
         ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
         # ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Greys', s=100, vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list), edgecolors='black', linewidths=0.1)
@@ -7470,20 +7585,39 @@ class VISUAL:
         sm = ScalarMappable(cmap='Greys', norm=norm)
         sm.set_array([])
         # ax2.set_box_aspect(0.5)
-        cbar = fig2.colorbar(sm)
+        cbar = fig2.colorbar(sm, label=r'$\Delta \psi_1$')
 
-        ax3.scatter(d_list/self.fillength, phase_diff_list)
-        ax3.set_xlabel('d/L')
-        ax3.set_ylabel('$<\Delta \psi_1>$')
+        min_wavelength = 0
+        max_wavelength = 120
+        ax2_2.imshow(wavelengths_img.T/self.fillength, origin='lower', cmap='Greys', vmin=min_wavelength, vmax=max_wavelength)
+        # ax2_2.imshow(wavelengths_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(wavelength_list), vmax=np.max(wavelength_list))
+        ax2_2.set_xlabel(r'$\Delta x$')
+        ax2_2.set_ylabel(r'$\Delta y$')
+        ax2_2.set_aspect('equal')
         
-        wavelength = 2*np.pi*d_list/phase_diff_list
+        
+        norm2 = Normalize(vmin=min_wavelength, vmax=max_wavelength)
+        sm2 = ScalarMappable(cmap='Greys', norm=norm2)
+        sm2.set_array([])
+        cbar = fig2_2.colorbar(sm2)
+
+
+        ax3.scatter(d_list/self.fillength, phase_diff_list, c='black')
+        ax3.set_xlabel(r'$\Delta y/L$')
+        ax3.set_ylabel(r'$<\Delta \psi_1>$')
+
+        
+        
+        # wavelength = 2*np.pi*d_list/phase_diff_list
 
         A = 4*np.pi*(7.5*self.fillength)**2
         sim_avg_d = (A/40961/4/np.pi)**.5
 
-        ax4.plot(d_list/self.fillength, wavelength/self.fillength, 'o', c='black', label='Wavelength')
-        ax4.set_xlabel('d/L')
-        ax4.set_ylabel('Wavelength (L)')
+        ax4.plot(d_list/self.fillength, wavelength_list/self.fillength, 'o', c='black', label='Wavelength')
+        ax4.set_xlabel(r'$\Delta y/L$')
+        ax4.set_ylabel(r'$\lambda/L$')
+        ax4.set_xlim(0)
+        ax4.set_ylim(min_wavelength, max_wavelength)
 
         # Fit line y = mx + c
         # m, c = np.polyfit(d_list/self.fillength, phase_diff_list, deg=1)  # degree 1 for a line
@@ -7492,19 +7626,20 @@ class VISUAL:
             
         fig.tight_layout()
         fig2.tight_layout()
+        fig2_2.tight_layout()
         fig3.tight_layout()
         fig4.tight_layout()
 
-        fig.savefig(f'fig/phase_diff_vs_time.png', bbox_inches = 'tight', format='png')
-        fig2.savefig(f'fig/phase_diff_heatmap.png', bbox_inches = 'tight', format='png')
-        # fig3.savefig(f'fig/phase_diff_vs_distance.png', bbox_inches = 'tight', format='png')
-        # fig4.savefig(f'fig/wavelength_vs_distance.png', bbox_inches = 'tight', format='png')
+        fig.savefig(f'fig/phase_diff_vs_time_twofil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig2.savefig(f'fig/phase_diff_heatmap_twofil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig3.savefig(f'fig/phase_diff_vs_deltay_twofil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig4.savefig(f'fig/wavelength_vs_deltay_twofil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
             
         plt.show()
 
     def multi_multifil(self):
 
-        read_phases = False
+        read_phases = True
 
         from matplotlib.colors import Normalize
         from matplotlib.cm import ScalarMappable
@@ -7512,13 +7647,13 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1,1,1)
+        fig2_2 = plt.figure()
+        ax2_2 = fig2_2.add_subplot(1,1,1)
         fig4 = plt.figure()
         ax4 = fig4.add_subplot(1,1,1)
-
-        d_list = np.zeros(self.num_sim)
-        angle_list = np.zeros(self.num_sim)
+        
+        N_list = np.array(self.pars_list['nfil'])
+        d_list = np.array(self.pars_list['fil_spacing'])
         phase_diff_list = np.zeros(self.num_sim)
 
         not_found_list = []
@@ -7532,8 +7667,6 @@ class VISUAL:
 
                     time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
                     phase_diff_array = np.zeros(self.frames)
-                    d_list[sim] = self.pars_list['fil_spacing'][sim]
-                    angle_list[sim] = self.pars_list['twofil_angle'][sim]
 
                     for i in range(self.plot_end_frame):
                         print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -7542,7 +7675,11 @@ class VISUAL:
                         if(i>=self.plot_start_frame):
                             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                             fil_phases = fil_states[:self.nfil]
-                            phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
+                            
+                            fil1i = int(self.nfil/2 - 1)
+                            fil2i = int(self.nfil/2)
+
+                            phase_diff_array[i-self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[fil1i] - fil_phases[fil2i])))
 
                     phase_diff_list[sim] = np.mean(phase_diff_array[-6000:])
                     ax.plot(time_array, phase_diff_array, c='black', alpha=0.1+0.9*sim/float(self.num_sim), label=f"index={self.index}")
@@ -7553,11 +7690,11 @@ class VISUAL:
         print(f"Not found sims: {not_found_list}")
             
         if read_phases:
-            angle_list = np.load(f'{self.dir}angle_list.npy')
             d_list = np.load(f'{self.dir}d_list.npy')
+            N_list = np.load(f'{self.dir}N_list.npy')
             phase_diff_list = np.load(f'{self.dir}phase_diff_list.npy')
         else:
-            np.save(f'{self.dir}angle_list.npy', angle_list)
+            np.save(f'{self.dir}N_list.npy', N_list)
             np.save(f'{self.dir}d_list.npy', d_list)
             np.save(f'{self.dir}phase_diff_list.npy', phase_diff_list)
             
@@ -7565,57 +7702,73 @@ class VISUAL:
             ax.set_xlim(time_array[0], time_array[-1])
             ax.grid()
 
-        x_list = np.round(d_list*np.cos(angle_list)).astype(int)
-        y_list = np.round(d_list*np.sin(angle_list)).astype(int)
-        unique_x = np.unique(x_list)
-        unique_y = np.unique(y_list)
-        phase_diff_list[1] = 0.0
+        epsilon = 1e-5
+        mask = np.abs(phase_diff_list) > epsilon
+        wavelength_list = np.empty_like(phase_diff_list)
+        wavelength_list[mask] = 2 * np.pi * d_list[mask] / phase_diff_list[mask] / self.fillength
+        wavelength_list[~mask] = np.nan  # or set to 0 or another placeholder
+
+        unique_N = np.unique(N_list)
+        unique_d = np.unique(d_list)
         try:
-            dx = unique_x[1] - unique_x[0]
-            dy = unique_y[1] - unique_y[0]
+            dx = unique_N[1] - unique_N[0]
         except:
             dx = 1
+        try:
+            dy = unique_d[1] - unique_d[0]
+        except:
             dy = 1
-        nx = len(unique_x)
-        ny = len(unique_y)
+        nx = len(unique_N)
+        ny = len(unique_d)
         phases_img = np.reshape(phase_diff_list, (nx, ny))
+        wavelengths_img = np.reshape(wavelength_list, (nx, ny))
         
-        ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
-        # ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Greys', s=100, vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list), edgecolors='black', linewidths=0.1)
-        ax2.set_xlabel(r'$\Delta x$')
-        ax2.set_ylabel(r'$\Delta y$')
-        ax2.set_aspect('equal')
+        extenty_l = (unique_d[0]-dy/2)/self.fillength
+        extenty_u = (unique_d[-1]+dy/2)/self.fillength
+        ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_N[0]-dx/2, unique_N[-1]+dx/2, extenty_l, extenty_u), vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
+        # ax2.scatter(N_list, d_list, c=phase_diff_list, cmap='Greys', s=100, vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list), edgecolors='black', linewidths=0.1)
+        ax2.set_xlabel(r'$M$')
+        ax2.set_ylabel(r'$\Delta y/L$')
+        # ax2.set_aspect('equal')
         norm = Normalize(vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
         sm = ScalarMappable(cmap='Greys', norm=norm)
         sm.set_array([])
         # ax2.set_box_aspect(0.5)
-        cbar = fig2.colorbar(sm)
+        cbar = fig2.colorbar(sm, label=r'$\Delta \psi_1$')
 
-        ax3.scatter(d_list/self.fillength, phase_diff_list)
-        ax3.set_xlabel('d/L')
-        ax3.set_ylabel('$<\Delta \psi_1>$')
+        min_wavelength = 0
+        max_wavelength = 50
+        ax2_2.imshow(wavelengths_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_N[0]-dx/2, unique_N[-1]+dx/2, extenty_l, extenty_u), vmin=min_wavelength, vmax=max_wavelength)
+        ax2_2.set_xlabel(r'$M$')
+        ax2_2.set_ylabel(r'$\Delta y/L$')
+        # ax2_2.set_aspect('equal')
+        norm2 = Normalize(vmin=min_wavelength, vmax=max_wavelength)
+        sm2 = ScalarMappable(cmap='Greys', norm=norm2)
+        sm2.set_array([])
+        cbar = fig2_2.colorbar(sm2, label=r'$\lambda/L$')
+
+        # ax3.scatter(d_list/self.fillength, phase_diff_list)
+        # ax3.set_xlabel('d/L')
+        # ax3.set_ylabel('$<\Delta \psi_1>$')
         
-        wavelength = 2*np.pi*d_list/phase_diff_list
+        # wavelength = 2*np.pi*d_list/phase_diff_list
 
-        A = 4*np.pi*(7.5*self.fillength)**2
-        sim_avg_d = (A/40961/4/np.pi)**.5
+        # A = 4*np.pi*(7.5*self.fillength)**2
+        # sim_avg_d = (A/40961/4/np.pi)**.5
 
-        ax4.plot(d_list/self.fillength, wavelength/self.fillength, 'o', c='black', label='Wavelength')
-        ax4.set_xlabel('d/L')
-        ax4.set_ylabel('Wavelength (L)')
+        # ax4.plot(d_list/self.fillength, wavelength/self.fillength, 'o', c='black', label='Wavelength')
+        # ax4.set_xlabel('d/L')
+        # ax4.set_ylabel('Wavelength (L)')
 
-        # Fit line y = mx + c
-        # m, c = np.polyfit(d_list/self.fillength, phase_diff_list, deg=1)  # degree 1 for a line
-        # wavelength = 2*np.pi/m
-        # print(wavelength)
             
         fig.tight_layout()
         fig2.tight_layout()
-        fig3.tight_layout()
+        fig2_2.tight_layout()
         fig4.tight_layout()
 
-        fig.savefig(f'fig/phase_diff_vs_time.png', bbox_inches = 'tight', format='png')
-        fig2.savefig(f'fig/phase_diff_heatmap.png', bbox_inches = 'tight', format='png')
+        fig.savefig(f'fig/phase_diff_vs_time_multifil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig2.savefig(f'fig/phase_diff_heatmap_multifil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig2_2.savefig(f'fig/wavelength_heatmap_multifil_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
         # fig3.savefig(f'fig/phase_diff_vs_distance.png', bbox_inches = 'tight', format='png')
         # fig4.savefig(f'fig/wavelength_vs_distance.png', bbox_inches = 'tight', format='png')
             
@@ -9400,7 +9553,7 @@ class VISUAL:
         # Plot fitted line
         ax.plot(x_plot, y_plot, color='red', linestyle='--', label=f'Fitted line')
 
-        ax.legend(fontsize=16, frameon=False)
+        ax.legend(fontsize=24, frameon=False)
 
 
 

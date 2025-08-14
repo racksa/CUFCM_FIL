@@ -11,8 +11,6 @@
 #include "../general/util.hpp"
 #include "../../config.hpp"
 
-
-
 #if STOKES_DRAG_MOBILITY
 
   #include "stokes_drag_mobility_solver.hpp"
@@ -261,7 +259,9 @@ int main(int argc, char** argv){
   // Initialise the simulation
   chosen_mobility_solver mobility;
   mobility.initialise();
-  mobility.write_generalised_forces();
+  #if PRESCRIBED_CILIA
+    mobility.write_generalised_forces();
+  #endif
 
   #if !(PRESCRIBED_CILIA || NO_CILIA_SQUIRMER)
 
@@ -692,7 +692,7 @@ int main(int argc, char** argv){
         // fil_phase_file << std::endl;
         // fil_phase_file.close();
 
-        #if DYNAMIC_SHAPE_ROTATION
+        #if DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES
 
           // std::ofstream fil_angle_file(SIMULATION_NAME+std::string("_filament_shape_rotation_angles.dat"), std::ios::app);
           // fil_angle_file << save_step << " ";

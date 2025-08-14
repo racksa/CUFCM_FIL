@@ -67,15 +67,15 @@ n_folder_free = r_data_free.shape[0]
 
 dpi = 100
 
-fig = plt.figure(dpi=dpi*2)
+fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
-fig2 = plt.figure(dpi=dpi)
+fig2 = plt.figure()
 ax2 = fig2.add_subplot(1,1,1)
-fig3 = plt.figure(dpi=dpi)
+fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
-fig4 = plt.figure(dpi=dpi)
+fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
-fig6 = plt.figure(dpi=dpi)
+fig6 = plt.figure()
 ax6 = fig6.add_subplot(1,1,1)
 
 plot_phase_data = 'free'
@@ -124,17 +124,17 @@ for fi in range(n_folder_heldfixed):
     ax.scatter(plot_x[indices_diaplectic_k2], plot_y[indices_diaplectic_k2], s=s, facecolor='none', marker=marker_fixed, edgecolor='b')
 
     #special points for paper
-    fii = 2
-    if fi==fii: # symplectic
-        ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='r', linewidths=1, zorder=300)
-    if fi==fii: # symplectic 2
-        ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='r', linewidths=1, zorder=300)
-    if fi==fii: # symplectic 3
-        ax.scatter(plot_x[7], plot_y[7], s=200, marker='+', c='r', linewidths=3, zorder=300)
-    if fi==6: #k=1
-        ax.scatter(plot_x[10], plot_y[10], s=100, marker='^', c='r', linewidths=1, zorder=300)
-    if fi==6: #k=2
-        ax.scatter(plot_x[9], plot_y[9], s=100, marker='x', c='r', linewidths=2, zorder=300)
+    # fii = 2
+    # if fi==fii: # symplectic
+    #     ax.scatter(plot_x[0], plot_y[0], s=100, marker='o', c='r', linewidths=1, zorder=300)
+    # if fi==fii: # symplectic 2
+    #     ax.scatter(plot_x[2], plot_y[2], s=100, marker='s', c='r', linewidths=1, zorder=300)
+    # if fi==fii: # symplectic 3
+    #     ax.scatter(plot_x[7], plot_y[7], s=200, marker='+', c='r', linewidths=3, zorder=300)
+    # if fi==6: #k=1
+    #     ax.scatter(plot_x[10], plot_y[10], s=100, marker='^', c='r', linewidths=1, zorder=300)
+    # if fi==6: #k=2
+    #     ax.scatter(plot_x[9], plot_y[9], s=100, marker='x', c='r', linewidths=2, zorder=300)
 
     
     # # plot fil_phases
@@ -201,7 +201,7 @@ ax.legend([ (free_legend1, free_legend2), (fixed_legend1, fixed_legend2)], ['fre
 
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'$<r>$')
+ax.set_ylabel(r'$ \langle r \rangle $')
 ax.set_ylim(0)
 ax.set_xlim(0, 0.09 / x_scale_offset)
 
@@ -211,7 +211,7 @@ ax.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction',
              fontsize=20, ha='right')
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r"$<V>T/L$")
+ax2.set_ylabel(r"$\langle V \rangle T/L$")
 ax2.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax2.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax2.legend(fontsize=16, frameon=False)
@@ -228,30 +228,64 @@ ax2.xaxis.set_major_formatter(formatter)
 
 indices_symplectic = np.where(r_data_free > .4)
 indices_diaplectic = np.where(r_data_free  < .4)
-print(indices_symplectic)
+sym_k = k_data_free[indices_symplectic]
+dia_k = k_data_free[indices_diaplectic]
 sym_speed = avg_speed_along_axis_data_free[indices_symplectic]
 dia_speed = avg_speed_along_axis_data_free[indices_diaplectic]
 sym_eff = 6*np.pi*radius*sym_speed**2/dis_data[indices_symplectic]/fillength
 dia_eff = 6*np.pi*radius*dia_speed**2/dis_data[indices_diaplectic]/fillength
 
+# Symplectic: sort by k
+sym_sort_idx = np.argsort(sym_k)
+sym_k = sym_k[sym_sort_idx]
+sym_speed = sym_speed[sym_sort_idx]
+sym_eff = sym_eff[sym_sort_idx]
+
+# Diaplectic: sort by k
+dia_sort_idx = np.argsort(dia_k)
+dia_k = dia_k[dia_sort_idx]
+dia_speed = dia_speed[dia_sort_idx]
+dia_eff = dia_eff[dia_sort_idx]
 
 
 
-std2 = np.std(sym_speed)
-mean2 = np.mean(sym_speed)
-ax2.hlines(mean2, color='black', linestyle='--', linewidth=2, xmin=0, xmax=0.08)
-# ax2.fill_between(np.linspace(0, 1, 20), mean2 - std2,
-#                 mean2 + std2, color=colors[fi], alpha=0.2)
 
-std6 = np.std(sym_eff)
-mean6 = np.mean(sym_eff)
-ax6.hlines(mean6, color='black', linestyle='--', linewidth=2, xmin=0, xmax=0.08)
-# ax6.fill_between(tilt_angle, avg_rot_speed_over_k - std4,
-#                 avg_rot_speed_over_k + std4, color=colors[fi], alpha=0.2)
+
+# Fit a straight line
+sym_p = np.polyfit(sym_k, sym_speed, 1)  # slope, intercept
+sym_speed_fit = np.polyval(sym_p, sym_k)
+dia_p = np.polyfit(dia_k, dia_speed, 1)  # slope, intercept
+dia_speed_fit = np.polyval(dia_p, dia_k)
+
+# Spread: residual std
+sym_residuals = sym_speed - sym_speed_fit
+spread = 2*np.std(sym_residuals)
+dia_residuals = dia_speed - dia_speed_fit
+dia_spread = 2*np.std(dia_residuals)
+ax2.plot(sym_k, sym_speed_fit, c='black', linestyle='dashed',)
+ax2.plot(dia_k, dia_speed_fit, c='blue', linestyle='dashed',)
+ax2.fill_between(sym_k, sym_speed_fit - spread, sym_speed_fit + spread, color='black', alpha=0.2)
+ax2.fill_between(dia_k, dia_speed_fit - dia_spread, dia_speed_fit + dia_spread, color='blue', alpha=0.2)
+
+
+
+sym_p = np.polyfit(sym_k, sym_eff, 1)  # slope, intercept
+sym_eff_fit = np.polyval(sym_p, sym_k)
+dia_p = np.polyfit(dia_k, dia_eff, 1)  # slope, intercept
+dia_eff_fit = np.polyval(dia_p, dia_k)
+
+sym_residuals = sym_eff - sym_eff_fit
+spread = 2*np.std(sym_residuals)
+dia_residuals = dia_eff - dia_eff_fit
+dia_spread = 2*np.std(dia_residuals)
+ax6.plot(sym_k, sym_eff_fit, c='black', linestyle='dashed',)
+ax6.plot(dia_k, dia_eff_fit, c='blue', linestyle='dashed',)
+ax6.fill_between(sym_k, sym_eff_fit - spread, sym_eff_fit + spread, color='black', alpha=0.2)
+ax6.fill_between(dia_k, dia_eff_fit - dia_spread, dia_eff_fit + dia_spread, color='blue', alpha=0.2)
 
 
 ax3.set_xlabel(r'$k$')
-ax3.set_ylabel(r"$<\Omega>T$")
+ax3.set_ylabel(r"$\langle \Omega \rangle T$")
 ax3.scatter(None, None, marker='+', c='black', label='Symplectic')
 ax3.scatter(None, None,  marker='x', c='b', label='Diaplectic')
 ax3.legend(fontsize=16, frameon=False)
@@ -287,10 +321,10 @@ fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
 fig6.tight_layout()
-fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+# fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
-fig2.savefig(f'fig/IVP_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
-fig3.savefig(f'fig/IVP_rot_velocities_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
-fig4.savefig(f'fig/IVP_symbols.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
-fig6.savefig(f'fig/IVP_efficiencies_free.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+fig2.savefig(f'fig/IVP_velocities_free.png', bbox_inches = 'tight', format='png', transparent=True)
+fig3.savefig(f'fig/IVP_rot_velocities_free.png', bbox_inches = 'tight', format='png', transparent=True)
+fig4.savefig(f'fig/IVP_symbols.png', bbox_inches = 'tight', format='png', transparent=True)
+fig6.savefig(f'fig/IVP_efficiencies_free.png', bbox_inches = 'tight', format='png', transparent=True)
 plt.show()

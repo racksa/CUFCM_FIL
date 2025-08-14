@@ -82,12 +82,12 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
         self.category = 'for_paper/twofil/'
-        self.date = '20250729'
+        self.date = '20250716'
         self.exe_name = 'cilia_1e-4_twofil'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.category = 'for_paper/multifil/'
-        self.date = '20250729'
+        self.date = '20250802'
         self.exe_name = 'cilia_1e-4_plane'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
@@ -147,7 +147,7 @@ class DRIVER:
                      "omega_spread": []}
 
         # self.sweep_shape = (40, 60, 1, 1) #twofil
-        self.sweep_shape = (8, 8, 1, 1)
+        self.sweep_shape = (20, 10, 1, 1)
 
         self.num_sim = 0
         self.current_thread = 0
@@ -235,33 +235,35 @@ class DRIVER:
                         x = 4.0*i
                         y = 4.0*j
                         fil_spacing = (x**2 + y**2)**.5
+                        # fil_spacing = 2.0 + 2.0*i
                         import numpy as np
                         twofil_angle = np.arctan2(y, x)
-                        sim_length = 200
+                        # twofil_angle = np.pi/2
+                        sim_length = 100
                         force_noise_mag = 0.0
                         omega_spread = 0.0
                         pair_dp = 1.0
                         fene_model = 0
 
                         # plane
-                        nfil = int(2 + 4 * i)
+                        nfil = int(2 + 2 * i)
                         nblob = int(0)
                         nseg = 20
                         ar = round(1, 2)
                         period = 1
-                        spring_factor = round(0.005, 3)
+                        spring_factor = round(0.01, 3)
                         nx=int(128)
                         ny=int(128)
                         nz=int(128)
                         boxsize=400
-                        fil_spacing = 40.0 + 20.0*j
-                        blob_spacing=50.0
+                        fil_spacing = 40.0 + 5.0*j
+                        blob_spacing = 50.0
                         fil_x_dim=1
                         blob_x_dim=10
                         hex_num=0
                         reverse_fil_direction_ratio=0.0
-                        twofil_angle = 0.0
-                        sim_length = 20
+                        twofil_angle = np.pi/2
+                        sim_length = 400
                         force_noise_mag = 0.0
                         omega_spread = 0.0
                         pair_dp = 1.0
@@ -516,8 +518,7 @@ class DRIVER:
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            # self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.category}psi.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 

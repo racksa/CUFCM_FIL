@@ -116,7 +116,7 @@ from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 
 ax.set_xlabel(r'$R/L$')
-ax.set_ylabel(r'$<V>T/L$')  
+ax.set_ylabel(r'$\langle V \rangle T/L$')  
 ax.set_ylim(0.0, 0.2)
 
 speed_line = ax.plot([None], [None], c='black', marker='+', linestyle='solid')[0]
@@ -132,7 +132,7 @@ ax3.annotate(r'$\times 10^{4}$',
 
 
 ax3.set_xlabel(r'$R/L$')
-ax3.set_ylabel(r'$<\mathcal{R}>T^2/\mu L^3$', color='black')
+ax3.set_ylabel(r'$\langle \mathcal{R} \rangle T^2/\mu L^3$', color='black')
 ax3.tick_params(axis="y", labelcolor='black')
 
 ax4.set_xlabel(r'$R/L$')

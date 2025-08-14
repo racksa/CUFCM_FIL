@@ -50,9 +50,11 @@ r_array_diaplectic = np.load(f"{path2}r_array_index{index2}.npy")
 # stamp_y_diaplectic = r_array_diaplectic[stamp_index_diaplectic]
 # roman_symbols = ['I', 'II', 'III', 'IV', 'V']
 
-fig = plt.figure(figsize=(12, 4))
+line_indices = np.array([0, 120, 260, 535, 2517])
+
+fig = plt.figure(figsize=(16, 4))
 ax = fig.add_subplot(1,1,1)
-fig2 = plt.figure()
+fig2 = plt.figure(figsize=(7, 4.8))
 ax2 = fig2.add_subplot(1,1,1)
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(1,1,1)
@@ -79,18 +81,34 @@ ax.set_xlim(None, 300)
 
 ax2.plot(time_array_symplectic[:emerging_stop_index], r_array_symplectic[:emerging_stop_index], c='black')
 ax2.plot(time_array_diaplectic[:emerging_stop_index], r_array_diaplectic[:emerging_stop_index], c='lightgrey')
-# ax.scatter(stamp_x_symplectic, stamp_y_symplectic, marker='^', facecolor='none', s= 100, color='black')
-# ax.scatter(stamp_x_diaplectic, stamp_y_diaplectic, marker='o', facecolor='none', s= 100, color='black')
+# ax2.scatter(stamp_x_symplectic, stamp_y_symplectic, marker='^', facecolor='none', s= 100, color='red', zorder=100)
+# ax2.scatter(stamp_x_diaplectic, stamp_y_diaplectic, marker='o', facecolor='none', s= 100, color='red', zorder=100)
+ymin, ymax= 0, 0.7
+for i in range(5):
+    ax2.vlines(time_array_diaplectic[line_indices[i]], ymin, ymax, color='black', linestyle='--', linewidth=1)
+    ax2.text(time_array_symplectic[line_indices[i]], ymax, rf'$t_{i+1}$', ha='center', va='bottom', fontsize=24)
 ax2.set_xticks(np.linspace(0, 100, 5))
-ax2.set_yticks(np.linspace(0, 0.7, 3))
+ax2.set_yticks(np.linspace(ymin, ymax, 3))
+ax2.set_xlim(-5, 100)
+ax2.set_ylim(ymin, ymax)
 # ax2.set_xlabel(r'$t/T$')
 # ax2.set_ylabel(r'$r$')
 
 ax3.plot(time_array_symplectic[sym_steady_start:sym_steady_stop], r_array_symplectic[sym_steady_start:sym_steady_stop], c='black')
+ax3.set_xlim(time_array_symplectic[sym_steady_start], time_array_symplectic[sym_steady_stop])
+ax3.set_xticks([])
+ax3.set_yticks([])
+ax3.set_xlabel('')
+ax3.set_ylabel('')
 # ax3.set_xlabel(r'$t/T$')
 # ax3.set_ylabel(r'$r$')
 
 ax4.plot(time_array_diaplectic[dia_steady_start:dia_steady_stop], r_array_diaplectic[dia_steady_start:dia_steady_stop], c='lightgrey')
+ax4.set_xlim(time_array_symplectic[sym_steady_start], time_array_symplectic[sym_steady_stop])
+ax4.set_xticks([])
+ax4.set_yticks([])
+ax4.set_xlabel('')
+ax4.set_ylabel('')
 # ax4.set_xlabel(r'$t/T$')
 # ax4.set_ylabel(r'$r$')
 

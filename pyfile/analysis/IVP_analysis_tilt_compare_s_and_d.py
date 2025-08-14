@@ -39,7 +39,7 @@ avg_speed_along_axis_data = np.load(f"{path}avg_speed_along_axis_data.npy")
 avg_rot_speed_data = np.load(f"{path}avg_rot_speed_data.npy")
 avg_rot_speed_along_axis_data = np.load(f"{path}avg_rot_speed_along_axis_data.npy")
 
-print(tilt_data[0], k_data[0])
+# print(tilt_data[0], k_data[0])
 if force:
     avg_dis_data = np.load(f"{path}dis_data.npy")
 
@@ -76,7 +76,7 @@ n_tilt = 5
 tilt_angle = np.linspace(0, 50*np.pi/180, n_tilt+1)[:-1]
 tilt_angle = tilt_angle*180/np.pi
 
-print(tilt_angle)
+# print(tilt_angle)
 
 
 # print(avg_dis_data[0][0::n_tilt], np.mean(avg_dis_data[0][0::n_tilt]))
@@ -145,6 +145,15 @@ for fi in range(n_folder):
     ax3.plot(np.nan, np.nan, marker=markers[fi], c=colors[fi], label = labels[fi])
     ax4.plot(np.nan, np.nan, marker=markers[fi], c=colors[fi], label = labels[fi])
 
+    std5 = np.array([np.std(r_data[fi][ki:ki+n_tilt]) for ki in range(n_k)])
+    r_data_reshaped = r_data[fi].reshape(-1, n_tilt)
+    avg_r_over_theta = r_data_reshaped.mean(axis=1)
+    # print(r_data_reshaped.shape)
+    ax5.plot(k_data[fi][::n_tilt][:-2], avg_r_over_theta[:-2], color=colors[fi],)
+    # print(k_data[fi][::n_tilt])
+    ax5.fill_between(k_data[fi][::n_tilt][:-2], avg_r_over_theta[:-2] - std5, avg_r_over_theta[:-2] + std5, color=colors[fi], alpha=0.2)
+    
+
     # ax2.scatter(k, plot_y, s=100, marker='+', c=color2)
 
 
@@ -178,20 +187,21 @@ from matplotlib.cm import ScalarMappable
 # ax.scatter(-1, -1, marker='s', c='b', s=100, label='Free')
 
 ax.set_xlabel(r'$k$')
-ax.set_ylabel(r'$<V>T/L$')
+ax.set_ylabel(r'$ \langle V \rangle T/L$')
 # ax.set_ylim(0)
 # ax.set_xlim(0, 0.06)
 # ax.legend()
 
 ax2.set_xlabel(r'$k$')
-ax2.set_ylabel(r'$<\Omega>T$')
+ax2.set_ylabel(r'$\langle \Omega \rangle T$')
 
 formatter = mticker.ScalarFormatter(useMathText=True)
 formatter.set_powerlimits((0, 2))  # Forces 10^4 notation when values are large
 ax3.yaxis.set_major_formatter(formatter)
 ax3.set_xlabel(r'$\chi(deg)$')
-ax3.set_ylabel(r'$<V>T/L$')
-ax3.legend(fontsize=16, frameon=False)
+ax3.set_ylabel(r'$ \langle V \rangle T/L$')
+handles, labels = ax4.get_legend_handles_labels()
+ax3.legend(handles[::-1], labels[::-1],fontsize=16, frameon=False)
 # ax3.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax3.set_xlim(tilt_angle[0], tilt_angle[-1])
 
@@ -199,15 +209,16 @@ formatter = mticker.ScalarFormatter(useMathText=True)
 formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
 ax4.yaxis.set_major_formatter(formatter)
 ax4.set_xlabel(r'$\chi(deg)$')
-ax4.set_ylabel(r'$<\Omega>T$')
-ax4.legend(fontsize=16, frameon=False)
+ax4.set_ylabel(r'$\langle \Omega \rangle T$')
+handles, labels = ax4.get_legend_handles_labels()
+ax4.legend(handles[::-1], labels[::-1], fontsize=16, frameon=False)
 # ax4.set_xticks(tilt_angle, ['0', 'π/20', '2π/20', '3π/20', '4π/20'])
 ax4.set_xlim(tilt_angle[0], tilt_angle[-1])
 
-ax5.scatter(-.1, -.1, marker='.', c=colors[1], s=50, label='Symplectic')
-ax5.scatter(-.1, -.1, marker='.', c=colors[0], s=50, label='Diaplectic')
+ax5.scatter(-.1, -.1, marker='.', c=colors[1], s=50, label='Meridional')
+ax5.scatter(-.1, -.1, marker='.', c=colors[0], s=50, label='Zonal')
 ax5.set_xlabel(r'$k$')
-ax5.set_ylabel(r'$<r>$')
+ax5.set_ylabel(r'$ \langle r \rangle$')
 ax5.legend(fontsize=16, frameon=False)
 ax5.set_ylim(0)
 ax5.set_xlim(0)
@@ -221,7 +232,7 @@ fig6.tight_layout()
 fig7.tight_layout()
 # fig.savefig(f'fig/order_parameter_tilt.pdf', bbox_inches = 'tight', format='pdf')
 # fig2.savefig(f'fig/avg_rot_speed_along_axis_data_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig3.savefig(f'fig/tilt_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig4.savefig(f'fig/tilt_rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf')
-fig5.savefig(f'fig/tilt_order_parameter.pdf', bbox_inches = 'tight', format='pdf')
+fig3.savefig(f'fig/tilt_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+fig4.savefig(f'fig/tilt_rot_speed_vs_tilt.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
+fig5.savefig(f'fig/tilt_order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 plt.show()

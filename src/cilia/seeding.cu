@@ -1700,12 +1700,6 @@
 
     #elif HEXAGONAL_WALL_SEEDING
       std::cout << "Seeking an hexagonal placement for the fils..." << std::endl;
-   
-      // Real fil_grid_step_x;
-      // Real blob_step;
-      // int fil_grid_dim_x;
-      // int hex_num;
-      // Real rev_ratio;
 
       Real disc_radius;
 

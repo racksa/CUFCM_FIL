@@ -118,7 +118,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 4
+  #define SHAPE_SEQUENCE 1
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
@@ -149,7 +149,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
 
-  #define WRITE_GENERALISED_FORCES false
+  #define WRITE_GENERALISED_FORCES true
   // If true, this simulation will save its generalised forces to file for use as the reference values.
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
@@ -189,7 +189,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
   #define INFINITE_PLANE_WALL_SEEDING_TYPE 0
   // Valid options:
-  // 0 = Filaments are placed on a rectangular grid. //deprecated
+  // 0 = Filaments are placed on a rectangular grid.
   // 1 = Filaments are placed on a hexagonal grid.
   // 2 = Filaments are placed on a rectangular grid only compatable with cuFCM. //deprecated
   // 3 = Filaments are placed on a lattice compatable with cuFCM. //deprecated
