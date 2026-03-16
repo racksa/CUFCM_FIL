@@ -91,6 +91,8 @@ fig1 = plt.figure()
 ax1 = fig1.add_subplot(111)
 fig2 = plt.figure()
 ax2 = fig2.add_subplot(111)
+fig2_2 = plt.figure()
+ax2_2 = fig2_2.add_subplot(111)
 fig3 = plt.figure(dpi=200)
 ax3 = fig3.add_subplot(111, projection='3d')
 fig4 = plt.figure(dpi=300)
@@ -111,11 +113,11 @@ for p in range(num_frame):
     x_array, y_array, z_array = np.array(fitted_shape(s, phase))*L
     # ax1.plot(y_array, x_array, color=fil_color, zorder=p)
     ax1.plot(y_array, x_array, c='black', alpha = 0.1+0.9*phase/(2*np.pi), zorder=1)
-
+    ax2_2.plot(y_array, x_array, c='black', alpha = 0.1+0.9*phase/(2*np.pi), zorder=1)
 
     # Add circles
-    # for seg in range(num_seg):
-    #     ax1.add_patch(plt.Circle((y_array[seg], x_array[seg]), 1, facecolor=fil_color, edgecolor=None, zorder=p, alpha = 1))
+    for seg in range(num_seg):
+        ax2_2.add_patch(plt.Circle((y_array[seg], x_array[seg]), 1, facecolor='black', edgecolor=None, zorder=p, alpha = 0.1+0.9*phase/(2*np.pi)))
 
 fil_angles = [0, np.pi/3.5]
 angle_colors = ['black', 'r']
@@ -449,6 +451,11 @@ ax2.set_ylabel('y')
 ax2.set_aspect('equal')
 ax2.axis('off')
 
+ax2_2.set_xlabel('x')
+ax2_2.set_ylabel('y')
+ax2_2.set_aspect('equal')
+ax2_2.axis('off')
+
 ax3.set_xlabel('x')
 ax3.set_ylabel('y')
 ax3.set_zlabel('z')
@@ -470,6 +477,7 @@ fig3.tight_layout()
 fig4.tight_layout()       
 fig1.savefig(f'fig/fulford_blake_beat_psi.png', bbox_inches = 'tight', format='png', transparent=True)
 fig2.savefig(f'fig/fulford_blake_beat_theta.png', bbox_inches = 'tight', format='png', transparent=True)
+fig2_2.savefig(f'fig/fulford_blake_beat_bead.png', bbox_inches = 'tight', format='png', transparent=True)
 fig3.savefig(f'fig/filq_rotation.png', bbox_inches = 'tight', format='png', transparent=True)
 fig4.savefig(f'fig/body_rotation.png', bbox_inches = 'tight', format='png', transparent=True)
 # fig1.savefig(f'fig/fulford_blake_beat.png', bbox_inches = 'tight', format='png')

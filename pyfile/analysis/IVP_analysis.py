@@ -1,9 +1,9 @@
 
 import numpy as np
-import os
 import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import os
 import matplotlib.font_manager as fm
 import matplotlib.ticker as mticker
 
@@ -77,6 +77,8 @@ fig4 = plt.figure()
 ax4 = fig4.add_subplot(1,1,1)
 fig6 = plt.figure()
 ax6 = fig6.add_subplot(1,1,1)
+fig7 = plt.figure()
+ax7 = fig7.add_subplot(1,1,1)
 
 plot_phase_data = 'free'
 plot_phase_data = None
@@ -170,6 +172,9 @@ for fi in range(n_folder_free):
         plot_y6 = 6*np.pi*radius*avg_speed_along_axis_data_free[fi]**2/dis_data[fi]/fillength
         ax6.scatter(plot_x[indices_symplectic], plot_y6[indices_symplectic], s=100, marker='+', c='black')
         ax6.scatter(plot_x[indices_diaplectic], plot_y6[indices_diaplectic], s=50, marker='x', c='b')
+
+        ax7.scatter(plot_x[indices_symplectic], dis_data[fi][indices_symplectic], s=100, marker='+', c='black')
+        ax7.scatter(plot_x[indices_diaplectic], dis_data[fi][indices_diaplectic], s=50, marker='x', c='b')
     except:
         pass
 
@@ -207,8 +212,8 @@ ax.set_xlim(0, 0.09 / x_scale_offset)
 
 
 
-ax.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
-             fontsize=20, ha='right')
+# ax.annotate(r'$\times 10^{-2}$', xy=(1, -0.20), xycoords='axes fraction', 
+#              fontsize=20, ha='right')
 
 ax2.set_xlabel(r'$k$')
 ax2.set_ylabel(r"$\langle V \rangle T/L$")
@@ -234,18 +239,22 @@ sym_speed = avg_speed_along_axis_data_free[indices_symplectic]
 dia_speed = avg_speed_along_axis_data_free[indices_diaplectic]
 sym_eff = 6*np.pi*radius*sym_speed**2/dis_data[indices_symplectic]/fillength
 dia_eff = 6*np.pi*radius*dia_speed**2/dis_data[indices_diaplectic]/fillength
+sym_dis = dis_data[indices_symplectic]
+dia_dis = dis_data[indices_diaplectic]
 
 # Symplectic: sort by k
 sym_sort_idx = np.argsort(sym_k)
 sym_k = sym_k[sym_sort_idx]
 sym_speed = sym_speed[sym_sort_idx]
 sym_eff = sym_eff[sym_sort_idx]
+sym_dis = sym_dis[sym_sort_idx]
 
 # Diaplectic: sort by k
 dia_sort_idx = np.argsort(dia_k)
 dia_k = dia_k[dia_sort_idx]
 dia_speed = dia_speed[dia_sort_idx]
 dia_eff = dia_eff[dia_sort_idx]
+dia_dis = dia_dis[dia_sort_idx]
 
 
 
@@ -316,15 +325,48 @@ formatter = mticker.ScalarFormatter(useMathText=True)
 formatter.set_powerlimits((0, 2))  # Forces 10^4 notation when values are large
 ax6.xaxis.set_major_formatter(formatter)
 
+ax7.set_xlabel(r'$k$')
+ax7.set_ylabel(r"$\langle \mathcal{R} T^2/ (\eta L^3) \rangle$")
+ax7.scatter(None, None, marker='+', c='black', label='Symplectic')
+ax7.scatter(None, None,  marker='x', c='b', label='Diaplectic')
+ax7.legend(fontsize=16, frameon=False)
+ax7.set_xlim(0,)
+# ax7.set_ylim(0, 5e-4)
+ax7.set_xticks(np.array([0, 0.02, 0.04, 0.06, 0.08]) / x_scale_offset)
+ax7.set_box_aspect(0.7) 
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((-1, 4))  # Forces 10^4 notation when values are large
+ax7.yaxis.set_major_formatter(formatter)
+formatter = mticker.ScalarFormatter(useMathText=True)
+formatter.set_powerlimits((0, 2))  # Forces 10^4 notation when values are large
+ax7.xaxis.set_major_formatter(formatter)
+
+sym_p = np.polyfit(sym_k, sym_dis, 1)  # slope, intercept
+sym_dis_fit = np.polyval(sym_p, sym_k)
+dia_p = np.polyfit(dia_k, dia_dis, 1)  # slope, intercept
+dia_dis_fit = np.polyval(dia_p, dia_k)
+
+sym_residuals = sym_speed - sym_dis_fit
+spread = 2*np.std(sym_residuals)
+dia_residuals = dia_speed - dia_dis_fit
+dia_spread = 2*np.std(dia_residuals)
+ax7.plot(sym_k, sym_dis_fit, c='black', linestyle='dashed',)
+ax7.plot(dia_k, dia_dis_fit, c='blue', linestyle='dashed',)
+ax7.fill_between(sym_k, sym_dis_fit - spread, sym_dis_fit + spread, color='black', alpha=0.2)
+ax7.fill_between(dia_k, dia_dis_fit - dia_spread, dia_dis_fit + dia_spread, color='blue', alpha=0.2)
+
+
 fig.tight_layout()
 fig2.tight_layout()
 fig3.tight_layout()
 fig4.tight_layout()
 fig6.tight_layout()
+fig7.tight_layout()
 # fig.savefig(f'fig/order_parameter.pdf', bbox_inches = 'tight', format='pdf', transparent=True)
 fig.savefig(f'fig/order_parameter.png', bbox_inches = 'tight', format='png', transparent=True)
 fig2.savefig(f'fig/IVP_velocities_free.png', bbox_inches = 'tight', format='png', transparent=True)
 fig3.savefig(f'fig/IVP_rot_velocities_free.png', bbox_inches = 'tight', format='png', transparent=True)
 fig4.savefig(f'fig/IVP_symbols.png', bbox_inches = 'tight', format='png', transparent=True)
 fig6.savefig(f'fig/IVP_efficiencies_free.png', bbox_inches = 'tight', format='png', transparent=True)
+fig7.savefig(f'fig/IVP_dis_free.png', bbox_inches = 'tight', format='png', transparent=True)
 plt.show()

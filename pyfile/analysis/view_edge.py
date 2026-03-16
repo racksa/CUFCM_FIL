@@ -1,16 +1,27 @@
 
 import numpy as np
-import os
 import sys
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import os
+import matplotlib.font_manager as fm
 
-mpl.rcParams['mathtext.fontset'] = 'stix'
-mpl.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-mpl.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-mpl.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
-plt.rcParams.update({'font.size': 16})
+# Path to the directory where fonts are stored
+font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+# Choose the TTF or OTF version of CMU Serif Regular
+font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+# Load the font into Matplotlib's font manager
+prop = fm.FontProperties(fname=font_path)
+# Register each font file with Matplotlib's font manager
+for font_file in os.listdir(font_dir):
+    if font_file.endswith('.otf'):
+        fm.fontManager.addfont(os.path.join(font_dir, font_file))
+# Set the global font family to 'serif' and specify CMU Serif
+plt.rcParams['font.family'] = 'serif'
+plt.rcParams['font.serif'] = ['CMU Serif']
+plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+plt.rcParams.update({'font.size': 24})
 
 
 def box(x, box_size):
@@ -188,7 +199,8 @@ for si, section in enumerate(sections[:-1]):
 
 
 ax.set_ylim(0, 1)
-ax.set_xlabel(r't/T')
-ax.set_ylabel(r'$<r>$')
-fig.savefig(f'fig/edge.pdf', bbox_inches = 'tight', format='pdf')
+ax.set_xlabel(r'$t/T$')
+ax.set_ylabel(r'$ r $')
+fig.tight_layout()
+fig.savefig(f'fig/edge.png', bbox_inches = 'tight', format='png', transparent=True)
 plt.show()

@@ -161,6 +161,7 @@ ax4.plot(time_data[:-1], body_rot_speed_data[:num_frame-1], marker=sym_marker, c
 ax4.plot(time_data[:-1], body_rot_speed_data2[:num_frame-1], marker=dia_marker, c='blue')
 
 if force:
+    #1.2 1.6
     ax5.plot(time_data[:-1], dissipation_data[:num_frame-1], marker=sym_marker, c='black')
     ax5.plot(time_data[:-1], dissipation_data2[:num_frame-1], marker=dia_marker, c='blue')
 
@@ -232,7 +233,7 @@ ax4.set_box_aspect(1)
 
 
 ax5.set_xlabel(r'$t/T$')
-ax5.set_ylabel(r'$\mathcal{R}T^2/\eta L^3$')
+ax5.set_ylabel(r'$\mathcal{R}T^2/(\eta L^3)$')
 ax5.legend(fontsize=16, frameon=False)
 ax5.set_xlim((0, 1))
 ax5.set_box_aspect(1) 

@@ -20,7 +20,7 @@ for font_file in os.listdir(font_dir):
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = ['CMU Serif']
 plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
-plt.rcParams.update({'font.size': 24})
+plt.rcParams.update({'font.size': 36})
 
 cmap_name = 'bwr'
 
@@ -97,7 +97,7 @@ ax2.set_ylim(ymin, ymax)
 ax3.plot(time_array_symplectic[sym_steady_start:sym_steady_stop], r_array_symplectic[sym_steady_start:sym_steady_stop], c='black')
 ax3.set_xlim(time_array_symplectic[sym_steady_start], time_array_symplectic[sym_steady_stop])
 ax3.set_xticks([])
-ax3.set_yticks([])
+# ax3.set_yticks([])
 ax3.set_xlabel('')
 ax3.set_ylabel('')
 # ax3.set_xlabel(r'$t/T$')
@@ -106,7 +106,7 @@ ax3.set_ylabel('')
 ax4.plot(time_array_diaplectic[dia_steady_start:dia_steady_stop], r_array_diaplectic[dia_steady_start:dia_steady_stop], c='lightgrey')
 ax4.set_xlim(time_array_symplectic[sym_steady_start], time_array_symplectic[sym_steady_stop])
 ax4.set_xticks([])
-ax4.set_yticks([])
+# ax4.set_yticks([])
 ax4.set_xlabel('')
 ax4.set_ylabel('')
 # ax4.set_xlabel(r'$t/T$')

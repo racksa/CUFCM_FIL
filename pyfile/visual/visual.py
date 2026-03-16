@@ -79,11 +79,15 @@ class VISUAL:
         # self.date = '20250716'
         # self.dir = f"data/for_paper/twofil/{self.date}/"
 
-        self.date = '20250802'
-        self.dir = f"data/for_paper/multifil/{self.date}/"
+        # self.date = '20250802'
+        # self.dir = f"data/for_paper/multifil/{self.date}/"
 
-        # self.date = 'combined_analysis'
-        # self.dir = f"data/giant_swimmer/{self.date}/"
+        # # self.date = 'combined_analysis'
+        # # self.dir = f"data/giant_swimmer/{self.date}/"
+
+        # self.date = '20250828_dp_sweep'
+        # self.dir = f"data/volvox/{self.date}/"
+        
 
         # self.date = '20240827_jfm2'
         # # self.date = '20240731_pnas_L1'
@@ -96,7 +100,7 @@ class VISUAL:
         # self.dir = f"data/ishikawa/{self.date}/"
 
         # self.date = '20240906_volvox_symplectic_k=2.35'
-        # self.dir = f"data/volvox/{self.date}/"
+        # self.dir = f"data/volvox_legacy/volvox/{self.date}/"
 
         # self.date = '20240912_bicilia_IVP'
         # self.dir = f"data/volvox_bicilia/{self.date}/"
@@ -120,8 +124,9 @@ class VISUAL:
         # self.date = '20250225_flowfield_sym'
         # self.date = '20250311_flowfield_sym_free'
         # self.date = '20250311_flowfield_dia_free'
-        self.date = '20250522_flowfield_free'
-        self.dir = f"data/for_paper/flowfield_example/{self.date}/"
+        # self.date = '20250522_flowfield_free'
+        # self.date = '20250915_flowfield_free'
+        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
         # self.date = '20250516_force'
         # # self.date = '20250507'
@@ -140,8 +145,6 @@ class VISUAL:
         # self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tempcheck/makeup_pattern_with_force/{self.date}/"
 
-
-        
 
         
         # # self.date = '20250228'
@@ -175,6 +178,14 @@ class VISUAL:
         # self.date = '20250214_1e-6_squirmer'
         # self.date = '20250214_1e-6_settling'
         # self.dir = f"data/resolution/{self.date}/"
+
+        self.date = '20260305_coherence'
+        # self.date = '20250828_dp_sweep'
+        self.dir = f"data/volvox/{self.date}/"
+
+        # self.date = '20250828_dp_sweep'
+        # volvox_legacy/volvox_bicilia/dp_sweep2/20240919_bicilia_{wavnum}/
+        
 
         self.pars_list = {
                      "index": [],
@@ -228,8 +239,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 300
-        self.frames_setting = 300000
+        self.plot_end_frame_setting = 200000
+        self.frames_setting = 3000000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -243,7 +254,7 @@ class VISUAL:
         self.ncol = 4
         self.num_sim = 0
 
-        self.plot_interval = 1
+        self.plot_interval = 200
         
         self.index = 0
 
@@ -314,7 +325,10 @@ class VISUAL:
             self.force_noise_mag = 0.0
             self.omega_spread = 0.0
         
-        self.pair_dp = self.pars_list['pair_dp'][self.index]
+        try:
+            self.pair_dp = self.pars_list['pair_dp'][self.index]
+        except:
+            self.pair_dp = 1.0
         try:
             self.nx = self.pars_list['nx'][self.index]
             self.ny = self.pars_list['ny'][self.index]
@@ -328,52 +342,7 @@ class VISUAL:
         except:
             pass
 
-        
-        
-        #     try:
-        #         self.tilt_angle = self.pars_list['tilt_angle'][self.index]
-        #         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt"
-        #         open(self.simName + '_fil_references.dat')
-        #     except:
-        #         try:
-        #             self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
-        #             self.omega_spread = self.pars_list['omega_spread'][self.index]
-        #             self.pair_dp = self.pars_list['pair_dp'][self.index]
-        #             try:
-        #                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise_{self.omega_spread:.4f}ospread"
-        #                 open(self.simName + '_fil_references.dat')
-        #             except:
-        #                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise_{self.omega_spread:.4f}ospread_{self.index:.0f}index"
-        #                 open(self.simName + '_fil_references.dat')
-        #         except:
-        #             try:
-        #                 self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
-        #                 self.pair_dp = self.pars_list['pair_dp'][self.index]
-        #                 self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp_{self.force_noise_mag:.4f}noise"
-        #                 open(self.simName + '_fil_references.dat')
-        #             except:
-        #                 try:
-        #                     self.pair_dp = self.pars_list['pair_dp'][self.index]
-        #                     string = f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
-        #                     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion_{self.tilt_angle:.4f}tilt_{self.pair_dp:.4f}dp"
-        #                     open(self.simName + '_fil_references.dat')
-        #                 except:
-        #                     self.tilt_angle = 0.
-        #                     self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.4f}torsion"
-        #                     try:
-        #                         open(self.simName + '_fil_references.dat')
-        #                     except:
-        #                         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.3f}torsion"
-        #                     try:
-        #                         open(self.simName + '_fil_references.dat')
-        #                     except:
-        #                         self.simName = self.dir + f"ciliate_{self.nfil:.0f}fil_{self.nblob:.0f}blob_{self.ar:.2f}R_{self.spring_factor:.2f}torsion"
-                                
-        # try:
-        #     self.fil_spacing = self.pars_list['fil_spacing'][self.index]
-        #     self.fil_x_dim = self.pars_list['fil_x_dim'][self.index]
-        # except:
-        #     pass
+    
 
         # Define possible filename templates, ordered from most recent to oldest
         templates = [
@@ -1893,6 +1862,10 @@ class VISUAL:
         plt.show()
 
     def ciliate(self):
+
+        initial_pos = np.zeros(3)
+
+        bicilia = False
         show_flow_field = False
         self.select_sim()
 
@@ -1978,6 +1951,7 @@ class VISUAL:
         plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
 
         point_on_plane = 10*plane_normal
+
         ax.view_init(elev=elev_angle, azim=azim_angle, roll=180)
         ax.dist=5.8
           
@@ -2012,11 +1986,14 @@ class VISUAL:
         cmap_name = 'hsv'
         cmap = plt.get_cmap(cmap_name)
 
+        
+
         def animation_func(t):
-            print(t)
+            global initial_pos
             ax.cla()
             ax.axis('off')
             ax.set_aspect('equal')
+            
             ax.set_xlabel('x')
             ax.set_ylabel('y')
             ax.set_zlabel('z')
@@ -2038,7 +2015,6 @@ class VISUAL:
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             fil_phases = fil_states[:self.nfil]
 
-            
             for swim in range(self.nswim):
                 # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
                 body_pos = body_states[7*swim : 7*swim+3]
@@ -2046,9 +2022,10 @@ class VISUAL:
                 # Plot the sphere
                 ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5)
 
+
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
-                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                    fil_base = np.matmul(R, self.fil_references[3*fil : 3*fil+3])
                     fil_data = np.zeros((self.nseg, 3))
                     fil_i = int(3*fil*self.nseg)
                     print(" fil ", fil, "          ", end="\r")
@@ -2067,10 +2044,15 @@ class VISUAL:
                                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
                     
                     visible = np.sum(fil_base*plane_normal)
-                    if visible > -0.5:
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+                    if visible > -0:
+                        if bicilia:
+                            ax.plot(fil_data[:int(self.nseg/2),0], fil_data[:int(self.nseg/2),1], fil_data[:int(self.nseg/2),2], c=fil_color, zorder = 100)
+                            ax.plot(fil_data[int(self.nseg/2):,0], fil_data[int(self.nseg/2):,1], fil_data[int(self.nseg/2):,2], c=fil_color, zorder = 100)
+                        
+                        else:
+                            ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
                         # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', zorder = 100, alpha = alpha)
-
+                    
                 if(show_flow_field):
                     for blob in range(int(self.pars['NBLOB'])):
                         print(" blob ", blob, "          ", end="\r")
@@ -2112,8 +2094,17 @@ class VISUAL:
                     #           np.cos(theta_flat)*np.cos(phi_flat)*utheta_list,
                     #           np.cos(theta_flat)*np.sin(phi_flat)*utheta_list,
                     #           -np.sin(theta_flat)*utheta_list, length = .5 ,color='r')
-                    
+
             ax.set_aspect('equal')
+            scale = 10
+            if(t==0):
+                initial_pos = body_pos
+            if(self.video):
+                ax.set_box_aspect([1, 1, 1])    # keep the sphere spherical
+                ax.set_xlim(initial_pos[0] - self.fillength*scale, initial_pos[0] + self.fillength*scale)
+                ax.set_ylim(initial_pos[1] - self.fillength*scale, initial_pos[1] + self.fillength*scale)
+                ax.set_zlim(initial_pos[2] - self.fillength*scale, initial_pos[2] + self.fillength*scale)
+
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -2134,7 +2125,6 @@ class VISUAL:
             FFwriter = animation.FFMpegWriter(fps=10)
             ani.save(f'fig/ciliate_{self.date}_{self.nfil}fil_anim_index{self.index}.mp4', writer=FFwriter)
                 
-            # ani.save(f'fig/ciliate_{self.nfil}fil_anim.mp4', writer=FFwriter)
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -2150,8 +2140,131 @@ class VISUAL:
             
             ax.set_aspect('equal')
             # plt.savefig(f'fig/ciliate_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            plt.savefig(f'fig/ciliate_{self.nfil}fil_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            plt.savefig(f'fig/ciliate_{self.date}_{self.index}index_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
+
+    def ciliate_plane(self):
+        def set_axes_equal(ax):
+            '''Make axes of 3D plot have equal scale so that spheres look like spheres, etc.'''
+            x_limits = ax.get_xlim3d()
+            y_limits = ax.get_ylim3d()
+            z_limits = ax.get_zlim3d()
+
+            x_range = abs(x_limits[1] - x_limits[0])
+            x_middle = np.mean(x_limits)
+            y_range = abs(y_limits[1] - y_limits[0])
+            y_middle = np.mean(y_limits)
+            z_range = abs(z_limits[1] - z_limits[0])
+            z_middle = np.mean(z_limits)
+
+            max_range = max([x_range, y_range, z_range])
+
+            ax.set_xlim3d([x_middle - max_range/2, x_middle + max_range/2])
+            ax.set_ylim3d([y_middle - max_range/2, y_middle + max_range/2])
+            ax.set_zlim3d([z_middle - max_range/2, z_middle + max_range/2])
+
+
+        self.select_sim()
+
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot(projection='3d')
+        ax2.set_proj_type('ortho')
+        elev_angle = 30
+        elev_angle_rad = elev_angle/180*np.pi
+        azim_angle = -60
+        azim_angle_rad = azim_angle/180*np.pi
+        ax2.view_init(elev=elev_angle, azim=azim_angle, roll=0)
+        # ax2.dist=3.8
+
+
+        ax2.grid(False)
+        ax2.set_xticks([])
+        ax2.set_yticks([])
+        ax2.set_zticks([])
+        ax2.set_xlabel('')
+        ax2.set_ylabel('')
+        ax2.set_zlabel('')
+        ax2.w_xaxis.pane.set_visible(False)
+        ax2.w_yaxis.pane.set_visible(False)
+        ax2.w_zaxis.pane.set_visible(False)
+        ax2.w_xaxis.line.set_visible(False)
+        ax2.w_yaxis.line.set_visible(False)
+        ax2.w_zaxis.line.set_visible(False)
+
+        print(self.nfil, self.pars_list['fil_spacing'][self.index])
+
+        cmap_name = 'hsv'
+        cmap = plt.get_cmap(cmap_name)
+
+
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+        seg_states_f = open(self.simName + '_seg_states.dat', "r")
+
+        fil_base_array = np.zeros((self.nfil, 3))
+
+
+        for i in range(self.plot_end_frame):
+            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+            fil_states_str = fil_states_f.readline()
+            seg_states_str = seg_states_f.readline()
+
+            if(i>=self.plot_start_frame):
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                fil_phases = fil_states[:self.nfil]
+                fil_phases = util.box(fil_phases, 2*np.pi)
+
+                if (i==self.plot_end_frame-1):
+                    for swim in range(self.nswim):
+                        for fil in range(self.nfil):
+                            fil_base = self.fil_references[3*fil : 3*fil+3]
+                            fil_base_array[fil] = fil_base
+                            fil_data = np.zeros((self.nseg, 3))
+                            fil_i = int(3*fil*self.nseg)
+
+                            fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                            fil_color = 'black'
+
+                            for seg in range(self.nseg):
+                                seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                                fil_data[seg] = seg_pos
+                            ax2.scatter(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100)
+
+
+                    ref1 = np.array([self.fil_references[0], self.fil_references[1], 0.0])
+                    ref2 = np.array([self.fil_references[self.nfil*3-3], self.fil_references[self.nfil*3-2], 0.0])
+                    xx = np.linalg.norm(ref1 - ref2)
+                    center = (ref1+ref2)*0.5
+                    
+                    x = np.linspace(center[0] - xx*0.05 - self.fillength, center[0] + xx*0.05 + self.fillength, 10)
+                    y = np.linspace(center[1] - xx*0.5 - self.fillength, center[1] + xx*0.5 + self.fillength, 10)
+                    xv, yv = np.meshgrid(x, y)
+                    zv = np.zeros_like(xv)  # z = 0 plane
+                    ax2.plot_surface(xv, yv, zv, alpha=0.3, color='grey', zorder=-1)
+
+                    arrow_origin = np.array([
+                        x[0],  # min x
+                        y[0],  # min y
+                        0      # z = 0
+                    ])
+
+                    # Define direction vectors for each axis
+                    arrow_length = self.fillength*5  # or adjust manually
+
+                    ax2.quiver(*arrow_origin, arrow_length, 0, 0, color='black', linewidth=2)  # x-axis (red)
+                    ax2.quiver(*arrow_origin, 0, arrow_length, 0, color='black', linewidth=2)  # y-axis (green)
+                    ax2.quiver(*arrow_origin, 0, 0, arrow_length, color='black', linewidth=2)  # z-axis (blue)
+
+        set_axes_equal(ax2)
+
+        # fig.tight_layout()
+        # # fig2.tight_layout()
+        # fig3.tight_layout()
+        # fig3.savefig(f'fig/phases_multifil_{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+
+        
+        plt.show()
+
 
     def ciliate_eco(self):        
         self.select_sim()
@@ -2261,6 +2374,7 @@ class VISUAL:
                 # ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
                 # ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
 
+                
                 # Robot arm to find segment position (Ignored plane rotation!)
                 for fil in range(self.nfil):
                     fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
@@ -2287,15 +2401,13 @@ class VISUAL:
 
                     # Show only one side of the sphere
                     visible = np.sum(fil_base*plane_normal)
-                    # visible = 1
-                    # if visible > -0. and fil_references_sphpolar[fil, 2] > 0.28:
                     if visible > -0.:
-                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = 100,)
+                        ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, zorder = 100,)
 
-                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', linewidth=3, zorder = 100, alpha=alpha)
+                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', zorder = 100, alpha=alpha)
 
                     # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
-                    # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color, linewidth=3, zorder = zorder[0])
+                    # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color,  zorder = zorder[0])
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -2310,8 +2422,8 @@ class VISUAL:
                     body_states_str = body_states_f.readline()
                     fil_states_str = fil_states_f.readline()
                 
-                FFwriter = animation.FFMpegWriter(fps=10)
-                ani.save(f'fig/ciliate_{self.date}_{self.nfil}fil_anim_index{self.index}.mp4', writer=FFwriter)
+            FFwriter = animation.FFMpegWriter(fps=10)
+            ani.save(f'fig/ciliate_{self.date}_{self.nfil}fil_anim_index{self.index}.mp4', writer=FFwriter)
                 
         else:
             for i in range(self.plot_end_frame):
@@ -2427,7 +2539,8 @@ class VISUAL:
         ax2.set_ylabel(r"$V_zT/L$")
         ax2.set_xlabel(r"$t/T$")
 
-        plt.tight_layout()
+        fig1.tight_layout()
+        fig2.tight_layout()
         # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
@@ -2486,13 +2599,13 @@ class VISUAL:
         ax1.plot(time_array[:-1], body_speed_along_axis_array)        
         ax1.set_title(f'index={self.index} avg speed={avg_speed}')
         ax1.set_xlim(time_array[0], time_array[-1])
-        ax1.set_ylabel(r"$V⋅e_1/L$")
+        ax1.set_ylabel(r"$V/L$")
         ax1.set_xlabel(r"$t/T$")
 
         ax2.plot(time_array[:-1], body_rot_speed_along_axis_array)
         # ax2.set_xlim(time_array[0], time_array[-1])
         # ax2.plot(time_array, body_vel_array[:,2]/self.fillength)
-        ax2.set_ylabel(r"$Ω⋅e_1$")
+        ax2.set_ylabel(r"$\Omega$")
         ax2.set_xlabel(r"$t/T$")
 
         # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
@@ -2594,7 +2707,6 @@ class VISUAL:
                 R = util.rot_mat(body_states[3:7])
                 body_axis = np.matmul(R, np.array([0,0,1]))
                 
-
                 body_speed_array[i-self.plot_start_frame] = np.sqrt(np.sum(body_vels[0:3]*body_vels[0:3], 0))
                 body_speed_along_axis_array[i-self.plot_start_frame] = np.sum(body_vels[0:3]*body_axis)
 
@@ -2608,18 +2720,19 @@ class VISUAL:
         body_speed_array /= self.fillength
         dissipation_array /= self.fillength**3
 
-        np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
-        np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
-        np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
-        np.save(f'{self.dir}/dissipation_array_index{self.index}.npy', dissipation_array)
-        np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
+        # np.save(f'{self.dir}/time_array_index{self.index}.npy', time_array)
+        # np.save(f'{self.dir}/body_speed_array_index{self.index}.npy', body_speed_along_axis_array)
+        # np.save(f'{self.dir}/body_rot_speed_array_index{self.index}.npy', body_rot_speed_along_axis_array)
+        # np.save(f'{self.dir}/dissipation_array_index{self.index}.npy', dissipation_array)
+        # np.save(f'{self.dir}/efficiency_array_index{self.index}.npy', efficiency_array)
 
         ax.set_xlim(time_array[0], time_array[-1])
         ax.plot(time_array, dissipation_array)
         ax.set_xlabel(r'$t/T$')
-        ax.set_ylabel(r'$PT^2/\eta L^3$')
+        ax.set_ylabel(r'$\mathcal{R}T^2/\eta L^3$')
+        fig.tight_layout()
         fig.savefig(f'fig/ciliate_dissipation_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        # plt.show()
+        plt.show()
 
     def ciliate_dmd(self):
         self.select_sim()
@@ -3780,6 +3893,7 @@ class VISUAL:
     def flow_field_FFCM_series(self):
 
         center_at_swimmer = True
+        bicilia = True
 
         def find_pos(line, symbol):
             """Find position of symbol
@@ -3847,7 +3961,7 @@ class VISUAL:
 
         fig_num = 5
         fig_index = 0
-        frame_gap = 6
+        frame_gap = 60
         plot_frames = np.array([self.plot_end_frame-1-frame_gap*i for i in range(fig_num)])
 
         fig, axes = plt.subplots(2, fig_num, figsize=(3.5*fig_num, 5.75), constrained_layout=True)
@@ -3962,10 +4076,19 @@ class VISUAL:
                             # if(seg_data[0, 0]>shift[0]+body_pos[0]):
                             #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
                             if(seg_data[0, 1]<shift[1]+body_pos[1]):
-                                ax.plot(seg_data[:,0], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                                if bicilia:
+                                    ax.plot(seg_data[:int(self.nseg/2),0], seg_data[:int(self.nseg/2),2], c=fil_color, zorder = 100, alpha = alpha)
+                                    ax.plot(seg_data[int(self.nseg/2):,0], seg_data[int(self.nseg/2):,2], c=fil_color, zorder = 100, alpha = alpha)
+                                else:
+                                    ax.plot(seg_data[:,0], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
                         if view == 'top':
                             if(seg_data[0, 2]>shift[2]+body_pos[2]):
-                                ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+                                if bicilia:
+                                    ax.plot(seg_data[:int(self.nseg/2),0], seg_data[:int(self.nseg/2),1], c=fil_color, zorder = 100, alpha = alpha)
+                                    ax.plot(seg_data[int(self.nseg/2):,0], seg_data[int(self.nseg/2):,1], c=fil_color, zorder = 100, alpha = alpha)
+                                else:
+                                    ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+                            
                             # if(seg_data[0, 0]<shift[2]):
                             #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
 
@@ -3994,7 +4117,7 @@ class VISUAL:
                 yx_ratio = self.ny/self.nx
                 zx_ratio = self.nz/self.nx
 
-                nx = 256
+                nx = 400
                 ny = int(nx*yx_ratio)
                 nz = int(nx*zx_ratio)
 
@@ -4110,7 +4233,7 @@ class VISUAL:
                 if view=='side':
                     sidex = Ly
                     sidey = Lz
-                focus = 0.8
+                focus = 0.7
                 # ax.set_xticks(np.linspace(0, sidex, 5))
                 # ax.set_yticks(np.linspace(0, sidey, 5))
                 # ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
@@ -4169,7 +4292,7 @@ class VISUAL:
                 ax.set_aspect('equal')
             
             vmin = 0
-            vmax = 100 / self.fillength  # Replace with actual value if running
+            vmax = 5 / self.fillength  # Replace with actual value if running
             norm = Normalize(vmin=vmin, vmax=vmax)
 
             # Create ScalarMappable
@@ -4192,7 +4315,7 @@ class VISUAL:
         
         plot_envelope = False
 
-        fontsize = 24
+        fontsize = 36
 
         plt.rcParams.update({'font.size': fontsize})
 
@@ -4264,6 +4387,8 @@ class VISUAL:
         ax5 = fig5.add_subplot()
         fig6 = plt.figure()
         ax6 = fig6.add_subplot()
+        fig7 = plt.figure(figsize=(10, 5))
+        ax7 = fig7.add_subplot()
 
         # Flow field
         n_r = 1
@@ -4505,19 +4630,19 @@ class VISUAL:
             np.save(f'{self.dir}body_q_data_index{self.index}.npy', body_q_data)
             np.save(f'{self.dir}body_axis_data_index{self.index}.npy', body_axis_data)
         else:
-            for i in range(self.plot_end_frame):
-                body_states_str = body_states_f.readline()
+            # for i in range(self.plot_end_frame):
+            #     body_states_str = body_states_f.readline()
 
-                if(i>=self.plot_start_frame):
-                    body_states = np.array(body_states_str.split()[1:], dtype=float)
-                    body_q_data[i-self.plot_start_frame] = body_states[3:7]
-                    R = util.rot_mat(body_states[3:7])
-                    body_axis_data[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,1]))
-            body_rot_vel_data = util.compute_angular_velocity(body_q_data, self.dt)
-            body_rot_speed_along_axis_data = np.sum(body_rot_vel_data * body_axis_data[:-1], axis=1)
+            #     if(i>=self.plot_start_frame):
+            #         body_states = np.array(body_states_str.split()[1:], dtype=float)
+            #         body_q_data[i-self.plot_start_frame] = body_states[3:7]
+            #         R = util.rot_mat(body_states[3:7])
+            #         body_axis_data[i-self.plot_start_frame] = np.matmul(R, np.array([0,0,1]))
+            # body_rot_vel_data = util.compute_angular_velocity(body_q_data, self.dt)
+            # body_rot_speed_along_axis_data = np.sum(body_rot_vel_data * body_axis_data[:-1], axis=1)
 
-            np.save(f'{self.dir}body_q_data_index{self.index}.npy', body_q_data)
-            np.save(f'{self.dir}body_axis_data_index{self.index}.npy', body_axis_data)
+            # np.save(f'{self.dir}body_q_data_index{self.index}.npy', body_q_data)
+            # np.save(f'{self.dir}body_axis_data_index{self.index}.npy', body_axis_data)
 
             time_data = np.load(f'{self.dir}time_array_index{self.index}.npy')
             speed_data = np.load(f'{self.dir}speed_array_index{self.index}.npy')
@@ -4531,8 +4656,10 @@ class VISUAL:
             shape_data = np.load(f'{self.dir}shape_data_index{self.index}.npy')
             n_phi = shape_data[1]
             n_theta = shape_data[2]
-            # body_q_data = np.load(f'{self.dir}body_q_data_index{self.index}.npy')
-            # body_axis_data = np.load(f'{self.dir}body_axis_data_index{self.index}.npy')
+            body_q_data = np.load(f'{self.dir}body_q_data_index{self.index}.npy')
+            body_axis_data = np.load(f'{self.dir}body_axis_data_index{self.index}.npy')
+            body_rot_vel_data = util.compute_angular_velocity(body_q_data, self.dt)
+            body_rot_speed_along_axis_data = np.sum(body_rot_vel_data * body_axis_data[:-1], axis=1)
 
         
         ax.set_aspect('equal')
@@ -4546,7 +4673,7 @@ class VISUAL:
         utheta_list_avg = np.mean(np.reshape(utheta_data[self.plot_end_frame-1], (n_phi, n_theta)), axis=0)
         ax2.plot(theta_list, ur_list_avg/self.fillength, c='black', linestyle='-', label=r'$u_r$')
         ax2.plot(theta_list, utheta_list_avg/self.fillength, c='black', linestyle='dashed', label=r'$u_{\theta}$')
-        ax2.legend(frameon=False)
+        # ax2.legend(frameon=False)
         ax2.set_xticks(ticks=[0, np.pi/2, np.pi], labels=[r'$0$', r'$\pi/2$', r'$\pi$'])
         ax2.set_xlim(0, np.pi)
         ax2.set_ylim(-1.5, 4)
@@ -4563,8 +4690,8 @@ class VISUAL:
         ax22.hlines(upper_y, x_start, x_end, color='grey', linestyle='dashed')
         x = np.linspace(x_start, x_end, 100)
         ax22.fill_between(x, lower_y, upper_y, color='grey', alpha=0.3)
-        ax22.text((x_start + x_end) / 2, (lower_y + upper_y) / 2, 'Effective strokes',
-                ha='center', va='center', color='b', weight='bold')
+        # ax22.text((x_start + x_end) / 2, (lower_y + upper_y) / 2, 'Effective strokes',
+        #         ha='center', va='center', color='b', weight='bold')
         ax22.scatter(fil_references_sphpolar[:,2][mask], phase_data[self.plot_end_frame-1][mask], marker='+', s=10, c='b', label='$effective strokes$')
         ax22.scatter(fil_references_sphpolar[:,2][maski], phase_data[self.plot_end_frame-1][maski], marker='+', s=10, c='black', label=r'$recovery strokes$')
         ax22.set_ylim(0, 2*np.pi)
@@ -4588,7 +4715,7 @@ class VISUAL:
         ax4.plot(time_data, Bn_data[:,2]/self.fillength, c='red', linestyle='dashed', label=r'$B_2$')
         ax4.set_ylabel(r'$A_n, B_nT/L$')
         ax4.set_xlabel(r'$t/T$')
-        ax4.legend(frameon=False)
+        # ax4.legend(frameon=False)
         ax4.set_xlim(0, 1)
         ax4.set_ylim(-3, 4)
         
@@ -4597,7 +4724,7 @@ class VISUAL:
         ax5.plot(np.arange(n_coeffs), Bn_data[self.plot_end_frame-1]/self.fillength, c='red', label=r'$B_n$')
         ax5.set_ylabel(r'$A_n, B_nT/L$')
         ax5.set_xlabel(r'$n$')
-        ax5.legend(frameon=False)
+        # ax5.legend(frameon=False)
         ax5.set_xlim(1, n_coeffs-1)
         ax5.set_ylim(-4, 4)
 
@@ -4605,10 +4732,46 @@ class VISUAL:
         ax6.set_ylabel(r'$\Omega$')
         ax6.set_xlabel(r'$t/T$')
         ax6.set_xlim(0, 1)
-        ax6.legend(frameon=False)
+        # ax6.legend(frameon=False)
         import matplotlib.ticker as ticker
         ax6.yaxis.set_major_formatter(ticker.ScalarFormatter(useMathText=True))
         ax6.ticklabel_format(axis='y', style='sci', scilimits=(0,0))
+
+        from matplotlib.patches import Patch
+        ax7.axis('off')  # hide axes
+
+        ur_line = Line2D([0], [0], color='black', lw=2, linestyle='-', label=r'$u_r$')
+        utheta_line = Line2D([0], [0], color='black', lw=2, linestyle='--', label=r'$u_\theta$')
+        effective_patch = Patch(facecolor='grey', alpha=0.3, edgecolor='black', linestyle='--',
+                                label='Effective stroke')
+
+        # --- Row 2 proxies ---
+        An_line = Line2D([0], [0], color='black', lw=2, linestyle='-', label=r'$A_n$')
+        Bn_line = Line2D([0], [0], color='red', lw=2, linestyle='-', label=r'$B_n$')
+
+        # --- Row 3 proxies (scatters) ---
+        phase_scatter = Line2D([0], [0], color='black', marker='o', linestyle='None',
+                            markersize=6, label='phase')
+        effstroke_scatter = Line2D([0], [0], color='blue', marker='o', linestyle='None',
+                                markersize=6, label='effective stroke')
+
+        # Combine handles
+        handles_row1 = [ur_line, utheta_line, effective_patch]
+        handles_row2 = [An_line, Bn_line]
+        handles_row3 = [phase_scatter, effstroke_scatter]
+
+        handles = [
+            ur_line, An_line, effective_patch, utheta_line, 
+            Bn_line,
+            phase_scatter, effstroke_scatter
+        ]
+
+        fig7.legend(handles=handles, loc='upper center', ncol=3, frameon=False,
+                bbox_to_anchor=(0.5, 0.92), fontsize=24)  # keep inside the figure
+
+        # # Keep all legends
+        # ax7.add_artist(leg1)
+        # ax7.add_artist(leg2)
         
         fig.tight_layout()
         fig2.tight_layout()
@@ -4616,12 +4779,14 @@ class VISUAL:
         fig4.tight_layout()
         fig5.tight_layout()
         fig6.tight_layout()
+        fig7.tight_layout()
 
         fig2.savefig(f'fig/flowfield_polar_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig3.savefig(f'fig/comparison_to_squirmer_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig4.savefig(f'fig/first_mode_vs_t_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig6.savefig(f'fig/body_rot_speed_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+        fig7.savefig(f'fig/flowfield_polar_legend_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
 
     def flow_field_FFCM(self):
@@ -4756,7 +4921,7 @@ class VISUAL:
 
                 if view == 'top':
                     circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
-                    ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
+                    # ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
                 if view == 'side':
                     circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
                     R = np.identity(3)
@@ -4805,12 +4970,12 @@ class VISUAL:
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
                     if view == 'side':
-                        if(seg_data[0, 0]>shift[0]):
+                        if(seg_data[0, 0]-body_pos[0]>shift[0]):
                             ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
                         # if(seg_data[0, 0]<shift[0]):
                         #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98, alpha = alpha)
                     if view == 'top':
-                        if(seg_data[0, 2]>shift[2]):
+                        if(seg_data[0, 2]-body_pos[2]>shift[2]):
                             ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
                         # if(seg_data[0, 0]<shift[2]):
                         #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
@@ -4840,7 +5005,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 64
+            nx = 128
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -4887,6 +5052,13 @@ class VISUAL:
             flow_x = reshape_func(flow_x, nx, ny ,nz)
             flow_y = reshape_func(flow_y, nx, ny ,nz)
             flow_z = reshape_func(flow_z, nx, ny ,nz)
+
+            # if center_at_swimmer:
+            #     flow_x -= body_vels[0]
+            #     flow_y -= body_vels[1]
+            #     flow_z -= body_vels[2]
+
+            print(np.shape(flow_x))
 
             # print(f"body vels = {body_vels[:3]}")
             # print(f"net_flow=({np.mean(flow_x)}, {np.mean(flow_y)}, {np.mean(flow_z)})")
@@ -5047,7 +5219,7 @@ class VISUAL:
     def ciliate_2D(self):
 
         view = 'top'
-        view = 'side'
+        # view = 'side'
 
         center_at_swimmer = True
 
@@ -5102,6 +5274,7 @@ class VISUAL:
         
             for swim in range(int(self.pars['NSWIM'])):
                 body_pos = body_states[7*swim : 7*swim+3]
+                R = np.identity(3)
                 
                 if center_at_swimmer:
                     shift -= body_pos
@@ -5170,10 +5343,10 @@ class VISUAL:
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
                     if view == 'side':
-                        if(seg_data[0, 0]>shift[0]):
+                        if(seg_data[0, 0]-body_pos[0]>shift[0]):
                             ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
                     if view == 'top':
-                        if(seg_data[0, 2]>shift[2]):
+                        if(seg_data[0, 2]-body_pos[2]>shift[2]):
                             ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
             Lx = self.boxsize
             Ly = Lx/self.nx*self.ny
@@ -5557,7 +5730,7 @@ class VISUAL:
         new_pole_theta = -0.9
 
         new_pole_phi = 0
-        new_pole_theta = -0.2
+        new_pole_theta = 0.0
 
         s_ref_filename = 'input/forcing/fulford_and_blake_original_reference_s_values_NSEG=20_SEP=2.600000.dat'
         s_ref = np.loadtxt(s_ref_filename)
@@ -5656,8 +5829,8 @@ class VISUAL:
             ax3.set_aspect('equal')
             ax3.set_xlim(-1.2*self.radius, 1.2*self.radius)
             ax3.set_ylim(-1.2*self.radius, 1.2*self.radius)
-            ax3.set_xlim(-.4*self.radius, .4*self.radius)
-            ax3.set_ylim(0.7*self.radius, 1.2*self.radius)
+            # ax3.set_xlim(-.4*self.radius, .4*self.radius)
+            # ax3.set_ylim(0.7*self.radius, 1.2*self.radius)
             ax3.axis('off')
 
             ax3_2.set_aspect('equal')
@@ -5734,8 +5907,8 @@ class VISUAL:
         parent_folder = os.path.basename(os.path.dirname(self.dir.rstrip('/')))
         # plt.savefig(f'fig/fil_phase_index{self.index}_{self.date}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
         fig.savefig(f'fig/fil_phase_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
-        fig2.savefig(f'fig/wave_theta_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
-        fig2_2.savefig(f'fig/wave_phi_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        # fig2.savefig(f'fig/wave_theta_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
+        # fig2_2.savefig(f'fig/wave_phi_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig3.savefig(f'fig/side_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig3_2.savefig(f'fig/top_index{self.index}_{parent_folder}_{self.date}_frame{self.plot_end_frame}_{new_pole_phi}_{new_pole_theta}.png', bbox_inches = 'tight', format='png', transparent=True)
         plt.show()
@@ -6084,7 +6257,7 @@ class VISUAL:
     def find_pole(self):
 
         draw_phase = False
-        read_phase = True
+        read_phase = False
 
         self.select_sim()
         fil_references_sphpolar = np.zeros((self.nfil,3))
@@ -6103,8 +6276,8 @@ class VISUAL:
         estimated_new_phi = 0.0
         estimated_new_theta = 0.0
 
-        nphi = 196
-        ntheta = 196
+        nphi = 192
+        ntheta = 192
 
         phi_range = estimated_new_phi + np.linspace(0, np.pi-np.pi/nphi, nphi)
         theta_range = estimated_new_theta + np.linspace(0, np.pi-np.pi/ntheta, ntheta)
@@ -6187,79 +6360,77 @@ class VISUAL:
             vmax = .2*np.pi
         norm = Normalize(vmin=vmin, vmax=vmax)
         sm = ScalarMappable(cmap=colormap, norm=norm)
-        sm.set_array([])  
+        sm.set_array([])
+
+        self.frames = 30
+        gap = 3
+        no_of_instance = int(self.frames / gap)
+        self.plot_start_frame = self.plot_end_frame - self.frames
+
+        var_array = np.zeros((no_of_instance, nphi, ntheta))
+        avg_var_array = np.zeros((nphi, ntheta))
 
         global frame
         frame = 0
         import scipy.interpolate
 
-        def animation_func(t):
-            global frame
-
-            fil_states_str = fil_states_f.readline()
-            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
-
-            fil_phases = fil_states[:self.nfil]
-            fil_angles = fil_states[self.nfil:]
-
-            plt.rcParams.update({'font.size': 12})
-            var_array = np.zeros((nphi, ntheta))
-
-            for phi_ind, phi in enumerate(phi_range):
-                for theta_ind, theta in enumerate(theta_range):
-                    if not read_phase:
-                        xx, yy, colors_inter, variations = objective_function(fil_phases, phi, theta)
-                        var_array[phi_ind, theta_ind] = variations
-                    if draw_phase:
-                        axs[phi_ind, theta_ind].scatter(xx, yy, c=colors_inter)
-                        axs[phi_ind, theta_ind].set_xlim(-np.pi, np.pi)
-                        axs[phi_ind, theta_ind].set_ylim(0, np.pi)
-                        axs[phi_ind, theta_ind].invert_yaxis()
-                        axs[phi_ind, theta_ind].axis('off') 
-                        axs[phi_ind, theta_ind].set_title(fr'$\phi={phi:.1f}, \theta={theta:.1f}$', fontsize=12)
-            
-            if read_phase:
-                var_array = np.load(f'{self.dir}/var_array_index{self.index}.npy')
-            if not read_phase:
-                np.save(f'{self.dir}/var_array_index{self.index}.npy', var_array)
-
-            dx = phi_range[1] - phi_range[0]
-            dy = theta_range[1] - theta_range[0]
-            img = ax2.imshow(var_array.T, cmap='Greys', )
-            fontsize = 24
-            num_ticks = 4
-            ax2.set_xlabel(r'$\phi$', fontsize=fontsize)
-            ax2.set_ylabel(r'$\theta$', fontsize=fontsize)
-            ax2.set_xticks(np.linspace(0, ntheta-ntheta/num_ticks, num_ticks))
-            ax2.set_xticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
-            ax2.set_yticks(np.linspace(0, nphi-nphi/num_ticks, num_ticks))
-            ax2.set_yticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
-            ax2.tick_params(axis='both', labelsize=fontsize)
-            ax2.set_aspect('equal', adjustable='box') 
-            norm = Normalize(vmin=np.min(var_array), vmax=np.max(var_array))
-            sm = ScalarMappable(cmap='Greys', norm=norm)
-            sm.set_array([])
-            # ax2.set_box_aspect(0.5)
-            cbar = fig2.colorbar(sm)
-            cbar.set_label('Objective func.', fontsize=fontsize)
-            cbar.ax.tick_params(labelsize=fontsize)
-
-            
-            if draw_phase:
-                fig.tight_layout()
-            fig2.tight_layout()
-
-            frame += 1
-
-
+        frame = 0
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-            if(i==self.plot_end_frame-1):
-                animation_func(i)
-            else:
-                fil_states_str = fil_states_f.readline()
+            fil_states_str = fil_states_f.readline()
+            if (i>=self.plot_start_frame and i%gap==0):
+
+                fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+
+                fil_phases = fil_states[:self.nfil]
+                fil_angles = fil_states[self.nfil:]
+
+                plt.rcParams.update({'font.size': 12})
+
+                print(f"-------{i}---------")
+                for phi_ind, phi in enumerate(phi_range):
+                    for theta_ind, theta in enumerate(theta_range):
+                        if not read_phase:
+                            xx, yy, colors_inter, variations = objective_function(fil_phases, phi, theta)
+                            var_array[frame, phi_ind, theta_ind] = variations
+                        if draw_phase:
+                            axs[phi_ind, theta_ind].scatter(xx, yy, c=colors_inter)
+                            axs[phi_ind, theta_ind].set_xlim(-np.pi, np.pi)
+                            axs[phi_ind, theta_ind].set_ylim(0, np.pi)
+                            axs[phi_ind, theta_ind].invert_yaxis()
+                            axs[phi_ind, theta_ind].axis('off') 
+                            axs[phi_ind, theta_ind].set_title(fr'$\phi={phi:.1f}, \theta={theta:.1f}$', fontsize=12)
                 frame += 1
+
+        if read_phase:
+            var_array = np.load(f'{self.dir}/var_array_index{self.index}.npy')
+        if not read_phase:
+            np.save(f'{self.dir}/var_array_index{self.index}.npy', var_array)
+
+        avg_var_array = np.mean(var_array, axis=0)
+        img = ax2.imshow(avg_var_array.T, cmap='Greys', )
+        fontsize = 24
+        num_ticks = 4
+        ax2.set_xlabel(r'$\phi_0$', fontsize=fontsize)
+        ax2.set_ylabel(r'$\theta_0$', fontsize=fontsize)
+        ax2.set_xticks(np.linspace(0, ntheta-ntheta/num_ticks, num_ticks))
+        ax2.set_xticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
+        ax2.set_yticks(np.linspace(0, nphi-nphi/num_ticks, num_ticks))
+        ax2.set_yticklabels([r'$0$', r'$\pi/4$', r'$\pi/2$', r'$3\pi/4$'], fontsize=fontsize)
+        ax2.tick_params(axis='both', labelsize=fontsize)
+        ax2.set_aspect('equal', adjustable='box') 
+        norm = Normalize(vmin=np.min(avg_var_array), vmax=np.max(avg_var_array))
+        sm = ScalarMappable(cmap='Greys', norm=norm)
+        sm.set_array([])
+        # ax2.set_box_aspect(0.5)
+        cbar = fig2.colorbar(sm)
+        cbar.set_label(r'$G$', fontsize=fontsize)
+        cbar.ax.tick_params(labelsize=fontsize)
+
+        if draw_phase:
+            fig.tight_layout()
+        fig2.tight_layout()
 
         parent_folder = os.path.basename(os.path.dirname(self.dir.rstrip('/')))
         if draw_phase:
@@ -6718,7 +6889,6 @@ class VISUAL:
             np.save(f'{self.dir}/r_array_index{self.index}.npy', r_array)
             np.save(f'{self.dir}/k_index{self.index}.npy', self.spring_factor)
 
-            
             ax.plot(time_array,  body_speed_along_axis_array, label=f"index={self.index}")
             ax2.plot(time_array, dissipation_array, label=f"index={self.index}")
             ax3.plot(time_array, efficiency_array, label=f"index={self.index}")
@@ -7585,7 +7755,7 @@ class VISUAL:
         sm = ScalarMappable(cmap='Greys', norm=norm)
         sm.set_array([])
         # ax2.set_box_aspect(0.5)
-        cbar = fig2.colorbar(sm, label=r'$\Delta \psi_1$')
+        cbar = fig2.colorbar(sm, label=r'$\langle \Delta \psi_1 \rangle$')
 
         min_wavelength = 0
         max_wavelength = 120
@@ -7604,7 +7774,7 @@ class VISUAL:
 
         ax3.scatter(d_list/self.fillength, phase_diff_list, c='black')
         ax3.set_xlabel(r'$\Delta y/L$')
-        ax3.set_ylabel(r'$<\Delta \psi_1>$')
+        ax3.set_ylabel(r'$\langle \Delta \psi_1 \rangle$')
 
         
         
@@ -7773,6 +7943,7 @@ class VISUAL:
         # fig4.savefig(f'fig/wavelength_vs_distance.png', bbox_inches = 'tight', format='png')
             
         plt.show()
+
 
 # Summary plot
     def summary_ciliate_speed(self):
@@ -9008,8 +9179,7 @@ class VISUAL:
         # fig.savefig(f'fig/IVP_order_parameters_{free_string}.png', bbox_inches = 'tight', format='png', transparent=True)
 
         plt.show()
-
-    
+ 
     def view_bisection(self):
         colormap = 'twilight_shifted'
         # colormap = 'hsv'
@@ -9018,8 +9188,8 @@ class VISUAL:
         # iteration_string = 'iteration2_1e-7'
         # edge_section = f'section13'
 
-        k_string = 'k0.020'
-        iteration_string = 'iteration3_1e-7'
+        k_string = 'k0.040'
+        iteration_string = 'iteration4_1e-7'
         edge_section = f'section16'
 
         path = f"data/bisection/{k_string}/{edge_section}/{iteration_string}/"

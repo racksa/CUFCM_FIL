@@ -88,10 +88,10 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #define PAIR 0
 // Sub-type of prescribed cilia motion
-// This enables filaments to be seeded as pair and have difference frequency
+// This enables filaments to be seeded as pair, but each is individual and has difference frequency
+// Use 0 for bicilia
 
-
-#define BODY_VELOCITY_TYPE 1
+#define BODY_VELOCITY_TYPE 0
 // 0 = FREE TO SWIM
 // 1 = PRESCRIBED VELOCITIES
 // 2 = PRESCRIBED ROTATION ONLY
@@ -106,7 +106,9 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // #endif
 
 
-#define OUTPUT_FORCES true
+#define OUTPUT_FORCES false
+
+
 #if CILIA_TYPE==0
 
   #define CILIA_IC_TYPE 2
@@ -118,14 +120,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 1
+  #define SHAPE_SEQUENCE 5
   // Valid options:
   // 0 = 'Build-a-beat'. This choice has some parameters to set (see below).
   // 1 = The 'Fulford and Blake' beat pattern for mammalian airway cilia. See the data-fitting description in  "A model for the micro-structure in ciliated organisms", Blake (1972).
   // 2 = Coral larvae beat pattern. Data fitting done by me, in the same way as Blake (1972).
   // 3 = Volvox beat
   // 4 = Original 'Fulford and Blake' beat - <L>=0.975
-  // 5 = Bi-cilia
+  // 5 = Bi-cilia - fixed phase difference
   // 6 = Bi-cilia long T - variable phase difference
   // 7 = The 'Fulford and Blake' beat pattern with no-wall generalised force
   
@@ -149,7 +151,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
 
-  #define WRITE_GENERALISED_FORCES true
+  #define WRITE_GENERALISED_FORCES false
   // If true, this simulation will save its generalised forces to file for use as the reference values.
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
@@ -163,20 +165,9 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 5 = Read from a file (default - we can define arbitrary initial conditions in python)
   // 6 = prescribed MCW (read from the globals.ini file)
 
-  #if CILIA_IC_TYPE==2
-
-    #define CILIA_MCW_WAVELENGTH FIL_LENGTH
-
-    // This angle is measured anti-clockwise from the positive beat-wise reference-coordinate direction. Exactly which stroke this equates to will depend on the specific beat used.
-    // Note: Only the sign of this angle is considered on spherical surfaces, where the nature of the seeding means we do not control the beat-wise displacements
-    // and hence we only allow the wave to travel azimuthally. Positive values will have the wave propagate in the direction of increasing azimuthal angle.
-    #define CILIA_MCW_ANGLE (0.5*PI)
-
-  #endif
-
 #endif
 
-#define BODY_OR_SURFACE_TYPE 0
+#define BODY_OR_SURFACE_TYPE 2
 // Valid options:
 // 0 = An infinite plane wall at z = 0. This choice has some sub-types (see below). // 20240717:decrecated - only compatible with RPY
 // 1 = Deformed planes with 2 principal curvatures (partially implemented)
@@ -249,7 +240,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #endif
 
-#define MOBILITY_TYPE 1
+#define MOBILITY_TYPE 4
 // Valid options:
 // 0 = Basic Stokes drag. No hydrodynamic interactions between particles.
 // 1 = Rotne-Prager-Yamakawa (RPY) mobility matrices (with the corrections due to Swan and Brady if an infinite plane wall is selected).

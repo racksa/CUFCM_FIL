@@ -349,11 +349,13 @@ void filament::initial_setup(const Real *const base_pos,
             theta = 0;
           }
 
-
           // std::cout << base_pos[0] << "   " << base_pos[1] << "   " << base_pos[2] << "   " << std::endl;
           // std::cout << phi << "    " << theta << std::endl;
 
           phase = Real(2.0)*WAVNUM*theta + WAVNUM_DIA*phi;
+
+
+          std::cout << id << "  " << WAVNUM << " " << phase << std::endl;
 
         #endif
 

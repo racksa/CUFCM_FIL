@@ -66,10 +66,10 @@ class DRIVER:
         # self.date = '20250125_fixed_correct'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'for_paper/roadmap/'
-        self.exe_name = 'cilia_1e-4_fixed'
-        self.date = '20250728'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'for_paper/roadmap/'
+        # self.exe_name = 'cilia_1e-4_fixed'
+        # self.date = '20250728'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'tempcheck/makeup_pattern_with_force/'
         # self.exe_name = 'cilia_1e-4'
@@ -77,19 +77,24 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'for_paper/flowfield_example/'
-        # self.date = '20250522_flowfield_free_tilt_rerun'
-        # self.exe_name = 'cilia_1e-4'
+        # self.date = '20250915_flowfield_free'
+        # self.exe_name = 'cilia_1e-4_free_300'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
-        self.category = 'for_paper/twofil/'
-        self.date = '20250716'
-        self.exe_name = 'cilia_1e-4_twofil'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'for_paper/twofil/'
+        # self.date = '20250716'
+        # self.exe_name = 'cilia_1e-4_twofil'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        self.category = 'for_paper/multifil/'
-        self.date = '20250802'
-        self.exe_name = 'cilia_1e-4_plane'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        # self.category = 'for_paper/multifil/'
+        # self.date = '20250802'
+        # self.exe_name = 'cilia_1e-4_plane'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        # self.category = 'volvox/'
+        # self.date = '20250828_dp_sweep'
+        # self.exe_name = 'cilia_1e-4_bicilia_ishikawa'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
 
         # self.category = 'for_paper/flowfield_example/'
@@ -112,6 +117,11 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-4_pizza'
         # self.date = '20250225_pizza_demo'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        
+        self.category = 'volvox/'
+        self.date = '20260305_coherence'
+        self.exe_name = 'cilia_1e-4_coherence'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -147,7 +157,7 @@ class DRIVER:
                      "omega_spread": []}
 
         # self.sweep_shape = (40, 60, 1, 1) #twofil
-        self.sweep_shape = (20, 10, 1, 1)
+        self.sweep_shape = (6, 1, 1, 1)
 
         self.num_sim = 0
         self.current_thread = 0
@@ -198,7 +208,7 @@ class DRIVER:
                         force_mag = 1.0
                         tilt_angle = 0.0
                         pair_dp = 1.0
-                        wavnum = 0.0
+                        wavnum = 0.5
                         wavnum_dia = 0.0
                         ar = round(1, 2)
                         spring_factor = round(0.005, 3)
@@ -217,74 +227,82 @@ class DRIVER:
                         twofil_angle = 0.0
 
                         # # two fil
-                        nfil = int(2)
-                        nblob = int(0)
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        spring_factor = round(0.005, 3)
-                        nx=int(128)
-                        ny=int(128)
-                        nz=int(128)
-                        boxsize=400
-                        blob_spacing=5.0
-                        fil_x_dim=1
-                        blob_x_dim=10
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        x = 4.0*i
-                        y = 4.0*j
-                        fil_spacing = (x**2 + y**2)**.5
-                        # fil_spacing = 2.0 + 2.0*i
-                        import numpy as np
-                        twofil_angle = np.arctan2(y, x)
-                        # twofil_angle = np.pi/2
-                        sim_length = 100
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-                        pair_dp = 1.0
-                        fene_model = 0
-
-                        # plane
-                        nfil = int(2 + 2 * i)
-                        nblob = int(0)
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        spring_factor = round(0.01, 3)
-                        nx=int(128)
-                        ny=int(128)
-                        nz=int(128)
-                        boxsize=400
-                        fil_spacing = 40.0 + 5.0*j
-                        blob_spacing = 50.0
-                        fil_x_dim=1
-                        blob_x_dim=10
-                        hex_num=0
-                        reverse_fil_direction_ratio=0.0
-                        twofil_angle = np.pi/2
-                        sim_length = 400
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-                        pair_dp = 1.0
-                        fene_model = 0
-
-                        # # callibration
-                        # nfil = int(1)
+                        # nfil = int(2)
                         # nblob = int(0)
                         # nseg = 20
-                        # fil_spacing=256.0
-                        # blob_spacing=4.0
-                        # fil_x_dim=2
-                        # blob_x_dim=64
+                        # ar = round(1, 2)
+                        # period = 1
+                        # spring_factor = round(0.005, 3)
+                        # nx=int(128)
+                        # ny=int(128)
+                        # nz=int(128)
+                        # boxsize=400
+                        # blob_spacing=5.0
+                        # fil_x_dim=1
+                        # blob_x_dim=10
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # x = 4.0*i
+                        # y = 4.0*j
+                        # fil_spacing = (x**2 + y**2)**.5
+                        # # fil_spacing = 2.0 + 2.0*i
+                        # import numpy as np
+                        # twofil_angle = np.arctan2(y, x)
+                        # # twofil_angle = np.pi/2
+                        # sim_length = 100
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
+
+                        # plane
+                        # nfil = int(2 + 2 * i)
+                        # nblob = int(0)
+                        # nseg = 20
+                        # ar = round(1, 2)
+                        # period = 1
+                        # spring_factor = round(0.01, 3)
+                        # nx=int(128)
+                        # ny=int(128)
+                        # nz=int(128)
+                        # boxsize=400
+                        # fil_spacing = 40.0 + 5.0*j
+                        # blob_spacing = 50.0
+                        # fil_x_dim=1
+                        # blob_x_dim=10
+                        # hex_num=0
+                        # reverse_fil_direction_ratio=0.0
+                        # twofil_angle = np.pi/2
+                        # sim_length = 400
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
+
+                        # # callibration
+                        # nfil = 1
+                        # nblob = 0
+                        # ar = 15.0
+                        # nseg = 20
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=4000
+                        # spring_factor = round(0.005, 3)
+                        # period = 1
                         # sim_length = 1
+                        # tilt_angle = 0.0
+                        # wavnum = 0.0
+                        # wavnum_dia = 0.0
+                        # fene_model = 0
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
                         # pair_dp = 1.0
 
-                        # # # IVP sim
+                        # # IVP sim
                         # nfil = 639
                         # nblob = 40961
                         # ar = 15.0
-                        
                         # nseg = 20
                         # nx=400
                         # ny=400
@@ -341,7 +359,6 @@ class DRIVER:
                         # nblob = int(20 + (3*i)**3)
                         # ar = 6
                         # nseg = 40
-
                         # nfil = 640
                         # nblob = int(20 + (3*i)**3)
                         # ar = 20
@@ -355,27 +372,50 @@ class DRIVER:
                         # sim_length = 0.0034
                         # tilt_angle = 0
 
+                        # bicilia ishikawa
+                        # nfil = 640
+                        # nblob = 40962
+                        # ar = 15.0
+                        # nseg = 40
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0.005, 3)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0.0
+                        # wavnum = [-2.35, -1, 0, 1][j]
+                        # wavnum_dia = 0.0
+                        # fene_model = 0
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
+                        # pair_dp = round(0.1 * i, 2)
+
+
                         # pair phase difference
-                        # nfil = 1278
+                        # nfil = 128
                         # nblob = 40961
                         # ar = 15.0
-                        
-                        # nseg = 20
-                        # nx=256
-                        # ny=256
-                        # nz=256
-                        # boxsize=4000
-                        # spring_factor = round(0.01, 3)
-                        # period = 1
-                        # sim_length = 300
-                        # tilt_angle = 0.
-                        # pair_dp = 1.0
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 1
-                        # omega_spread = 0.2*i
-                        # force_noise_mag = 0000.0*i
-                        # pair_dp = 1.0
+
+                        nfil = 639
+                        nblob = 40961
+                        ar = 15.0
+                        nseg = 40
+                        nx=440
+                        ny=440
+                        nz=440
+                        boxsize=4000
+                        spring_factor = round(0.01, 3)
+                        period = 1
+                        sim_length = 200
+                        tilt_angle = 0.
+                        wavnum = 1
+                        wavnum_dia = 0.0
+                        fene_model = 1
+                        omega_spread = 0.0
+                        force_noise_mag = 0.0
+                        pair_dp = 1.-0.1*i
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
@@ -513,12 +553,12 @@ class DRIVER:
             self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp_{self.pars_list['force_noise_mag'][i]:.4f}noise_{self.pars_list['omega_spread'][i]:.4f}ospread_{self.pars_list['index'][i]:.0f}index"
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
-            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
+            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
+            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
             # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
             self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
             # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
+            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi{i}.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
             self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
 

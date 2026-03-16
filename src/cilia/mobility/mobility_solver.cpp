@@ -63,7 +63,7 @@ void mobility_solver::initialise(){
 
         std::cout << std::endl;
         std::cout << std::endl;
-        std::cout << "Required reference file for generalised phase forces was not found." << std::endl;
+        std::cout << "Required reference file" << reference_phase_generalised_force_file_name() << " for generalised phase forces was not found." << std::endl;
         std::cout << "Run an appropriate simulation with the WRITE_GENERALISED_FORCES option enabled." << std::endl;
         std::cout << std::endl;
         std::cout << std::endl;

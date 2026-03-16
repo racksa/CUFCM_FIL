@@ -172,7 +172,7 @@ class NEWTON_SOLVER:
     
         if self.fixT: # No extra constraint if T fixed
             y[0] = 0.0
-        else: # Constrant: dx . \dot{x} = 0
+        else: # Constraint: dx . \dot{x} = 0
             # print(f"computing \dot(x) with {self.new_x}")
             s = self.steporbit(1, self.new_x) 
             self.dt = self.new_x[0] / self.ndts
