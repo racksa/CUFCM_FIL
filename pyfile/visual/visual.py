@@ -18,6 +18,8 @@ from numba import cuda, float64
 from beat import *
 from matplotlib.ticker import ScalarFormatter
 import matplotlib.font_manager as fm
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 try:
     # Path to the directory where fonts are stored
@@ -179,12 +181,11 @@ class VISUAL:
         # self.date = '20250214_1e-6_settling'
         # self.dir = f"data/resolution/{self.date}/"
 
-        self.date = '20260305_coherence'
-        # self.date = '20250828_dp_sweep'
+        # self.date = '20260305_coherence3'
+        # self.date = '20260319_dp_sweep4'
+        self.date = '20250828_dp_sweep'
         self.dir = f"data/volvox/{self.date}/"
 
-        # self.date = '20250828_dp_sweep'
-        # volvox_legacy/volvox_bicilia/dp_sweep2/20240919_bicilia_{wavnum}/
         
 
         self.pars_list = {
@@ -239,8 +240,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 200000
-        self.frames_setting = 3000000
+        self.plot_end_frame_setting = 301
+        self.frames_setting = 299
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -254,7 +255,7 @@ class VISUAL:
         self.ncol = 4
         self.num_sim = 0
 
-        self.plot_interval = 200
+        self.plot_interval = 1
         
         self.index = 0
 
@@ -313,6 +314,7 @@ class VISUAL:
         self.nblob = int(self.pars_list['nblob'][self.index])
         self.ar = self.pars_list['ar'][self.index]
         self.spring_factor = self.pars_list['spring_factor'][self.index]
+        self.pair_dp = self.pars_list['pair_dp'][self.index]
 
         try:
             self.tilt_angle = self.pars_list['tilt_angle'][self.index]
@@ -2442,6 +2444,218 @@ class VISUAL:
             fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
 
+    def ciliate_eco_bicilia(self):        
+        self.select_sim()
+            
+        s_ref_filename = 'input/forcing/bicilia_reference_s_values_NSEG=40_SEP=2.600000_PAIR_DP=1.000000.dat'
+
+        fil_references_sphpolar = np.zeros((self.nfil,3))
+        for i in range(self.nfil):
+            fil_references_sphpolar[i] = util.cartesian_to_spherical(self.fil_references[3*i: 3*i+3])
+        
+        s_ref = np.loadtxt(s_ref_filename)
+        num_ref_phase = s_ref[0]
+        num_seg = int(s_ref[1])
+        num_frame = 13
+        num_points = 30
+        radius = 1
+        L = (num_seg-1)*2.6
+        
+        body_states_f = open(self.simName + '_body_states.dat', "r")
+        fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        # Create the sphere data points
+        num_points = 600
+        u = np.linspace(0, 2 * np.pi, num_points)
+        v = np.linspace(0, np.pi, num_points)
+        x = self.radius * np.outer(np.cos(u), np.sin(v))
+        y = self.radius * np.outer(np.sin(u), np.sin(v))
+        z = self.radius * np.outer(np.ones(np.size(u)), np.cos(v))
+
+        # Plotting
+        fig2 = plt.figure()
+        ax2 = fig2.add_subplot()
+
+        # fig = plt.figure(dpi=600)
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='3d')
+        ax.set_proj_type('ortho')
+        # ax.set_proj_type('persp', 0.05)  # FOV = 157.4 deg
+        elev_angle = 180
+        elev_angle_rad = elev_angle/180*np.pi
+        azim_angle = 0
+        azim_angle_rad = azim_angle/180*np.pi
+        plane_normal = np.array([1, 0, 0])
+        rot_mat = np.array([
+            [np.cos(azim_angle_rad), -np.sin(azim_angle_rad), 0],
+            [np.sin(azim_angle_rad), np.cos(azim_angle_rad), 0],
+            [0, 0, 1]
+        ])
+        rot_mat2 = np.array([
+            [np.cos(-elev_angle_rad), 0., -np.sin(-elev_angle_rad)],
+            [0., 1., 0.],
+            [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
+        ], dtype=object)
+        
+        plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
+
+        point_on_plane = 10*plane_normal
+        ax.view_init(elev=elev_angle, azim=azim_angle, roll=0)
+        ax.dist=5.8
+
+        # ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.zaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
+        # ax.xaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.yaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.zaxis._axinfo["grid"]['color'] =  (1,1,1,0)
+        # ax.xlim()
+
+        global frame
+        frame = 0
+
+        def animation_func(t):
+            global frame
+            if(self.video):
+                ax.cla()
+                ax2.cla()
+            ax.axis('off')
+            ax.set_aspect('equal')
+
+            body_states_str = body_states_f.readline()
+            fil_states_str = fil_states_f.readline()
+
+            body_states = np.array(body_states_str.split()[1:], dtype=float)
+            fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+            fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
+            
+            fil_phases = fil_states[:self.nfil]
+            fil_angles = fil_states[self.nfil:]
+
+            if len(fil_angles) == 0:
+                fil_angles = np.zeros(self.nfil)
+
+            
+            for swim in range(self.nswim):
+                # blob_data = np.zeros((int(self.pars['NBLOB']), 3))
+                body_pos = body_states[7*swim : 7*swim+3]
+                R = util.rot_mat(body_states[7*swim+3 : 7*swim+7])
+
+                body_pos = np.ones(3)
+                R = np.identity(3)
+                
+                # Plot the sphere
+                if(t==self.plot_end_frame-1):
+                    ax.plot_surface(x+body_pos[0], y+body_pos[1], z+body_pos[2], color='grey', alpha=0.5, zorder=0)
+                body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
+                body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
+                body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
+                
+
+                # Plot body axis
+                # ax.plot([0, body_axis_z[0]]+body_pos[0], [0, body_axis_z[1]]+body_pos[1], [0, body_axis_z[2]]+body_pos[2], c='black', linestyle='dashed')
+                # ax.plot([0, -body_axis_z[0]]+body_pos[0], [0, -body_axis_z[1]]+body_pos[1], [0, -body_axis_z[2]]+body_pos[2], c='black', linestyle='dashed')
+                # ax.scatter([body_axis_z[0]+body_pos[0]], [body_axis_z[1]+body_pos[1]], [body_axis_z[2]+body_pos[2]], c='black')
+                # ax.scatter([-body_axis_z[0]+body_pos[0]], [-body_axis_z[1]+body_pos[1]], [-body_axis_z[2]+body_pos[2]], c='black')
+
+                # Robot arm to find segment position (Ignored plane rotation!)
+                for fil in range(self.nfil):
+                    fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
+                    fil_data1 = np.zeros((int(self.nseg/2), 3))
+                    fil_data2 = np.zeros((int(self.nseg/2), 3))
+
+                    cmap_name = 'hsv'
+                    # cmap_name = 'twilight_shifted'
+                    cmap = plt.get_cmap(cmap_name)
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+
+                    s = np.linspace(0, 1, 20)
+                    Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
+
+                    Rtheta = np.array([
+                        [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
+                        [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
+                        [0, 0, 1]
+                    ])
+
+                    phase_diff = 2.*np.pi*(1. - self.pair_dp)
+                    for seg in range(0, int(self.pars['NSEG']/2)):
+                        ref1 = self.fillength*R@Rfil@Rtheta@np.array(volvox_cilia_shape(s[seg], fil_phases[fil]))
+                        seg_pos1 = fil_base + ref1
+                        fil_data1[seg] = seg_pos1
+                        
+                        ref2 = self.fillength*R@Rfil@Rtheta@np.array(volvox_cilia_shape(s[seg], fil_phases[fil] + phase_diff))
+                        seg_pos2 = fil_base + ref2
+                        fil_data2[seg] = seg_pos2
+                    
+                    # Show only one side of the sphere
+                    visible = np.sum(fil_base*plane_normal)
+                    if visible > -0.:
+                        ax.plot(fil_data1[:,0], fil_data1[:,1], fil_data1[:,2], c=fil_color, zorder = 100,)
+                        ax.plot(fil_data2[:,0], fil_data2[:,1], fil_data2[:,2], c=fil_color, zorder = 100,)
+
+                        # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c='black', zorder = 100, alpha=alpha)
+
+                    # zorder = np.sum( (fil_data - point_on_plane)*plane_normal, axis=1)
+                    # ax.plot(fil_data[:,0], fil_data[:,1], fil_data[:,2], c=fil_color,  zorder = zorder[0])
+            
+            # Plot a single filament in 2D
+            sfil_data1 = np.zeros((int(self.nseg/2), 3))
+            sfil_data2 = np.zeros((int(self.nseg/2), 3))
+            phase_diff = 2.*np.pi*self.pair_dp
+            for seg in range(0, int(self.pars['NSEG']/2)):
+                ref1 = self.fillength*np.array(volvox_cilia_shape(s[seg], 0))
+                sfil_data1[seg] = ref1
+                
+                ref2 = self.fillength*np.array(volvox_cilia_shape(s[seg], phase_diff))
+                sfil_data2[seg] = ref2
+            
+            # Show only one side of the sphere
+            ax2.plot(sfil_data1[:,1], sfil_data1[:,0], c='green', linewidth=5, zorder = 100,)
+            ax2.plot(sfil_data2[:,1], sfil_data2[:,0], c='black', linewidth=10, zorder = 90,)
+            ax2.axis('off')
+            ax2.set_xlim(-self.fillength, self.fillength)
+            ax2.set_ylim(0, self.fillength*1.5)
+
+
+        if(self.video):
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                if(i>=self.plot_start_frame):
+                    frame = i
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
+                    # plt.show()
+                    break
+                else:
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+                
+            FFwriter = animation.FFMpegWriter(fps=10)
+            ani.save(f'fig/ciliate_{self.date}_{self.nfil}fil_anim_index{self.index}.mp4', writer=FFwriter)
+                
+        else:
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+                # if(i>self.plot_end_frame-30 and (i-self.plot_end_frame+1)%3 == 0):
+                if(i==self.plot_end_frame-1):
+                    animation_func(i)
+                else:
+                    body_states_str = body_states_f.readline()
+                    fil_states_str = fil_states_f.readline()
+                    frame += 1
+            
+            ax.set_aspect('equal')
+            ax2.set_aspect('equal')
+            fig.tight_layout()
+            fig2.tight_layout()
+            # fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            fig.savefig(f'fig/ciliate_index{self.index}_{self.date}_{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig2.savefig(f'fig/ciliate_filament_shape_index{self.index}_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
+            plt.show()
+
+
     def ciliate_traj(self):
         self.select_sim()
 
@@ -3330,7 +3544,6 @@ class VISUAL:
                     source_force = source_force_list[si]
                     v_list[pi] += stokeslet(pos, source_pos, source_force)
         
-        cuda.select_device(1)
 
         @cuda.jit(device=True)
         def stokeslet_device(x, x0, f0, result):
@@ -3582,6 +3795,12 @@ class VISUAL:
                                 v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
                                     - v_list[:, 2] * np.sin(theta_flat)
 
+            
+            # Use SI unit in micrometers
+            use_SI = True
+            if use_SI:
+                v_list *= 10e-6/49.4/(1./50) * 1e6
+
             # Flow field
             cmap_name2= 'Reds'
             # cmap_name2= 'seismic'
@@ -3589,6 +3808,10 @@ class VISUAL:
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
             speed_limit = max_speed*0.7
+
+            speed_limit = 40
+            if use_SI:
+                speed_limit *= 10e-6/49.4/(1./50) * 1e6
             np.clip(speed_list, None, speed_limit, speed_list)
 
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
@@ -3596,8 +3819,6 @@ class VISUAL:
             speed_mesh = speed_list.reshape(y_mesh.shape)
             # speed_mesh = ur_list.reshape(y_mesh.shape)
             # speed_mesh = utheta_list.reshape(y_mesh.shape)
-
-           
 
             vx_mesh = v_list[:,0].reshape(y_mesh.shape)
             vy_mesh = v_list[:,1].reshape(y_mesh.shape)
@@ -3630,17 +3851,19 @@ class VISUAL:
                 phi_var_plot = ax.imshow(speed_mesh_2D.T, cmap=cmap_name2, origin='lower', extent=[x_lower, x_upper, y_lower, y_upper], vmax = speed_limit, vmin=0)            
             
             # Colorbars
-            # from matplotlib.colors import Normalize
-            # from matplotlib.cm import ScalarMappable
-            # norm = Normalize(vmin=0, vmax=2*np.pi)
-            # sm = ScalarMappable(cmap=cmap_name, norm=norm)
-            # sm.set_array([])
+            from matplotlib.colors import Normalize
+            from matplotlib.cm import ScalarMappable
+            norm = Normalize(vmin=0, vmax=2*np.pi)
+            sm = ScalarMappable(cmap=cmap_name, norm=norm)
+            sm.set_array([])
             # cbar = plt.colorbar(sm)
             # cbar.ax.set_yticks(np.linspace(0, 2*np.pi, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
             # cbar.set_label(r"Phase")
-            # cbar2 = plt.colorbar(phi_var_plot) 
-            # cbar2.set_label(r"|$v$|")
-
+            cbar2 = plt.colorbar(phi_var_plot)
+            if use_SI:
+                cbar2.set_label(r"|$v$|($\mu m/s$)")
+            else:
+                cbar2.set_label(r"|$v$|")
             # ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
             # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=3.)
             
@@ -3691,7 +3914,8 @@ class VISUAL:
             
             ax.axis('off')
             ax.set_aspect('equal')
-            plt.savefig(f'fig/flowfield_stokeslet_{self.nfil}fil_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
+            fig.tight_layout()
+            fig.savefig(f'fig/flowfield_stokeslet_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
             plt.show()
 
     def flow_field_kymograph(self):
@@ -3758,7 +3982,7 @@ class VISUAL:
         ax = fig.add_subplot()
 
         # Flow field
-        n_theta = 30
+        n_theta = 12
         n_r = 1
         n_phi = 1
         n_field_point = n_theta*n_r*n_phi
@@ -3787,107 +4011,150 @@ class VISUAL:
         v_data = np.zeros((self.frames, n_field_point, 3))
         ur_data = np.zeros((self.frames, n_field_point))
         utheta_data = np.zeros((self.frames, n_field_point))
-        uphi_data = np.zeros((self.frames, n_field_point))        
+        uphi_data = np.zeros((self.frames, n_field_point))
+
+        read_flow_field = True
+
+        if read_flow_field:
+            v_data = np.load(f'{self.dir}v_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy')
+            ur_data = np.load(f'{self.dir}ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy')
+            utheta_data = np.load(f'{self.dir}utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy')
+            # uphi_data = np.load(f'{self.dir}uphi_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy')
+        else:    
+            for i in range(self.plot_end_frame):
+                print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+
+                seg_forces_str = seg_forces_f.readline()
+                blob_forces_str = blob_forces_f.readline()
+                seg_states_str = seg_states_f.readline()
+                body_states_str = body_states_f.readline()
+
+                if(i>=self.plot_start_frame):
+                    seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
+                    blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
+                    seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                    body_states = np.array(body_states_str.split()[1:], dtype=float)
+
+                    source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+                    source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
+                    v_list = np.zeros(np.shape(pos_list))
+
+                    
+                    for swim in range(int(self.pars['NSWIM'])):
+                        body_pos = body_states[7*swim : 7*swim+3]
+
+                        for blob in range(self.nblob):
+                            blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
+                            blob_force = blob_forces[3*blob : 3*blob+3]
+                            source_pos_list[blob] = blob_pos 
+                            source_force_list[blob] = blob_force
+                        for fil in range(self.nfil):
+                            fil_i = int(3*fil*self.nseg)
+                            seg_data = np.zeros((self.nseg, 3))
+                            for seg in range(self.nseg):
+                                seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
+                                seg_data[seg] = seg_pos
+                                seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                                seg_force = seg_force[:3]
+                                source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
+                                source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
+                    
+                    d_pos_list = cuda.to_device(pos_list)
+                    d_source_pos_list = cuda.to_device(source_pos_list)
+                    d_source_force_list = cuda.to_device(source_force_list)
+                    d_v_list = cuda.to_device(v_list)
+                    # Define the grid and block dimensions
+                    threads_per_block = 256
+                    blocks_per_grid = (pos_list.shape[0] + threads_per_block - 1) // threads_per_block
+                    # Launch the kernel
+                    compute_v_list_kernel[blocks_per_grid, threads_per_block](d_pos_list, d_source_pos_list, d_source_force_list, d_v_list)
+                    # Copy the result back to the host
+                    v_list = d_v_list.copy_to_host()
+
+
+                    # for swim in range(int(self.pars['NSWIM'])):
+                    #     for blob in range(int(self.pars['NBLOB'])):
+                    #         # print(" blob ", blob, "          ", end="\r")
+                    #         blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
+                    #         blob_force = blob_forces[3*blob : 3*blob+3]
+                    #         for pi, pos in enumerate(pos_list):
+                    #             v_list[pi] += stokeslet(pos, blob_pos, blob_force)
+                    #     for fil in range(int(self.pars['NFIL'])):
+                    #         # print(" fil ", fil, "          ", end="\r")
+                    #         fil_i = int(3*fil*self.pars['NSEG'])
+                    #         for seg in range(int(self.pars['NSEG'])):
+                    #             seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
+                    #             seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
+                    #             seg_force = seg_force[:3]
+                    #             for pi, pos in enumerate(pos_list):
+                    #                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
+
+                    v_data[i-self.plot_start_frame] = v_list
+
+                    ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
+                                    v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
+                                        v_list[:, 2] * np.cos(theta_flat)
+                    uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
+                    utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
+                                    v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
+                                        - v_list[:, 2] * np.sin(theta_flat)
+
+                    ur_data[i-self.plot_start_frame] = ur_list
+                    utheta_data[i-self.plot_start_frame] = utheta_list
+                    uphi_data[i-self.plot_start_frame] = uphi_list
+
+                    np.save(f'{self.dir}/v_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', v_data)
+                    np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
+                    np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
+                    np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
+
+        # Your actual frame start/end
+        t_start = (self.plot_start_frame-1)/self.period
+        t_end   = (self.plot_end_frame-1)/self.period
+
+        # Use SI unit in micrometers
+        use_SI = True
+        if use_SI:
+            ur_data *= 10e-6/49.4/(1./50) * 1e6
+
+        # Plot heatmap, keep extent in array indices
         
-        for i in range(self.plot_end_frame):
-            print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
+        im = ax.imshow(
+            ur_data.T,
+            cmap='jet',
+            origin='upper',
+            extent=[0, ur_data.shape[0], 0, 2*np.pi],  # x-axis = array index, not normalized
+            aspect='auto'
+        )
 
-            seg_forces_str = seg_forces_f.readline()
-            blob_forces_str = blob_forces_f.readline()
-            seg_states_str = seg_states_f.readline()
-            body_states_str = body_states_f.readline()
+        # Colorbar aligned to axes
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        cbar = fig.colorbar(im, cax=cax)
+        if use_SI:
+            cbar.set_label(r'$u_r(\mu ms^{-1})$')
+        else:
+            cbar.set_label(r'$u_r$')
 
-            if(i>=self.plot_start_frame):
-                seg_forces = np.array(seg_forces_str.split()[1:], dtype=float)
-                blob_forces= np.array(blob_forces_str.split()[1:], dtype=float)
-                seg_states = np.array(seg_states_str.split()[1:], dtype=float)
-                body_states = np.array(body_states_str.split()[1:], dtype=float)
-
-                source_pos_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
-                source_force_list = np.zeros((self.nfil*self.nseg + self.nblob, 3))
-                v_list = np.zeros(np.shape(pos_list))
-
-                
-                for swim in range(int(self.pars['NSWIM'])):
-                    body_pos = body_states[7*swim : 7*swim+3]
-
-                    for blob in range(self.nblob):
-                        blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) - body_pos
-                        blob_force = blob_forces[3*blob : 3*blob+3]
-                        source_pos_list[blob] = blob_pos 
-                        source_force_list[blob] = blob_force
-                    for fil in range(self.nfil):
-                        fil_i = int(3*fil*self.nseg)
-                        seg_data = np.zeros((self.nseg, 3))
-                        for seg in range(self.nseg):
-                            seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
-                            seg_data[seg] = seg_pos
-                            seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
-                            seg_force = seg_force[:3]
-                            source_pos_list[self.nblob+fil*self.nseg+seg] = seg_pos
-                            source_force_list[self.nblob+fil*self.nseg+seg] = seg_force
-                
-                d_pos_list = cuda.to_device(pos_list)
-                d_source_pos_list = cuda.to_device(source_pos_list)
-                d_source_force_list = cuda.to_device(source_force_list)
-                d_v_list = cuda.to_device(v_list)
-                # Define the grid and block dimensions
-                threads_per_block = 256
-                blocks_per_grid = (pos_list.shape[0] + threads_per_block - 1) // threads_per_block
-                # Launch the kernel
-                compute_v_list_kernel[blocks_per_grid, threads_per_block](d_pos_list, d_source_pos_list, d_source_force_list, d_v_list)
-                # Copy the result back to the host
-                v_list = d_v_list.copy_to_host()
-
-
-                # for swim in range(int(self.pars['NSWIM'])):
-                #     for blob in range(int(self.pars['NBLOB'])):
-                #         # print(" blob ", blob, "          ", end="\r")
-                #         blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3]))
-                #         blob_force = blob_forces[3*blob : 3*blob+3]
-                #         for pi, pos in enumerate(pos_list):
-                #             v_list[pi] += stokeslet(pos, blob_pos, blob_force)
-                #     for fil in range(int(self.pars['NFIL'])):
-                #         # print(" fil ", fil, "          ", end="\r")
-                #         fil_i = int(3*fil*self.pars['NSEG'])
-                #         for seg in range(int(self.pars['NSEG'])):
-                #             seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
-                #             seg_force = seg_forces[2*fil_i+6*(seg) : 2*fil_i+6*(seg+1)]
-                #             seg_force = seg_force[:3]
-                #             for pi, pos in enumerate(pos_list):
-                #                 v_list[pi] += stokeslet(pos, seg_pos, seg_force)
-
-                v_data[i-self.plot_start_frame] = v_list
-
-                ur_list = v_list[:, 0] * np.sin(theta_flat) * np.cos(phi_flat) + \
-                                v_list[:, 1] * np.sin(theta_flat) * np.sin(phi_flat) + \
-                                    v_list[:, 2] * np.cos(theta_flat)
-                uphi_list = - v_list[:, 0] * np.sin(phi_flat) + v_list[:, 1] * np.cos(phi_flat)
-                utheta_list = v_list[:, 0] * np.cos(theta_flat) * np.cos(phi_flat) + \
-                                v_list[:, 1] * np.cos(theta_flat) * np.sin(phi_flat) \
-                                    - v_list[:, 2] * np.sin(theta_flat)
-
-                ur_data[i-self.plot_start_frame] = ur_list
-                utheta_data[i-self.plot_start_frame] = utheta_list
-                uphi_data[i-self.plot_start_frame] = uphi_list
-
-                np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
-                np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
-                np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
-
-        t = ur_data.shape[0]/30
-        
-        ax.imshow(ur_data.T, cmap='jet', origin='upper', extent=[0, t, 0, 2*np.pi])
-
+        # Y-axis ticks
         y_ticks = np.linspace(0, 2*np.pi, 5)
-        y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$' ][::-1]
-        ax.set_yticks(ticks=y_ticks, labels=y_labels)
+        y_labels = [r'$0$', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'][::-1]
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels(y_labels)
+
+        # X-axis: map from array indices to actual frame numbers
+        num_ticks = 5
+        x_ticks = np.linspace(0, ur_data.shape[0], num_ticks)  # positions in array units
+        x_labels = np.linspace(t_start, t_end, num_ticks)      # frame numbers to display
+        ax.set_xticks(x_ticks)
+        ax.set_xticklabels([f'{f:.1f}' for f in x_labels]) 
 
         ax.set_xlabel(r'$t/T$')
-        ax.set_ylabel(r'$\theta$')        
+        ax.set_ylabel(r'$\theta$')
 
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig.savefig(f'fig/flow_field{with_blob_string}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png')
+        fig.tight_layout()     
+
+        fig.savefig(f'fig/kymograph_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
     
     def flow_field_FFCM_series(self):
@@ -7294,13 +7561,19 @@ class VISUAL:
         ax = fig.add_subplot(1,1,1)
         fig2 = plt.figure()
         ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure(figsize=(20, 12),)
+        fig3 = plt.figure()
         ax3 = fig3.add_subplot(1,1,1)
+        fig4 = plt.figure()
+        ax4 = fig4.add_subplot(1,1,1)
 
         print(self.pars_list['spring_factor'])
 
         colormap = 'tab20'
         cmap = mpl.colormaps[colormap]
+
+        dp_list = self.pars_list['pair_dp']
+        ind_list = np.arange(self.num_sim)
+        coherence_list = np.zeros(self.num_sim)
 
         for ind in range(self.num_sim):
             try:
@@ -7350,7 +7623,7 @@ class VISUAL:
                         fil_phases = fil_states[:self.nfil]
                         fil_angles = fil_states[self.nfil:]
 
-                        '''
+                        
                         fil_angles_sorted = fil_angles[sorted_indices]
                         fil_phases_sorted = fil_phases[sorted_indices]
                         sin_phases_sorted = np.sin(fil_phases_sorted)
@@ -7365,7 +7638,7 @@ class VISUAL:
                             phases_in_group = sin_phases_sorted[np.where(cluster_assignments==m)]
                             variance_array[m] = np.var(phases_in_group)
                         corr_array2[i-self.plot_start_frame] = np.mean(variance_array)
-                        '''
+                        
 
                         # Coordination number for angle
                         # for m in range(n_clusters):
@@ -7382,35 +7655,43 @@ class VISUAL:
                 ax2.plot(time_array, corr_array2, color=color, label=f"index={self.index}")
                 ax3.plot(time_array, r_array, color=color, label=f"index={self.index}")
                 
+                coherence_list[ind] = np.mean(r_array)
                 
             except:
                 print("WARNING: " + self.simName + " not found.")
         
-        ax.set_xlabel('t/T')
+        ax4.plot(1. - np.array(dp_list), coherence_list, color='black', marker='+')
+        ax4.set_xlabel(r'$\frac{\Delta \psi_1}{2\pi}$')
+        ax4.set_ylabel(r'$<r>$')
+        ax4.set_xlim(0, 0.5)
+        
+        ax.set_xlabel(r'$t/T$')
         ax.set_ylabel('Coordination number')
         ax.set_xlim(time_array[0], time_array[-1])
         ax.set_ylim(0)
 
-        ax2.set_xlabel('t/T')
+        ax2.set_xlabel(r'$t/T$')
         ax2.set_ylabel('Coordination number 2')
         ax2.set_xlim(time_array[0], time_array[-1])
         ax2.set_ylim(0)
 
-        
         ax3.set_ylim(0)
-        ax3.set_xlabel('t/T')
-        ax3.set_ylabel('<r>')
+        ax3.set_xlabel(r'$t/T$')
+        ax3.set_ylabel(r'$<r>$')
         ax3.set_xlim(time_array[0], time_array[-1])
-
 
         fig.legend()
         fig2.legend()
         fig3.legend()
-        plt.tight_layout()
+        fig.tight_layout()
+        fig2.tight_layout()
+        fig3.tight_layout()
+        fig4.tight_layout()
         # fig.savefig(f'fig/multi_coordination_parameter_one.pdf', bbox_inches = 'tight', format='pdf')
         # fig2.savefig(f'fig/multi_coordination_parameter_two.pdf', bbox_inches = 'tight', format='pdf')
-        fig3.savefig(f'fig/multi_order_parameter_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
-        # plt.show()
+        # fig3.savefig(f'fig/multi_order_parameter_{self.date}.pdf', bbox_inches = 'tight', format='pdf')
+        fig4.savefig(f'fig/coherence_vs_dp.pdf', bbox_inches = 'tight', format='pdf')
+        plt.show()
 
     def multi_phase_diff(self):
         fig = plt.figure()

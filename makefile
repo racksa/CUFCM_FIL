@@ -83,11 +83,11 @@ flow_field_nvidia4: $(FLOW_FIELD_CPP) $(FLOW_FIELD_CUDA)
 HPC_OPTS = -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0
 
 cilia_ic_hpc: $(CILIA_CPP) $(CILIA_CUDA)
-	module load cuda/11.4.2 && \
+	# module load cuda/11.4.2 && \
 	nvcc $^ $(HPC_OPTS) $(MOBILITY_OPTS) $(GEN_FLAGS) -o cilia
 
 flow_field_ic_hpc: $(FLOW_FIELD_CPP) $(FLOW_FIELD_CUDA)
-	module load cuda/11.4.2 && \
+	# module load cuda/11.4.2 && \
 	nvcc $^ $(HPC_OPTS) $(GEN_FLAGS) -o flow_field
 
 #
@@ -109,14 +109,15 @@ flow_field_pc: $(FLOW_FIELD_CPP) $(FLOW_FIELD_CUDA)
 NVCC_FLAGS=-arch=sm_75 -std=c++17 -O3 -I../include -Xcompiler -fopenmp
 
 LINK= -lcufft -lcurand -llapack -lopenblas -llapacke -lineinfo
-HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8
+# HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8
+HPC_LINK = -lcufft -lcurand -lopenblas -llapack -llapacke
 
 cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_ins
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_coherence
+	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_bicilia_ishikawa2
 
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
-	module load cuda/11.4.2 && \
-	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pizza
+	# module load cuda/11.4.2 && \
+	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_coherence

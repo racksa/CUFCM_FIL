@@ -106,7 +106,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // #endif
 
 
-#define OUTPUT_FORCES false
+#define OUTPUT_FORCES true
 
 
 #if CILIA_TYPE==0
@@ -132,21 +132,21 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 7 = The 'Fulford and Blake' beat pattern with no-wall generalised force
   
 
-  #if SHAPE_SEQUENCE==0
+  // #if SHAPE_SEQUENCE==0
 
-    #define SCALED_BEAT_AMPLITUDE 1.99 // A value in (0,2), giving the beat amplitude in units of filament length.
-    #define RECOVERY_STROKE_WINDOW_LENGTH (1.0/12.0) // A value in (0,1), giving the fraction of the beat cycle over which a given point on the filament completes its recovery-stroke tangent angle change.
-    #define EFFECTIVE_STROKE_LENGTH 0.75 // A value in (0,1), giving the fraction of the cycle spent in the effective stroke.
-    // N.B. We must have RECOVERY_STROKE_WINDOW_LENGTH + EFFECTIVE_STROKE_LENGTH < 1
-    #define ZERO_VELOCITY_AVOIDANCE_LENGTH 0.05 // A value in (0,1), giving the maximum fraction of the cycle by which we shift the tangent angle curve to ensure the velocity cannot be zero everywhere along the filament at once.
+  //   #define SCALED_BEAT_AMPLITUDE 1.99 // A value in (0,2), giving the beat amplitude in units of filament length.
+  //   #define RECOVERY_STROKE_WINDOW_LENGTH (1.0/12.0) // A value in (0,1), giving the fraction of the beat cycle over which a given point on the filament completes its recovery-stroke tangent angle change.
+  //   #define EFFECTIVE_STROKE_LENGTH 0.75 // A value in (0,1), giving the fraction of the cycle spent in the effective stroke.
+  //   // N.B. We must have RECOVERY_STROKE_WINDOW_LENGTH + EFFECTIVE_STROKE_LENGTH < 1
+  //   #define ZERO_VELOCITY_AVOIDANCE_LENGTH 0.05 // A value in (0,1), giving the maximum fraction of the cycle by which we shift the tangent angle curve to ensure the velocity cannot be zero everywhere along the filament at once.
 
-  #endif
+  // #endif
 
-  #define DYNAMIC_PHASE_EVOLUTION true
+  #define DYNAMIC_PHASE_EVOLUTION false
   // If true, cilia phase speeds are solved for as part of the dynamics. Note that this requires having run a reference simulation with WRITE_GENERALISED_FORCES=true previously.
   // If false, phase_dot = omega0 is constant for each cilium.
 
-  #define DYNAMIC_SHAPE_ROTATION true
+  #define DYNAMIC_SHAPE_ROTATION false
   // If true, the vertical in the cilia reference configuration can rotate with respect to the surface normal.
   // Essentially, the cilia can 'tip backwards or forwards' in their beat planes.
   // If false, no such rotation ever occurs.
@@ -156,7 +156,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // It will also generate reference s-values for shape sequences which don't result in inextensible filaments.
   // NOTE: This will overwrite any existing reference files unless their names have been changed.
 
-  #define CILIA_IC_TYPE 5
+  #define CILIA_IC_TYPE 6
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Cilia start with a (uniformly) random initial phase. (deprecated)
@@ -201,7 +201,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 5
   // Valid options:
   // 0 = Filaments are evenly distributed over the surface.
   // 1 = Filaments are seeded in an equatorial band.
@@ -381,7 +381,7 @@ extern Real REV_RATIO;
 #else
 
   #define STEPS_PER_PERIOD 300
-  #define SAVES_PER_PERIOD 30
+  #define SAVES_PER_PERIOD 300
 
 #endif
 

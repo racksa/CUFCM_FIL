@@ -91,12 +91,6 @@ class DRIVER:
         # self.exe_name = 'cilia_1e-4_plane'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-        # self.category = 'volvox/'
-        # self.date = '20250828_dp_sweep'
-        # self.exe_name = 'cilia_1e-4_bicilia_ishikawa'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-
         # self.category = 'for_paper/flowfield_example/'
         # self.exe_name = 'cilia_1e-8_free_300'
         # # self.exe_name = 'cilia_1e-4_free'
@@ -119,9 +113,15 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
         self.category = 'volvox/'
-        self.date = '20260305_coherence'
-        self.exe_name = 'cilia_1e-4_coherence'
+        self.date = '20260319_dp_sweep'
+        self.exe_name = 'cilia_1e-4_bicilia_ishikawa2'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+
+        # self.category = 'volvox/'
+        # self.date = '20260305_coherence'
+        # self.exe_name = 'cilia_1e-4_coherence'
+        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
 
         self.pars_list = {
@@ -157,7 +157,7 @@ class DRIVER:
                      "omega_spread": []}
 
         # self.sweep_shape = (40, 60, 1, 1) #twofil
-        self.sweep_shape = (6, 1, 1, 1)
+        self.sweep_shape = (6, 4, 1, 1)
 
         self.num_sim = 0
         self.current_thread = 0
@@ -373,24 +373,24 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # bicilia ishikawa
-                        # nfil = 640
-                        # nblob = 40962
-                        # ar = 15.0
-                        # nseg = 40
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0.0
-                        # wavnum = [-2.35, -1, 0, 1][j]
-                        # wavnum_dia = 0.0
-                        # fene_model = 0
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = round(0.1 * i, 2)
+                        nfil = 640
+                        nblob = 40962
+                        ar = 15.0
+                        nseg = 40
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=8000
+                        spring_factor = round(0.005, 3)
+                        period = 1
+                        sim_length = 1
+                        tilt_angle = 0.0
+                        wavnum = [-2.35, -1, 0, 1][j]
+                        wavnum_dia = 0.0
+                        fene_model = 0
+                        omega_spread = 0.0
+                        force_noise_mag = 0.0
+                        pair_dp = round(0.1 * i, 2)
 
 
                         # pair phase difference
@@ -398,24 +398,24 @@ class DRIVER:
                         # nblob = 40961
                         # ar = 15.0
 
-                        nfil = 639
-                        nblob = 40961
-                        ar = 15.0
-                        nseg = 40
-                        nx=440
-                        ny=440
-                        nz=440
-                        boxsize=4000
-                        spring_factor = round(0.01, 3)
-                        period = 1
-                        sim_length = 200
-                        tilt_angle = 0.
-                        wavnum = 1
-                        wavnum_dia = 0.0
-                        fene_model = 1
-                        omega_spread = 0.0
-                        force_noise_mag = 0.0
-                        pair_dp = 1.-0.1*i
+                        # nfil = 639
+                        # nblob = 40961
+                        # ar = 15.0
+                        # nseg = 40
+                        # nx=440
+                        # ny=440
+                        # nz=440
+                        # boxsize=4000
+                        # spring_factor = round(0.01, 3)
+                        # period = 1
+                        # sim_length = 200
+                        # tilt_angle = 0.
+                        # wavnum = 1
+                        # wavnum_dia = 0.0
+                        # fene_model = 1
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
+                        # pair_dp = 1.-0.1*i
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
