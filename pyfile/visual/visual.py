@@ -181,7 +181,7 @@ class VISUAL:
         # self.date = '20250214_1e-6_settling'
         # self.dir = f"data/resolution/{self.date}/"
 
-        # self.date = '20260305_coherence3'
+        self.date = '20260305_coherence'
         # self.date = '20260319_dp_sweep4'
         self.date = '20250828_dp_sweep'
         self.dir = f"data/volvox/{self.date}/"
@@ -240,8 +240,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 301
-        self.frames_setting = 299
+        self.plot_end_frame_setting = 301000000
+        self.frames_setting = 1200
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -4013,7 +4013,7 @@ class VISUAL:
         utheta_data = np.zeros((self.frames, n_field_point))
         uphi_data = np.zeros((self.frames, n_field_point))
 
-        read_flow_field = True
+        read_flow_field = False
 
         if read_flow_field:
             v_data = np.load(f'{self.dir}v_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy')
@@ -4103,10 +4103,11 @@ class VISUAL:
                     utheta_data[i-self.plot_start_frame] = utheta_list
                     uphi_data[i-self.plot_start_frame] = uphi_list
 
-                    np.save(f'{self.dir}/v_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', v_data)
-                    np.save(f'{self.dir}/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
-                    np.save(f'{self.dir}/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
-                    np.save(f'{self.dir}/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
+                    os.system(f'mkdir -p {self.dir}kymograph')
+                    np.save(f'{self.dir}kymograph/v_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', v_data)
+                    np.save(f'{self.dir}kymograph/ur_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', ur_data)
+                    np.save(f'{self.dir}kymograph/utheta_data_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', utheta_data)
+                    np.save(f'{self.dir}kymograph/grid_shape_fil{self.nfil}_r{r_ratio}_index{self.index}.npy', np.array(R.shape))            
 
         # Your actual frame start/end
         t_start = (self.plot_start_frame-1)/self.period
@@ -7661,7 +7662,7 @@ class VISUAL:
                 print("WARNING: " + self.simName + " not found.")
         
         ax4.plot(1. - np.array(dp_list), coherence_list, color='black', marker='+')
-        ax4.set_xlabel(r'$\frac{\Delta \psi_1}{2\pi}$')
+        ax4.set_xlabel(r'$\Delta \psi_1/2\pi$')
         ax4.set_ylabel(r'$<r>$')
         ax4.set_xlim(0, 0.5)
         
