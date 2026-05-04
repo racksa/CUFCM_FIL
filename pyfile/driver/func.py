@@ -117,12 +117,22 @@ class DRIVER:
         self.exe_name = 'cilia_1e-4_bicilia_ishikawa2'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
-
         # self.category = 'volvox/'
         # self.date = '20260305_coherence'
         # self.exe_name = 'cilia_1e-4_coherence'
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
+        self.category = 'regular_wall_sim/'
+        self.date = '20260429_inves_k_2d'
+        # self.date = '20260422_twofil4'
+        self.exe_name = 'cilia_1e-4_plane'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
+
+        self.category = 'for_paper/highk/'
+        # self.exe_name = 'cilia_1e-8_free_300'
+        self.exe_name = 'cilia_1e-4_free'
+        self.date = '20260504_highk'
+        self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         self.pars_list = {
                      "index": [],
@@ -156,8 +166,8 @@ class DRIVER:
                      "force_noise_mag": [],
                      "omega_spread": []}
 
-        # self.sweep_shape = (40, 60, 1, 1) #twofil
-        self.sweep_shape = (6, 4, 1, 1)
+        # self.sweep_shape = (40, 60, 1, 1) # twofil
+        self.sweep_shape = (15, 1, 1, 1) # multifil 
 
         self.num_sim = 0
         self.current_thread = 0
@@ -242,8 +252,8 @@ class DRIVER:
                         # blob_x_dim=10
                         # hex_num=2
                         # reverse_fil_direction_ratio=0.0
-                        # x = 4.0*i
-                        # y = 4.0*j
+                        # x = 12.0*i
+                        # y = 12.0*j
                         # fil_spacing = (x**2 + y**2)**.5
                         # # fil_spacing = 2.0 + 2.0*i
                         # import numpy as np
@@ -255,29 +265,73 @@ class DRIVER:
                         # pair_dp = 1.0
                         # fene_model = 0
 
-                        # plane
-                        # nfil = int(2 + 2 * i)
-                        # nblob = int(0)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # spring_factor = round(0.01, 3)
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=400
-                        # fil_spacing = 40.0 + 5.0*j
-                        # blob_spacing = 50.0
-                        # fil_x_dim=1
-                        # blob_x_dim=10
-                        # hex_num=0
-                        # reverse_fil_direction_ratio=0.0
-                        # twofil_angle = np.pi/2
-                        # sim_length = 400
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
+                        # 1-D multifil
+                        nfil = int(45)
+                        nblob = int(0)
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        import numpy as np
+                        spring_factor = round(0.01 + 0.01*i, 3)
+
+                        # n = self.sweep_shape[0]
+                        # n1 = int(0.7 * n)
+                        # if i < n1:
+                        #     spring_factor = round(i * 0.06 / n1, 3)
+                        # else:
+                        #     t = (i - n1) / (n - 1 - n1)
+                        #     spring_factor = round(0.06 + 0.94 * t**3, 3)
+
+                        nx=int(128)
+                        ny=int(128)
+                        nz=int(128)
+                        boxsize=400
+                        fil_spacing = 58.9
+                        blob_spacing = 50.0
+                        fil_x_dim=1
+                        blob_x_dim=10
+                        hex_num=0
+                        reverse_fil_direction_ratio=0.0
+                        twofil_angle = np.pi/2
+                        sim_length = 300
+                        force_noise_mag = 0.0
+                        omega_spread = 0.0
+                        pair_dp = 1.0
+                        fene_model = 0
+
+
+                        # 2-D multifil
+                        nfil = int(400)
+                        nblob = int(0)
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        import numpy as np
+                        n = self.sweep_shape[0]
+                        n1 = int(0.7 * n)
+                        if i < n1:
+                            spring_factor = round(i * 0.06 / n1, 3)
+                        else:
+                            t = (i - n1) / (n - 1 - n1)
+                            spring_factor = round(0.06 + 0.94 * t**3, 3)
+
+                        nx=int(128)
+                        ny=int(128)
+                        nz=int(128)
+                        boxsize=400
+                        fil_spacing = 58.9
+                        blob_spacing = 50.0
+                        fil_x_dim=20
+                        blob_x_dim=20
+                        hex_num=0
+                        reverse_fil_direction_ratio=0.0
+                        twofil_angle = np.pi/2
+                        sim_length = 300
+                        force_noise_mag = 0.0
+                        omega_spread = 0.0
+                        pair_dp = 1.0
+                        fene_model = 0
+
 
                         # # callibration
                         # nfil = 1
@@ -300,26 +354,25 @@ class DRIVER:
                         # pair_dp = 1.0
 
                         # # IVP sim
-                        # nfil = 639
-                        # nblob = 40961
-                        # ar = 15.0
-                        # nseg = 20
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=4000 *(i+1)
-                        # spring_factor = round(0.005 + 0.005*i, 3)
-                        # # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 1000
-                        # # tilt_angle = i*1./18*3.141592653
-                        # tilt_angle = 0.0
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 0
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = 1.0
+                        nfil = 639
+                        nblob = 40961
+                        ar = 15.0
+                        nseg = 20
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
+                        spring_factor = round(0.1 + 0.1*i, 3)
+                        period = 1
+                        sim_length = 1000
+                        # tilt_angle = i*1./18*3.141592653
+                        tilt_angle = 0.0
+                        wavnum = 0.0
+                        wavnum_dia = 0.0
+                        fene_model = 0
+                        omega_spread = 0.0
+                        force_noise_mag = 0.0
+                        pair_dp = 1.0
                         
 
                         # # ishikawa pnas
@@ -373,24 +426,24 @@ class DRIVER:
                         # tilt_angle = 0
 
                         # bicilia ishikawa
-                        nfil = 640
-                        nblob = 40962
-                        ar = 15.0
-                        nseg = 40
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=8000
-                        spring_factor = round(0.005, 3)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = 0.0
-                        wavnum = [-2.35, -1, 0, 1][j]
-                        wavnum_dia = 0.0
-                        fene_model = 0
-                        omega_spread = 0.0
-                        force_noise_mag = 0.0
-                        pair_dp = round(0.1 * i, 2)
+                        # nfil = 640
+                        # nblob = 40962
+                        # ar = 15.0
+                        # nseg = 40
+                        # nx=400
+                        # ny=400
+                        # nz=400
+                        # boxsize=8000
+                        # spring_factor = round(0.005, 3)
+                        # period = 1
+                        # sim_length = 1
+                        # tilt_angle = 0.0
+                        # wavnum = [-2.35, -1, 0, 1][j]
+                        # wavnum_dia = 0.0
+                        # fene_model = 0
+                        # omega_spread = 0.0
+                        # force_noise_mag = 0.0
+                        # pair_dp = round(0.1 * i, 2)
 
 
                         # pair phase difference
@@ -416,6 +469,7 @@ class DRIVER:
                         # omega_spread = 0.0
                         # force_noise_mag = 0.0
                         # pair_dp = 1.-0.1*i
+
 
                         # swimmer size trend
                         # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
