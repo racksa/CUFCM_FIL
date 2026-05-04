@@ -29,9 +29,9 @@
 # command="python3 pyfile/bisection/bisection.py ${q} 9 0 "
 
 
-q=9
-nq=16
-folder="20240311_5"
+q=5
+nq=6
+folder="20260305_coherence3"
 command="python3 pyfile/driver/driver.py run ${q} ${nq} 1 $folder HPC"
 
 
