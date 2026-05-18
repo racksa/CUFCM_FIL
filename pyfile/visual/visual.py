@@ -186,11 +186,13 @@ class VISUAL:
         # self.date = '20250828_dp_sweep'
         # self.dir = f"data/volvox/{self.date}/"
 
+
         self.date = '20260428_inves_k_1d'
-        # self.date = '20260429_inves_k_2d'
+        self.date = '20260508_inves_k_1d'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        
+        # self.date = '20260504_highk'
+        # self.dir = f"data/for_paper/highk/{self.date}/"
 
         self.pars_list = {
                      "index": [],
@@ -245,7 +247,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 900000
-        self.frames_setting = 1500
+        self.frames_setting = 600
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -2034,7 +2036,6 @@ class VISUAL:
                     fil_base = np.matmul(R, self.fil_references[3*fil : 3*fil+3])
                     fil_data = np.zeros((self.nseg, 3))
                     fil_i = int(3*fil*self.nseg)
-                    print(" fil ", fil, "          ", end="\r")
 
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
                     alpha = 0.1 + 0.9*abs(np.cos(fil_phases[fil]/2))
@@ -6537,7 +6538,10 @@ class VISUAL:
     def multifil_side(self):
         self.select_sim()
 
-        cmap = plt.get_cmap('hsv')
+        plot_snapshots = True   # toggle: also produce a multi-frame snapshot figure
+        n_snapshots    = 4      # number of evenly-spaced frames in the snapshot window
+        n_periods      = 0.75   # snapshot window spans this many beat periods up to plot_end_frame
+        plot_psi2      = False   # toggle: draw ψ₂ direction lines
 
         fil_states_f = open(self.simName + '_true_states.dat', "r")
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
@@ -6547,29 +6551,16 @@ class VISUAL:
         y_max = (self.fil_references[self.nfil*3 - 2] + self.pars_list['fil_spacing'][self.index]) / self.fillength
         z_min, z_max = 0.0, 1.1  # normalised z range (filaments beat 0..L)
 
-        # With set_aspect('equal'), axes width/height == data width/height.
-        # Size the figure so the axes height equals the colorbar height naturally.
-        fig_height = 2.5  # inches
-        axes_fraction = 0.80  # approximate fraction of fig height occupied by axes after margins
-        axes_height_in = fig_height * axes_fraction
-        axes_width_in  = axes_height_in * (y_max - y_min) / (z_max - z_min)
-        colorbar_width_in = 0.6
-        fig_width = axes_width_in / axes_fraction + colorbar_width_in
-        fig_width = 16
+        fig_height = 2.5
+        fig_width  = 16
 
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-
-        sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=0, vmax=2*np.pi))
-        sm.set_array([])
-        cbar = fig.colorbar(sm, ax=ax, shrink=0.5)
-        cbar.set_label(r"$\psi_1$")
-        cbar.set_ticks([0, np.pi, 2*np.pi])
-        cbar.set_ticklabels([r'$0$', r'$\pi$', r'$2\pi$'])
         fig.tight_layout()
 
         def animation_func(t):
             print(f" frame {t} / {self.plot_end_frame}          ", end="\r")
-            ax.cla()
+            if(self.video):
+                ax.cla()
 
             fil_states_str = fil_states_f.readline()
             seg_states_str = seg_states_f.readline()
@@ -6584,17 +6575,15 @@ class VISUAL:
                 for seg in range(self.nseg):
                     fil_data[seg] = seg_states[fil_i + 3*seg : fil_i + 3*seg + 3]
 
-                fil_color = cmap(util.box(fil_phases[fil], 2*np.pi) / (2*np.pi))
                 ax.plot(fil_data[:, 1] / self.fillength,
                         fil_data[:, 2] / self.fillength,
-                        c=fil_color, lw=1.5)
+                        c='black', lw=1.5)
 
-                y_base = self.fil_references[3*fil + 1] / self.fillength
-                psi2   = fil_angles[fil]
-                arrow_len = 1
-                ax.plot([y_base, y_base + arrow_len*np.sin(psi2)],
-                        [0, arrow_len*np.cos(psi2)],
-                        color='red', lw=1.5)
+                if plot_psi2:
+                    y_base = self.fil_references[3*fil + 1] / self.fillength
+                    psi2   = fil_angles[fil]
+                    ax.plot([y_base, y_base + np.sin(psi2)], [0, np.cos(psi2)],
+                            color='red', lw=1.5)
 
             ax.axhline(0, color='black', lw=1.5)
             ax.set_xlim(y_min, y_max)
@@ -6604,22 +6593,101 @@ class VISUAL:
             ax.set_aspect('equal')
 
         if self.video:
-            for i in range(self.plot_start_frame):
-                fil_states_f.readline()
-                seg_states_f.readline()
-            plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
-            ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=10, repeat=False)
-            FFwriter = animation.FFMpegWriter(fps=16)
-            ani.save(f'fig/multifil_side_{self.index}_anim.mp4', writer=FFwriter)
-        else:
             for i in range(self.plot_end_frame):
-                if i == self.plot_end_frame - 1:
-                    animation_func(i)
+                print(f" frame {i} / {self.plot_end_frame}          ", end="\r")
+                if i >= self.plot_start_frame-1:
+                    plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+                    ani = animation.FuncAnimation(fig, animation_func, frames=self.frames, interval=1, repeat=False)
+                    break
                 else:
                     fil_states_f.readline()
                     seg_states_f.readline()
+            FFwriter = animation.FFMpegWriter(fps=16)
+            ani.save(f'fig/multifil_side_{self.index}_k{self.spring_factor}_anim.mp4', writer=FFwriter)
+        else:
+            snap_indices  = set()
+            snap_start    = 0
+            snap_frame_map = {}   # frame_index -> intended t/T fraction
+            if plot_snapshots:
+                snap_start    = max(self.plot_end_frame - int(n_periods * self.period), 0)
+                t_fracs       = np.linspace(0, n_periods, n_snapshots, endpoint=True)
+                snap_frames   = [min(int(round(snap_start + tf * self.period)),
+                                     self.plot_end_frame - 1) for tf in t_fracs]
+                snap_frame_map = {f: tf for f, tf in zip(snap_frames, t_fracs)}
 
-            fig.savefig(f'fig/multifil_side_{self.index}.png', bbox_inches='tight', format='png', transparent=True)
+            snapshot_data   = []   # (t_frac, fil_phases, fil_angles, seg_states)
+            last_frame_data = None
+
+            for i in range(self.plot_end_frame):
+                fil_states_str = fil_states_f.readline()
+                seg_states_str = seg_states_f.readline()
+
+                if i in snap_frame_map or i == self.plot_end_frame - 1:
+                    fil_states = np.array(fil_states_str.split()[2:], dtype=float)
+                    fil_phases = util.box(fil_states[:self.nfil], 2*np.pi)
+                    fil_angles = fil_states[self.nfil:]
+                    seg_states = np.array(seg_states_str.split()[1:], dtype=float)
+                    if i in snap_frame_map:
+                        snapshot_data.append((snap_frame_map[i], fil_phases, fil_angles, seg_states))
+                    if i == self.plot_end_frame - 1:
+                        last_frame_data = (fil_phases, fil_angles, seg_states)
+
+            # --- main fig: last frame ---
+            fil_phases, fil_angles, seg_states = last_frame_data
+            for fil in range(self.nfil):
+                fil_i = int(3 * fil * self.nseg)
+                fil_data = np.zeros((self.nseg, 3))
+                for seg in range(self.nseg):
+                    fil_data[seg] = seg_states[fil_i + 3*seg : fil_i + 3*seg + 3]
+                ax.plot(fil_data[:, 1] / self.fillength,
+                        fil_data[:, 2] / self.fillength, c='black', lw=1.5)
+                if plot_psi2:
+                    y_base = self.fil_references[3*fil + 1] / self.fillength
+                    psi2   = fil_angles[fil]
+                    ax.plot([y_base, y_base + np.sin(psi2)], [0, np.cos(psi2)],
+                            color='red', lw=1.5)
+            ax.axhline(0, color='black', lw=1.5)
+            ax.set_xlim(y_min, y_max)
+            ax.set_ylim(z_min, z_max)
+            ax.set_xlabel(r"$y/L$")
+            ax.set_ylabel(r"$z/L$")
+            ax.set_aspect('equal')
+            fig.savefig(f'fig/multifil_side_{self.index}_k{self.spring_factor}.png', bbox_inches='tight', format='png', transparent=True)
+
+            # --- snapshot fig: n_snapshots rows ---
+            if plot_snapshots and snapshot_data:
+                n_rows = len(snapshot_data)
+                fig_s, axes_s = plt.subplots(n_rows, 1, sharex=True,
+                                             figsize=(16, 0.6 * n_rows))
+                axes_s = np.atleast_1d(axes_s)
+
+                for row, (t_frac, fp, fa, ss) in enumerate(snapshot_data):
+                    ax_s = axes_s[row]
+                    for fil in range(self.nfil):
+                        fil_i = int(3 * fil * self.nseg)
+                        fil_data = np.zeros((self.nseg, 3))
+                        for seg in range(self.nseg):
+                            fil_data[seg] = ss[fil_i + 3*seg : fil_i + 3*seg + 3]
+                        ax_s.plot(fil_data[:, 1] / self.fillength,
+                                  fil_data[:, 2] / self.fillength, c='black', lw=1.2)
+                        if plot_psi2:
+                            y_base = self.fil_references[3*fil + 1] / self.fillength
+                            psi2   = fa[fil]
+                            ax_s.plot([y_base, y_base + np.sin(psi2)], [0, np.cos(psi2)],
+                                      color='red', lw=1.2)
+                    ax_s.axhline(0, color='black', lw=1.5)
+                    ax_s.set_xlim(y_min, y_max)
+                    ax_s.set_ylim(z_min, z_max)
+                    ax_s.set_ylabel(r'$z/L$', fontsize=8)
+                    ax_s.set_aspect('equal')
+                    ax_s.tick_params(labelsize=7)
+                    ax_s.set_title(f'$t/T = {t_frac:.2f}$', loc='left', fontsize=8)
+
+                axes_s[-1].set_xlabel(r'$y/L$', fontsize=8)
+                fig_s.tight_layout()
+                fig_s.savefig(f'fig/multifil_side_snapshots_{self.index}_k{self.spring_factor}.png',
+                              bbox_inches='tight', format='png', transparent=True)
+
             plt.show()
 
     def find_pole(self):
@@ -8328,10 +8396,13 @@ class VISUAL:
 
     def multi_multifil_k(self):
 
-        read_phases = False
+        read_phases = True
 
         # Indices of simulations to show in the stacked side-view (fig5).
-        plot_sim_indices = [0, 10, 20, 30, 40, 50, 60, 62, 64, 67, 70, 75, 90, 99]
+        plot_sim_indices = [5, 50, 65, 70, 80]
+        # Indices of simulations to plot as lines in fig1 (phase_rel vs y).
+        # Set to None to plot all simulations.
+        plot_line_indices = plot_sim_indices
 
         fig = plt.figure()
         ax = fig.add_subplot(1,1,1)
@@ -8341,16 +8412,19 @@ class VISUAL:
         ax3 = fig3.add_subplot(1,1,1)
         fig4 = plt.figure()
         ax4 = fig4.add_subplot(1,1,1)
+        fig6 = plt.figure()
+        ax6 = fig6.add_subplot(1,1,1)
         n_plots = len(plot_sim_indices)
         fig5, axes5 = plt.subplots(n_plots, 1, sharex=True,
                                    figsize=(16, 1.5 * n_plots))
         axes5 = np.atleast_1d(axes5)
 
-        k_list          = np.zeros(self.num_sim)
-        phase_diff_list = np.zeros(self.num_sim)
-        mean_angle_list = np.zeros(self.num_sim)
-        phase_rel_list  = [None] * self.num_sim  # last-frame unwrapped relative phase
-        y_pos_list      = [None] * self.num_sim  # filament y/L positions
+        k_list             = np.zeros(self.num_sim)
+        phase_diff_list    = np.zeros(self.num_sim)
+        mean_angle_list    = np.zeros(self.num_sim)
+        phase_rel_list     = [None] * self.num_sim  # best-frame unwrapped relative phase
+        y_pos_list         = [None] * self.num_sim  # filament y/L positions
+        gradient_mean_list = [None] * self.num_sim  # period-averaged gradient array
 
         # Storage for selected-sim side views.
         seg_states_last = {}  # sim -> last-frame seg_states array
@@ -8373,11 +8447,13 @@ class VISUAL:
                     if sim in plot_sim_indices:
                         seg_states_f = open(self.simName + '_seg_states.dat', "r")
 
-                    phase_diff_array = np.zeros(self.frames)
-                    angle_array      = np.zeros(self.frames)
-                    last_fil_phases  = None
-                    best_phase0_dist = np.inf
-                    best_frame_data  = None
+                    phase_diff_array  = np.zeros(self.frames)
+                    angle_array       = np.zeros(self.frames)
+                    best_phase0_dist  = np.inf
+                    best_fil_phases   = None
+                    best_frame_data   = None
+                    gradient_accum    = np.zeros(self.nfil)
+                    gradient_count    = 0
 
                     for i in range(self.plot_end_frame):
                         print(f" sim {sim}/{self.num_sim}  frame {i}/{self.plot_end_frame}          ", end="\r")
@@ -8395,14 +8471,20 @@ class VISUAL:
 
                             phase_diff_array[i-self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[fil2i] - fil_phases[fil1i])))
                             angle_array[i-self.plot_start_frame]      = np.mean(fil_angles)
-                            last_fil_phases = fil_phases
 
-                            if sim in plot_sim_indices:
+                            if i >= self.plot_end_frame - self.period:
                                 phase0 = util.box(fil_phases[0], 2*np.pi)
                                 dist = min(phase0, 2*np.pi - phase0)
                                 if dist < best_phase0_dist:
                                     best_phase0_dist = dist
-                                    best_frame_data  = (seg_states_str, fil_phases.copy(), fil_angles.copy())
+                                    best_fil_phases  = fil_phases.copy()
+                                    if sim in plot_sim_indices:
+                                        best_frame_data = (seg_states_str, fil_phases.copy(), fil_angles.copy())
+
+                                unwrapped_frame = np.unwrap(fil_phases)
+                                phase_rel_frame = unwrapped_frame - unwrapped_frame[0]
+                                gradient_accum += np.gradient(phase_rel_frame, y_pos_list[sim])
+                                gradient_count += 1
 
                     if best_frame_data is not None:
                         seg_str, fp, fa = best_frame_data
@@ -8413,9 +8495,11 @@ class VISUAL:
 
                     phase_diff_list[sim] = np.mean(phase_diff_array[-6000:])
                     mean_angle_list[sim] = np.mean(angle_array[-6000:])
-                    if last_fil_phases is not None:
-                        unwrapped = np.unwrap(last_fil_phases)
+                    if best_fil_phases is not None:
+                        unwrapped = np.unwrap(best_fil_phases)
                         phase_rel_list[sim] = unwrapped - unwrapped[0]
+                    if gradient_count > 0:
+                        gradient_mean_list[sim] = gradient_accum / gradient_count
 
             except:
                 not_found_list.append(self.index)
@@ -8424,19 +8508,29 @@ class VISUAL:
 
         # Wavelength from linear fit to phase_rel vs y/L.
         # For a metachronal wave: phase_rel = (2π/λ) * (y/L), so λ/L = 2π / slope.
-        wavelength_list = np.full(self.num_sim, np.nan)
+        wavelength_list         = np.full(self.num_sim, np.nan)
+        gradient_quarter_list   = np.full(self.num_sim, np.nan)
+        gradient_3quarter_list  = np.full(self.num_sim, np.nan)
         for sim in range(self.num_sim):
             if phase_rel_list[sim] is not None and y_pos_list[sim] is not None:
                 slope, _ = np.polyfit(y_pos_list[sim], phase_rel_list[sim], 1)
                 wavelength_list[sim] = 2 * np.pi / slope if slope != 0 else np.nan
+            if gradient_mean_list[sim] is not None:
+                grad = gradient_mean_list[sim]
+                idx_quarter  = len(grad) // 4
+                idx_3quarter = 3 * len(grad) // 4
+                gradient_quarter_list[sim]  = grad[idx_quarter]
+                gradient_3quarter_list[sim] = grad[idx_3quarter]
 
         if read_phases:
-            k_list          = np.load(f'{self.dir}k_list.npy')
-            phase_diff_list = np.load(f'{self.dir}phase_diff_list.npy')
-            mean_angle_list = np.load(f'{self.dir}mean_angle_list.npy')
-            wavelength_list = np.load(f'{self.dir}wavelength_list.npy')
-            phase_rel_arr   = np.load(f'{self.dir}phase_rel_arr.npy')
-            y_pos_arr       = np.load(f'{self.dir}y_pos_arr.npy')
+            k_list                = np.load(f'{self.dir}k_list.npy')
+            phase_diff_list       = np.load(f'{self.dir}phase_diff_list.npy')
+            mean_angle_list       = np.load(f'{self.dir}mean_angle_list.npy')
+            wavelength_list       = np.load(f'{self.dir}wavelength_list.npy')
+            gradient_quarter_list  = np.load(f'{self.dir}gradient_quarter_list.npy')
+            gradient_3quarter_list = np.load(f'{self.dir}gradient_3quarter_list.npy')
+            phase_rel_arr         = np.load(f'{self.dir}phase_rel_arr.npy')
+            y_pos_arr             = np.load(f'{self.dir}y_pos_arr.npy')
             phase_rel_list  = [None if np.any(np.isnan(row)) else row for row in phase_rel_arr]
             y_pos_list      = [None if np.any(np.isnan(row)) else row for row in y_pos_arr]
         else:
@@ -8448,12 +8542,14 @@ class VISUAL:
                     phase_rel_arr[sim] = phase_rel_list[sim]
                 if y_pos_list[sim] is not None:
                     y_pos_arr[sim]     = y_pos_list[sim]
-            np.save(f'{self.dir}k_list.npy',          k_list)
-            np.save(f'{self.dir}phase_diff_list.npy', phase_diff_list)
-            np.save(f'{self.dir}mean_angle_list.npy', mean_angle_list)
-            np.save(f'{self.dir}wavelength_list.npy', wavelength_list)
-            np.save(f'{self.dir}phase_rel_arr.npy',   phase_rel_arr)
-            np.save(f'{self.dir}y_pos_arr.npy',       y_pos_arr)
+            np.save(f'{self.dir}k_list.npy',                  k_list)
+            np.save(f'{self.dir}phase_diff_list.npy',         phase_diff_list)
+            np.save(f'{self.dir}mean_angle_list.npy',         mean_angle_list)
+            np.save(f'{self.dir}wavelength_list.npy',         wavelength_list)
+            np.save(f'{self.dir}gradient_quarter_list.npy',   gradient_quarter_list)
+            np.save(f'{self.dir}gradient_3quarter_list.npy',  gradient_3quarter_list)
+            np.save(f'{self.dir}phase_rel_arr.npy',           phase_rel_arr)
+            np.save(f'{self.dir}y_pos_arr.npy',               y_pos_arr)
 
         sort_idx          = np.argsort(k_list)
         k_sorted          = k_list[sort_idx]
@@ -8462,13 +8558,15 @@ class VISUAL:
         wavelength_sorted = wavelength_list[sort_idx]
 
         cmap = plt.get_cmap('viridis')
-        k_min, k_max = k_list.min(), k_list.max()
-        for sim in range(self.num_sim):
+        cbar_vmin, cbar_vmax = 0, 0.1
+        norm = plt.Normalize(vmin=cbar_vmin, vmax=cbar_vmax)
+        line_sims = range(self.num_sim) if plot_line_indices is None else plot_line_indices
+        for sim in line_sims:
             if phase_rel_list[sim] is not None:
-                c = cmap(sim / max(self.num_sim - 1, 1))
+                c = cmap(norm(k_list[sim]))
                 ax.plot(y_pos_list[sim] - y_pos_list[sim][0], phase_rel_list[sim],
                         marker='+', c=c)
-        sm = plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=k_min, vmax=k_max))
+        sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
         sm.set_array([])
         fig.colorbar(sm, ax=ax, label=r'$k$')
         ax.set_xlabel(r'$y/L$')
@@ -8478,23 +8576,33 @@ class VISUAL:
 
         ax2.scatter(k_sorted, phase_sorted, marker='+', c='black')
         ax2.set_xlabel(r'$k$')
-        ax2.set_ylabel(r'$\langle \psi_1(1) - \psi_1(0) \rangle$')
-        ax2.set_xlim(0)
+        ax2.set_ylabel(r'$\langle \psi_1^{(1)} - \psi_1^{(0)} \rangle$')
+        ax2.set_xlim(0, .1)
         ax2.grid()
 
         ax3.plot(k_sorted, angle_sorted, marker='+', c='black')
         ax3.set_xlabel(r'$k$')
         ax3.set_ylabel(r'$\langle \psi_2 \rangle$')
-        ax3.set_xlim(0)
+        ax3.set_xlim(0, .1)
         ax3.grid()
 
         ax4.scatter(k_sorted, wavelength_sorted, marker='+', c='black')
-        ax4.axvline(x=0.067, color='red', linestyle='--', label='k=0.25')
+        # ax4.axvline(x=0.067, color='red', linestyle='--', label='k=0.25')
         ax4.set_xlabel(r'$k$')
         ax4.set_ylabel(r'$\lambda/L$')
-        ax4.set_xlim(0, 1)
+        ax4.set_xlim(0, .1)
         ax4.set_ylim(-100, 100)
         ax4.grid()
+
+        gradient_quarter_sorted  = gradient_quarter_list[sort_idx]
+        gradient_3quarter_sorted = gradient_3quarter_list[sort_idx]
+        ax6.scatter(k_sorted, gradient_quarter_sorted,  marker='+', c='black',   label=r'$m = 1/4M$')
+        ax6.scatter(k_sorted, gradient_3quarter_sorted, marker='x', c='red', label=r'$m = 3/4M$')
+        ax6.set_xlabel(r'$k$')
+        ax6.set_ylabel(r'$\mathrm{d}\psi_1/\mathrm{d}(y/L)$')
+        ax6.set_xlim(0, .1)
+        ax6.legend(fontsize=16)
+        ax6.grid()
 
         cmap_phase = plt.get_cmap('hsv')
         for rank, sim in enumerate(plot_sim_indices):
@@ -8550,12 +8658,14 @@ class VISUAL:
         fig2.tight_layout()
         fig3.tight_layout()
         fig4.tight_layout()
+        fig6.tight_layout()
 
-        fig.savefig(f'fig/phase_rel_vs_y_multifil_k_{self.date}.png',  bbox_inches='tight', format='png', transparent=True)
-        fig2.savefig(f'fig/phase_diff_vs_k_multifil_{self.date}.png',  bbox_inches='tight', format='png', transparent=True)
-        fig3.savefig(f'fig/angle_vs_k_multifil_{self.date}.png',       bbox_inches='tight', format='png', transparent=True)
-        fig4.savefig(f'fig/wavelength_vs_k_multifil_{self.date}.png',  bbox_inches='tight', format='png', transparent=True)
-        fig5.savefig(f'fig/side_view_selected_k_{self.date}.png',      bbox_inches='tight', format='png', transparent=True)
+        fig.savefig(f'fig/phase_rel_vs_y_multifil_k_{self.date}.png',      bbox_inches='tight', format='png', transparent=True)
+        fig2.savefig(f'fig/phase_diff_vs_k_multifil_{self.date}.png',      bbox_inches='tight', format='png', transparent=True)
+        fig3.savefig(f'fig/angle_vs_k_multifil_{self.date}.png',           bbox_inches='tight', format='png', transparent=True)
+        fig4.savefig(f'fig/wavelength_vs_k_multifil_{self.date}.png',      bbox_inches='tight', format='png', transparent=True)
+        fig5.savefig(f'fig/side_view_selected_k_{self.date}.png',          bbox_inches='tight', format='png', transparent=True)
+        fig6.savefig(f'fig/gradient_quarter_vs_k_multifil_{self.date}.png', bbox_inches='tight', format='png', transparent=True)
 
         plt.show()
 
