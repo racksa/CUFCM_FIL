@@ -35,6 +35,7 @@ int INDEX = 0; // Used to identify the cilia in the simulation, e.g. for writing
 Real FIL_X_DIM = 1;
 Real FIL_Y_DIM = 1;
 Real FIL_SPACING = DL*NSEG;
+Real FIL_X_SPACING = FIL_SPACING;
 Real BLOB_X_DIM = 1;
 Real BLOB_Y_DIM = 1;
 Real BLOB_SPACING = DL*NSEG;

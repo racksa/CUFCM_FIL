@@ -7,6 +7,7 @@ with open("input/fourier_modes/sphere639.seed") as f:
 pts = vals.reshape(-1, 3)
 N   = len(pts)
 R   = np.mean(np.linalg.norm(pts, axis=1))
+R = 49.4*7.5
 
 tree = KDTree(pts)
 dists, _ = tree.query(pts, k=2)

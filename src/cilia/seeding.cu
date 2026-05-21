@@ -1328,7 +1328,7 @@
 
   void hexagonal_seeding(Real *const pos_ref, Real *const polar_dir_refs, Real *const azi_dir_refs, Real *const normal_refs, const int N, shape_fourier_description& shape,
                          Real step_x, int dim_x, int hex_num, float rev_ratio){
-    
+
     /*Implement the hexagonal seeding algorithm here.*/
     Real *X = (Real*) malloc(3*N*sizeof(Real));
     Real step = step_x;

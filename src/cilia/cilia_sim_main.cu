@@ -80,6 +80,7 @@ int main(int argc, char** argv){
   BLOB_X_DIM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_x_dim"));
   BLOB_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "blob_spacing"));
   HEX_NUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "hex_num"));
+  FIL_X_SPACING = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "fil_x_spacing"));
   REV_RATIO = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "reverse_fil_direction_ratio"));
   TWOFIL_ANGLE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "twofil_angle"));
 

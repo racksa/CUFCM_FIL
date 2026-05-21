@@ -72,14 +72,14 @@ class VISUAL:
         # self.date = '20240311_7'
         # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
 
-        self.date = '20240311_3'
-        self.dir = f"data/for_paper/IVP_free/{self.date}/"
+        # self.date = '20240311_3'
+        # self.dir = f"data/for_paper/IVP_free/{self.date}/"
 
         # self.date = '20250728'
         # self.dir = f"data/for_paper/roadmap/{self.date}/"
 
-        # self.date = '20250716'
-        # self.dir = f"data/for_paper/twofil/{self.date}/"
+        self.date = '20250716'
+        self.dir = f"data/for_paper/twofil/{self.date}/"
 
         # self.date = '20250802'
         # self.dir = f"data/for_paper/multifil/{self.date}/"
@@ -130,9 +130,9 @@ class VISUAL:
         # self.date = '20250915_flowfield_free'
         # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        # self.date = '20250516_force'
-        # # self.date = '20250507'
-        # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
+        self.date = '20250516_force'
+        # self.date = '20250507'
+        self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
         
 
         # # self.date = '20240710_free'
@@ -146,7 +146,6 @@ class VISUAL:
         # self.date = '20240724_symplectic'
         # self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
         # self.dir = f"data/tempcheck/makeup_pattern_with_force/{self.date}/"
-
 
         
         # # self.date = '20250228'
@@ -187,8 +186,10 @@ class VISUAL:
         # self.dir = f"data/volvox/{self.date}/"
 
 
-        self.date = '20260428_inves_k_1d'
         self.date = '20260508_inves_k_1d'
+        self.date = '20260519_inves_k_1d'
+
+        self.date = '20260521_inves_k_2d'
         self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20260504_highk'
@@ -212,6 +213,7 @@ class VISUAL:
                      "nz": [],
                      "boxsize": [],
                      "fil_spacing": [],
+                     "fil_x_spacing": [],
                      "blob_spacing": [],
                      "fil_x_dim": [],
                      "blob_x_dim": [],
@@ -247,7 +249,7 @@ class VISUAL:
 
 
         self.plot_end_frame_setting = 900000
-        self.frames_setting = 600
+        self.frames_setting = 6000000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -305,6 +307,8 @@ class VISUAL:
             self.num_sim = len(self.pars_list["nfil"])
             if(len(self.pars_list['tilt_angle'])==0):
                 self.pars_list['tilt_angle'] = np.zeros(np.shape(self.pars_list['nfil']))
+            if(len(self.pars_list['fil_x_spacing'])==0):
+                self.pars_list['fil_x_spacing'] = np.zeros(np.shape(self.pars_list['nfil']))
            
         except:
             print("WARNING: " + self.dir + "rules.ini not found.")
@@ -6406,7 +6410,7 @@ class VISUAL:
         azim_angle = -60
         azim_angle_rad = azim_angle/180*np.pi
         ax2.view_init(elev=elev_angle, azim=azim_angle, roll=0)
-        # ax2.dist=3.8
+        ax2.dist=3.8
 
         fig3 = plt.figure()
         ax3 = fig3.add_subplot(1,1,1)
@@ -6517,6 +6521,7 @@ class VISUAL:
         ax4.set_xlabel(r"$y/L$")
         ax4.set_ylabel(r"$\psi_2$")
 
+
         # ax2.set_xlabel('x')
         # ax2.set_ylabel('y')
         # ax2.set_zlabel('z')
@@ -6532,6 +6537,18 @@ class VISUAL:
 
         fig4.tight_layout()
         fig4.savefig(f'fig/angles_multifil_{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
+
+        fig5, ax5 = plt.subplots()
+        ax5.scatter(fil_base_array[:,0]/self.fillength, fil_base_array[:,1]/self.fillength,
+                    c='black', marker='x', s=5)
+        _lim = max(np.abs(fil_base_array[:,:2]/self.fillength).max() * 1.1, 1.0)
+        ax5.set_xlim(-_lim, _lim)
+        ax5.set_ylim(-_lim, _lim)
+        ax5.set_xlabel(r'$x/L$')
+        ax5.set_ylabel(r'$y/L$')
+        ax5.set_aspect('equal')
+        fig5.tight_layout()
+        fig5.savefig(f'fig/multifil_overlook_{self.index}_k{self.spring_factor}.png', bbox_inches='tight', format='png', transparent=True)
 
         plt.show()
 
@@ -8399,7 +8416,7 @@ class VISUAL:
         read_phases = True
 
         # Indices of simulations to show in the stacked side-view (fig5).
-        plot_sim_indices = [5, 50, 65, 70, 80]
+        plot_sim_indices = [5, 50, 55, 60, 99]
         # Indices of simulations to plot as lines in fig1 (phase_rel vs y).
         # Set to None to plot all simulations.
         plot_line_indices = plot_sim_indices
@@ -8571,7 +8588,7 @@ class VISUAL:
         fig.colorbar(sm, ax=ax, label=r'$k$')
         ax.set_xlabel(r'$y/L$')
         ax.set_ylabel(r'$\Delta\psi_1$')
-        ax.set_xlim(0)
+        ax.set_xlim(0, self.nfil + 18)
         ax.grid()
 
         ax2.scatter(k_sorted, phase_sorted, marker='+', c='black')

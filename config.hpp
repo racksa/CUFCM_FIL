@@ -149,7 +149,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #endif
 
 // --- Body / surface type -------------------------------------------------
-#define BODY_OR_SURFACE_TYPE 2
+#define BODY_OR_SURFACE_TYPE 0
 // Valid options:
 // 0 = Infinite plane wall at z=0 (only compatible with RPY).
 // 1 = Deformed planes with 2 principal curvatures (partially implemented).
@@ -160,7 +160,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #if BODY_OR_SURFACE_TYPE==0
 
-  #define INFINITE_PLANE_WALL_SEEDING_TYPE 0
+  #define INFINITE_PLANE_WALL_SEEDING_TYPE 1
   // Valid options:
   // 0 = Rectangular grid.
   // 1 = Hexagonal grid.
@@ -179,7 +179,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   #define FIL_LATTICE_X_NUM     FIL_X_DIM
   #define FIL_LATTICE_Y_NUM
   #define FIL_LATTICE_Y_SPACING FIL_SPACING // For prescribed-shape cilia: beat-wise separation.
-  #define FIL_LATTICE_X_SPACING             // Leave blank for a regular grid.
+  #define FIL_LATTICE_X_SPACING FIL_X_SPACING // Zero → automatic (regular or hexagonal default).
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
@@ -213,7 +213,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #endif
 
 // --- Mobility type -------------------------------------------------------
-#define MOBILITY_TYPE 4
+#define MOBILITY_TYPE 1
 // Valid options:
 // 0 = Basic Stokes drag (no hydrodynamic interactions).
 // 1 = Rotne-Prager-Yamakawa (RPY), with Swan-Brady wall corrections if applicable.
@@ -223,7 +223,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 5 = Pairwise FCM.
 
 // --- Body motion ---------------------------------------------------------
-#define BODY_VELOCITY_TYPE 0
+#define BODY_VELOCITY_TYPE 1
 // 0 = Free to swim.
 // 1 = Prescribed velocities.
 // 2 = Prescribed rotation only.
@@ -277,6 +277,7 @@ extern int  INDEX;
 extern Real FIL_X_DIM;
 extern Real FIL_Y_DIM;
 extern Real FIL_SPACING;
+extern Real FIL_X_SPACING;
 extern Real BLOB_X_DIM;
 extern Real BLOB_Y_DIM;
 extern Real BLOB_SPACING;

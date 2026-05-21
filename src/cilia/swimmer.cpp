@@ -71,8 +71,8 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
       #elif HEXAGONAL_SEEDING
 
-        const int fil_grid_dim_x = std::round(0.25*(3.0 - std::sqrt(3.0) + std::sqrt(4.0 - 2.0*std::sqrt(3.0) + 8.0*std::sqrt(3.0)*NFIL)));
-        const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x-1)))); // Ensure we have enough rows even if all rows were of the shorter type.
+        const int fil_grid_dim_x = int(sqrt(Real(NFIL)));
+        const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x))));
       
       #elif FCM_LATTICE_SEEDING or FCM_RECTANGULAR_SEEDING
 
@@ -96,7 +96,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
       #elif HEXAGONAL_SEEDING
 
-        const int fil_grid_dim_x = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_y-1))));
+        const int fil_grid_dim_x = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_y))));
 
       #endif
 
@@ -114,7 +114,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
       #elif HEXAGONAL_SEEDING
 
-        const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x-1))));
+        const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x))));
       #elif FCM_LATTICE_SEEDING or FCM_RECTANGULAR_SEEDING
 
         #if FCM_LATTICE_SEEDING
@@ -148,7 +148,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
     #elif HEXAGONAL_SEEDING
 
-      const Real fil_grid_step_y = 0.5*FIL_LATTICE_Y_SPACING;  // Gives us beat-wise separations of 2*fil_grid_step_y = FIL_LATTICE_Y_SPACING
+      const Real fil_grid_step_y = FIL_LATTICE_Y_SPACING;  // Gives us beat-wise separations of 2*fil_grid_step_y = FIL_LATTICE_Y_SPACING
 
     #endif
 
@@ -219,19 +219,17 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
     #elif HEXAGONAL_SEEDING
 
-      int fil_id = 0;
+      const int hex_n = (int(HEX_NUM) > 0) ? int(HEX_NUM) : 1;
 
-      for (int j = 0; j < fil_grid_dim_y; j++){
+      for (int i = 0; i < fil_grid_dim_x; i++){
+        for (int j = 0; j < fil_grid_dim_y; j++){
 
-        const int even_row = int(j != 2*(j/2)); // Because of indices starting at 0
-        const int num_cols = fil_grid_dim_x - even_row;
-
-        for (int i = 0; i < num_cols; i++){
+          const int fil_id = j + i*fil_grid_dim_y;
 
           if (fil_id < NFIL){
 
-            filament_references[3*fil_id] = (0.5*even_row + i - im)*fil_grid_step_x;
-            filament_references[3*fil_id + 1] = (j-jm)*fil_grid_step_y;
+            filament_references[3*fil_id]     = (i - im)*fil_grid_step_x;
+            filament_references[3*fil_id + 1] = (j - jm)*fil_grid_step_y + Real(i % hex_n)/Real(hex_n)*fil_grid_step_y;
             filament_references[3*fil_id + 2] = BASE_HEIGHT_ABOVE_SURFACE;
 
             Real *const fil_x_address = &x_segs_address[3*fil_id*NSEG];
@@ -249,10 +247,7 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
           }
 
-          fil_id++;
-
         }
-
       }
 
     #elif FCM_LATTICE_SEEDING or FCM_RECTANGULAR_SEEDING

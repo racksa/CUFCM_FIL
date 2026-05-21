@@ -123,7 +123,7 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
         self.category = 'regular_wall_sim/'
-        self.date = '20260508_inves_k_1d'
+        self.date = '20260521_inves_k_2d'
         # self.date = '20260422_twofil4'
         self.exe_name = 'cilia_1e-4_plane'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -152,6 +152,7 @@ class DRIVER:
                      "nz": [],
                      "boxsize": [],
                      "fil_spacing": [],
+                     "fil_x_spacing": [],
                      "blob_spacing": [],
                      "fil_x_dim": [],
                      "blob_x_dim": [],
@@ -167,7 +168,7 @@ class DRIVER:
                      "omega_spread": []}
 
         # self.sweep_shape = (40, 60, 1, 1) # twofil
-        self.sweep_shape = (100, 1, 1, 1) # multifil 
+        self.sweep_shape = (10, 1, 1, 1) # multifil 
 
         self.num_sim = 0
         self.current_thread = 0
@@ -229,6 +230,7 @@ class DRIVER:
                         omega_spread = 0.0
 
                         fil_spacing=80.0
+                        fil_x_spacing=0.0
                         blob_spacing=8.0
                         fil_x_dim=20
                         blob_x_dim=200
@@ -272,17 +274,19 @@ class DRIVER:
                         ar = round(1, 2)
                         period = 1
                         import numpy as np
-                        spring_factor = round(0.0 + 0.002*i, 3)
+                        spring_factor = round(0.0 + 0.001*i, 3)
+                        if i == 100:
+                            spring_factor = 1.0
 
                         nx=int(128)
                         ny=int(128)
                         nz=int(128)
                         boxsize=400
-                        fil_spacing = 58.9
+                        fil_spacing = 49.4
                         blob_spacing = 50.0
                         fil_x_dim=1
                         blob_x_dim=10
-                        hex_num=0
+                        hex_num=1
                         reverse_fil_direction_ratio=0.0
                         twofil_angle = np.pi/2
                         sim_length = 500
@@ -293,36 +297,31 @@ class DRIVER:
 
 
                         # # 2-D multifil
-                        # nfil = int(400)
-                        # nblob = int(0)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # import numpy as np
-                        # n = self.sweep_shape[0]
-                        # n1 = int(0.7 * n)
-                        # if i < n1:
-                        #     spring_factor = round(i * 0.06 / n1, 3)
-                        # else:
-                        #     t = (i - n1) / (n - 1 - n1)
-                        #     spring_factor = round(0.06 + 0.94 * t**3, 3)
+                        nfil = int(45 + 45*i)
+                        nblob = int(0)
+                        nseg = 20
+                        ar = round(1, 2)
+                        period = 1
+                        import numpy as np
+                        spring_factor = round(0.005, 3)
 
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=400
-                        # fil_spacing = 58.9
-                        # blob_spacing = 50.0
-                        # fil_x_dim=20
-                        # blob_x_dim=20
-                        # hex_num=0
-                        # reverse_fil_direction_ratio=0.0
-                        # twofil_angle = np.pi/2
-                        # sim_length = 300
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
+                        nx=int(128)
+                        ny=int(128)
+                        nz=int(128)
+                        boxsize=400
+                        fil_spacing = 49.4
+                        fil_x_spacing = fil_spacing/2*3**.5
+                        blob_spacing = 50.0
+                        fil_x_dim=1 + i
+                        blob_x_dim=20
+                        hex_num=2
+                        reverse_fil_direction_ratio=0.0
+                        twofil_angle = np.pi/2
+                        sim_length = 500
+                        force_noise_mag = 0.0
+                        omega_spread = 0.0
+                        pair_dp = 1.0
+                        fene_model = 0
 
 
                         # # callibration
@@ -519,6 +518,7 @@ class DRIVER:
                         self.pars_list["nz"].append(nz)
                         self.pars_list["boxsize"].append(boxsize)
                         self.pars_list["fil_spacing"].append(fil_spacing)
+                        self.pars_list["fil_x_spacing"].append(fil_x_spacing)
                         self.pars_list["blob_spacing"].append(blob_spacing)
                         self.pars_list["fil_x_dim"].append(fil_x_dim)
                         self.pars_list["blob_x_dim"].append(blob_x_dim)
@@ -571,7 +571,9 @@ class DRIVER:
             for key, value in self.pars_list.items():
                 if(key in sim["Parameter list"]):
                     self.pars_list[key] = [float(x) for x in sim["Parameter list"][key].split(', ')][0::1]
-            self.num_sim = len(self.pars_list["nfil"])            
+            self.num_sim = len(self.pars_list["nfil"])
+            if len(self.pars_list['fil_x_spacing']) == 0:
+                self.pars_list['fil_x_spacing'] = [0.0] * self.num_sim
         except:
             print("WARNING: " + self.dir + "rules.ini not found.")
 

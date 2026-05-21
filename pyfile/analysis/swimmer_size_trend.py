@@ -27,7 +27,7 @@ cmap_name = 'coolwarm'
 
 path = "data/giant_swimmer/combined_analysis_force_rerun/"
 
-path = "data/for_paper/giant_swimmer_rerun/20250516_force/"
+# path = "data/for_paper/giant_swimmer_rerun/20250516_force/"
 
 
 # keywords = ['time_array_index', 'wavenumber_array_index', 'body_speed_array_index']
