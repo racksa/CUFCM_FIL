@@ -36,7 +36,7 @@ def lung_cilia_shape(s, phase):
     y = (cosvec@Ay + sinvec@By)@svec
     z = np.zeros(np.shape(x))
 
-    return x, -y, z
+    return x, y, z
 
 
 Ay_volvox = np.array([[-0.01359477, -0.2933222 ,  1.11787568, -0.5797987 ],
@@ -70,4 +70,4 @@ def volvox_cilia_shape(s, phase):
     y = (cosvec@Ay_volvox + sinvec@By_volvox)@svec
     z = np.zeros(np.shape(x))
 
-    return x, -y, z
+    return x, y, z

@@ -66,26 +66,28 @@ class VISUAL:
         # self.dir = f"data/tilt_test/IVP/{self.date}/"
 
 
-        self.date = '20240311_8'
-        self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"        
+        # self.date = '20240311_3'
+        # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"    
 
-        # self.date = '20240311_7'
-        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+        self.date = '20240311_3'
+        self.dir = f"data/for_paper/IVP_free/{self.date}/"
 
         # self.date = '20240311_3'
-        # self.dir = f"data/for_paper/IVP_free/{self.date}/"
+        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
+
+        
 
         # self.date = '20250728'
         # self.dir = f"data/for_paper/roadmap/{self.date}/"
 
-        self.date = '20250716'
-        self.dir = f"data/for_paper/twofil/{self.date}/"
+        # self.date = '20250729'
+        # self.dir = f"data/for_paper/twofil/{self.date}/"
 
         # self.date = '20250802'
         # self.dir = f"data/for_paper/multifil/{self.date}/"
 
-        # # self.date = 'combined_analysis'
-        # # self.dir = f"data/giant_swimmer/{self.date}/"
+        # self.date = 'combined_analysis'
+        # self.dir = f"data/giant_swimmer/{self.date}/"
 
         # self.date = '20250828_dp_sweep'
         # self.dir = f"data/volvox/{self.date}/"
@@ -123,16 +125,16 @@ class VISUAL:
         # self.date = '20250204_1e-4_ref'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
 
-        # self.date = '20250225_flowfield_sym'
-        # self.date = '20250311_flowfield_sym_free'
-        # self.date = '20250311_flowfield_dia_free'
+        # # # self.date = '20250225_flowfield_sym'
+        # # # self.date = '20250311_flowfield_sym_free'
+        # # # self.date = '20250311_flowfield_dia_free'
         # self.date = '20250522_flowfield_free'
-        # self.date = '20250915_flowfield_free'
+        # # # self.date = '20250915_flowfield_free'
         # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
 
-        self.date = '20250516_force'
+        # self.date = '20250516_force'
         # self.date = '20250507'
-        self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
+        # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
         
 
         # # self.date = '20240710_free'
@@ -186,11 +188,10 @@ class VISUAL:
         # self.dir = f"data/volvox/{self.date}/"
 
 
-        self.date = '20260508_inves_k_1d'
-        self.date = '20260519_inves_k_1d'
-
-        self.date = '20260521_inves_k_2d'
-        self.dir = f"data/regular_wall_sim/{self.date}/"
+        # # self.date = '20260508_inves_k_1d'
+        # self.date = '20260519_inves_k_1d'
+        # # self.date = '20260521_inves_k_2d'
+        # self.dir = f"data/regular_wall_sim/{self.date}/"
 
         # self.date = '20260504_highk'
         # self.dir = f"data/for_paper/highk/{self.date}/"
@@ -248,8 +249,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 900000
-        self.frames_setting = 6000000
+        self.plot_end_frame_setting = 30000
+        self.frames_setting = 300
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -1944,11 +1945,11 @@ class VISUAL:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
-        elev_angle = 180
+        elev_angle = 140
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
-        plane_normal = np.array([1, 0, 0])
+        plane_normal = np.array([0, 0, -1])
         rot_mat = np.array([
             [np.cos(azim_angle_rad), -np.sin(azim_angle_rad), 0],
             [np.sin(azim_angle_rad), np.cos(azim_angle_rad), 0],
@@ -1957,16 +1958,16 @@ class VISUAL:
         rot_mat2 = np.array([
             [np.cos(-elev_angle_rad), 0, -np.sin(-elev_angle_rad)],
             [0, 1, 0],
-            [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
+            [np.sin(-elev_angle_rad), 0, np.cos(-elev_angle_rad)],
         ])
-        
+
         plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
 
         point_on_plane = 10*plane_normal
 
         ax.view_init(elev=elev_angle, azim=azim_angle, roll=180)
-        ax.dist=5.8
-          
+        ax.dist=3.8
+
 
         # Flow field
         n_theta = 20
@@ -2324,16 +2325,15 @@ class VISUAL:
         rot_mat2 = np.array([
             [np.cos(-elev_angle_rad), 0., -np.sin(-elev_angle_rad)],
             [0., 1., 0.],
-            [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
-        ], dtype=object)
-        
+            [np.sin(-elev_angle_rad), 0., np.cos(-elev_angle_rad)],
+        ])
+
         plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
 
         point_on_plane = 10*plane_normal
-        ax.view_init(elev=elev_angle, azim=azim_angle, roll=0)
+        ax.view_init(elev=elev_angle, azim=azim_angle, roll=180)
         ax.dist=5.8
 
-        
         
         # ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
         # ax.yaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -2503,13 +2503,13 @@ class VISUAL:
         rot_mat2 = np.array([
             [np.cos(-elev_angle_rad), 0., -np.sin(-elev_angle_rad)],
             [0., 1., 0.],
-            [np.sin(-elev_angle_rad), np.cos(-elev_angle_rad)],
-        ], dtype=object)
-        
+            [np.sin(-elev_angle_rad), 0., np.cos(-elev_angle_rad)],
+        ])
+
         plane_normal = rot_mat@np.array(rot_mat2@plane_normal)
 
         point_on_plane = 10*plane_normal
-        ax.view_init(elev=elev_angle, azim=azim_angle, roll=0)
+        ax.view_init(elev=elev_angle, azim=azim_angle, roll=180)
         ax.dist=5.8
 
         # ax.xaxis.set_pane_color((1.0, 1.0, 1.0, 0.0))
@@ -3607,6 +3607,22 @@ class VISUAL:
         ax = fig.add_subplot()
         cmap_name = 'hsv'
         cmap = plt.get_cmap(cmap_name)
+
+        from matplotlib.colors import Normalize
+        from matplotlib.cm import ScalarMappable
+        use_SI = False
+        cmap_name2 = 'Reds'
+        speed_limit = 40
+        if use_SI:
+            speed_limit *= 10e-6/49.4/(1./50) * 1e6
+        norm2 = Normalize(vmin=0, vmax=speed_limit)
+        sm2 = ScalarMappable(cmap=cmap_name2, norm=norm2)
+        sm2.set_array([])
+        cbar2 = fig.colorbar(sm2, ax=ax)
+        if use_SI:
+            cbar2.set_label(r"$|| \mathbf{u} || $($\mu m/s$)")
+        else:
+            cbar2.set_label(r"$|| \mathbf{u} || T/L$")
         
         # # plane
         # n_field_point = 12
@@ -3618,7 +3634,7 @@ class VISUAL:
 
         # sphere
 
-        r_ratio = 4.0
+        r_ratio = 3.0
         if view == 'side':
             x_lower, x_upper = 0, 1
             z_lower, z_upper = -r_ratio*self.radius, r_ratio*self.radius, 
@@ -3628,7 +3644,7 @@ class VISUAL:
         
         y_lower, y_upper = -r_ratio*self.radius, r_ratio*self.radius, 
         
-        flow_spacing = 40
+        flow_spacing = 10
 
         # x_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
         # y_list = np.arange(y_lower, y_upper+0.01, flow_spacing)
@@ -3666,12 +3682,27 @@ class VISUAL:
             global frame
             
             ax.cla()
+            n_tick = int(r_ratio)
+            r_ticks = [-n_tick*self.radius, 0, n_tick*self.radius]
+            r_labels = [rf'${-n_tick}R$', r'$0$', rf'${n_tick}R$']
             if view == 'side':
                 ax.set_xlim(y_lower, y_upper)
                 ax.set_ylim(z_lower, z_upper)
+                ax.set_xticks(r_ticks)
+                ax.set_yticks(r_ticks)
+                ax.set_xticklabels(r_labels)
+                ax.set_yticklabels(r_labels)
+                ax.set_xlabel(r'$y/R$')
+                ax.set_ylabel(r'$z/R$')
             if view == 'top':
                 ax.set_xlim(x_lower, x_upper)
                 ax.set_ylim(y_lower, y_upper)
+                ax.set_xticks(r_ticks)
+                ax.set_yticks(r_ticks)
+                ax.set_xticklabels(r_labels)
+                ax.set_yticklabels(r_labels)
+                ax.set_xlabel(r'$x/R$')
+                ax.set_ylabel(r'$y/R$')
 
             seg_forces_str = seg_forces_f.readline()
             blob_forces_str = blob_forces_f.readline()
@@ -3734,8 +3765,9 @@ class VISUAL:
                 for fil in range(self.nfil):
                     fil_i = int(3*fil*self.nseg)
                     seg_data = np.zeros((self.nseg, 3))
+
                     fil_color = cmap(fil_phases[fil]/(2*np.pi))
-                    alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
+                    alpha = 1
                     for seg in range(self.nseg):
                         seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] - body_pos
                         seg_data[seg] = seg_pos
@@ -3806,21 +3838,13 @@ class VISUAL:
 
             
             # Use SI unit in micrometers
-            use_SI = True
             if use_SI:
                 v_list *= 10e-6/49.4/(1./50) * 1e6
 
             # Flow field
-            cmap_name2= 'Reds'
-            # cmap_name2= 'seismic'
             speed_list = np.linalg.norm(v_list, axis=1)
             max_speed = max(speed_list)
             avg_speed = np.mean(speed_list)
-            speed_limit = max_speed*0.7
-
-            speed_limit = 40
-            if use_SI:
-                speed_limit *= 10e-6/49.4/(1./50) * 1e6
             np.clip(speed_list, None, speed_limit, speed_list)
 
             print(f'maxspeed={max_speed}  avgspeed={avg_speed}')
@@ -3835,7 +3859,6 @@ class VISUAL:
 
             if view == 'side':
                 half_plane_index = int(x_mesh.shape[0]/2)
-                print(x_mesh.shape, y_mesh.shape, z_mesh.shape)
                 speed_mesh_2D = speed_mesh[half_plane_index,:,:]
                 x_mesh_2D = x_mesh[half_plane_index,:,:]
                 y_mesh_2D = y_mesh[half_plane_index,:,:]
@@ -3861,23 +3884,9 @@ class VISUAL:
             
             # Colorbars
             from matplotlib.colors import Normalize
-            from matplotlib.cm import ScalarMappable
-            norm = Normalize(vmin=0, vmax=2*np.pi)
-            sm = ScalarMappable(cmap=cmap_name, norm=norm)
-            sm.set_array([])
-            # cbar = plt.colorbar(sm)
-            # cbar.ax.set_yticks(np.linspace(0, 2*np.pi, 7), ['0', 'π/3', '2π/3', 'π', '4π/3', '5π/3', '2π'])
-            # cbar.set_label(r"Phase")
-            cbar2 = plt.colorbar(phi_var_plot)
-            if use_SI:
-                cbar2.set_label(r"|$v$|($\mu m/s$)")
-            else:
-                cbar2.set_label(r"|$v$|")
             # ax.scatter(pos_list[:,1], pos_list[:,2], color=colors)
             # ax.quiver(pos_list[:,1], pos_list[:,2], normalised_v_list[:,1], normalised_v_list[:,2], scale_units='xy',scale=3.)
             
-            
-
             os.system(f'mkdir -p {self.dir}flowfield')
             np.save(f'{self.dir}flowfield/vx_mesh_index{self.index}_{frame}.npy', vx_mesh)
             np.save(f'{self.dir}flowfield/vy_mesh_index{self.index}_{frame}.npy', vy_mesh)
@@ -3889,6 +3898,7 @@ class VISUAL:
             np.save(f'{self.dir}flowfield/fil_phases_index{self.index}_{frame}.npy', fil_phases)
 
             frame += 1
+            fig.tight_layout()
 
         if(self.video):
             for i in range(self.plot_end_frame):
@@ -3905,7 +3915,7 @@ class VISUAL:
                     seg_states_str = seg_states_f.readline()
                     body_states_str = body_states_f.readline()
                     fil_states_str = fil_states_f.readline()
-
+            
             FFwriter = animation.FFMpegWriter(fps=10)
             ani.save(f'fig/flowfield_2D_{self.nfil}fil_anim_5.mp4', writer=FFwriter)
         else:
@@ -4170,7 +4180,7 @@ class VISUAL:
     def flow_field_FFCM_series(self):
 
         center_at_swimmer = True
-        bicilia = True
+        bicilia = False
 
         def find_pos(line, symbol):
             """Find position of symbol
@@ -4238,7 +4248,7 @@ class VISUAL:
 
         fig_num = 5
         fig_index = 0
-        frame_gap = 60
+        frame_gap = 6
         plot_frames = np.array([self.plot_end_frame-1-frame_gap*i for i in range(fig_num)])
 
         fig, axes = plt.subplots(2, fig_num, figsize=(3.5*fig_num, 5.75), constrained_layout=True)
@@ -4394,7 +4404,7 @@ class VISUAL:
                 yx_ratio = self.ny/self.nx
                 zx_ratio = self.nz/self.nx
 
-                nx = 400
+                nx = 256
                 ny = int(nx*yx_ratio)
                 nz = int(nx*zx_ratio)
 
@@ -4516,10 +4526,14 @@ class VISUAL:
                 # ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
                 # ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
 
-                ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
-                ax.set_yticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
-                ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-                ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+                nx_tick = round((focus - 0.5) * sidex / self.radius)
+                ny_tick = round((focus - 0.5) * sidey / self.radius)
+                x_ticks = [0.5*sidex - nx_tick*self.radius, 0.5*sidex, 0.5*sidex + nx_tick*self.radius]
+                y_ticks = [0.5*sidey - ny_tick*self.radius, 0.5*sidey, 0.5*sidey + ny_tick*self.radius]
+                ax.set_xticks(x_ticks)
+                ax.set_yticks(y_ticks)
+                ax.set_xticklabels([rf'${-nx_tick}R$', r'$0$', rf'${nx_tick}R$'])
+                ax.set_yticklabels([rf'${-ny_tick}R$', r'$0$', rf'${ny_tick}R$'])
                 ax.set_xlim((sidex*(1-focus), Ly*focus))
                 ax.set_ylim((sidey*(1-focus), Lz*focus))
                 if not fig_index == 0:
@@ -4592,9 +4606,8 @@ class VISUAL:
         
         plot_envelope = False
 
-        fontsize = 36
-
-        plt.rcParams.update({'font.size': fontsize})
+        # fontsize = 36
+        # plt.rcParams.update({'font.size': fontsize})
 
 
         from scipy.special import legendre
@@ -4955,7 +4968,7 @@ class VISUAL:
         ax2.set_xlim(0, np.pi)
         ax2.set_ylim(-1.5, 4)
         ax2.set_xlabel(r'$\theta$')
-        ax2.set_ylabel(r'$u_{flow}T/L$')
+        ax2.set_ylabel(r'$u_{r,\theta}T/L$')
 
         lower_y = 0.0
         upper_y = 1.3
@@ -4983,22 +4996,22 @@ class VISUAL:
         ax3.set_xlabel(r'$t/T$')
         ax3.set_xlim(0, 1)
         ax3.set_ylim(-1, 1.5)
-        ax3.legend(frameon=False)
+        # ax3.legend(frameon=False)
         ax3.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
 
         ax4.plot(time_data, An_data[:,1]/self.fillength, c='black', label=r'$A_1$')
         ax4.plot(time_data, An_data[:,2]/self.fillength, c='black', linestyle='dashed', label=r'$A_2$')
-        ax4.plot(time_data, Bn_data[:,1]/self.fillength, c='red', label=r'$B_1$')
-        ax4.plot(time_data, Bn_data[:,2]/self.fillength, c='red', linestyle='dashed', label=r'$B_2$')
+        ax4.plot(time_data, Bn_data[:,1]/self.fillength, c='blue', label=r'$B_1$')
+        ax4.plot(time_data, Bn_data[:,2]/self.fillength, c='blue', linestyle='dashed', label=r'$B_2$')
         ax4.set_ylabel(r'$A_n, B_nT/L$')
         ax4.set_xlabel(r'$t/T$')
-        # ax4.legend(frameon=False)
+        ax4.legend(frameon=False)
         ax4.set_xlim(0, 1)
         ax4.set_ylim(-3, 4)
         
 
         ax5.plot(np.arange(n_coeffs), An_data[self.plot_end_frame-1]/self.fillength, c='black', label=r'$A_n$')
-        ax5.plot(np.arange(n_coeffs), Bn_data[self.plot_end_frame-1]/self.fillength, c='red', label=r'$B_n$')
+        ax5.plot(np.arange(n_coeffs), Bn_data[self.plot_end_frame-1]/self.fillength, c='black', linestyle='--', label=r'$B_n$')
         ax5.set_ylabel(r'$A_n, B_nT/L$')
         ax5.set_xlabel(r'$n$')
         # ax5.legend(frameon=False)
@@ -5024,7 +5037,7 @@ class VISUAL:
 
         # --- Row 2 proxies ---
         An_line = Line2D([0], [0], color='black', lw=2, linestyle='-', label=r'$A_n$')
-        Bn_line = Line2D([0], [0], color='red', lw=2, linestyle='-', label=r'$B_n$')
+        Bn_line = Line2D([0], [0], color='black', lw=2, linestyle='--', label=r'$B_n$')
 
         # --- Row 3 proxies (scatters) ---
         phase_scatter = Line2D([0], [0], color='black', marker='o', linestyle='None',
@@ -5064,7 +5077,7 @@ class VISUAL:
         fig5.savefig(f'fig/coefficients_{self.date}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig6.savefig(f'fig/body_rot_speed_{self.date}_index{self.index}.png', bbox_inches = 'tight', format='png', transparent=True)
         fig7.savefig(f'fig/flowfield_polar_legend_{self.date}.png', bbox_inches = 'tight', format='png', transparent=True)
-        plt.show()
+        # plt.show()
 
     def flow_field_FFCM(self):
 
@@ -5247,15 +5260,11 @@ class VISUAL:
                     fil_plot_data[fil] = seg_data
                     # only plot fil when the fil is facing us. this is done by checking the base of the filament
                     if view == 'side':
-                        if(seg_data[0, 0]-body_pos[0]>shift[0]):
-                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
-                        # if(seg_data[0, 0]<shift[0]):
-                        #     ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 98, alpha = alpha)
+                        if(seg_data[0, 1]<shift[1]+body_pos[1]):
+                            ax.plot(seg_data[:,0], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
                     if view == 'top':
                         if(seg_data[0, 2]-body_pos[2]>shift[2]):
                             ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
-                        # if(seg_data[0, 0]<shift[2]):
-                        #     ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 98, alpha = alpha)
 
 
             np.savetxt(f'{self.dir}flowfield/flow_pos{frame}.dat', source_pos_list, delimiter=' ')
@@ -5282,7 +5291,7 @@ class VISUAL:
             yx_ratio = self.ny/self.nx
             zx_ratio = self.nz/self.nx
 
-            nx = 128
+            nx = 256
             ny = int(nx*yx_ratio)
             nz = int(nx*zx_ratio)
 
@@ -5304,7 +5313,10 @@ class VISUAL:
                 for key in dic:
                     replace(key, str(dic[key]), info_file_name)
 
-            subprocess.call("bin/FLOWFIELD", shell=True)
+            os.makedirs('data/simulation', exist_ok=True)
+            ret = subprocess.call("bin/FLOWFIELD", shell=True)
+            if ret != 0:
+                print(f"WARNING: bin/FLOWFIELD exited with code {ret}")
 
             os.system(f'mv -f data/simulation/flow_x.dat {file_dir}flow_x{frame}.dat')
             os.system(f'mv -f data/simulation/flow_y.dat {file_dir}flow_y{frame}.dat')
@@ -5356,8 +5368,7 @@ class VISUAL:
             z = nzh
 
             if view == 'side':
-                vel = np.sqrt(flow_x[:,:,x]**2 + flow_y[:,:,x]**2 + flow_z[:,:,x]**2)
-                
+                vel = np.sqrt(flow_x[:,y,:]**2 + flow_y[:,y,:]**2 + flow_z[:,y,:]**2)
             if view == 'top':
                 vel = np.sqrt(flow_x[z,:,:]**2 + flow_y[z,:,:]**2 + flow_z[z,:,:]**2)
 
@@ -5368,24 +5379,22 @@ class VISUAL:
             start_time = time.time()
             
             if view == 'side':
-                ax.streamplot(Y, Z, flow_y[:,:,x], flow_z[:,:,x], color='black')
+                ax.streamplot(X, Z, flow_x[:,y,:], flow_z[:,y,:], color='black')
             if view == 'top':
                 ax.streamplot(X, Y, flow_x[z,:,:], flow_y[z,:,:], color='black')
 
             # Specify the bounds of imshow, also shift the pixels to the right positions
-            y_lower, y_upper, z_lower, z_upper = 0-0.5*dx, Ly+0.5*dx, 0-0.5*dx, Lz+0.5*dx
-
-            
+            x_lower, x_upper, z_lower, z_upper = 0-0.5*dx, Lx+0.5*dx, 0-0.5*dx, Lz+0.5*dx
 
             # append one row and col to the vel pixels to match the positions of grid points
-            nrows, ncols = vel.shape 
+            nrows, ncols = vel.shape
             new_vel = np.zeros((nrows + 1, ncols + 1))
             new_vel[:nrows, :ncols] = vel
             new_vel[nrows, :ncols] = vel[0, :]
             new_vel[:nrows, ncols] = vel[:, 0]
             new_vel[nrows, ncols] = vel[0, 0]
 
-            phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[y_lower, y_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
+            phi_var_plot = ax.imshow(new_vel/self.fillength, cmap=cmap_name2, origin='lower', extent=[x_lower, x_upper, z_lower, z_upper], vmax = speed_limit, vmin=0)            
 
             # plot speed values over distance
             ax2.vlines(self.radius, ymin=0, ymax=max(vel[nzh,:]/self.fillength), linestyles='dashed', color='grey')
@@ -5394,7 +5403,7 @@ class VISUAL:
             ax2.set_ylim(0)
             ax2.set_xlim((-.5*Ly, .5*Ly))
             ax2.set_xlabel(f'$d$')
-            ax2.set_ylabel(r'$|{u}_{flow}|T/L$')
+            ax2.set_ylabel(r'$|| \mathbf{u} || T/L$')
             fig2.tight_layout()
 
             print(f"elapsed time = {time.time() - start_time}")
@@ -5406,18 +5415,18 @@ class VISUAL:
                 sidex = Lx
                 sidey = Ly
             if view=='side':
-                sidex = Lx
+                sidex = Ly
                 sidey = Lz
-            focus = 0.8
+            focus = 0.7
             # ax.set_xticks(np.linspace(0, sidex, 5))
-            # ax.set_yticks(np.linspace(0, sidey, 5))
-            # ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-            # ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-
-            ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
-            ax.set_yticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
-            ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-            ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            nx_tick = round((focus - 0.5) * sidex / self.radius)
+            ny_tick = round((focus - 0.5) * sidey / self.radius)
+            x_ticks = [0.5*sidex - nx_tick*self.radius, 0.5*sidex, 0.5*sidex + nx_tick*self.radius]
+            y_ticks = [0.5*sidey - ny_tick*self.radius, 0.5*sidey, 0.5*sidey + ny_tick*self.radius]
+            ax.set_xticks(x_ticks)
+            ax.set_yticks(y_ticks)
+            ax.set_xticklabels([rf'${-nx_tick}R$', r'$0$', rf'${nx_tick}R$'])
+            ax.set_yticklabels([rf'${-ny_tick}R$', r'$0$', rf'${ny_tick}R$'])
             ax.set_xlim((sidex*(1-focus), Ly*focus))
             ax.set_ylim((sidey*(1-focus), Lz*focus))
 
@@ -5437,7 +5446,7 @@ class VISUAL:
 
             # Add the colorbar to the figure
             cbar = fig.colorbar(sm)
-            cbar.set_label(r"$u_{flow}T/L$")
+            cbar.set_label(r"$|| \mathbf{u} || T/L$")
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
                 if(i>=self.plot_start_frame):
@@ -5484,7 +5493,7 @@ class VISUAL:
             fig3.subplots_adjust(left=0.5, right=0.7)  # Narrow colourbar
             # Add the colorbar to the figure
             cbar = fig3.colorbar(sm, cax=ax3)
-            cbar.set_label(r"$u_{flow}T/L$")
+            cbar.set_label(r"$u_{r,\theta}T/L$")
             fig3.tight_layout()
 
             # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
@@ -5498,6 +5507,8 @@ class VISUAL:
         view = 'top'
         # view = 'side'
 
+        view_angle = np.pi  # rotation about body z-axis (radians)
+
         center_at_swimmer = True
 
         # need to test
@@ -5510,11 +5521,8 @@ class VISUAL:
         global frame
         frame = 0
 
-        fig = plt.figure(dpi=200)
+        fig = plt.figure(dpi=100)
         ax = fig.add_subplot()
-
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot()
 
         cmap_name = 'hsv'
         cmap_name2= 'Reds'
@@ -5550,7 +5558,10 @@ class VISUAL:
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
         
             for swim in range(int(self.pars['NSWIM'])):
-                body_pos = body_states[7*swim : 7*swim+3]
+                # body_pos = body_states[7*swim : 7*swim+3]
+                # R = np.identity(3)
+
+                body_pos = np.ones(3)
                 R = np.identity(3)
                 
                 if center_at_swimmer:
@@ -5560,9 +5571,9 @@ class VISUAL:
                     circle=plt.Circle( (shift[0]+body_pos[0], shift[1]+body_pos[1]), self.radius, color='Grey', zorder=99)
                     ax.scatter(shift[0]+body_pos[0], shift[1]+body_pos[1], c='black', zorder = 999)
                 if view == 'side':
-                    circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=99)
+                    circle=plt.Circle((shift[1]+body_pos[1], shift[2]+body_pos[2]), self.radius, color='Grey', zorder=0)
                     R = np.identity(3)
-                    R = util.rot_mat(body_states[3 : 7])
+                    # R = util.rot_mat(body_states[3 : 7])
                     body_axis_x = np.matmul(R, np.array([self.radius,0,0]))
                     body_axis_y = np.matmul(R, np.array([0,self.radius,0]))
                     body_axis_z = np.matmul(R, np.array([0,0,self.radius]))
@@ -5576,73 +5587,76 @@ class VISUAL:
 
                 ax.add_patch(circle)
 
-
                 for blob in range(self.nblob):
                     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
-                
-                
-                
-                
-                
+                               
                 for fil in range(self.nfil):
                     fil_i = int(3*fil*self.nseg)
-                    seg_data = np.zeros((self.nseg, 3))
-
                     fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
-                    s = np.linspace(0, 1, 20)
-                    # R_ref(q)
+                    fil_data = np.zeros((self.nseg, 3))
+
+                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
+                    alpha = 1
+
+                    s = np.linspace(0, 1, self.nseg)
                     Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
-                    # R(\psi_2) rotation about the z-axis
-                    Rtheta = rotation_matrix = np.array([
+                    Rtheta = np.array([
                         [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
-                        [np.sin(fil_angles[fil]), np.cos(fil_angles[fil]), 0],
+                        [np.sin(fil_angles[fil]),  np.cos(fil_angles[fil]), 0],
                         [0, 0, 1]
                     ])
                     for seg in range(self.nseg):
-                        ref = self.fillength*R@Rfil@Rtheta@np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
-                        seg_pos = fil_base + ref + shift
-                        seg_data[seg] = seg_pos
-                    # for seg in range(self.nseg):
-                    #     seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)] + shift
-                    #     seg_data[seg] = seg_pos
-                    #     if fil == 0:
-                    #         print(seg_pos)
+                        ref = self.fillength * R @ Rfil @ Rtheta @ np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
+                        fil_data[seg] = fil_base + ref  # no shift yet
 
-                    # color
-                    alpha = 1
-                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
-                    # b&w
-                    # alpha = 0.1 + 0.9*np.sin(fil_phases[fil]/2)
-                    # fil_color = 'black'
+                    centre = body_pos
+                    u = R @ np.array([0.0, 0.0, 1.0])  # body z-axis in lab frame
+                    c_a, s_a = np.cos(view_angle), np.sin(view_angle)
 
-                    
-                    
-                    fil_plot_data[fil] = seg_data
-                    # only plot fil when the fil is facing us. this is done by checking the base of the filament
+                    # Rotate fil_data about body z-axis by view_angle (Rodrigues)
+                    if view_angle != 0.0:
+                        v = fil_data - centre
+                        fil_data = (centre +
+                                    v * c_a +
+                                    np.cross(u, v) * s_a +
+                                    u * (v @ u)[:, None] * (1 - c_a))
+
+                    # Rotate fil_base independently for visibility/zorder
+                    v_base = fil_base - centre
+                    fil_base_rot = (centre +
+                                    v_base * c_a +
+                                    np.cross(u, v_base) * s_a +
+                                    u * (u @ v_base) * (1 - c_a))
+                    base_rel = fil_base_rot - centre
+
                     if view == 'side':
-                        if(seg_data[0, 0]-body_pos[0]>shift[0]):
-                            ax.plot(seg_data[:,1], seg_data[:,2], c=fil_color, zorder = 100, alpha = alpha)
+                        ax.plot(fil_data[:,1] + shift[1], fil_data[:,2] + shift[2], c=fil_color,
+                                zorder=base_rel[0], alpha=alpha)
                     if view == 'top':
-                        if(seg_data[0, 2]-body_pos[2]>shift[2]):
-                            ax.plot(seg_data[:,0], seg_data[:,1], c=fil_color, zorder = 100, alpha = alpha)
+                        ax.plot(fil_data[:,1] + shift[0], -fil_data[:,0] + shift[1], c=fil_color,
+                                zorder=base_rel[2], alpha=alpha)
             Lx = self.boxsize
             Ly = Lx/self.nx*self.ny
             Lz = Lx/self.nx*self.nz
 
             ax.set_aspect('equal')
-            ax.axis('off')
+            # ax.axis('off')
             if view=='top':
                 sidex = Lx
                 sidey = Ly
             if view=='side':
                 sidex = Lx
                 sidey = Lz
-            focus = 0.65
+            focus = 0.7
 
-            ax.set_xticks(0.5*sidex + np.linspace(-6*self.radius, 6*self.radius, 5))
-            ax.set_yticks(0.5*sidey + np.linspace(-6*self.radius, 6*self.radius, 5))
-            ax.set_xticklabels([rf'{(i*sidex/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
-            ax.set_yticklabels([rf'{(i*sidey/self.radius):.0f}$R$' for i in np.linspace(-0.5, 0.5, 5)])
+            nx_tick = round((focus - 0.5) * sidex / self.radius)
+            ny_tick = round((focus - 0.5) * sidey / self.radius)
+            x_ticks = [0.5*sidex - nx_tick*self.radius, 0.5*sidex, 0.5*sidex + nx_tick*self.radius]
+            y_ticks = [0.5*sidey - ny_tick*self.radius, 0.5*sidey, 0.5*sidey + ny_tick*self.radius]
+            ax.set_xticks(x_ticks)
+            ax.set_yticks(y_ticks)
+            ax.set_xticklabels([rf'${-nx_tick}R$', r'$0$', rf'${nx_tick}R$'])
+            ax.set_yticklabels([rf'${-ny_tick}R$', r'$0$', rf'${ny_tick}R$'])
             ax.set_xlim((sidex*(1-focus), Ly*focus))
             ax.set_ylim((sidey*(1-focus), Lz*focus))
 
@@ -5668,7 +5682,8 @@ class VISUAL:
                     fil_states_str = fil_states_f.readline()
 
             FFwriter = animation.FFMpegWriter(fps=10)
-            ani.save(f'fig/ciliate_2D_FFCM_{self.date}_anim_index{self.index}.mp4', writer=FFwriter)
+            parent_folder = os.path.basename(os.path.dirname(self.dir.rstrip('/')))
+            ani.save(f'fig/ciliate_2D_{view}_{parent_folder}_{self.date}_anim_index{self.index}.mp4', writer=FFwriter)
         else:
             for i in range(self.plot_end_frame):
                 print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
@@ -6512,10 +6527,33 @@ class VISUAL:
         # ax.set_ylim(0)
         ax.grid()
 
+        y_norm = (fil_base_array[:,1] - fil_base_array[:,1].min()) / self.fillength
         phase_rel = np.unwrap(fil_phases) - np.unwrap(fil_phases)[0]
-        ax3.plot(fil_base_array[:,1]/self.fillength, phase_rel, marker='+', c='black')
+        ax3.plot(y_norm, phase_rel, marker='+', c='black')
+        p_min = phase_rel.min()
+        p_max = phase_rel.max()
+        for k in range(int(np.floor(p_min / (2*np.pi))), int(np.ceil(p_max / (2*np.pi))) + 1):
+            ax3.axhline(k * 2*np.pi, color='grey', lw=0.8, linestyle='--')
+        k_min = int(np.floor(p_min / np.pi))
+        k_max = int(np.ceil(p_max / np.pi))
+        tick_vals = [k * np.pi for k in range(k_min, k_max + 1)]
+        tick_labels = []
+        for k in range(k_min, k_max + 1):
+            if k == 0:
+                tick_labels.append(r'$0$')
+            elif k == 1:
+                tick_labels.append(r'$\pi$')
+            elif k == -1:
+                tick_labels.append(r'$-\pi$')
+            elif k > 0:
+                tick_labels.append(rf'${k}\pi$')
+            else:
+                tick_labels.append(rf'${k}\pi$')
+        ax3.set_yticks(tick_vals)
+        ax3.set_yticklabels(tick_labels)
         ax3.set_xlabel(r"$y/L$")
-        ax3.set_ylabel(r"$\psi_1 - \psi_1(0)$")
+        # ax3.set_ylabel(r"$\psi_1 - \psi_1^{(0)}$")
+        ax3.set_ylabel(r"$\psi_1^{(m)} - \psi_1^{(1)}$")
 
         ax4.plot(fil_base_array[:,1]/self.fillength, fil_angles, marker='+', c='black')
         ax4.set_xlabel(r"$y/L$")
@@ -6564,11 +6602,12 @@ class VISUAL:
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
 
         # Compute data extent before creating the figure so we can size it correctly.
-        y_min = (self.fil_references[1] - self.pars_list['fil_spacing'][self.index]) / self.fillength
-        y_max = (self.fil_references[self.nfil*3 - 2] + self.pars_list['fil_spacing'][self.index]) / self.fillength
+        y_offset = self.fil_references[1] / self.fillength
+        y_min = -self.pars_list['fil_spacing'][self.index] / self.fillength
+        y_max = (self.fil_references[self.nfil*3 - 2] - self.fil_references[1] + self.pars_list['fil_spacing'][self.index]) / self.fillength
         z_min, z_max = 0.0, 1.1  # normalised z range (filaments beat 0..L)
 
-        fig_height = 2.5
+        fig_height = 3
         fig_width  = 16
 
         fig, ax = plt.subplots(figsize=(fig_width, fig_height))
@@ -6592,12 +6631,12 @@ class VISUAL:
                 for seg in range(self.nseg):
                     fil_data[seg] = seg_states[fil_i + 3*seg : fil_i + 3*seg + 3]
 
-                ax.plot(fil_data[:, 1] / self.fillength,
+                ax.plot(fil_data[:, 1] / self.fillength - y_offset,
                         fil_data[:, 2] / self.fillength,
                         c='black', lw=1.5)
 
                 if plot_psi2:
-                    y_base = self.fil_references[3*fil + 1] / self.fillength
+                    y_base = self.fil_references[3*fil + 1] / self.fillength - y_offset
                     psi2   = fil_angles[fil]
                     ax.plot([y_base, y_base + np.sin(psi2)], [0, np.cos(psi2)],
                             color='red', lw=1.5)
@@ -6605,8 +6644,9 @@ class VISUAL:
             ax.axhline(0, color='black', lw=1.5)
             ax.set_xlim(y_min, y_max)
             ax.set_ylim(z_min, z_max)
-            ax.set_xlabel(r"$y/L$")
-            ax.set_ylabel(r"$z/L$")
+            ax.set_xlabel(r"$y/L$", fontsize=28)
+            ax.set_ylabel(r"$z/L$", fontsize=28)
+            ax.tick_params(labelsize=26)
             ax.set_aspect('equal')
 
         if self.video:
@@ -6633,41 +6673,45 @@ class VISUAL:
                 snap_frame_map = {f: tf for f, tf in zip(snap_frames, t_fracs)}
 
             snapshot_data   = []   # (t_frac, fil_phases, fil_angles, seg_states)
-            last_frame_data = None
+            align_start     = max(self.plot_end_frame - int(self.period), 0)
+            align_candidates = []  # (dist_to_2pi_multiple, fil_phases, fil_angles, seg_states)
 
             for i in range(self.plot_end_frame):
                 fil_states_str = fil_states_f.readline()
                 seg_states_str = seg_states_f.readline()
 
-                if i in snap_frame_map or i == self.plot_end_frame - 1:
+                if i in snap_frame_map or i >= align_start:
                     fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                     fil_phases = util.box(fil_states[:self.nfil], 2*np.pi)
                     fil_angles = fil_states[self.nfil:]
                     seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                     if i in snap_frame_map:
                         snapshot_data.append((snap_frame_map[i], fil_phases, fil_angles, seg_states))
-                    if i == self.plot_end_frame - 1:
-                        last_frame_data = (fil_phases, fil_angles, seg_states)
+                    if i >= align_start:
+                        phase0 = fil_phases[0]
+                        dist   = min(phase0, 2*np.pi - phase0)
+                        align_candidates.append((dist, fil_phases, fil_angles, seg_states))
 
-            # --- main fig: last frame ---
-            fil_phases, fil_angles, seg_states = last_frame_data
+            # --- main fig: frame where first filament is closest to a 2π multiple ---
+            _, fil_phases, fil_angles, seg_states = min(align_candidates, key=lambda x: x[0])
             for fil in range(self.nfil):
                 fil_i = int(3 * fil * self.nseg)
                 fil_data = np.zeros((self.nseg, 3))
                 for seg in range(self.nseg):
                     fil_data[seg] = seg_states[fil_i + 3*seg : fil_i + 3*seg + 3]
-                ax.plot(fil_data[:, 1] / self.fillength,
+                ax.plot(fil_data[:, 1] / self.fillength - y_offset,
                         fil_data[:, 2] / self.fillength, c='black', lw=1.5)
                 if plot_psi2:
-                    y_base = self.fil_references[3*fil + 1] / self.fillength
+                    y_base = self.fil_references[3*fil + 1] / self.fillength - y_offset
                     psi2   = fil_angles[fil]
                     ax.plot([y_base, y_base + np.sin(psi2)], [0, np.cos(psi2)],
                             color='red', lw=1.5)
             ax.axhline(0, color='black', lw=1.5)
             ax.set_xlim(y_min, y_max)
             ax.set_ylim(z_min, z_max)
-            ax.set_xlabel(r"$y/L$")
-            ax.set_ylabel(r"$z/L$")
+            ax.set_xlabel(r"$y/L$", fontsize=28)
+            ax.set_ylabel(r"$z/L$", fontsize=28)
+            ax.tick_params(labelsize=26)
             ax.set_aspect('equal')
             fig.savefig(f'fig/multifil_side_{self.index}_k{self.spring_factor}.png', bbox_inches='tight', format='png', transparent=True)
 
@@ -6685,22 +6729,21 @@ class VISUAL:
                         fil_data = np.zeros((self.nseg, 3))
                         for seg in range(self.nseg):
                             fil_data[seg] = ss[fil_i + 3*seg : fil_i + 3*seg + 3]
-                        ax_s.plot(fil_data[:, 1] / self.fillength,
+                        ax_s.plot(fil_data[:, 1] / self.fillength - y_offset,
                                   fil_data[:, 2] / self.fillength, c='black', lw=1.2)
                         if plot_psi2:
-                            y_base = self.fil_references[3*fil + 1] / self.fillength
+                            y_base = self.fil_references[3*fil + 1] / self.fillength - y_offset
                             psi2   = fa[fil]
                             ax_s.plot([y_base, y_base + np.sin(psi2)], [0, np.cos(psi2)],
                                       color='red', lw=1.2)
                     ax_s.axhline(0, color='black', lw=1.5)
                     ax_s.set_xlim(y_min, y_max)
                     ax_s.set_ylim(z_min, z_max)
-                    ax_s.set_ylabel(r'$z/L$', fontsize=8)
+                    ax_s.set_ylabel(r'$z/L$', fontsize=24)
                     ax_s.set_aspect('equal')
-                    ax_s.tick_params(labelsize=7)
-                    ax_s.set_title(f'$t/T = {t_frac:.2f}$', loc='left', fontsize=8)
+                    ax_s.tick_params(labelsize=22)
 
-                axes_s[-1].set_xlabel(r'$y/L$', fontsize=8)
+                axes_s[-1].set_xlabel(r'$y/L$', fontsize=24)
                 fig_s.tight_layout()
                 fig_s.savefig(f'fig/multifil_side_snapshots_{self.index}_k{self.spring_factor}.png',
                               bbox_inches='tight', format='png', transparent=True)
@@ -8122,7 +8165,7 @@ class VISUAL:
 
     def multi_twofil(self):
 
-        read_phases = False
+        read_phases = True
 
         from matplotlib.colors import Normalize
         from matplotlib.cm import ScalarMappable
@@ -8192,44 +8235,50 @@ class VISUAL:
         y_list = np.round(d_list*np.sin(angle_list)).astype(int)
         unique_x = np.unique(x_list)
         unique_y = np.unique(y_list)
-        # phase_diff_list[1] = 0.0
+        # Normalise to units of L for plotting
+        unique_x_norm = unique_x / self.fillength
+        unique_y_norm = unique_y / self.fillength
 
         epsilon = 1e-5
         mask = np.abs(phase_diff_list) > epsilon
         wavelength_list = np.empty_like(phase_diff_list)
         wavelength_list[mask] = 2 * np.pi * y_list[mask] / phase_diff_list[mask]
-        wavelength_list[~mask] = np.nan  # or set to 0 or another placeholder
+        wavelength_list[~mask] = np.nan
 
         print(phase_diff_list)
 
         try:
-            dx = unique_x[1] - unique_x[0]
-            dy = unique_y[1] - unique_y[0]
+            dx_norm = unique_x_norm[1] - unique_x_norm[0]
+            dy_norm = unique_y_norm[1] - unique_y_norm[0]
         except:
-            dx = 1
-            dy = 1
+            dx_norm = 1 / self.fillength
+            dy_norm = 1 / self.fillength
         nx = len(unique_x)
         ny = len(unique_y)
         phases_img = np.reshape(phase_diff_list, (nx, ny))
         wavelengths_img = np.reshape(wavelength_list, (nx, ny))
-        
-        ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
-        # ax2.scatter(x_list, y_list, c=phase_diff_list, cmap='Greys', s=100, vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list), edgecolors='black', linewidths=0.1)
-        ax2.set_xlabel(r'$\Delta x$')
-        ax2.set_ylabel(r'$\Delta y$')
+
+        extent_norm = (unique_x_norm[0] - dx_norm/2, unique_x_norm[-1] + dx_norm/2,
+                       unique_y_norm[0] - dy_norm/2, unique_y_norm[-1] + dy_norm/2)
+
+        ax2.imshow(phases_img.T, origin='lower', cmap='Greys', aspect='auto',
+                   extent=extent_norm,
+                   vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
+        ax2.set_xlabel(r'$\Delta x/L$')
+        ax2.set_ylabel(r'$\Delta y/L$')
         ax2.set_aspect('equal')
         norm = Normalize(vmin=np.min(phase_diff_list), vmax=np.max(phase_diff_list))
         sm = ScalarMappable(cmap='Greys', norm=norm)
         sm.set_array([])
-        # ax2.set_box_aspect(0.5)
         cbar = fig2.colorbar(sm, label=r'$\langle \Delta \psi_1 \rangle$')
 
         min_wavelength = 0
         max_wavelength = 120
-        ax2_2.imshow(wavelengths_img.T/self.fillength, origin='lower', cmap='Greys', vmin=min_wavelength, vmax=max_wavelength)
-        # ax2_2.imshow(wavelengths_img.T, origin='lower', cmap='Greys', aspect='auto', extent=(unique_x[0]-dx/2, unique_x[-1]+dx/2, unique_y[0]-dy/2, unique_y[-1]+dy/2), vmin=np.min(wavelength_list), vmax=np.max(wavelength_list))
-        ax2_2.set_xlabel(r'$\Delta x$')
-        ax2_2.set_ylabel(r'$\Delta y$')
+        ax2_2.imshow(wavelengths_img.T/self.fillength, origin='lower', cmap='Greys',
+                     aspect='auto', extent=extent_norm,
+                     vmin=min_wavelength, vmax=max_wavelength)
+        ax2_2.set_xlabel(r'$\Delta x/L$')
+        ax2_2.set_ylabel(r'$\Delta y/L$')
         ax2_2.set_aspect('equal')
         
         
@@ -8587,7 +8636,7 @@ class VISUAL:
         sm.set_array([])
         fig.colorbar(sm, ax=ax, label=r'$k$')
         ax.set_xlabel(r'$y/L$')
-        ax.set_ylabel(r'$\Delta\psi_1$')
+        ax.set_ylabel(r'$\psi_1^{(m)} - \psi_1^{(1)}$')
         ax.set_xlim(0, self.nfil + 18)
         ax.grid()
 
@@ -8599,7 +8648,7 @@ class VISUAL:
 
         ax3.plot(k_sorted, angle_sorted, marker='+', c='black')
         ax3.set_xlabel(r'$k$')
-        ax3.set_ylabel(r'$\langle \psi_2 \rangle$')
+        ax3.set_ylabel(r'$\langle \bar{\psi_2} \rangle$')
         ax3.set_xlim(0, .1)
         ax3.grid()
 
@@ -8613,10 +8662,13 @@ class VISUAL:
 
         gradient_quarter_sorted  = gradient_quarter_list[sort_idx]
         gradient_3quarter_sorted = gradient_3quarter_list[sort_idx]
-        ax6.scatter(k_sorted, gradient_quarter_sorted,  marker='+', c='black',   label=r'$m = 1/4M$')
-        ax6.scatter(k_sorted, gradient_3quarter_sorted, marker='x', c='red', label=r'$m = 3/4M$')
+        m_quarter  = self.nfil // 4
+        m_3quarter = 3 * self.nfil // 4
+        ax6.scatter(k_sorted, gradient_quarter_sorted,  marker='+', c='black', label=rf'$m = {m_quarter}$')
+        ax6.scatter(k_sorted, gradient_3quarter_sorted, marker='x', c='red',   label=rf'$m = {m_3quarter}$')
         ax6.set_xlabel(r'$k$')
-        ax6.set_ylabel(r'$\mathrm{d}\psi_1/\mathrm{d}(y/L)$')
+        # ax6.set_ylabel(r'$\mathrm{d}\psi_1/\mathrm{d}(y/L)$')
+        ax6.set_ylabel(r'$L(\psi_1^{(m+1)} - \psi_1^{(m)})/\Delta y$')
         ax6.set_xlim(0, .1)
         ax6.legend(fontsize=16)
         ax6.grid()
@@ -10363,8 +10415,8 @@ class VISUAL:
 
     def squirmer_fixed_ratio(self):
         
-        # self.date = '20250214_1e-6_settling'
-        # self.dir = f"data/resolution/{self.date}/"
+        self.date = '20250214_1e-6_settling'
+        self.dir = f"data/resolution/{self.date}/"
         # self.date = '20250214_1e-6_squirmer'
         # self.dir = f"data/resolution/{self.date}/"
 
@@ -10452,7 +10504,8 @@ class VISUAL:
         log_x = np.log10(nblobs)
         log_y = np.log10(errors)
         slope, intercept = np.polyfit(log_x, log_y, 1)
-        equation_text = f"$y = {10**intercept:.2f} x^{{{slope:.2f}}}$"
+        # equation_text = f"$y = {10**intercept:.2f} x^{{{slope:.2f}}}$"
+        equation_text = f'$\sim P^{-1/2}$'
         plt.annotate(equation_text, 
              xy=(0.2, 0.3), xycoords='axes fraction', 
              fontsize=20, ha='left', va='bottom', color='r')
@@ -10474,9 +10527,11 @@ class VISUAL:
 
         ax.set_xlabel(r'$P$')
         if option == 1:
-            ax.set_ylabel(r'$|V-W|/|W|$')
+            # ax.set_ylabel(r'$|V-W|/|W|$')
+            ax.set_ylabel(r'$|\mathbf{V} \cdot \hat{\mathbf{z}} - W|/W$')
         if option == 2:
-            ax.set_ylabel(r'$|V-\frac{2}{3}B_1|/\frac{2}{3}B_1$')
+            # ax.set_ylabel(r'$|V-\frac{2}{3}B_1|/\frac{2}{3}B_1$')
+            ax.set_ylabel(r'$|\mathbf{V} \cdot \hat{\mathbf{z}} - U_0|/U_0$')
 
         x_scale_offset = 1e4
         y_scale_offset = 1e-3
