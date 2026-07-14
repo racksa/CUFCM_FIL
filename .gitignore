@@ -44,6 +44,14 @@
 *.pdb
 /bin/*
 
+# ignore Python bytecode
+*.pyc
+*.pyo
+__pycache__/
+
+# ignore large FCM comparison data
+pyfile/aux/compare_UAMMD_FCM/
+
 # ignore .DS_Store from Macs
 .DS_Store
 
