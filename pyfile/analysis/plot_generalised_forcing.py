@@ -32,8 +32,8 @@ angle_forcing_filename = 'input/forcing/fulford_and_blake_reference_angle_genera
 # angle_forcing_filename = 'input/forcing/fulford_and_blake_original_reference_angle_generalised_forces_NSEG=20_SEP=2.600000.dat'
 real_force_filename = 'data/regular_wall_sim/20250204_1e-4_ref/ciliate_1fil_0blob_1.00R_0.0500torsion_0.0000tilt_1.0000dp_0.0000noise_0.0000ospread_seg_forces.dat'
 
-# phase_forcing_filename = 'input/forcing/volvox_reference_phase_generalised_forces_NSEG=20_SEP=2.600000.dat'
-# angle_forcing_filename = 'input/forcing/volvox_reference_angle_generalised_forces_NSEG=20_SEP=2.600000.dat'
+phase_forcing_filename = 'input/forcing/volvox_reference_phase_generalised_forces_NSEG=20_SEP=2.600000.dat'
+angle_forcing_filename = 'input/forcing/volvox_reference_angle_generalised_forces_NSEG=20_SEP=2.600000.dat'
 
 
 phase_forcing_f = open(phase_forcing_filename)
@@ -59,7 +59,7 @@ for t in range(n_phase):
         real_total_force[t] += np.mean(np.linalg.norm(real_force[t][6*i: 6*i+3]))
 real_total_force_mean = np.mean(real_total_force)
 
-phase_forcing -= - phase_mean
+# phase_forcing -= - phase_mean
 
 # fourier transform of the generalised force
 t = np.linspace(0, 1, n_phase+1)[:-1]
