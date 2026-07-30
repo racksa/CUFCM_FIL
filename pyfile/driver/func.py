@@ -123,9 +123,10 @@ class DRIVER:
         # self.dir = f"data/{self.category}{self.date}{self.afix}/"
         
         self.category = 'regular_wall_sim/'
-        self.date = '20260521_inves_k_2d'
+        # self.date = '20260521_inves_k_2d'
         # self.date = '20260422_twofil4'
-        self.exe_name = 'cilia_1e-4_plane'
+        self.date = '20260730_temp_forcing'
+        self.exe_name = 'cilia_1e-4_calibration'
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
 
         # self.category = 'for_paper/highk/'
@@ -168,7 +169,7 @@ class DRIVER:
                      "omega_spread": []}
 
         # self.sweep_shape = (40, 60, 1, 1) # twofil
-        self.sweep_shape = (10, 1, 1, 1) # multifil 
+        self.sweep_shape = (1, 1, 1, 1) # multifil 
 
         self.num_sim = 0
         self.current_thread = 0
@@ -267,82 +268,82 @@ class DRIVER:
                         # pair_dp = 1.0
                         # fene_model = 0
 
-                        # 1-D multifil
-                        nfil = int(45)
-                        nblob = int(0)
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        import numpy as np
-                        spring_factor = round(0.0 + 0.001*i, 3)
-                        if i == 100:
-                            spring_factor = 1.0
+                        # # 1-D multifil
+                        # nfil = int(45)
+                        # nblob = int(0)
+                        # nseg = 20
+                        # ar = round(1, 2)
+                        # period = 1
+                        # import numpy as np
+                        # spring_factor = round(0.0 + 0.001*i, 3)
+                        # if i == 100:
+                        #     spring_factor = 1.0
 
-                        nx=int(128)
-                        ny=int(128)
-                        nz=int(128)
-                        boxsize=400
-                        fil_spacing = 49.4
-                        blob_spacing = 50.0
-                        fil_x_dim=1
-                        blob_x_dim=10
-                        hex_num=1
-                        reverse_fil_direction_ratio=0.0
-                        twofil_angle = np.pi/2
-                        sim_length = 500
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-                        pair_dp = 1.0
-                        fene_model = 0
+                        # nx=int(128)
+                        # ny=int(128)
+                        # nz=int(128)
+                        # boxsize=400
+                        # fil_spacing = 49.4
+                        # blob_spacing = 50.0
+                        # fil_x_dim=1
+                        # blob_x_dim=10
+                        # hex_num=1
+                        # reverse_fil_direction_ratio=0.0
+                        # twofil_angle = np.pi/2
+                        # sim_length = 500
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
 
 
-                        # # 2-D multifil
-                        nfil = int(45 + 45*i)
-                        nblob = int(0)
-                        nseg = 20
-                        ar = round(1, 2)
-                        period = 1
-                        import numpy as np
-                        spring_factor = round(0.005, 3)
+                        # # # 2-D multifil
+                        # nfil = int(45 + 45*i)
+                        # nblob = int(0)
+                        # nseg = 20
+                        # ar = round(1, 2)
+                        # period = 1
+                        # import numpy as np
+                        # spring_factor = round(0.005, 3)
 
-                        nx=int(128)
-                        ny=int(128)
-                        nz=int(128)
-                        boxsize=400
-                        fil_spacing = 49.4
-                        fil_x_spacing = fil_spacing/2*3**.5
-                        blob_spacing = 50.0
-                        fil_x_dim=1 + i
-                        blob_x_dim=20
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        twofil_angle = np.pi/2
-                        sim_length = 500
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-                        pair_dp = 1.0
-                        fene_model = 0
+                        # nx=int(128)
+                        # ny=int(128)
+                        # nz=int(128)
+                        # boxsize=400
+                        # fil_spacing = 49.4
+                        # fil_x_spacing = fil_spacing/2*3**.5
+                        # blob_spacing = 50.0
+                        # fil_x_dim=1 + i
+                        # blob_x_dim=20
+                        # hex_num=2
+                        # reverse_fil_direction_ratio=0.0
+                        # twofil_angle = np.pi/2
+                        # sim_length = 500
+                        # force_noise_mag = 0.0
+                        # omega_spread = 0.0
+                        # pair_dp = 1.0
+                        # fene_model = 0
 
 
                         # # callibration
-                        # nfil = 1
-                        # nblob = 0
-                        # ar = 15.0
-                        # nseg = 20
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=4000
-                        # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0.0
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 0
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = 1.0
+                        nfil = 1
+                        nblob = 0
+                        ar = 15.0
+                        nseg = 20
+                        nx=400
+                        ny=400
+                        nz=400
+                        boxsize=4000
+                        spring_factor = round(0.005, 3)
+                        period = 1
+                        sim_length = 1
+                        tilt_angle = 0.0
+                        wavnum = 0.0
+                        wavnum_dia = 0.0
+                        fene_model = 0
+                        omega_spread = 0.0
+                        force_noise_mag = 0.0
+                        pair_dp = 1.0
 
                         # # # IVP sim
                         # nfil = 639

@@ -126,14 +126,14 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 6 = Bi-cilia long T, variable phase difference.
   // 7 = Fulford and Blake beat with no-wall generalised force.
 
-  #define DYNAMIC_PHASE_EVOLUTION true
+  #define DYNAMIC_PHASE_EVOLUTION false
   // If true, cilia phase speeds are solved for as part of the dynamics.
   // Requires a prior reference simulation with WRITE_GENERALISED_FORCES=true.
 
-  #define DYNAMIC_SHAPE_ROTATION true
+  #define DYNAMIC_SHAPE_ROTATION false
   // If true, cilia can tip backwards or forwards in their beat planes.
 
-  #define WRITE_GENERALISED_FORCES false
+  #define WRITE_GENERALISED_FORCES true
   // If true, saves generalised forces for use as reference values.
   // NOTE: Overwrites any existing reference files.
 
