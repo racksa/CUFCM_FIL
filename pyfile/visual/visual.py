@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import myIo
 import util
-import pandas as pd
 import matplotlib.colors as mcolors
 from matplotlib.lines import Line2D
 import matplotlib.patches as patches
@@ -69,13 +68,12 @@ class VISUAL:
         # self.date = '20240311_3'
         # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"    
 
-        self.date = '20240311_3'
-        self.dir = f"data/for_paper/IVP_free/{self.date}/"
+        # self.date = '20240311_3'
+        # self.dir = f"data/for_paper/IVP_free/{self.date}/"
 
         # self.date = '20240311_3'
         # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
 
-        
 
         # self.date = '20250728'
         # self.dir = f"data/for_paper/roadmap/{self.date}/"
@@ -91,6 +89,18 @@ class VISUAL:
 
         # self.date = '20250828_dp_sweep'
         # self.dir = f"data/volvox/{self.date}/"
+
+        # self.date = '20260902_oldbeat'
+        # self.dir = f"data/volvox/{self.date}/"
+
+        # self.date = '20260902_newbeat'
+        # self.dir = f"data/volvox/{self.date}/"
+
+        self.date = '20260909_pair_freq'
+        self.dir = f"data/pair/{self.date}/"
+
+        self.date = '20260910_pair_noise'
+        self.dir = f"data/pair/{self.date}/"
         
 
         # self.date = '20240827_jfm2'
@@ -175,8 +185,9 @@ class VISUAL:
         # self.dir = f"data/ic_hpc_bisection/k0.005/iteration1/{self.date}/"
 
 
-        # self.date = '20240507'
+        # self.date = '20260831_temp_forcing'
         # self.dir = f"data/regular_wall_sim/{self.date}/"
+        
 
         # self.date = '20250214_1e-6_squirmer'
         # self.date = '20250214_1e-6_settling'
@@ -227,6 +238,7 @@ class VISUAL:
                      "dimensionless_force": [],
                      "fene_model": [],
                      "force_noise_mag": [],
+                     "phase_noise_mag": [],
                      "omega_spread": []}
         self.video = False
         self.interpolate = False
@@ -249,8 +261,8 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 30000
-        self.frames_setting = 300
+        self.plot_end_frame_setting = 10000
+        self.frames_setting = 300000
 
         self.plot_end_frame = self.plot_end_frame_setting
         self.frames = self.frames_setting
@@ -333,9 +345,11 @@ class VISUAL:
             pass
         try:
             self.force_noise_mag = self.pars_list['force_noise_mag'][self.index]
+            self.phase_noise_mag = self.pars_list['phase_noise_mag'][self.index]
             self.omega_spread = self.pars_list['omega_spread'][self.index]
         except:
             self.force_noise_mag = 0.0
+            self.phase_noise_mag = 0.0
             self.omega_spread = 0.0
         
         try:
@@ -359,6 +373,8 @@ class VISUAL:
 
         # Define possible filename templates, ordered from most recent to oldest
         templates = [
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}fnoise_{phase_noise_mag:.4f}pnoise_{omega_spread:.4f}ospread_{index:.0f}index",
+            "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}fnoise_{phase_noise_mag:.4f}pnoise_{omega_spread:.4f}ospread",
             "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}noise_{omega_spread:.4f}ospread_{index:.0f}index",
             "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}noise_{omega_spread:.4f}ospread",
             "ciliate_{nfil:.0f}fil_{nblob:.0f}blob_{ar:.2f}R_{spring_factor:.4f}torsion_{tilt_angle:.4f}tilt_{pair_dp:.4f}dp_{force_noise_mag:.4f}noise",
@@ -377,6 +393,7 @@ class VISUAL:
                 tilt_angle=self.tilt_angle,
                 pair_dp=self.pair_dp,
                 force_noise_mag=self.force_noise_mag,
+                phase_noise_mag=self.phase_noise_mag,
                 omega_spread=self.omega_spread,
                 index=self.index
             )
@@ -1462,7 +1479,7 @@ class VISUAL:
 
         ax.plot(time_array, phase_diff_array)
         ax.set_xlabel('t/T')
-        ax.set_ylabel('$\Delta$')
+        ax.set_ylabel(rf'$\Delta$')
         ax.set_xlim(time_array[0], time_array[-1])
         # ax.set_ylim(0)
         ax.grid()
@@ -1945,7 +1962,7 @@ class VISUAL:
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
         ax.set_proj_type('ortho')
-        elev_angle = 140
+        elev_angle = 0
         elev_angle_rad = elev_angle/180*np.pi
         azim_angle = 0
         azim_angle_rad = azim_angle/180*np.pi
@@ -1966,7 +1983,7 @@ class VISUAL:
         point_on_plane = 10*plane_normal
 
         ax.view_init(elev=elev_angle, azim=azim_angle, roll=180)
-        ax.dist=3.8
+        ax.dist=100
 
 
         # Flow field
@@ -2276,7 +2293,6 @@ class VISUAL:
 
         
         plt.show()
-
 
     def ciliate_eco(self):        
         self.select_sim()
@@ -2764,7 +2780,7 @@ class VISUAL:
 
         fig1.tight_layout()
         fig2.tight_layout()
-        # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
 
@@ -2837,8 +2853,8 @@ class VISUAL:
 
         fig1.tight_layout()
         fig2.tight_layout()
-        # fig1.savefig(f'fig/ciliate_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
-        # fig2.savefig(f'fig/ciliate_rot_speed_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        fig1.savefig(f'fig/ciliate_speed_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
+        # fig2.savefig(f'fig/ciliate_rot_speed_{self.date}_index{self.index}.pdf', bbox_inches = 'tight', format='pdf')
         
         plt.show()
 
@@ -5505,7 +5521,7 @@ class VISUAL:
     def ciliate_2D(self):
 
         view = 'top'
-        # view = 'side'
+        view = 'side'
 
         view_angle = np.pi  # rotation about body z-axis (radians)
 
@@ -5514,9 +5530,14 @@ class VISUAL:
         # need to test
         self.select_sim()
 
+        # Shape model: 'lung' | 'volvox' | 'rbf'
+        shape_type = 'rbf'
+
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
+
+        _rbf_table = load_rbf_theta_table("input/theta_table.bin") if shape_type == 'rbf' else None
 
         global frame
         frame = 0
@@ -5552,7 +5573,7 @@ class VISUAL:
             fil_states = np.array(fil_states_str.split()[2:], dtype=float)
             fil_states[:self.nfil] = util.box(fil_states[:self.nfil], 2*np.pi)
             fil_phases = fil_states[:self.nfil]
-            fil_angles = fil_states[self.nfil:]
+            fil_angles = fil_states[self.nfil:] if len(fil_states) > self.nfil else np.zeros(self.nfil)
             fil_plot_data = np.zeros((self.nfil, self.nseg, 3))
 
             shift = 0.5*np.array([self.Lx, self.Ly, self.Lz])
@@ -5605,9 +5626,10 @@ class VISUAL:
                         [np.sin(fil_angles[fil]),  np.cos(fil_angles[fil]), 0],
                         [0, 0, 1]
                     ])
+                    xs, ys, zs = cilia_shape_batch(s, fil_phases[fil], shape_type, _rbf_table)
                     for seg in range(self.nseg):
-                        ref = self.fillength * R @ Rfil @ Rtheta @ np.array(lung_cilia_shape(s[seg], fil_phases[fil]))
-                        fil_data[seg] = fil_base + ref  # no shift yet
+                        ref = self.fillength * R @ Rfil @ Rtheta @ np.array([xs[seg], ys[seg], zs[seg]])
+                        fil_data[seg] = fil_base + ref
 
                     centre = body_pos
                     u = R @ np.array([0.0, 0.0, 1.0])  # body z-axis in lab frame
@@ -5714,7 +5736,7 @@ class VISUAL:
             # fig3.tight_layout()
 
             # plt.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.pdf', bbox_inches = 'tight', format='pdf')
-            # fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
+            fig.savefig(f'fig/flowfieldFFCM_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             # fig2.savefig(f'fig/flowfield_over_distance_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             # fig3.savefig(f'fig/flowfieldFFCM_colorbar_{self.date}_{view}_index{self.index}_frame{self.plot_end_frame}.png', bbox_inches = 'tight', format='png', transparent=True)
             plt.show()
@@ -6363,7 +6385,7 @@ class VISUAL:
 
         ax.plot(time_array, phase_diff_array)
         ax.set_xlabel('t/T')
-        ax.set_ylabel('$\Delta$')
+        ax.set_ylabel(rf'$\Delta$')
         ax.set_xlim(time_array[0], time_array[-1])
         # ax.set_ylim(0)
         ax.grid()
@@ -6522,7 +6544,7 @@ class VISUAL:
 
         ax.plot(time_array, phase_diff_array)
         ax.set_xlabel('t/T')
-        ax.set_ylabel('$\Delta$')
+        ax.set_ylabel(rf'$\Delta$')
         ax.set_xlim(time_array[0], time_array[-1])
         # ax.set_ylim(0)
         ax.grid()
@@ -7922,74 +7944,146 @@ class VISUAL:
         fig4.savefig(f'fig/coherence_vs_dp.pdf', bbox_inches = 'tight', format='pdf')
         plt.show()
 
-    def multi_phase_diff(self):
-        fig = plt.figure()
-        ax = fig.add_subplot(1,1,1)
-        fig2 = plt.figure()
-        ax2 = fig2.add_subplot(1,1,1)
-        fig3 = plt.figure()
-        ax3 = fig3.add_subplot(1,1,1)
+    # ------------------------------------------------------------------
+    # Pair-simulation helpers
+    # ------------------------------------------------------------------
 
-        end_phase_array = np.zeros(self.num_sim)
-        slip_rate_array = np.zeros(self.num_sim)
-        pair_dp_list = np.array(self.pars_list['pair_dp'])
-        force_noise_mag_list = np.array(self.pars_list['force_noise_mag'])
+    def _detect_swept_param(self):
+        """Return (key, label, values) for the parameter that varies across sims."""
+        candidates = [
+            ('pair_dp',         r'$p = \omega_B/\omega_A$'),
+            ('phase_noise_mag', r'$\sigma_\psi$ (phase noise)'),
+            ('force_noise_mag', r'$\sigma_f$ (force noise)'),
+            ('omega_spread',    r'$\Omega_\mathrm{spread}$'),
+            ('spring_factor',   r'spring factor $k$'),
+        ]
+        for key, label in candidates:
+            if key in self.pars_list:
+                vals = np.array(self.pars_list[key], dtype=float)
+                if vals.max() - vals.min() > 1e-10:
+                    return key, label, vals
+        return 'index', 'simulation index', np.arange(self.num_sim, dtype=float)
+
+    def _pair_slip_data(self, ind):
+        """Read _true_states for sim `ind` and return per-timestep arrays.
+
+        Returns dict with keys:
+          time_array, phase_diff_array, psi2_array, slip_rate, has_psi2
+        or None if the sim is not found.
+        """
+        try:
+            self.index = ind
+            self.select_sim()
+            npair = self.nfil // 2
+
+            fil_f = open(self.simName + '_true_states.dat', 'r')
+            time_array       = np.arange(self.plot_start_frame, self.plot_end_frame) / self.period
+            phase_diff_array = np.zeros(self.frames)
+            psi2_array       = np.zeros(self.frames)
+            has_psi2         = False
+
+            for i in range(self.plot_end_frame):
+                print(f' sim {ind}  frame {i}/{self.plot_end_frame}          ', end='\r')
+                line = fil_f.readline()
+                if i >= self.plot_start_frame:
+                    states     = np.array(line.split()[2:], dtype=float)
+                    fil_phases = states[:self.nfil]
+                    mean_A = np.mean(fil_phases[:npair])
+                    mean_B = np.mean(fil_phases[npair:]) if npair < self.nfil else mean_A
+                    phase_diff_array[i - self.plot_start_frame] = (mean_A - mean_B) / (2.0 * np.pi)
+
+                    if len(states) > self.nfil:
+                        psi2_array[i - self.plot_start_frame] = np.mean(states[self.nfil:])
+                        has_psi2 = True
+
+            fil_f.close()
+
+            slip_rate = np.nan
+            if self.frames > 1:
+                slip_rate = (phase_diff_array[-1] - phase_diff_array[0]) / (time_array[-1] - time_array[0])
+
+            return dict(time_array=time_array, phase_diff_array=phase_diff_array,
+                        psi2_array=psi2_array, slip_rate=slip_rate, has_psi2=has_psi2)
+        except Exception as e:
+            print(f'\nWARNING: sim {ind} not found — {e}')
+            return None
+
+    def multi_pair(self):
+        """Phase-slip analysis for any pair-type sweep.
+
+        Automatically detects the swept parameter (pair_dp, force_noise_mag,
+        omega_spread, or spring_factor) and uses it as the x-axis.
+
+        Produces three figures:
+          fig1 — group-mean phase difference vs t/T (one coloured line per sim)
+          fig2 — slip rate vs swept parameter
+          fig3 — mean psi2 (shape rotation angle) vs t/T (if DYNAMIC_SHAPE_ROTATION)
+        """
+        swept_key, swept_label, swept_vals = self._detect_swept_param()
+
+        slip_rate_array = np.full(self.num_sim, np.nan)
+        cmap   = plt.get_cmap('viridis')
+        colors = [cmap(k / max(self.num_sim - 1, 1)) for k in range(self.num_sim)]
+
+        fig1, ax1 = plt.subplots(figsize=(7, 4))
+        fig2, ax2 = plt.subplots(figsize=(6, 4))
+        fig3, ax3 = plt.subplots(figsize=(7, 4))
+        time_array_last = None
 
         for ind in range(self.num_sim):
-            try:
-                self.index = ind
-                self.select_sim()
+            data = self._pair_slip_data(ind)
+            if data is None:
+                continue
 
-                fil_states_f = open(self.simName + '_true_states.dat', "r")
+            time_array_last      = data['time_array']
+            slip_rate_array[ind] = data['slip_rate']
+            label = f'{swept_vals[ind]:.3g}'
 
-                time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
-                phase1_array = np.zeros(self.frames)
-                phase2_array = np.zeros(self.frames)
-                phase_diff_array = np.zeros(self.frames)
+            ax1.plot(data['time_array'], data['phase_diff_array'],
+                     color=colors[ind], alpha=0.85, label=label)
+            if data['has_psi2']:
+                ax3.plot(data['time_array'], data['psi2_array'],
+                         color=colors[ind], alpha=0.85, label=label)
 
+        t_end = time_array_last[-1] if time_array_last is not None else 1
 
-                for i in range(self.plot_end_frame):
-                    print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
-                    fil_states_str = fil_states_f.readline()
+        ax1.set_xlabel(r'$t/T$')
+        ax1.set_ylabel(r'$(\langle\psi_1^{(A)}\rangle - \langle\psi_1^{(B)}\rangle)\;/\;2\pi$')
+        ax1.set_xlim(0, t_end)
+        ax1.grid(True, alpha=0.3)
 
-                    if(i>=self.plot_start_frame):
-                        fil_states = np.array(fil_states_str.split()[2:], dtype=float)
-                        fil_phases = fil_states[:self.nfil]
-                        phase1_array[i-self.plot_start_frame] = np.sin(fil_phases[0])
-                        phase2_array[i-self.plot_start_frame] = np.sin(fil_phases[1])
-                        phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])/np.pi/2.
-                        
-                end_phase_array[ind] = phase_diff_array[-1]
-                # slip_rate_array[ind] = phase_diff_array[-1] / time_array[-1]
+        mask = ~np.isnan(slip_rate_array)
+        ax2.plot(swept_vals[mask], slip_rate_array[mask], 'ko-', markerfacecolor='k')
+        ax2.axhline(0, color='k', linewidth=0.8, linestyle='--')
+        ax2.set_xlabel(swept_label)
+        ax2.set_ylabel(r'phase slip rate  $[\Delta\psi_1 / T]$')
+        ax2.grid(True, alpha=0.3)
 
-                ax.plot(time_array, phase_diff_array)
-                ax.set_xlabel('t/T')
-                ax.set_ylabel('$\Delta$')
-                ax.set_xlim(time_array[0], time_array[-1])
-                # ax.set_ylim(0)
-                ax.grid()
-            
-            except:
-                print("WARNING: " + self.simName + " not found.")
+        ax3.set_xlabel(r'$t/T$')
+        ax3.set_ylabel(r'$\langle\psi_2\rangle$')
+        ax3.set_xlim(0, t_end)
+        ax3.grid(True, alpha=0.3)
 
-        slip_rate_array = end_phase_array / self.frames
-        phase_drift_array = np.array([int(abs(x)) for x in end_phase_array])
-        print(phase_drift_array)
+        sm = plt.cm.ScalarMappable(cmap=cmap,
+                                   norm=plt.Normalize(vmin=swept_vals.min(),
+                                                      vmax=swept_vals.max()))
+        sm.set_array([])
+        fig1.colorbar(sm, ax=ax1, label=swept_label)
+        fig3.colorbar(sm, ax=ax3, label=swept_label)
 
-        ax2.plot(1./pair_dp_list, slip_rate_array)
-        ax2.set_xlim(1./pair_dp_list[-1], 1./pair_dp_list[0])
-        ax2.set_xlabel(r'$\psi_1^{(1)}/\psi_1^{(2)}$')
-        ax2.set_ylabel(r'$\Delta/T$')
-
-        ax3.plot(force_noise_mag_list, phase_drift_array)
-        
-
-        fig.tight_layout()
+        fig1.tight_layout()
         fig2.tight_layout()
-        fig.savefig(f'fig/multi_phase_diff.png', bbox_inches = 'tight', format='png')
-        fig2.savefig(f'fig/phase_slip_rate.png', bbox_inches = 'tight', format='png')
-        
+        fig3.tight_layout()
+
+        tag = swept_key
+        fig1.savefig(f'fig/pair_phase_diff_{tag}.png',  bbox_inches='tight')
+        fig2.savefig(f'fig/pair_slip_rate_{tag}.png',   bbox_inches='tight')
+        fig3.savefig(f'fig/pair_psi2_{tag}.png',        bbox_inches='tight')
         plt.show()
+
+    # keep old names as aliases so existing calls still work
+    def multi_phase_diff(self):     return self.multi_pair()
+    def multi_pair_freq_diff(self): return self.multi_pair()
 
     def multi_timing(self):
         # Plotting
@@ -8227,7 +8321,7 @@ class VISUAL:
             np.save(f'{self.dir}d_list.npy', d_list)
             np.save(f'{self.dir}phase_diff_list.npy', phase_diff_list)
             
-            ax.set_ylabel('$\Delta \psi_1$')
+            ax.set_ylabel(rf'$\Delta \psi_1$')
             ax.set_xlim(time_array[0], time_array[-1])
             ax.grid()
 
@@ -8384,7 +8478,7 @@ class VISUAL:
             np.save(f'{self.dir}d_list.npy', d_list)
             np.save(f'{self.dir}phase_diff_list.npy', phase_diff_list)
             
-            ax.set_ylabel('$\Delta \psi_1$')
+            ax.set_ylabel(rf'$\Delta \psi_1$')
             ax.set_xlim(time_array[0], time_array[-1])
             ax.grid()
 
@@ -8738,6 +8832,157 @@ class VISUAL:
 
         plt.show()
 
+    def multi_multifil_side(self):
+        """Side-view (y-z plane) of all sims in the sweep, one subfigure each.
+        Static: best-aligned frame per sim.  Video: all sims animated in sync."""
+
+        pair_dp_list = np.array(self.pars_list['pair_dp'])
+
+        # --- collect per-sim metadata first (no seg read yet) ---
+        sim_meta = []   # list of dicts: fillength, nfil, nseg, period, simName,
+                        #               plot_end_frame, plot_start_frame, y_offset, y_min, y_max, fil_refs
+        not_found_list = []
+        for sim in range(self.num_sim):
+            self.index = sim
+            try:
+                self.select_sim()
+                y_off  = self.fil_references[1] / self.fillength
+                spc    = self.pars_list['fil_spacing'][sim]
+                y_min  = -spc / self.fillength
+                y_max  = (self.fil_references[self.nfil*3 - 2] - self.fil_references[1] + spc) / self.fillength
+                sim_meta.append({
+                    'fillength':       self.fillength,
+                    'nfil':            self.nfil,
+                    'nseg':            self.nseg,
+                    'period':          self.period,
+                    'simName':         self.simName,
+                    'plot_end_frame':  self.plot_end_frame,
+                    'plot_start_frame':self.plot_start_frame,
+                    'y_offset':        y_off,
+                    'y_min':           y_min,
+                    'y_max':           y_max,
+                    'fil_refs':        list(self.fil_references),
+                    'pair_dp':         pair_dp_list[sim],
+                })
+            except Exception as e:
+                not_found_list.append(sim)
+                print(f"WARNING: sim {sim} not found ({e})")
+                sim_meta.append(None)
+
+        valid = [m for m in sim_meta if m is not None]
+        n_sims = len(valid)
+        if n_sims == 0:
+            print("No valid simulations found.")
+            return
+        print(f"Not found sims: {not_found_list}")
+
+        # global y limits across all sims
+        global_y_min = min(m['y_min'] for m in valid)
+        global_y_max = max(m['y_max'] for m in valid)
+        z_min, z_max = 0.0, 1.1
+
+        fig, axes = plt.subplots(n_sims, 1, sharex=True,
+                                 figsize=(16, 1.5 * n_sims))
+        axes = np.atleast_1d(axes)
+
+        if self.video:
+            # Open all seg-states files in parallel
+            n_frames = min(m['plot_end_frame'] for m in valid)
+            seg_files = []
+            fil_files = []
+            for m in valid:
+                seg_files.append(open(m['simName'] + '_seg_states.dat', 'r'))
+                fil_files.append(open(m['simName'] + '_true_states.dat', 'r'))
+
+            fil_colors = ['black', 'steelblue']   # group A = black, group B = blue
+
+            def animation_func(t):
+                print(f" frame {t} / {n_frames}          ", end="\r")
+                for idx, (m, ax_s) in enumerate(zip(valid, axes)):
+                    ax_s.cla()
+                    fil_str = fil_files[idx].readline()
+                    seg_str = seg_files[idx].readline()
+                    seg_states = np.array(seg_str.split()[1:], dtype=float)
+                    npair = m['nfil'] // 2
+
+                    for fil in range(m['nfil']):
+                        fil_i    = int(3 * fil * m['nseg'])
+                        fil_data = np.zeros((m['nseg'], 3))
+                        for seg in range(m['nseg']):
+                            fil_data[seg] = seg_states[fil_i + 3*seg : fil_i + 3*seg + 3]
+                        c = fil_colors[0] if fil < npair else fil_colors[1]
+                        ax_s.plot(fil_data[:, 1] / m['fillength'] - m['y_offset'],
+                                  fil_data[:, 2] / m['fillength'], c=c, lw=1.2)
+
+                    ax_s.axhline(0, color='black', lw=1.5)
+                    ax_s.set_xlim(global_y_min, global_y_max)
+                    ax_s.set_ylim(z_min, z_max)
+                    ax_s.set_ylabel(r'$z/L$', fontsize=10)
+                    ax_s.set_title(f'$p={m["pair_dp"]:.2f}$', loc='left', fontsize=10)
+                    ax_s.set_aspect('equal')
+                    ax_s.tick_params(labelsize=9)
+                axes[-1].set_xlabel(r'$y/L$', fontsize=12)
+
+            plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+            ani = animation.FuncAnimation(fig, animation_func, frames=n_frames, interval=1, repeat=False)
+            FFwriter = animation.FFMpegWriter(fps=16)
+            ani.save(f'fig/multi_multifil_side_{self.date}_anim.mp4', writer=FFwriter)
+
+            for f in seg_files + fil_files:
+                f.close()
+
+        else:
+            # Static: find best-aligned frame per sim (first fil closest to ψ=0 mod 2π)
+            for idx, (m, ax_s) in enumerate(zip(valid, axes)):
+                seg_f = open(m['simName'] + '_seg_states.dat', 'r')
+                fil_f = open(m['simName'] + '_true_states.dat', 'r')
+
+                best_dist  = np.inf
+                best_seg   = None
+                best_phases = None
+
+                for i in range(m['plot_end_frame']):
+                    fil_str = fil_f.readline()
+                    seg_str = seg_f.readline()
+                    if i >= m['plot_end_frame'] - int(m['period']):
+                        fil_states = np.array(fil_str.split()[2:], dtype=float)
+                        fil_phases = util.box(fil_states[:m['nfil']], 2*np.pi)
+                        phase0 = fil_phases[0]
+                        dist   = min(phase0, 2*np.pi - phase0)
+                        if dist < best_dist:
+                            best_dist   = dist
+                            best_phases = fil_phases.copy()
+                            best_seg    = np.array(seg_str.split()[1:], dtype=float)
+
+                seg_f.close()
+                fil_f.close()
+
+                fil_colors = ['black', 'steelblue']   # group A = black, group B = blue
+                npair = m['nfil'] // 2
+                for fil in range(m['nfil']):
+                    fil_i    = int(3 * fil * m['nseg'])
+                    fil_data = np.zeros((m['nseg'], 3))
+                    for seg in range(m['nseg']):
+                        fil_data[seg] = best_seg[fil_i + 3*seg : fil_i + 3*seg + 3]
+                    c = fil_colors[0] if fil < npair else fil_colors[1]
+                    ax_s.plot(fil_data[:, 1] / m['fillength'] - m['y_offset'],
+                              fil_data[:, 2] / m['fillength'], c=c, lw=1.2)
+
+                ax_s.axhline(0, color='black', lw=1.5)
+                ax_s.set_xlim(global_y_min, global_y_max)
+                ax_s.set_ylim(z_min, z_max)
+                ax_s.set_ylabel(r'$z/L$', fontsize=10)
+                ax_s.set_title(f'$p={m["pair_dp"]:.2f}$', loc='left', fontsize=10)
+                ax_s.set_aspect('equal')
+                ax_s.tick_params(labelsize=9)
+                print(f" sim {idx+1}/{n_sims} done          ", end="\r")
+
+            axes[-1].set_xlabel(r'$y/L$', fontsize=12)
+            fig.subplots_adjust(hspace=0.05)
+
+            fig.savefig(f'fig/multi_multifil_side_{self.date}.png',
+                        bbox_inches='tight', format='png', transparent=True)
+            plt.show()
 
 # Summary plot
     def summary_ciliate_speed(self):
@@ -9589,9 +9834,7 @@ class VISUAL:
         files = ['vel_k0.0N162.csv', 'vel_k0.0N636.csv', 'vel_k0.0N2520.csv']
         for i, filename in enumerate(files):
             try:
-                file = open(directory + filename, mode='r')
-                df = pd.read_csv(directory + filename, header=None)
-                data = df.to_numpy()
+                data = np.loadtxt(directory + filename, delimiter=',')
                 x, y = data[:,0], data[:,1]
 
                 ax.plot(x, y, ls='dotted', c=dissipation_colors[i], alpha=0.5)
@@ -9601,9 +9844,7 @@ class VISUAL:
         files = ['dissipation_k0.0N162.csv', 'dissipation_k0.0N636.csv', 'dissipation_k0.0N2520.csv']
         for i, filename in enumerate(files):
             try:
-                file = open(directory + filename, mode='r')
-                df = pd.read_csv(directory + filename, header=None)
-                data = df.to_numpy()
+                data = np.loadtxt(directory + filename, delimiter=',')
                 x, y = data[:,0], data[:,1]
 
                 ax2.plot(x, y, ls='dotted', c=dissipation_colors[i], alpha=0.5)
@@ -10505,7 +10746,7 @@ class VISUAL:
         log_y = np.log10(errors)
         slope, intercept = np.polyfit(log_x, log_y, 1)
         # equation_text = f"$y = {10**intercept:.2f} x^{{{slope:.2f}}}$"
-        equation_text = f'$\sim P^{-1/2}$'
+        equation_text = rf'$\sim P^{-1/2}$'
         plt.annotate(equation_text, 
              xy=(0.2, 0.3), xycoords='axes fraction', 
              fontsize=20, ha='left', va='bottom', color='r')

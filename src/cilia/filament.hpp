@@ -12,9 +12,14 @@
 // Included dependencies
 #include <vector>
 #include <iostream>
+#include <random>
 #include "segment.hpp" // The filament inherits knowledge of quaternions through here
 #include "matrix.hpp"
 #include "../../config.hpp"
+
+#if defined(RBF_2D_PRECOMPUTED) && RBF_2D_PRECOMPUTED
+  #include "filament_rbf.hpp"
+#endif
 
 matrix body_frame_moment_lie_derivative(const quaternion& q1, const quaternion& q2, const bool upper);
 
@@ -93,6 +98,8 @@ public:
     Real phase2;
     Real phase_dot;
     Real omega0;
+    mutable std::mt19937 gen_noise;
+    mutable std::normal_distribution<Real> d_noise;
     quaternion body_q;
     quaternion body_q_ref;
     quaternion body_qm1;
@@ -121,6 +128,10 @@ public:
       matrix Ay;
       matrix Bx;
       matrix By;
+
+      #if RBF_2D_PRECOMPUTED
+        ThetaTable theta_table;
+      #endif
 
       #if (FIT_TO_DATA_BEAT && !WRITE_GENERALISED_FORCES)
 

@@ -1,7 +1,654 @@
 import configparser
 import os
+import numpy as np
 import util
 from filelock import FileLock
+
+# ---------------------------------------------------------------------------
+# Simulation presets
+# ---------------------------------------------------------------------------
+# Each preset is a dict with:
+#   category, date, exe_name       : identify output directory and binary
+#   sweep_shape (n0,n1,n2,n3)      : loop bounds for indices i,j,k,l
+#   filplacement_file              : icosahedron filament placement file
+#   blobplacement_file             : icosahedron blob placement file
+#   params                         : parameter name → scalar value or
+#                                    callable(i,j,k,l) for swept parameters
+# ---------------------------------------------------------------------------
+
+PRESETS = {
+
+    'two_fil': {
+        'category':   'for_paper/twofil/',
+        'date':       '20250716',
+        'exe_name':   'cilia_1e-4_twofil',
+        'sweep_shape': (40, 60, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         2,
+            'nblob':        0,
+            'nseg':         20,
+            'ar':           1.0,
+            'spring_factor': 0.005,
+            'period':       1,
+            'sim_length':   100,
+            'nx':           128, 'ny': 128, 'nz': 128,
+            'boxsize':      400,
+            'blob_spacing': 5.0,
+            'fil_x_dim':    1,
+            'blob_x_dim':   10,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'fil_spacing':  lambda i,j,k,l: ((12.0*i)**2 + (12.0*j)**2)**0.5,
+            'fil_x_spacing': 0.0,
+            'twofil_angle': lambda i,j,k,l: np.arctan2(12.0*j, 12.0*i),
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'multifil_1d': {
+        'category':   'for_paper/multifil/',
+        'date':       '20250802',
+        'exe_name':   'cilia_1e-4_plane',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         45,
+            'nblob':        0,
+            'nseg':         20,
+            'ar':           1.0,
+            'spring_factor': lambda i,j,k,l: round(0.0 + 0.001*i, 3),
+            'period':       1,
+            'sim_length':   500,
+            'nx':           128, 'ny': 128, 'nz': 128,
+            'boxsize':      400,
+            'fil_spacing':  49.4,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 50.0,
+            'fil_x_dim':    1,
+            'blob_x_dim':   10,
+            'hex_num':      1,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': np.pi/2,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'multifil_2d': {
+        'category':   'for_paper/multifil/',
+        'date':       '20250802',
+        'exe_name':   'cilia_1e-4_plane',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         lambda i,j,k,l: int(45 + 45*i),
+            'nblob':        0,
+            'nseg':         20,
+            'ar':           1.0,
+            'spring_factor': 0.005,
+            'period':       1,
+            'sim_length':   500,
+            'nx':           128, 'ny': 128, 'nz': 128,
+            'boxsize':      400,
+            'fil_spacing':  49.4,
+            'fil_x_spacing': lambda i,j,k,l: 49.4/2*3**0.5,
+            'blob_spacing': 50.0,
+            'fil_x_dim':    lambda i,j,k,l: 1 + i,
+            'blob_x_dim':   20,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': np.pi/2,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'calibration': {
+        'category':   'regular_wall_sim/',
+        'date':       '20260831_temp_forcing',
+        'exe_name':   'cilia_1e-4_calibration',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         1,
+            'nblob':        0,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': 0.005,
+            'period':       1,
+            'sim_length':   1,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      4000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'ivp_sim': {
+        'category':   'ic_hpc_sim_free_with_force2/',
+        'date':       '20240311_1',
+        'exe_name':   'cilia_1e-4_free',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         639,
+            'nblob':        40961,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': lambda i,j,k,l: round(0.1 + 0.1*i, 3),
+            'period':       1,
+            'sim_length':   1,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      4000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'ishikawa_pnas': {
+        'category':   'ishikawa/',
+        'date':       '20241015_pnas_rpy',
+        'exe_name':   'cilia_1e-4_ishikawa_rpy',
+        'sweep_shape': (3, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         lambda i,j,k,l: [160, 640, 2560][i],
+            'nblob':        40962,
+            'nseg':         40,
+            'ar':           20,
+            'spring_factor': 0,
+            'period':       1,
+            'sim_length':   1,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      0.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'ishikawa_jfm': {
+        'category':   'ishikawa/',
+        'date':       '20241015_pnas_rpy',
+        'exe_name':   'cilia_1e-4_ishikawa_rpy',
+        'sweep_shape': (6, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d2_N160.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         160,
+            'nblob':        40962,
+            'nseg':         40,
+            'ar':           6,
+            'spring_factor': lambda i,j,k,l: [-1, 0, 0.5, 1, 1.5, 2][i],
+            'period':       1,
+            'sim_length':   1,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'ishikawa_resolution': {
+        'category':   'resolution/',
+        'date':       '20240822_sangani_boxsize2',
+        'exe_name':   'cilia_1e-6_sangani',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         640,
+            'nblob':        lambda i,j,k,l: int(20 + (3*i)**3),
+            'nseg':         40,
+            'ar':           20,
+            'spring_factor': 0,
+            'period':       1,
+            'sim_length':   0.0034,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'bicilia_ishikawa': {
+        'category':   'volvox/',
+        'date':       '20260319_dp_sweep',
+        'exe_name':   'cilia_1e-4_bicilia_ishikawa2',
+        'sweep_shape': (10, 4, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         640,
+            'nblob':        40962,
+            'nseg':         40,
+            'ar':           15.0,
+            'spring_factor': 0.005,
+            'period':       1,
+            'sim_length':   1,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       lambda i,j,k,l: [-2.35, -1, 0, 1][j],
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: round(0.1 * i, 2),
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'pair_phase_diff': {
+        'category':   'volvox_bicilia/individual_pair/',
+        'date':       '20241217_fixed_ospread',
+        'exe_name':   'cilia_1e-4_individual_pair_fixed',
+        'sweep_shape': (10, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         639,
+            'nblob':        40961,
+            'nseg':         40,
+            'ar':           15.0,
+            'spring_factor': 0.01,
+            'period':       1,
+            'sim_length':   200,
+            'nx':           440, 'ny': 440, 'nz': 440,
+            'boxsize':      4000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       1,
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: round(1.0 - 0.1*i, 2),
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'swimmer_size_trend': {
+        'category':   'giant_swimmer/',
+        'date':       'combined_analysis_force_rerun',
+        'exe_name':   'cilia_1e-4_free',
+        'sweep_shape': (6, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         lambda i,j,k,l: [159, 639, 1128, 1763, 2539, 4291][i],
+            'nblob':        lambda i,j,k,l: [9000, 40961, 72817, 113777, 163839, 276888][i],
+            'nseg':         20,
+            'ar':           lambda i,j,k,l: [8.0, 15.0, 20.0, 25.0, 30.0, 39.0][i],
+            'spring_factor': 0.005,
+            'period':       1,
+            'sim_length':   2,
+            'nx':           512, 'ny': 512, 'nz': 512,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'sangani_resolution': {
+        'category':   'resolution/',
+        'date':       '20240822_sangani_boxsize2',
+        'exe_name':   'cilia_1e-6_sangani',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         0,
+            'nblob':        lambda i,j,k,l: int(8000*(i+1)),
+            'nseg':         20,
+            'ar':           lambda i,j,k,l: round(0.26273*(8000*(i+1)/4./np.pi)**0.5, 2),
+            'spring_factor': 0.05,
+            'period':       1,
+            'sim_length':   0.003,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      12000,
+            'fil_spacing':  20.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 2.0,
+            'fil_x_dim':    1,
+            'blob_x_dim':   10,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'volvox_newbeat': {
+        'category':   'volvox/',
+        'date':       '20260902_newbeat',
+        'exe_name':   'cilia_1e-4_free_newbeat',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         639,
+            'nblob':        40961,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': 0.1,
+            'period':       1,
+            'sim_length':   15,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      4000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'volvox_oldbeat': {
+        'category':   'volvox/',
+        'date':       '20260902_oldbeat',
+        'exe_name':   'cilia_1e-4_free_oldbeat',
+        'sweep_shape': (1, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         639,
+            'nblob':        40961,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': 0.1,
+            'period':       1,
+            'sim_length':   15,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      4000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.5,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'pair_freq_sweep': {
+        'category':   'pair/',
+        'date':       '20260909_pair_freq',
+        'exe_name':   'cilia_1e-4_pair',
+        'sweep_shape': (20, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         2,
+            'nblob':        1,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': 0.1,
+            'period':       1,
+            'sim_length':   300,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: round(1 - 0.05 * i, 3),
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'pair_noise_sweep': {
+        'category':   'pair/',
+        'date':       '20260910_pair_noise',
+        'exe_name':   'cilia_1e-4_pair',
+        'sweep_shape': (20, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         2,
+            'nblob':        1,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': 0.1,
+            'period':       1,
+            'sim_length':   300,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            # onset at σ_ψ ~ 10; 20-point sweep with fine spacing through the transition
+            'phase_noise_mag': lambda i,j,k,l: [0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0,
+                                                  8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 25.0, 30.0][i],
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+}
+
+ACTIVE_PRESET = 'pair_noise_sweep'
+
+# ---------------------------------------------------------------------------
 
 class DRIVER:
 
@@ -10,173 +657,30 @@ class DRIVER:
         self.afix = ''
         self.inputfile = f""
 
-        self.category = 'tilt_test/'
-        self.category = 'resolution/'
-        
-
-        self.exe_name = 'cilia_1e-4_newbeat'
-        # self.exe_name = 'cilia_1e-4_30_ishikawa'
-
-        # self.date = '20250204_squirmer'
-        
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-
-        self.category = 'ic_hpc_sim_free_with_force2/'
-        self.exe_name = 'cilia_1e-4_free'
-        self.date = '20240311_1'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'resolution/'
-        # self.date = '20240822_sangani_boxsize2'
-        # self.exe_name = 'cilia_1e-6_sangani'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'tilt_test/illustration/'
-        # self.exe_name = 'cilia_1e-4_with_force'
-        # self.date = '20241029_illustration'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'instability/'
-        # self.exe_name = 'cilia_1e-4_instability_double'
-        # self.date = '20241028_test'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        
-
-
-        # self.category = 'ishikawa/'
-        # self.exe_name = 'cilia_1e-4_ishikawa_rpy'
-        # # self.date = '20240829_pnas_volvox_beat'
-        # # self.date = '20240813_pnas_volvox_beat'
-        # # self.date = '20240903_real_volvox_slender50'
-        # self.date = '20241015_pnas_rpy'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'giant_swimmer/'
-        # self.exe_name = 'cilia_1e-4_free_with_force_300'
-        # self.date = 'combined_analysis_force_rerun'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'volvox_bicilia/individual_pair/'
-        # self.exe_name = 'cilia_1e-4_individual_pair_fixed'
-        # self.date = '20241217_fixed_ospread'
-
-        # self.category = 'fixed_swimmer_correct/'
-        # self.exe_name = 'cilia_1e-4_fixed'
-        # self.date = '20250125_fixed_correct'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'for_paper/roadmap/'
-        # self.exe_name = 'cilia_1e-4_fixed'
-        # self.date = '20250728'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'tempcheck/makeup_pattern_with_force/'
-        # self.exe_name = 'cilia_1e-4'
-        # self.date = '20240724_symplectic'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'for_paper/flowfield_example/'
-        # self.date = '20250915_flowfield_free'
-        # self.exe_name = 'cilia_1e-4_free_300'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        
-        # self.category = 'for_paper/twofil/'
-        # self.date = '20250716'
-        # self.exe_name = 'cilia_1e-4_twofil'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'for_paper/multifil/'
-        # self.date = '20250802'
-        # self.exe_name = 'cilia_1e-4_plane'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'for_paper/flowfield_example/'
-        # self.exe_name = 'cilia_1e-8_free_300'
-        # # self.exe_name = 'cilia_1e-4_free'
-        # self.date = '20250522_flowfield_free'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'for_paper/giant_swimmer_rerun/'
-        # self.exe_name = 'cilia_1e-4_free'
-        # self.date = '20250507'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'resolution/'
-        # self.exe_name = 'cilia_1e-4_squirmer'
-        # self.date = '20250220_1e-6_settling'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'pizza_sim/'
-        # self.exe_name = 'cilia_1e-4_pizza'
-        # self.date = '20250225_pizza_demo'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        
-        self.category = 'volvox/'
-        self.date = '20260319_dp_sweep'
-        self.exe_name = 'cilia_1e-4_bicilia_ishikawa2'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'volvox/'
-        # self.date = '20260305_coherence'
-        # self.exe_name = 'cilia_1e-4_coherence'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
-        
-        self.category = 'regular_wall_sim/'
-        # self.date = '20260521_inves_k_2d'
-        # self.date = '20260422_twofil4'
-        self.date = '20260730_temp_forcing'
-        self.exe_name = 'cilia_1e-4_calibration'
-        self.dir = f"data/{self.category}{self.date}{self.afix}/"
-
-        # self.category = 'for_paper/highk/'
-        # # self.exe_name = 'cilia_1e-8_free_300'
-        # self.exe_name = 'cilia_1e-4_free'
-        # self.date = '20260504_highk'
-        # self.dir = f"data/{self.category}{self.date}{self.afix}/"
+        preset = PRESETS[ACTIVE_PRESET]
+        self.category = preset['category']
+        self.date     = preset['date']
+        self.exe_name = preset['exe_name']
+        self.dir      = f"data/{self.category}{self.date}{self.afix}/"
+        self.sweep_shape = preset['sweep_shape']
 
         self.pars_list = {
-                     "index": [],
-                     "nswim": [],
-                     "nseg": [],
-                     "nfil": [],
-                     "nblob": [],
-                     "ar": [],
-                     "spring_factor": [],
-                     "tilt_angle": [],
-                     "force_mag": [],
-                     "seg_sep": [],
-                     "period": [],
-                     "sim_length": [],
-                     "nx": [],
-                     "ny": [],
-                     "nz": [],
-                     "boxsize": [],
-                     "fil_spacing": [],
-                     "fil_x_spacing": [],
-                     "blob_spacing": [],
-                     "fil_x_dim": [],
-                     "blob_x_dim": [],
-                     "hex_num": [],
-                     "reverse_fil_direction_ratio": [],
-                     "twofil_angle": [],
-                     "pair_dp": [],
-                     "wavnum": [],
-                     "wavnum_dia": [],
-                     "dimensionless_force": [],
-                     "fene_model": [],
-                     "force_noise_mag": [],
-                     "omega_spread": []}
-
-        # self.sweep_shape = (40, 60, 1, 1) # twofil
-        self.sweep_shape = (1, 1, 1, 1) # multifil 
+            "index": [], "nswim": [], "nseg": [], "nfil": [], "nblob": [],
+            "ar": [], "spring_factor": [], "tilt_angle": [], "force_mag": [],
+            "seg_sep": [], "period": [], "sim_length": [], "nx": [], "ny": [],
+            "nz": [], "boxsize": [], "fil_spacing": [], "fil_x_spacing": [],
+            "blob_spacing": [], "fil_x_dim": [], "blob_x_dim": [], "hex_num": [],
+            "reverse_fil_direction_ratio": [], "twofil_angle": [], "pair_dp": [],
+            "wavnum": [], "wavnum_dia": [], "dimensionless_force": [],
+            "fene_model": [], "force_noise_mag": [], "phase_noise_mag": [], "omega_spread": [],
+        }
 
         self.num_sim = 0
         self.current_thread = 0
         self.num_thread = 1
         self.cuda_device = 0
         self.run_on_hpc = False
-    
+
     def update_date(self, date):
         self.date = date
         self.dir = f"data/{self.category}{self.date}{self.afix}/"
@@ -191,352 +695,42 @@ class DRIVER:
         ini.add_section('Seeding_util')
         with open(self.globals_name, 'w') as configfile:
             ini.write(configfile, space_around_delimiters=False)
-        
+
     def write_ini(self, section, variable, value):
         ini = configparser.ConfigParser()
-        lock = FileLock(f"{self.globals_name}.lock")  # Create a lock file
+        lock = FileLock(f"{self.globals_name}.lock")
 
-        with lock:  # Ensure exclusive access
+        with lock:
             ini.read(self.globals_name)
 
             if not ini.has_section(section):
-                ini.add_section(section)  # Ensure section exists
+                ini.add_section(section)
 
             ini.set(section, variable, str(value))
 
-            # Save the changes back to the file
             with open(self.globals_name, 'w') as configfile:
                 ini.write(configfile, space_around_delimiters=False)
 
     def create_rules(self):
-        # Define the rule of sweeping simulations
+        preset = PRESETS[ACTIVE_PRESET]
+        params = preset['params']
+        param_keys = [k for k in self.pars_list if k not in ('index', 'nswim')]
+
         index = 0
         for i in range(self.sweep_shape[0]):
             for j in range(self.sweep_shape[1]):
                 for k in range(self.sweep_shape[2]):
                     for l in range(self.sweep_shape[3]):
-
-                        seg_sep = 2.6
-                        force_mag = 1.0
-                        tilt_angle = 0.0
-                        pair_dp = 1.0
-                        wavnum = 0.5
-                        wavnum_dia = 0.0
-                        ar = round(1, 2)
-                        spring_factor = round(0.005, 3)
-                        period = 1
-                        dimensionless_force = 220.
-                        fene_model = 0
-                        force_noise_mag = 0.0
-                        omega_spread = 0.0
-
-                        fil_spacing=80.0
-                        fil_x_spacing=0.0
-                        blob_spacing=8.0
-                        fil_x_dim=20
-                        blob_x_dim=200
-                        hex_num=2
-                        reverse_fil_direction_ratio=0.0
-                        twofil_angle = 0.0
-
-                        # # two fil
-                        # nfil = int(2)
-                        # nblob = int(0)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # spring_factor = round(0.005, 3)
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=400
-                        # blob_spacing=5.0
-                        # fil_x_dim=1
-                        # blob_x_dim=10
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # x = 12.0*i
-                        # y = 12.0*j
-                        # fil_spacing = (x**2 + y**2)**.5
-                        # # fil_spacing = 2.0 + 2.0*i
-                        # import numpy as np
-                        # twofil_angle = np.arctan2(y, x)
-                        # # twofil_angle = np.pi/2
-                        # sim_length = 100
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
-
-                        # # 1-D multifil
-                        # nfil = int(45)
-                        # nblob = int(0)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # import numpy as np
-                        # spring_factor = round(0.0 + 0.001*i, 3)
-                        # if i == 100:
-                        #     spring_factor = 1.0
-
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=400
-                        # fil_spacing = 49.4
-                        # blob_spacing = 50.0
-                        # fil_x_dim=1
-                        # blob_x_dim=10
-                        # hex_num=1
-                        # reverse_fil_direction_ratio=0.0
-                        # twofil_angle = np.pi/2
-                        # sim_length = 500
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
-
-
-                        # # # 2-D multifil
-                        # nfil = int(45 + 45*i)
-                        # nblob = int(0)
-                        # nseg = 20
-                        # ar = round(1, 2)
-                        # period = 1
-                        # import numpy as np
-                        # spring_factor = round(0.005, 3)
-
-                        # nx=int(128)
-                        # ny=int(128)
-                        # nz=int(128)
-                        # boxsize=400
-                        # fil_spacing = 49.4
-                        # fil_x_spacing = fil_spacing/2*3**.5
-                        # blob_spacing = 50.0
-                        # fil_x_dim=1 + i
-                        # blob_x_dim=20
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # twofil_angle = np.pi/2
-                        # sim_length = 500
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
-
-
-                        # # callibration
-                        nfil = 1
-                        nblob = 0
-                        ar = 15.0
-                        nseg = 20
-                        nx=400
-                        ny=400
-                        nz=400
-                        boxsize=4000
-                        spring_factor = round(0.005, 3)
-                        period = 1
-                        sim_length = 1
-                        tilt_angle = 0.0
-                        wavnum = 0.0
-                        wavnum_dia = 0.0
-                        fene_model = 0
-                        omega_spread = 0.0
-                        force_noise_mag = 0.0
-                        pair_dp = 1.0
-
-                        # # # IVP sim
-                        # nfil = 639
-                        # nblob = 40961
-                        # ar = 15.0
-                        # nseg = 20
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=4000
-                        # spring_factor = round(0.1 + 0.1*i, 3)
-                        # period = 1
-                        # sim_length = 1000
-                        # # tilt_angle = i*1./18*3.141592653
-                        # tilt_angle = 0.0
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # fene_model = 0
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = 1.0
-                        
-
-                        # # ishikawa pnas
-                        # nfil = [160, 640, 2560][i]
-                        # nblob = 40962
-                        # ar = 20
-                        # nseg = 40
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0.
-                        # wavnum = 0.0
-                        # wavnum_dia = 0.0
-                        # pair_dp = 0.0
-
-
-                        # ishikawa jfm
-                        # nfil = 160
-                        # nblob = 40962
-                        # ar = 6
-                        # nseg = 40
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = [-1, 0, 0.5, 1, 1.5, 2][i]
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0
-
-                        # ishikawa resolution
-                        # nfil = 160
-                        # nblob = int(20 + (3*i)**3)
-                        # ar = 6
-                        # nseg = 40
-                        # nfil = 640
-                        # nblob = int(20 + (3*i)**3)
-                        # ar = 20
-                        # nseg = 40
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0)
-                        # period = 1
-                        # sim_length = 0.0034
-                        # tilt_angle = 0
-
-                        # bicilia ishikawa
-                        # nfil = 640
-                        # nblob = 40962
-                        # ar = 15.0
-                        # nseg = 40
-                        # nx=400
-                        # ny=400
-                        # nz=400
-                        # boxsize=8000
-                        # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 1
-                        # tilt_angle = 0.0
-                        # wavnum = [-2.35, -1, 0, 1][j]
-                        # wavnum_dia = 0.0
-                        # fene_model = 0
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = round(0.1 * i, 2)
-
-
-                        # pair phase difference
-                        # nfil = 128
-                        # nblob = 40961
-                        # ar = 15.0
-
-                        # nfil = 639
-                        # nblob = 40961
-                        # ar = 15.0
-                        # nseg = 40
-                        # nx=440
-                        # ny=440
-                        # nz=440
-                        # boxsize=4000
-                        # spring_factor = round(0.01, 3)
-                        # period = 1
-                        # sim_length = 200
-                        # tilt_angle = 0.
-                        # wavnum = 1
-                        # wavnum_dia = 0.0
-                        # fene_model = 1
-                        # omega_spread = 0.0
-                        # force_noise_mag = 0.0
-                        # pair_dp = 1.-0.1*i
-
-
-                        # swimmer size trend
-                        # nfil = [159, 639, 1128, 1763, 2539, 4291][i]
-                        # nblob = [9000, 40961, 72817, 113777, 163839, 276888][i]
-                        # ar = [8.0, 15.0, 20.0, 25.0, 30.0, 39.0][i]
-                        # nseg = 20
-                        # nx=512
-                        # ny=512
-                        # nz=512
-                        # boxsize=8000
-                        # spring_factor = round(0.005, 3)
-                        # period = 1
-                        # sim_length = 2
-                        # tilt_angle = 0
-
-
-                        # sangani resolution
-                        # nfil = int(0)
-                        # nblob = int(8000*(i+1))
-                        # nseg = 20
-                        # # ar = round(8*(j+1), 2)
-                        # ar = round(0.26273*(nblob/4./3.141592653)**.5, 2)
-                        # period = 1
-                        # spring_factor = round(0.05, 3)
-                        # nx=int(400)
-                        # ny=int(400)
-                        # nz=int(400)
-                        # boxsize=12000
-                        # fil_spacing=20.0
-                        # blob_spacing=2.0
-                        # fil_x_dim=1
-                        # blob_x_dim=10
-                        # hex_num=2
-                        # reverse_fil_direction_ratio=0.0
-                        # sim_length = 0.003
-                        # force_noise_mag = 0.0
-                        # omega_spread = 0.0
-                        # pair_dp = 1.0
-                        # fene_model = 0
+                        p = {key: (val(i, j, k, l) if callable(val) else val)
+                             for key, val in params.items()}
 
                         self.pars_list["index"].append(index)
                         self.pars_list["nswim"].append(1)
-                        self.pars_list["nseg"].append(nseg)
-                        self.pars_list["nfil"].append(nfil)
-                        self.pars_list["nblob"].append(nblob)
-                        self.pars_list["ar"].append(ar)
-                        self.pars_list["spring_factor"].append(spring_factor)
-                        self.pars_list["force_mag"].append(force_mag)
-                        self.pars_list["seg_sep"].append(seg_sep)
-                        self.pars_list["period"].append(period)
-                        self.pars_list["sim_length"].append(sim_length)
-                        self.pars_list["tilt_angle"].append(tilt_angle)
-                        self.pars_list["nx"].append(nx)
-                        self.pars_list["ny"].append(ny)
-                        self.pars_list["nz"].append(nz)
-                        self.pars_list["boxsize"].append(boxsize)
-                        self.pars_list["fil_spacing"].append(fil_spacing)
-                        self.pars_list["fil_x_spacing"].append(fil_x_spacing)
-                        self.pars_list["blob_spacing"].append(blob_spacing)
-                        self.pars_list["fil_x_dim"].append(fil_x_dim)
-                        self.pars_list["blob_x_dim"].append(blob_x_dim)
-                        self.pars_list["hex_num"].append(hex_num)
-                        self.pars_list["twofil_angle"].append(twofil_angle)
-                        self.pars_list["reverse_fil_direction_ratio"].append(reverse_fil_direction_ratio)
-                        self.pars_list["pair_dp"].append(pair_dp)
-                        self.pars_list["wavnum"].append(wavnum)
-                        self.pars_list["wavnum_dia"].append(wavnum_dia)
-                        self.pars_list["dimensionless_force"].append(dimensionless_force)
-                        self.pars_list["fene_model"].append(fene_model)
-                        self.pars_list["force_noise_mag"].append(force_noise_mag)
-                        self.pars_list["omega_spread"].append(omega_spread)
-
+                        for key in param_keys:
+                            self.pars_list[key].append(p[key])
 
                         index += 1
-        # Write rules to sim list file
+
         self.write_rules()
 
     def delete_files(self):
@@ -544,8 +738,23 @@ class DRIVER:
 
     def view_files(self):
         util.view_files_in_directory(self.dir)
+        print(f"\033[1;33mPreset : {ACTIVE_PRESET}\033[m")
         print(f"\033[32m{self.dir}\033[m")
         print(f"\033[34m{self.exe_name}\033[m")
+        # Show swept parameters (those with a callable value in the preset)
+        preset_params = PRESETS[ACTIVE_PRESET]['params']
+        sweep_shape   = PRESETS[ACTIVE_PRESET]['sweep_shape']
+        swept = {k: v for k, v in preset_params.items() if callable(v)}
+        if swept:
+            indices = range(sweep_shape[0])
+            header  = "  {:>6}  ".format("sim") + "  ".join(f"{k:>18}" for k in swept)
+            print(header)
+            print("  " + "-" * (len(header) - 2))
+            for i in indices:
+                row = f"  {i:>6}  " + "  ".join(
+                    f"{v(i,0,0,0):>18.4g}" for v in swept.values()
+                )
+                print(row)
 
     def check_rules(self):
         from pathlib import Path
@@ -555,7 +764,7 @@ class DRIVER:
         else:
             print("rules.ini does not exist. Applying new rules.\n\n\n")
         return file_path.is_file()
-        
+
     def write_rules(self):
         os.system(f'mkdir -p {self.dir}')
         sim = configparser.ConfigParser()
@@ -582,52 +791,50 @@ class DRIVER:
         self.create_ini()
         self.write_ini("Filenames", "simulation_dir", self.dir)
 
-        # Read rules from the sim list file
         self.read_rules()
 
         thread_list = util.even_list_index(self.num_sim, self.num_thread)
         sim_index_start = thread_list[self.current_thread]
         sim_index_end = thread_list[self.current_thread+1]
 
-        print(f"Partitioning {self.num_sim} into {self.num_thread} threads\n" +\
-              f"Partition index: {self.current_thread} / {self.num_thread-1} \n" + \
-              f"[{sim_index_start} - {sim_index_end}] / {thread_list}\n" +\
+        print(f"Partitioning {self.num_sim} into {self.num_thread} threads\n" +
+              f"Partition index: {self.current_thread} / {self.num_thread-1} \n" +
+              f"[{sim_index_start} - {sim_index_end}] / {thread_list}\n" +
               f"on GPU: {self.cuda_device}")
-        
-        # Iterate through the sim list and write to .ini file and execute
+
+        preset = PRESETS[ACTIVE_PRESET]
+
         for i in range(sim_index_start, sim_index_end):
-            
+
             for key, value in self.pars_list.items():
                 self.write_ini("Parameters", key, float(self.pars_list[key][i]))
-            self.simName = f"ciliate_{self.pars_list['nfil'][i]:.0f}fil_{self.pars_list['nblob'][i]:.0f}blob_{self.pars_list['ar'][i]:.2f}R_{self.pars_list['spring_factor'][i]:.4f}torsion_{self.pars_list['tilt_angle'][i]:.4f}tilt_{self.pars_list['pair_dp'][i]:.4f}dp_{self.pars_list['force_noise_mag'][i]:.4f}noise_{self.pars_list['omega_spread'][i]:.4f}ospread_{self.pars_list['index'][i]:.0f}index"
+
+            self.simName = (
+                f"ciliate_{self.pars_list['nfil'][i]:.0f}fil"
+                f"_{self.pars_list['nblob'][i]:.0f}blob"
+                f"_{self.pars_list['ar'][i]:.2f}R"
+                f"_{self.pars_list['spring_factor'][i]:.4f}torsion"
+                f"_{self.pars_list['tilt_angle'][i]:.4f}tilt"
+                f"_{self.pars_list['pair_dp'][i]:.4f}dp"
+                f"_{self.pars_list['force_noise_mag'][i]:.4f}noise"
+                f"_{self.pars_list['omega_spread'][i]:.4f}ospread"
+                f"_{self.pars_list['index'][i]:.0f}index"
+            )
             self.write_ini("Filenames", "simulation_file", self.simName)
             self.write_ini("Filenames", "simulation_dir", self.dir)
-            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d2_N160.dat")
-            self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d3_N640.dat")
-            # self.write_ini("Filenames", "filplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2560.dat")
-            self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d6_N40962.dat")
-            # self.write_ini("Filenames", "blobplacement_file_name", f"input/placement/icosahedron/icosa_d4_N2562.dat")
-            self.write_ini("Filenames", "simulation_icstate_name", f"{self.dir}psi.dat")
+            self.write_ini("Filenames", "filplacement_file_name",  preset['filplacement_file'])
+            self.write_ini("Filenames", "blobplacement_file_name", preset['blobplacement_file'])
+            self.write_ini("Filenames", "simulation_icstate_name",   f"{self.dir}psi.dat")
             self.write_ini("Filenames", "simulation_bodystate_name", f"{self.dir}bodystate{i}.dat")
-            self.write_ini("Filenames", "cufcm_config_file_name", f"input/simulation_info_cilia")
+            self.write_ini("Filenames", "cufcm_config_file_name",    f"input/simulation_info_cilia")
 
+            command = (f"export OPENBLAS_NUM_THREADS=1; "
+                       f"export CUDA_VISIBLE_DEVICES={self.cuda_device}; "
+                       f"./bin/{self.exe_name} ")
 
-            
-
-            # command = f"export OPENBLAS_NUM_THREADS=1; \
-            #             export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-            #             ./bin/{self.exe_name} > terminal_outputs/output_{self.date}_{self.pars_list['nfil'][i]:.0f}fil_{i}.out"
-            
-            
-            command = f"export OPENBLAS_NUM_THREADS=1; \
-                        export CUDA_VISIBLE_DEVICES={self.cuda_device}; \
-                        ./bin/{self.exe_name} "
-            
-            # override on ic hpc
             if self.run_on_hpc:
                 print("\n Running on HPC \n\n\n")
-                command = f"export OPENBLAS_NUM_THREADS=1; \
-                            ./bin/{self.exe_name}"
-
+                command = (f"export OPENBLAS_NUM_THREADS=1; "
+                           f"./bin/{self.exe_name}")
 
             os.system(command)

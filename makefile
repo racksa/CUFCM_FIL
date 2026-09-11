@@ -35,6 +35,11 @@ CILIA_CUDA = cilia_sim_main.cu seeding.cu cuda_functions.cu globals.cu util.cu $
 FLOW_FIELD_CPP = flow_field_main.cpp matrix.cpp quaternion.cpp
 FLOW_FIELD_CUDA = flow_field_evaluator.cu
 
+rbf_bench: src/cilia/filament_rbf_bench_main.cpp src/cilia/filament_rbf.hpp
+	g++ -O2 -std=c++14 -DRBF_BENCHMARK_ENABLED \
+	    -I. -Isrc/general -Isrc/flow_field -Isrc/cilia -Isrc/cilia/mobility \
+	    src/cilia/filament_rbf_bench_main.cpp -o bin/rbf_bench
+
 cilia_clean:
 	-rm cilia
 	-rm cilia.exe
@@ -116,8 +121,8 @@ cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^ -DUSE_DOUBLE_PRECISION $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_ins
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_calibration
-
+	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pair
+	
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	# module load cuda/11.4.2 && \
 	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_free

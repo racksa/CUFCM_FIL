@@ -1,5 +1,4 @@
 import os
-import pandas as pd
 import numpy as np
 
 def read_blob_references(fileName):
@@ -30,9 +29,20 @@ def read_fil_references(fileName):
     
 def read_pars(fileName):
     ret_pardict = {}
-    df = pd.read_csv(fileName, sep=' %% ', header=None, engine='python')
-    for i in range(len(df)):
-        ret_pardict[df.iloc[i, 1]] = df.iloc[i, 0]
+    with open(fileName, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            parts = line.split(' %% ')
+            if len(parts) == 2:
+                val = parts[0].strip()
+                key = parts[1].strip()
+                try:
+                    val = float(val)
+                except ValueError:
+                    pass
+                ret_pardict[key] = val
     return ret_pardict
 
 def write_line(text, fileName):

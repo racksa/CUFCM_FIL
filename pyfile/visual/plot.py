@@ -42,6 +42,9 @@ if(sys.argv[1] in methods):
     if('check_overlap' in sys.argv):
         visualiser.check_overlap = True
 
+    if('video' in sys.argv):
+        visualiser.video = True
+
     if(sys.argv[1] in list_of_single_options):
         if(len(sys.argv) > 2):
             if(sys.argv[2].isdigit()):
@@ -49,8 +52,6 @@ if(sys.argv[1] in methods):
         if(len(sys.argv) > 3):
             if(sys.argv[3].isdigit()):
                 visualiser.plot_end_frame_setting = int(sys.argv[3])
-        if('video' in sys.argv):
-            visualiser.video = True
 
         if('plane' in sys.argv):
             visualiser.planar = True

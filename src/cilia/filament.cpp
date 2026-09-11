@@ -235,6 +235,11 @@ void filament::initial_setup(const Real *const base_pos,
 
       omega0 = 2.0*PI + noise;
 
+      // Per-filament RNG for time-varying phase noise (Langevin forcing)
+      std::random_device rd_noise{};
+      gen_noise = std::mt19937{rd_noise()};
+      d_noise = std::normal_distribution<Real>(0.0, 1.0);
+
       // std::cout << id << "   " << omega0 << std::endl;
 
       if (PAIR==1){
@@ -959,11 +964,20 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Bx(1,3) = 1.55525152;
         Bx(2,3) = 0.64896090;
 
+      #elif RBF_2D_PRECOMPUTED
+
+        theta_table = load_theta_table(RBF_TABLE_PATH);
+
         #endif
 
     }
 
     void filament::fitted_shape_tangent(Real& tx, Real& ty, const Real s, const Real psi) const {
+
+      #if RBF_2D_PRECOMPUTED
+        double th = theta_of_s(double(s), double(psi), theta_table);
+        tx = Real(std::cos(th)); ty = Real(std::sin(th)); return;
+      #endif
 
       const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
@@ -993,6 +1007,12 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
       matrix pos(3,1);
       pos(2) = z_displacement;
+
+      #if RBF_2D_PRECOMPUTED
+        double sq = double(s); double xo, yo;
+        evaluate_shape(&sq, 1, double(psi), theta_table, RBF_N_FINE, &xo, &yo);
+        pos(0) = Real(xo); pos(1) = Real(yo); return pos;
+      #endif
 
       const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
@@ -1025,6 +1045,12 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix dir(3,1);
       dir(2) = 0.0;
 
+      #if RBF_2D_PRECOMPUTED
+        double sq = double(s); double dxo, dyo;
+        evaluate_shape_vel_dir(&sq, 1, double(psi), theta_table, RBF_N_FINE, &dxo, &dyo);
+        dir(0) = Real(dxo); dir(1) = Real(dyo); return dir;
+      #endif
+
       const int num_degrees = Ax.num_cols;
       const int num_fourier_modes = Ax.num_rows;
 
@@ -1049,6 +1075,11 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
     }
 
     Real filament::fitted_curve_length(const Real s, const Real psi) const {
+
+      #if RBF_2D_PRECOMPUTED
+        // Unit tangent by construction => arc length == s
+        return (s > Real(0)) ? s : Real(0);
+      #endif
 
       Real length = 0.0;
 
@@ -1120,6 +1151,22 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       for (int fp = 0; fp < (bicilia ? 2 : 1); fp++){
 
         Real psi = (fp == 0 ? phase : phase2);
+
+        #if RBF_2D_PRECOMPUTED
+          // Unit tangent => arc length == s => linspace is exact
+          for (int n = 0; n < NSEG_PER_CILIA; n++) {
+            Real val = Real(n) / Real(NSEG_PER_CILIA - 1);
+            if (fp == 0) s_to_use[n] = val; else s_to_use2[n] = val;
+          }
+          #if WRITE_GENERALISED_FORCES
+          if (fp == 0) {
+            std::ofstream s_values_file(reference_s_values_file_name(), std::ios::app);
+            for (int n = 0; n < NSEG_PER_CILIA; n++) s_values_file << s_to_use[n] << " ";
+            s_values_file.close();
+          }
+          #endif
+          continue;
+        #endif
 
         #if WRITE_GENERALISED_FORCES
 
@@ -1341,7 +1388,8 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
 
     if (nt > 0){
 
-      phase += phase_dot*DT;
+      // Langevin: dψ = ψ̇ dt + √(2D Δt) ξ,  D = PHASE_NOISE_MAG² / 2
+      phase += phase_dot*DT + PHASE_NOISE_MAG*sqrt(DT)*d_noise(gen_noise);
 
       #if BICILIA
         phase2 = phase + PAIR_DP*2.0*PI;
@@ -2364,7 +2412,10 @@ void filament::write_backup(std::ofstream& data_file) const {
     #elif BICILIA_LONGT
 
       return std::string("input/forcing/bicilia_longt_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
-    
+
+    #elif RBF_2D_PRECOMPUTED
+
+      return std::string("input/forcing/rbf_2d_precomputed_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
 
     #endif
 

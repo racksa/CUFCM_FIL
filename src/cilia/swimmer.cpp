@@ -61,13 +61,16 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
   #if INFINITE_PLANE_WALL
 
+    // When PAIR==1 the grid holds NPAIR base positions; partners are offset from them.
+    const int n_base = (PAIR==1) ? NPAIR : NFIL;
+
     #if (DEFINED_BUT_EMPTY(FIL_LATTICE_X_NUM) && DEFINED_BUT_EMPTY(FIL_LATTICE_Y_NUM))
 
       // Neither value is given, so we attempt to make a regular lattice.
       #if RECTANGULAR_SEEDING
 
-        const int fil_grid_dim_x = int(sqrt(Real(NFIL)));
-        const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x))));
+        const int fil_grid_dim_x = int(sqrt(Real(n_base)));
+        const int fil_grid_dim_y = std::max<int>(1, int(ceil(n_base/Real(fil_grid_dim_x))));
 
       #elif HEXAGONAL_SEEDING
 
@@ -88,11 +91,11 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
     #elif DEFINED_BUT_EMPTY(FIL_LATTICE_X_NUM)
 
       // Only the y-size was provided.
-      const int fil_grid_dim_y = std::min<int>(NFIL, FIL_LATTICE_Y_NUM);
+      const int fil_grid_dim_y = std::min<int>(n_base, FIL_LATTICE_Y_NUM);
 
       #if RECTANGULAR_SEEDING
 
-        const int fil_grid_dim_x = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_y))));
+        const int fil_grid_dim_x = std::max<int>(1, int(ceil(n_base/Real(fil_grid_dim_y))));
 
       #elif HEXAGONAL_SEEDING
 
@@ -105,12 +108,12 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
       // Only the x-size was provided, or both sizes were provided. In case this latter option
       // doesn't account for all filaments, we ignore the provided FIL_LATTICE_Y_NUM and calculate the y-size for ourselves.
       #if !(FCM_LATTICE_SEEDING or FCM_RECTANGULAR_SEEDING)
-        const int fil_grid_dim_x = std::min<int>(NFIL, FIL_LATTICE_X_NUM);
+        const int fil_grid_dim_x = std::min<int>(n_base, FIL_LATTICE_X_NUM);
       #endif
-      
+
       #if RECTANGULAR_SEEDING
 
-        const int fil_grid_dim_y = std::max<int>(1, int(ceil(NFIL/Real(fil_grid_dim_x))));
+        const int fil_grid_dim_y = std::max<int>(1, int(ceil(n_base/Real(fil_grid_dim_x))));
 
       #elif HEXAGONAL_SEEDING
 
@@ -188,29 +191,41 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
     #if RECTANGULAR_SEEDING
 
+      // Build base positions for the grid (n_base = NPAIR when PAIR==1, else NFIL).
       for (int i = 0; i < fil_grid_dim_x; i++){
         for (int j = 0; j < fil_grid_dim_y; j++){
 
-          const int fil_id = j + i*fil_grid_dim_y;
+          const int base_id = j + i*fil_grid_dim_y;
 
-          if (fil_id < NFIL){
+          if (base_id < n_base){
 
-            filament_references[3*fil_id] = (i-im)*fil_grid_step_x;
-            filament_references[3*fil_id + 1] = (j-jm)*fil_grid_step_y;
-            filament_references[3*fil_id + 2] = BASE_HEIGHT_ABOVE_SURFACE;
+            const Real base_x = (i - im)*fil_grid_step_x;
+            const Real base_y = (j - jm)*fil_grid_step_y;
 
-            Real *const fil_x_address = &x_segs_address[3*fil_id*NSEG];
-            Real *const fil_f_address = &f_segs_address[6*fil_id*NSEG];
+            // Place this filament (and its partner when PAIR==1).
+            for (int half = 0; half < (PAIR==1 ? 2 : 1); half++){
 
-            #if READ_INITIAL_CONDITIONS_FROM_BACKUP
+              const int fil_id = base_id + half*NPAIR;
 
-              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id, body.q);
+              // Second member of the pair is offset by one seg-sep in x.
+              filament_references[3*fil_id]     = base_x + half * SEG_SEP * RSEG;
+              filament_references[3*fil_id + 1] = base_y;
+              filament_references[3*fil_id + 2] = BASE_HEIGHT_ABOVE_SURFACE;
 
-            #else
+              Real *const fil_x_address = &x_segs_address[3*fil_id*NSEG];
+              Real *const fil_f_address = &f_segs_address[6*fil_id*NSEG];
 
-              filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id, body.q);
+              #if READ_INITIAL_CONDITIONS_FROM_BACKUP
 
-            #endif
+                filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, &data_from_file[fil_id*data_per_fil], fil_x_address, fil_f_address, fil_id, body.q);
+
+              #else
+
+                filaments[fil_id].initial_setup(&filament_references[3*fil_id], dir, strain_twist, data_from_file, fil_x_address, fil_f_address, fil_id, body.q);
+
+              #endif
+
+            }
 
           }
 

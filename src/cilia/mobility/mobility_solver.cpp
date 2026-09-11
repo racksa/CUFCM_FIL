@@ -323,19 +323,27 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             Real k_scaling = (swimmers[n].filaments[i].omega0*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH);
 
-            Real max_angle = 0.78;
-            Real fene_factor = swimmers[n].filaments[i].shape_rotation_angle;
+            // FENE_MODEL=0: linear torsional spring  F = k*θ
+            // FENE_MODEL=1: FENE torsional spring    F = k*θ/(1-(θ/θ_max)²)
+            //   Diverges as θ→θ_max, preventing rotation beyond the limit.
+            //   If a timestep overshoot places |θ|≥θ_max, the angle is clamped
+            //   to (1-ε)*θ_max so the force remains finite and strongly restoring.
+            const Real max_angle = 0.78;
+            Real theta = swimmers[n].filaments[i].shape_rotation_angle;
+            Real fene_factor;
             if (FENE_MODEL == 1){
-              if (std::abs(swimmers[n].filaments[i].shape_rotation_angle) > max_angle){
-                fene_factor = 0.5*swimmers[n].filaments[i].shape_rotation_angle * (1 + pow(swimmers[n].filaments[i].shape_rotation_angle, 2)/pow(max_angle,2)*std::exp(std::abs(swimmers[n].filaments[i].shape_rotation_angle) - max_angle));
-              }else{
-                fene_factor = swimmers[n].filaments[i].shape_rotation_angle;
+              const Real fene_eps = 1e-4;
+              const Real theta_lim = (1.0 - fene_eps) * max_angle;
+              if (std::abs(theta) >= max_angle){
+                // clamp overshoot — preserves sign, keeps force finite
+                theta = std::copysign(theta_lim, theta);
               }
+              fene_factor = theta / (1.0 - (theta*theta)/(max_angle*max_angle));
+            } else {
+              fene_factor = theta;
             }
-            
-            q_angle -= TORSIONAL_SPRING_MAGNITUDE_FACTOR*k_scaling*fene_factor;
 
-            // q_angle -= TORSIONAL_SPRING_MAGNITUDE_FACTOR*k_scaling*swimmers[n].filaments[i].shape_rotation_angle;
+            q_angle -= TORSIONAL_SPRING_MAGNITUDE_FACTOR*k_scaling*fene_factor;
             
           #endif
 
@@ -347,13 +355,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             // Scale if the natural frequency of this cilium differs from the reference case
             q_phase *= 0.5*swimmers[n].filaments[i].omega0/PI;
 
-            // Add noise because a real flagellum cannot be perfect
-            std::random_device rd{};
-            std::mt19937 gen{rd()};
-            std::normal_distribution<Real> d(0,1);
-            Real noise = d(gen);
-            
-            q_phase += FORCE_NOISE_MAG*noise;
+            // Force-domain noise: Q += (σ_f/√Δt)·ξ  →  δψ = M_ψψ·σ_f·√Δt·ξ (proper Langevin)
+            // Controlled independently by FORCE_NOISE_MAG; set to 0 to disable this channel.
+            if (FORCE_NOISE_MAG > 0.0){
+              q_phase += (FORCE_NOISE_MAG / std::sqrt(DT))
+                         * swimmers[n].filaments[i].d_noise(swimmers[n].filaments[i].gen_noise);
+            }
 
             // Store minus the generalised force in the RHS
             #if PRESCRIBED_BODY_VELOCITIES

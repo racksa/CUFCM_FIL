@@ -99,7 +99,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 3 = Cilia follow a prescribed sequence of shapes.
 // 4 = Squirmer-type simulation (no filaments; slip velocity set in mobility solver).
 
-#define PAIR 0
+#define PAIR 1
 // Sub-type for prescribed cilia motion.
 // Enables filaments seeded as pairs with different frequencies per filament.
 // Use 0 for bicilia.
@@ -115,7 +115,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 1
+  #define SHAPE_SEQUENCE 8
   // Valid options:
   // 0 = 'Build-a-beat'.
   // 1 = Fulford and Blake beat (mammalian airway cilia).
@@ -125,19 +125,23 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 5 = Bi-cilia, fixed phase difference.
   // 6 = Bi-cilia long T, variable phase difference.
   // 7 = Fulford and Blake beat with no-wall generalised force.
+  // 8 = RBF 2D precomputed beat (theta_table.bin, see RBF_2D_PRECOMPUTED_SPEC.md).
 
-  #define DYNAMIC_PHASE_EVOLUTION false
+  #define DYNAMIC_PHASE_EVOLUTION true
   // If true, cilia phase speeds are solved for as part of the dynamics.
   // Requires a prior reference simulation with WRITE_GENERALISED_FORCES=true.
 
-  #define DYNAMIC_SHAPE_ROTATION false
+  #define DYNAMIC_SHAPE_ROTATION true
   // If true, cilia can tip backwards or forwards in their beat planes.
 
-  #define WRITE_GENERALISED_FORCES true
+  #ifndef WRITE_GENERALISED_FORCES
+    #define WRITE_GENERALISED_FORCES false
+  #endif
   // If true, saves generalised forces for use as reference values.
   // NOTE: Overwrites any existing reference files.
+  // Override at compile time: nvcc -DWRITE_GENERALISED_FORCES=true ...
 
-  #define CILIA_IC_TYPE 5
+  #define CILIA_IC_TYPE 0
   // Valid options:
   // 0 = All cilia start in-phase with phase 0.
   // 1 = Random initial phase (deprecated).
@@ -160,7 +164,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #if BODY_OR_SURFACE_TYPE==0
 
-  #define INFINITE_PLANE_WALL_SEEDING_TYPE 1
+  #define INFINITE_PLANE_WALL_SEEDING_TYPE 0
   // Valid options:
   // 0 = Rectangular grid.
   // 1 = Hexagonal grid.
@@ -223,7 +227,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 5 = Pairwise FCM.
 
 // --- Body motion ---------------------------------------------------------
-#define BODY_VELOCITY_TYPE 1
+#define BODY_VELOCITY_TYPE 0
 // 0 = Free to swim.
 // 1 = Prescribed velocities.
 // 2 = Prescribed rotation only.
@@ -270,7 +274,8 @@ extern Real WAVNUM;
 extern Real WAVNUM_DIA;
 extern Real DIMENSIONLESS_FORCE;
 extern int  FENE_MODEL;
-extern Real FORCE_NOISE_MAG;
+extern Real FORCE_NOISE_MAG;   // force-domain noise amplitude (mobility_solver)
+extern Real PHASE_NOISE_MAG;   // direct phase Langevin amplitude (filament initial_guess)
 extern Real OMEGA_SPREAD;
 extern int  INDEX;
 
@@ -326,7 +331,7 @@ extern Real REV_RATIO;
 #endif
 
 #define MAX_LINEAR_SYSTEM_ITER 350
-#define LINEAR_SYSTEM_TOL      1e-4
+#define LINEAR_SYSTEM_TOL      1e-3
 
 #define NUM_EULER_STEPS 1 // Number of backwards-Euler steps before switching to BDF2.
 
@@ -402,6 +407,7 @@ extern Real REV_RATIO;
   #define BICILIA                         (SHAPE_SEQUENCE==5) // deprecated - use PAIR instead
   #define BICILIA_LONGT                   (SHAPE_SEQUENCE==6) // deprecated - use PAIR instead
   #define FULFORD_AND_BLAKE_BEAT_NO_WALL  (SHAPE_SEQUENCE==7)
+  #define RBF_2D_PRECOMPUTED              (SHAPE_SEQUENCE==8)
 #endif
 
 #define PI 3.14159265358979323846264338327950288

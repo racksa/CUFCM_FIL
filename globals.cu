@@ -29,6 +29,7 @@ Real WAVNUM_DIA = 0.0;
 Real DIMENSIONLESS_FORCE = 220.0;
 int FENE_MODEL = 0;
 Real FORCE_NOISE_MAG = 0.0;
+Real PHASE_NOISE_MAG = 0.0;
 Real OMEGA_SPREAD = 0.0;
 int INDEX = 0; // Used to identify the cilia in the simulation, e.g. for writing to file.
 

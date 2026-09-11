@@ -1,0 +1,315 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{physics}
+\usepackage{bm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[margin=2.5cm]{geometry}
+
+\lstset{
+  language=C++,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue!70!black},
+  commentstyle=\color{green!50!black},
+  frame=single,
+  breaklines=true,
+}
+
+\newcommand{\sgn}{\operatorname{sgn}}
+\newcommand{\DT}{\Delta t}
+
+\title{Stochastic Noise in the Generalised Phase Force:\\
+       Mathematical Model and Simulation Implementation}
+\author{CUFCM\_FIL}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+\section{Phase dynamics without noise}
+% ============================================================
+
+Each filament is characterised by a phase $\psi(t)\in[0,2\pi)$ that indexes
+its position in the beat cycle.  In the dynamical (non-calibration) regime the
+phase velocity $\dot\psi$ is not prescribed but is solved as part of the
+force-balance problem.
+
+\subsection{Generalised forces and the mobility system}
+
+The simulation assembles a linear system coupling the filament degrees of
+freedom (segment positions, phase, and---when enabled---beat-plane rotation
+angle $\psi_2$) to the forces acting on them.  For the phase degree of freedom
+the \emph{generalised phase force} is
+
+\begin{equation}
+  Q_\psi(\psi) = Q_{\text{ref}}(\psi)\,\frac{\omega_0}{2\pi},
+  \label{eq:qphase_det}
+\end{equation}
+
+where $Q_{\text{ref}}(\psi)$ is a lookup table computed during the calibration
+run (see Section~\ref{sec:calibration}) and $\omega_0$ is the filament's
+natural angular frequency.  The factor $\omega_0/(2\pi)$ rescales the reference
+force when a filament's natural frequency differs from the reference frequency.
+
+The generalised force $Q_\psi$ enters the right-hand side of the mobility
+linear system.  After solving, the phase velocity is obtained as
+
+\begin{equation}
+  \dot\psi = M_{\psi\psi}\,Q_\psi + (\text{hydrodynamic coupling terms}),
+\end{equation}
+
+where $M_{\psi\psi}$ is the $({\psi},{\psi})$ block of the mobility matrix.
+The phase is then advanced by the forward-Euler step
+
+\begin{equation}
+  \psi(t+\DT) = \psi(t) + \dot\psi\,\DT.
+  \label{eq:phase_det_update}
+\end{equation}
+
+% ============================================================
+\section{Adding stochastic noise}
+% ============================================================
+
+Real cilia are not perfect oscillators: motor noise, thermal fluctuations, and
+internal regulatory variability all perturb the beat rhythm.  We model this
+with additive Gaussian white noise on the generalised phase force.
+
+\subsection{Continuous stochastic equation}
+
+The noisy generalised force is
+
+\begin{equation}
+  Q_\psi^{\text{stoch}}(t) = Q_{\text{ref}}(\psi)\,\frac{\omega_0}{2\pi}
+    + \sigma\,\xi(t),
+  \label{eq:qphase_stoch}
+\end{equation}
+
+where $\xi(t)$ is a unit Gaussian white-noise process,
+
+\begin{equation}
+  \langle\xi(t)\rangle = 0, \qquad
+  \langle\xi(t)\,\xi(t')\rangle = \delta(t-t').
+\end{equation}
+
+The parameter $\sigma$ (runtime variable \texttt{FORCE\_NOISE\_MAG}) controls
+the noise amplitude.  The resulting phase dynamics are governed by a
+Langevin-type equation:
+
+\begin{equation}
+  \dot\psi = M_{\psi\psi}\!\left[Q_{\text{ref}}(\psi)\,\frac{\omega_0}{2\pi}
+    + \sigma\,\xi(t)\right].
+  \label{eq:langevin_phase}
+\end{equation}
+
+\subsection{Effective phase diffusion}
+
+Separating the drift and noise contributions, the phase evolves as
+
+\begin{equation}
+  d\psi = \underbrace{M_{\psi\psi}\,Q_{\text{ref}}(\psi)\,
+    \frac{\omega_0}{2\pi}\,dt}_{\text{deterministic drift}}
+  + \underbrace{M_{\psi\psi}\,\sigma\,dW_t}_{\text{noise}},
+\end{equation}
+
+where $dW_t = \xi(t)\,dt$ is an increment of the Wiener process.  The
+effective phase diffusion coefficient is therefore
+
+\begin{equation}
+  \boxed{D_{\psi} = \tfrac{1}{2}(M_{\psi\psi}\,\sigma)^2.}
+  \label{eq:Deff}
+\end{equation}
+
+$D_\psi$ quantifies the rate of phase-variance growth for an isolated
+filament:
+
+\begin{equation}
+  \operatorname{Var}[\psi(t) - \psi(0)] = 2\,D_\psi\,t.
+  \label{eq:var_growth}
+\end{equation}
+
+\subsection{Euler--Maruyama discretisation}
+
+Numerically the noise increment in force space is drawn at every timestep.
+The discrete update is
+
+\begin{equation}
+  \psi_{n+1} = \psi_n + M_{\psi\psi}\!\left[Q_{\text{ref}}(\psi_n)\,
+    \frac{\omega_0}{2\pi} + \sigma\,\xi_n\right]\DT,
+  \qquad \xi_n \sim \mathcal{N}(0,1)\;\text{i.i.d.}
+  \label{eq:EM_force}
+\end{equation}
+
+\textbf{Note on the $\sqrt{\DT}$ factor.}
+Equation~\eqref{eq:EM_force} adds $\sigma\xi_n\DT$ to the force each step.
+In phase space this corresponds to a phase kick of magnitude
+$M_{\psi\psi}\sigma\DT$ per step.  Summing $T/\DT$ independent kicks gives
+
+\begin{equation}
+  \operatorname{Var}[\psi(T)] \approx
+    (M_{\psi\psi}\sigma)^2 \frac{T}{\DT}\,(\DT)^2
+  = (M_{\psi\psi}\sigma)^2\,\DT\,T.
+\end{equation}
+
+Comparing with equation~\eqref{eq:var_growth} yields $D_\psi = \tfrac{1}{2}
+(M_{\psi\psi}\sigma)^2\DT$, which \emph{depends on the timestep}.  This
+arises because the implementation applies the noise to the force (not directly
+to the phase), so the correct Langevin scaling would require adding
+$\sigma\sqrt{\DT}\,\xi_n$ instead of $\sigma\xi_n$.  The current code
+(\texttt{mobility\_solver.cpp}, line~364) reads:
+
+\begin{lstlisting}
+q_phase += FORCE_NOISE_MAG*noise;   // noise ~ N(0,1), no sqrt(DT)
+\end{lstlisting}
+
+For a proper Langevin process, the line should be:
+
+\begin{lstlisting}
+q_phase += FORCE_NOISE_MAG*std::sqrt(DT)*noise;
+\end{lstlisting}
+
+With the corrected form $D_\psi = \tfrac{1}{2}(M_{\psi\psi}\sigma)^2$ becomes
+truly timestep-independent.
+
+% ============================================================
+\section{Calibration and the reference force table}
+\label{sec:calibration}
+% ============================================================
+
+The table $Q_{\text{ref}}(\psi)$ is produced by a separate calibration run
+compiled with \texttt{WRITE\_GENERALISED\_FORCES=true}.  During calibration,
+$\dot\psi = \omega_0$ is prescribed (not solved dynamically), so the
+simulation simply measures the force required to maintain the reference beat
+at each phase.  The calibration preset uses \texttt{force\_noise\_mag=0}
+so that $Q_{\text{ref}}$ captures only the deterministic driving, keeping the
+noise channel in the production run well-defined.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lll}
+\toprule
+Flag & Calibration & Production \\
+\midrule
+\texttt{WRITE\_GENERALISED\_FORCES} & \texttt{true} & \texttt{false} \\
+\texttt{DYNAMIC\_PHASE\_EVOLUTION}  & forced \texttt{false} & \texttt{true} \\
+\texttt{force\_noise\_mag}          & $0$ & $\sigma$ (swept) \\
+Active noise site & \texttt{filament.cpp:1392} (dead) & \texttt{mobility\_solver.cpp:364} \\
+\bottomrule
+\end{tabular}
+\caption{Compile-time and runtime flag states for the two run modes.}
+\end{table}
+
+% ============================================================
+\section{Effect of changing \texttt{FORCE\_NOISE\_MAG} ($\sigma$)}
+% ============================================================
+
+\subsection{Signal-to-noise ratio}
+
+The deterministic driving force is calibrated to
+$Q_{\text{ref}} \sim Q_0 \equiv 220$ (dimensionless).  The noise
+perturbation per timestep is of order $\sigma$.  Define the signal-to-noise
+ratio
+
+\begin{equation}
+  \mathrm{SNR} \equiv \frac{Q_0}{\sigma}.
+\end{equation}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{ccc}
+\toprule
+Sim $i$ & $\sigma$ & $\mathrm{SNR}$ \\
+\midrule
+0 & $0.0$    & $\infty$ \\
+1 & $0.22$   & $1000$ \\
+2 & $0.46$   & $478$ \\
+3 & $1.0$    & $220$ \\
+4 & $2.15$   & $102$ \\
+5 & $4.64$   & $47$ \\
+6 & $10.0$   & $22$ \\
+7 & $21.5$   & $10$ \\
+8 & $46.4$   & $4.7$ \\
+9 & $100.0$  & $2.2$ \\
+\bottomrule
+\end{tabular}
+\caption{Log-uniform noise sweep in \texttt{pair\_noise\_sweep}.
+$\mathrm{SNR} = 220/\sigma$; phase slips are expected when $\mathrm{SNR}
+\lesssim 10$--$20$, i.e.\ sims 7--9.}
+\end{table}
+
+\subsection{Phase diffusion and slip between a pair}
+
+For a pair of filaments (A and B) with equal natural frequencies
+($\omega_A = \omega_B = \omega_0$, \texttt{pair\_dp=1}), the mean phase
+difference
+
+\begin{equation}
+  \Delta\psi(t) \equiv \psi_A(t) - \psi_B(t)
+\end{equation}
+
+has zero deterministic drift.  Any long-term phase slip is purely
+noise-driven.  Since the two filaments carry independent noise realisations,
+the variance of $\Delta\psi$ grows as
+
+\begin{equation}
+  \operatorname{Var}[\Delta\psi(t)] = 2\,D_A\,t + 2\,D_B\,t = 4\,D_\psi\,t
+  \quad (D_A = D_B = D_\psi),
+\end{equation}
+
+so the pair's relative phase diffusivity is $2D_\psi$.  A \emph{phase slip}
+event occurs when $|\Delta\psi|$ exceeds $\pi$ (half a period) and the
+filaments re-synchronise in the next cycle out of phase.
+
+The slip rate measured in the simulation is
+
+\begin{equation}
+  \dot s \equiv \frac{\Delta\psi(t_\mathrm{end}) - \Delta\psi(t_\mathrm{start})}
+                     {t_\mathrm{end} - t_\mathrm{start}}
+  \quad [\text{cycles\,s}^{-1}],
+\end{equation}
+
+and scales as $\dot s \propto D_\psi \propto \sigma^2 M_{\psi\psi}^2$.
+
+\subsection{Three dynamical regimes}
+
+\paragraph{Weak noise ($\sigma \ll Q_0$, sims 0--4).}
+$\Delta\psi$ performs a slow random walk around the synchronised state.
+The pair remains approximately in phase over many beat cycles.  The slip rate
+$\dot s \approx 0$.
+
+\paragraph{Moderate noise ($\sigma \sim Q_0$, sims 5--7).}
+Phase slips occur intermittently.  The pair alternates between epochs of
+near-synchrony and epochs of relative sliding.  The slip rate grows rapidly
+with $\sigma$.
+
+\paragraph{Strong noise ($\sigma \gg Q_0$, sims 8--9).}
+The noise overwhelms the deterministic driving.  The phase becomes
+effectively diffusive ($\dot\psi \approx M_{\psi\psi}\sigma\xi$); the
+filament beats erratically and the pair loses all phase coherence.
+
+% ============================================================
+\section{Summary of the parameter chain}
+% ============================================================
+
+\begin{equation*}
+\underbrace{\sigma}_{\texttt{force\_noise\_mag}\text{ in }
+  \texttt{globals.ini}}
+\xrightarrow{\texttt{cilia\_sim\_main.cu:74}}
+\underbrace{\texttt{FORCE\_NOISE\_MAG}}_{\text{runtime Real}}
+\xrightarrow[\text{(production)}]{\texttt{mobility\_solver.cpp:364}}
+Q_\psi^{\text{stoch}} = Q_{\text{ref}}\tfrac{\omega_0}{2\pi} + \sigma\xi_n
+\xrightarrow{M_{\psi\psi}}
+\dot\psi_n
+\xrightarrow{\times\DT}
+\psi_{n+1}
+\end{equation*}
+
+The single scalar $\sigma$ is thus the sole runtime control over the
+stochastic intensity, requiring no recompilation.  Sweeping it
+log-uniformly from $0$ to $100$ (with $Q_0 = 220$) spans the full range
+from noise-free synchronisation to noise-dominated phase diffusion.
+
+\end{document}
