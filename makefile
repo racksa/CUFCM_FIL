@@ -122,7 +122,20 @@ cilia_nvidia4_CUFCM_double: $(CILIA_CPP) $(CILIA_CUDA)
 
 cilia_nvidia4_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pair
+
+cilia_nvidia4_CUFCM_pair_calib: $(CILIA_CPP) $(CILIA_CUDA)
+	nvcc $^  $(NVCC_FLAGS) $(LINK) $(GEN_FLAGS) -DWRITE_GENERALISED_FORCES=true -o bin/cilia_1e-4_pair_calib
+
+# Cluster target: links against locally-built OpenBLAS in ~/local
+# One-time build: cd ~ && git clone --depth 1 https://github.com/OpenMathLib/OpenBLAS && cd OpenBLAS && make -j$(nproc) NO_FORTRAN=1 && make PREFIX=$$HOME/local install
+LOCAL_PREFIX = $(HOME)/local
+LOCAL_LINK = -lcufft -lcurand -L$(LOCAL_PREFIX)/lib -lopenblas -Xlinker -rpath,$(LOCAL_PREFIX)/lib -lineinfo
+cilia_cluster: $(CILIA_CPP) $(CILIA_CUDA)
+	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pair
 	
+cilia_cluster_calib: $(CILIA_CPP) $(CILIA_CUDA)
+	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -DWRITE_GENERALISED_FORCES=true -o bin/cilia_1e-4_pair_calib
+
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)
 	# module load cuda/11.4.2 && \
 	nvcc $^ $(NVCC_FLAGS) $(HPC_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_free

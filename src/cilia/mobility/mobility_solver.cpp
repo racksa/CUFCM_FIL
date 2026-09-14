@@ -3300,7 +3300,11 @@ void mobility_solver::write_data(const int nt, const std::vector<swimmer>& swimm
 
       for (const auto& src_path : source_files) {
           fs::path src(src_path);
-          fs::path dst = fs::path(dst_dir) / src.filename();  // Preserve filename
+          if (!fs::exists(src)) {
+              std::cerr << "Warning: reference file not found, skipping archive copy: " << src_path << std::endl;
+              continue;
+          }
+          fs::path dst = fs::path(dst_dir) / src.filename();
           fs::copy_file(src, dst, fs::copy_options::overwrite_existing);
       }
     #endif

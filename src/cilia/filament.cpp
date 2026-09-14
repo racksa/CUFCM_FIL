@@ -1191,7 +1191,15 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
             Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
             Real curr_frac_estimate = fitted_curve_length(curr_s_estimate, psi)/total_length;
 
+            int bisect_iter = 0;
             while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG_PER_CILIA)){
+
+              if (++bisect_iter > 10000){
+                std::cerr << "Warning: bisection did not converge (n=" << n
+                          << " psi=" << psi << " frac=" << curr_frac_estimate
+                          << " target=" << target_fraction << ")" << std::endl;
+                break;
+              }
 
               if (curr_frac_estimate > target_fraction){
 

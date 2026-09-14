@@ -118,7 +118,7 @@ int main(int argc, char** argv){
   #endif
 
   NPAIR = NFIL;
-  if (PAIR==1){
+  if (PAIR==1 && NFIL >= 2){
     NPAIR = NFIL/2;
   }
   int NFIL_PER_PAIR = NFIL==0 ? 0 : NFIL/NPAIR;
@@ -656,19 +656,6 @@ int main(int argc, char** argv){
       body_state_file.close();
 
       mobility.write_data(nt, swimmers); // Writes all velocity and force data.
-
-      // std::ofstream backup_file(SIMULATION_BACKUP_NAME);
-      // backup_file << save_step << " ";
-      // backup_file << std::scientific << std::setprecision(OUTPUT_DIGIT);
-
-      // for (int n = 0; n < NSWIM; n++){
-
-      //   swimmers[n].write_backup(backup_file);
-
-      // }
-
-      // backup_file << std::endl;
-      // backup_file.close();
 
       #if PRESCRIBED_CILIA
 

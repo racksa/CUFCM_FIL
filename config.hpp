@@ -115,7 +115,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 8
+  #define SHAPE_SEQUENCE 1
   // Valid options:
   // 0 = 'Build-a-beat'.
   // 1 = Fulford and Blake beat (mammalian airway cilia).
@@ -127,11 +127,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
   // 7 = Fulford and Blake beat with no-wall generalised force.
   // 8 = RBF 2D precomputed beat (theta_table.bin, see RBF_2D_PRECOMPUTED_SPEC.md).
 
-  #define DYNAMIC_PHASE_EVOLUTION true
+  #define DYNAMIC_PHASE_EVOLUTION false
   // If true, cilia phase speeds are solved for as part of the dynamics.
   // Requires a prior reference simulation with WRITE_GENERALISED_FORCES=true.
 
-  #define DYNAMIC_SHAPE_ROTATION true
+  #define DYNAMIC_SHAPE_ROTATION false
   // If true, cilia can tip backwards or forwards in their beat planes.
 
   #ifndef WRITE_GENERALISED_FORCES
@@ -450,6 +450,12 @@ extern Real REV_RATIO;
   #endif
 
   #if WRITE_GENERALISED_FORCES
+    #if !INFINITE_PLANE_WALL
+      #error "Calibration (WRITE_GENERALISED_FORCES=true) requires BODY_OR_SURFACE_TYPE=0 (infinite plane wall)."
+    #endif
+    #if !RPY_MOBILITY
+      #error "Calibration (WRITE_GENERALISED_FORCES=true) requires MOBILITY_TYPE=1 (RPY with wall corrections)."
+    #endif
     #undef  PRESCRIBED_BODY_VELOCITIES
     #define PRESCRIBED_BODY_VELOCITIES true
     #undef  DYNAMIC_PHASE_EVOLUTION
