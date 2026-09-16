@@ -375,10 +375,8 @@ void filament::initial_setup(const Real *const base_pos,
       
       #endif
 
-      #if BICILIA
+      #if BICILIA_TOPOLOGY
         phase2 = phase + PAIR_DP*2.0*PI;
-      #elif BICILIA_LONGT
-        phase2 = PAIR_DP*phase;
       #endif
 
       // qtemp maps x to the surface normal, which we want, but we also need to rotate about the surface normal to align
@@ -899,74 +897,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
         Bx(1,0) = 8.146824e-02; Bx(1,1) = 3.472676e-01; Bx(1,2) = -2.744220e-01;
         Bx(2,0) = 3.615272e-02; Bx(2,1) = 8.619119e-02; Bx(2,2) = -6.122992e-02;
 
-      #elif BICILIA or BICILIA_LONGT
+      #elif MLS_PRECOMPUTED
 
-        // Same as Fulford-Blake beat but with newly fitted coefficients
-
-        Ay = matrix(4,4);
-        Ay(0,0) = -0.01665535;
-        Ay(1,0) = 0.17505739;
-        Ay(2,0) = -0.12408600;
-        Ay(3,0) = -0.16672661;
-        Ay(0,1) = -0.27457190;
-        Ay(1,1) = -2.09412076;
-        Ay(2,1) = 1.62438155;
-        Ay(3,1) = 0.90896038;
-        Ay(0,2) = 1.08406999;
-        Ay(1,2) = 1.99556763;
-        Ay(2,2) = -3.21015214;
-        Ay(3,2) = -1.50867276;
-        Ay(0,3) = -0.56102820;
-        Ay(1,3) = -0.50179439;
-        Ay(2,3) = 1.70178281;
-        Ay(3,3) = 0.74387795;
-        Ax = matrix(4,4);
-        Ax(0,0) = 1.00490080;
-        Ax(1,0) = 0.00314934;
-        Ax(2,0) = 0.18942274;
-        Ax(3,0) = -0.11162123;
-        Ax(0,1) = -0.19958656;
-        Ax(1,1) = -0.22239636;
-        Ax(2,1) = -1.24525818;
-        Ax(3,1) = 1.07262966;
-        Ax(0,2) = -0.20422343;
-        Ax(1,2) = 1.18659976;
-        Ax(2,2) = 1.94063304;
-        Ax(3,2) = -2.15142914;
-        Ax(0,3) = 0.10887946;
-        Ax(1,3) = -0.87409016;
-        Ax(2,3) = -0.78632572;
-        Ax(3,3) = 1.20544741;
-        By = matrix(3,4);
-        By(0,0) = -0.06343445;
-        By(1,0) = -0.28828336;
-        By(2,0) = 0.02187088;
-        By(0,1) = 2.15509751;
-        By(1,1) = 1.45223183;
-        By(2,1) = -0.33070891;
-        By(0,2) = -4.19609063;
-        By(1,2) = -1.56580487;
-        By(2,2) = 0.94906955;
-        By(0,3) = 2.05489100;
-        By(1,3) = 0.44541361;
-        By(2,3) = -0.66157093;
-        Bx = matrix(3,4);
-        Bx(0,0) = 0.09140608;
-        Bx(1,0) = -0.09670739;
-        Bx(2,0) = -0.16451150;
-        Bx(0,1) = -0.54804089;
-        Bx(1,1) = 1.14634486;
-        Bx(2,1) = 0.98846449;
-        Bx(0,2) = 1.40643137;
-        Bx(1,2) = -2.60675971;
-        Bx(2,2) = -1.49147276;
-        Bx(0,3) = -0.60109684;
-        Bx(1,3) = 1.55525152;
-        Bx(2,3) = 0.64896090;
-
-      #elif RBF_2D_PRECOMPUTED
-
-        theta_table = load_theta_table(RBF_TABLE_PATH);
+        mls_table = load_mls_table(MLS_TABLE_PATH);
 
         #endif
 
@@ -974,8 +907,8 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     void filament::fitted_shape_tangent(Real& tx, Real& ty, const Real s, const Real psi) const {
 
-      #if RBF_2D_PRECOMPUTED
-        double th = theta_of_s(double(s), double(psi), theta_table);
+      #if MLS_PRECOMPUTED
+        double th = theta_of_s(double(s), double(psi), mls_table);
         tx = Real(std::cos(th)); ty = Real(std::sin(th)); return;
       #endif
 
@@ -1008,9 +941,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix pos(3,1);
       pos(2) = z_displacement;
 
-      #if RBF_2D_PRECOMPUTED
+      #if MLS_PRECOMPUTED
         double sq = double(s); double xo, yo;
-        evaluate_shape(&sq, 1, double(psi), theta_table, RBF_N_FINE, &xo, &yo);
+        evaluate_shape(&sq, 1, double(psi), mls_table, MLS_N_FINE, &xo, &yo);
         pos(0) = Real(xo); pos(1) = Real(yo); return pos;
       #endif
 
@@ -1045,9 +978,9 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       matrix dir(3,1);
       dir(2) = 0.0;
 
-      #if RBF_2D_PRECOMPUTED
+      #if MLS_PRECOMPUTED
         double sq = double(s); double dxo, dyo;
-        evaluate_shape_vel_dir(&sq, 1, double(psi), theta_table, RBF_N_FINE, &dxo, &dyo);
+        evaluate_shape_vel_dir(&sq, 1, double(psi), mls_table, MLS_N_FINE, &dxo, &dyo);
         dir(0) = Real(dxo); dir(1) = Real(dyo); return dir;
       #endif
 
@@ -1076,7 +1009,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
     Real filament::fitted_curve_length(const Real s, const Real psi) const {
 
-      #if RBF_2D_PRECOMPUTED
+      #if MLS_PRECOMPUTED
         // Unit tangent by construction => arc length == s
         return (s > Real(0)) ? s : Real(0);
       #endif
@@ -1132,13 +1065,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
       s_to_use[0] = 0.0;
       s_to_use[NSEG_PER_CILIA-1] = 1.0;
 
-      #if BICILIA
-
-        s_to_use2 = std::vector<Real>(NSEG_PER_CILIA);
-        s_to_use2[0] = 0.0;
-        s_to_use2[NSEG_PER_CILIA-1] = 1.0;
-
-      #elif BICILIA_LONGT
+      #if BICILIA_TOPOLOGY
 
         s_to_use2 = std::vector<Real>(NSEG_PER_CILIA);
         s_to_use2[0] = 0.0;
@@ -1146,13 +1073,13 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
 
       #endif
 
-      bool bicilia = (BICILIA || BICILIA_LONGT);
+      bool bicilia = BICILIA_TOPOLOGY;
 
       for (int fp = 0; fp < (bicilia ? 2 : 1); fp++){
 
         Real psi = (fp == 0 ? phase : phase2);
 
-        #if RBF_2D_PRECOMPUTED
+        #if MLS_PRECOMPUTED
           // Unit tangent => arc length == s => linspace is exact
           for (int n = 0; n < NSEG_PER_CILIA; n++) {
             Real val = Real(n) / Real(NSEG_PER_CILIA - 1);
@@ -1191,15 +1118,7 @@ void filament::accept_state_from_rigid_body(const Real *const x_in, const Real *
             Real curr_s_estimate = 0.5*(s_lower_bound + s_upper_bound);
             Real curr_frac_estimate = fitted_curve_length(curr_s_estimate, psi)/total_length;
 
-            int bisect_iter = 0;
             while (std::abs(curr_frac_estimate - target_fraction) > 0.1/Real(NSEG_PER_CILIA)){
-
-              if (++bisect_iter > 10000){
-                std::cerr << "Warning: bisection did not converge (n=" << n
-                          << " psi=" << psi << " frac=" << curr_frac_estimate
-                          << " target=" << target_fraction << ")" << std::endl;
-                break;
-              }
 
               if (curr_frac_estimate > target_fraction){
 
@@ -1399,15 +1318,40 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
       // Langevin: dψ = ψ̇ dt + √(2D Δt) ξ,  D = PHASE_NOISE_MAG² / 2
       phase += phase_dot*DT + PHASE_NOISE_MAG*sqrt(DT)*d_noise(gen_noise);
 
-      #if BICILIA
+      #if BICILIA_TOPOLOGY
         phase2 = phase + PAIR_DP*2.0*PI;
-      #elif BICILIA_LONGT
-        phase2 = PAIR_DP*phase;
       #endif
 
       #if (DYNAMIC_SHAPE_ROTATION || WRITE_GENERALISED_FORCES)
 
         shape_rotation_angle += shape_rotation_angle_dot*DT;
+
+        // Implicit backward-Euler step for the torsional spring:
+        //   θ^{n+1} = θ^{n+1/2} / (1 + k_eff*Δt)
+        // This is unconditionally stable for any spring_factor, replacing the
+        // explicit q_angle contribution that was removed from mobility_solver.cpp.
+        #if DYNAMIC_SHAPE_ROTATION
+        {
+          const Real k_eff = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                             * omega0 * FIL_LENGTH * FIL_LENGTH * FIL_LENGTH;
+          #if FENE_MODEL
+            // Newton iteration for FENE implicit step (usually converges in 2-3 iters)
+            Real th = shape_rotation_angle;
+            constexpr Real theta_max = 0.78;
+            for (int it = 0; it < 6; ++it){
+              const Real f  = th / (1.0 - (th*th)/(theta_max*theta_max));
+              const Real df = (1.0 + (th*th)/(theta_max*theta_max))
+                              / ((1.0 - (th*th)/(theta_max*theta_max))
+                                 * (1.0 - (th*th)/(theta_max*theta_max)));
+              const Real res = th + k_eff*DT*f - shape_rotation_angle;
+              th -= res / (1.0 + k_eff*DT*df);
+            }
+            shape_rotation_angle = th;
+          #else
+            shape_rotation_angle /= (1.0 + k_eff * DT);
+          #endif
+        }
+        #endif
 
       #endif
 
@@ -1484,12 +1428,7 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
 
       #if FIT_TO_DATA_BEAT
 
-        #if BICILIA
-          int index_in_pair = floor(n/NSEG_PER_CILIA);
-          Real z_dis = index_in_pair*2.2*RSEG;
-          Real s_to_use_n = index_in_pair ? s_to_use2[n%NSEG_PER_CILIA] : s_to_use[n%NSEG_PER_CILIA];
-          Real phase_this_cilia = index_in_pair ? phase2 : phase;
-        #elif BICILIA_LONGT
+        #if BICILIA_TOPOLOGY
           int index_in_pair = floor(n/NSEG_PER_CILIA);
           Real z_dis = index_in_pair*2.2*RSEG;
           Real s_to_use_n = index_in_pair ? s_to_use2[n%NSEG_PER_CILIA] : s_to_use[n%NSEG_PER_CILIA];
@@ -2413,17 +2352,13 @@ void filament::write_backup(std::ofstream& data_file) const {
 
       return filename_stringstream.str();
 
-    #elif BICILIA
+    #elif BICILIA_TOPOLOGY
 
-      return std::string("input/forcing/bicilia_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
-    
-    #elif BICILIA_LONGT
+      return std::string("input/forcing/bicilia_SS") + std::to_string(SHAPE_SEQUENCE) + "_reference_" + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
 
-      return std::string("input/forcing/bicilia_longt_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + "_PAIR_DP=" + std::to_string(PAIR_DP)  + std::string(".dat");
+    #elif MLS_PRECOMPUTED
 
-    #elif RBF_2D_PRECOMPUTED
-
-      return std::string("input/forcing/rbf_2d_precomputed_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
+      return std::string("input/forcing/mls_precomputed_reference_") + std::string(file_type) + "_NSEG=" + std::to_string(NSEG) + "_SEP=" + std::to_string(SEG_SEP) + std::string(".dat");
 
     #endif
 

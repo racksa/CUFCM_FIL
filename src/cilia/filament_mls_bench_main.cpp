@@ -1,21 +1,21 @@
-// filament_rbf_bench_main.cpp — standalone validation + benchmark for filament_rbf.hpp
+// filament_mls_bench_main.cpp — standalone validation + benchmark for filament_mls.hpp
 //
 // Build (from repo root):
-//   g++ -O2 -std=c++14 -DRBF_BENCHMARK_ENABLED \
+//   g++ -O2 -std=c++14 -DMLS_BENCHMARK_ENABLED \
 //       -I. -Isrc/general -Isrc/flow_field -Isrc/cilia \
-//       src/cilia/filament_rbf_bench_main.cpp -o bin/rbf_bench
+//       src/cilia/filament_mls_bench_main.cpp -o bin/mls_bench
 //
 // Run:
-//   ./bin/rbf_bench [table_path [nseg [n_fine [n_reps]]]]
-// Defaults: table_path=input/theta_table.bin, nseg=20, n_fine=500, n_reps=1000
+//   ./bin/mls_bench [table_path [nseg [n_fine [n_reps]]]]
+// Defaults: table_path=input/mls_table.bin, nseg=20, n_fine=500, n_reps=1000
 
-#define RBF_BENCHMARK_ENABLED
-#include "filament_rbf.hpp"
+#define MLS_BENCHMARK_ENABLED
+#include "filament_mls.hpp"
 
 #include <cmath>
 #include <cstdlib>
 
-// Reference values from RBF_2D_PRECOMPUTED_SPEC.md (knut1/theta_table.bin, n_fine=500)
+// Reference values from MLS_PRECOMPUTED_SPEC.md (knut1/mls_table.bin, n_fine=500)
 struct ValCase { double s, psi, theta_ref, x_ref, y_ref; };
 
 static const ValCase VAL_CASES[] = {
@@ -29,7 +29,7 @@ static const ValCase VAL_CASES[] = {
     {0.5, 4.7123889804,      -0.7389605759,  0.1344404396,  -0.4618223602 },
 };
 
-static bool validate(const ThetaTable& t, int n_fine,
+static bool validate(const MlsTable& t, int n_fine,
                      double tol_theta = 1e-6, double tol_pos = 1e-5) {
     bool ok = true;
     for (size_t ci = 0; ci < sizeof(VAL_CASES)/sizeof(VAL_CASES[0]); ++ci) {
@@ -54,15 +54,15 @@ static bool validate(const ThetaTable& t, int n_fine,
 }
 
 int main(int argc, char** argv) {
-    const char* path  = (argc > 1) ? argv[1] : RBF_TABLE_PATH;
+    const char* path  = (argc > 1) ? argv[1] : MLS_TABLE_PATH;
     int nseg   = (argc > 2) ? std::atoi(argv[2]) : 20;
-    int n_fine = (argc > 3) ? std::atoi(argv[3]) : RBF_N_FINE;
+    int n_fine = (argc > 3) ? std::atoi(argv[3]) : MLS_N_FINE;
     int n_reps = (argc > 4) ? std::atoi(argv[4]) : 1000;
 
     std::printf("Loading: %s\n", path);
-    ThetaTable t;
+    MlsTable t;
     try {
-        t = load_theta_table(path);
+        t = load_mls_table(path);
     } catch (const std::exception& e) {
         std::fprintf(stderr, "ERROR: %s\n", e.what());
         return 1;
@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
     std::printf("Validation: %s\n\n", valid ? "PASSED" : "FAILED");
 
     std::printf("--- Benchmark ---\n");
-    RbfBenchResult r = rbf_benchmark(t, nseg, n_fine, n_reps);
-    rbf_benchmark_print(r);
+    MlsBenchResult r = mls_benchmark(t, nseg, n_fine, n_reps);
+    mls_benchmark_print(r);
 
     return valid ? 0 : 1;
 }

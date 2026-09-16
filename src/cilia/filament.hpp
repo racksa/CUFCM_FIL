@@ -17,8 +17,8 @@
 #include "matrix.hpp"
 #include "../../config.hpp"
 
-#if defined(RBF_2D_PRECOMPUTED) && RBF_2D_PRECOMPUTED
-  #include "filament_rbf.hpp"
+#if defined(MLS_PRECOMPUTED) && MLS_PRECOMPUTED
+  #include "filament_mls.hpp"
 #endif
 
 matrix body_frame_moment_lie_derivative(const quaternion& q1, const quaternion& q2, const bool upper);
@@ -129,8 +129,8 @@ public:
       matrix Bx;
       matrix By;
 
-      #if RBF_2D_PRECOMPUTED
-        ThetaTable theta_table;
+      #if MLS_PRECOMPUTED
+        MlsTable mls_table;
       #endif
 
       #if (FIT_TO_DATA_BEAT && !WRITE_GENERALISED_FORCES)

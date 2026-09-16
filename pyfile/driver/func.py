@@ -332,9 +332,9 @@ PRESETS = {
 
     'bicilia_ishikawa': {
         'category':   'volvox/',
-        'date':       '20260319_dp_sweep',
-        'exe_name':   'cilia_1e-4_bicilia_ishikawa2',
-        'sweep_shape': (10, 4, 1, 1),
+        'date':       '20260914_dp_sweep',
+        'exe_name':   'cilia_1e-4_bicilia',
+        'sweep_shape': (6, 4, 1, 1),
         'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
         'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
         'params': {
@@ -565,10 +565,10 @@ PRESETS = {
     },
 
     'pair_freq_sweep': {
-        'category':   'pair/',
-        'date':       '20260909_pair_freq',
+        'category':   'volvox/pair/',
+        'date':       '20260915_pair_freq',
         'exe_name':   'cilia_1e-4_pair',
-        'sweep_shape': (20, 1, 1, 1),
+        'sweep_shape': (4, 20, 1, 1),
         'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
         'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
         'params': {
@@ -576,9 +576,9 @@ PRESETS = {
             'nblob':        1,
             'nseg':         20,
             'ar':           15.0,
-            'spring_factor': 0.1,
+            'spring_factor': lambda i,j,k,l: round(0.1 *(i+1), 3),
             'period':       1,
-            'sim_length':   300,
+            'sim_length':   100,
             'nx':           400, 'ny': 400, 'nz': 400,
             'boxsize':      8000,
             'fil_spacing':  80.0,
@@ -594,8 +594,8 @@ PRESETS = {
             'seg_sep':      2.6,
             'wavnum':       0.0,
             'wavnum_dia':   0.0,
-            'pair_dp':      lambda i,j,k,l: round(1 - 0.05 * i, 3),
-            'fene_model':   1,
+            'pair_dp':      lambda i,j,k,l: round(1 - 0.05 * j, 3),
+            'fene_model':   0,
             'force_noise_mag': 0.0,
             'phase_noise_mag': 0.0,
             'omega_spread': 0.0,
@@ -603,9 +603,9 @@ PRESETS = {
         },
     },
 
-    'rbf2_calibration': {
+    'mls_calibration': {
         'category':   'volvox/',
-        'date':       '20260914_rbf2_calib',
+        'date':       '20260914_mls_calib',
         'exe_name':   'cilia_1e-4_pair_calib',
         'sweep_shape': (1, 1, 1, 1),
         'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
@@ -634,6 +634,45 @@ PRESETS = {
             'wavnum':       0.0,
             'wavnum_dia':   0.0,
             'pair_dp':      1.0,
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+        },
+    },
+
+    'bicilia_calibration': {
+        'category':   'bicilia/',
+        'date':       '20260914_bicilia_calib',
+        'exe_name':   'cilia_1e-4_pair_calib',
+        'sweep_shape': (6, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         1,
+            'nblob':        0,
+            'nseg':         40,
+            'ar':           15.0,
+            'spring_factor': 0.1,
+            'period':       1,
+            'sim_length':   5,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    1,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: round(0.1 * i, 1),  # 0.0, 0.1, ..., 0.5
             'fene_model':   1,
             'force_noise_mag': 0.0,
             'phase_noise_mag': 0.0,
@@ -685,7 +724,10 @@ PRESETS = {
 
 }
 
-ACTIVE_PRESET = 'rbf2_calibration'
+ACTIVE_PRESET = 'bicilia_ishikawa'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'bicilia_calibration'  # Default preset; can be changed to any key in PRESETS
+ACTIVE_PRESET = 'pair_freq_sweep'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'mls_calibration'  # Default preset; can be changed to any key in PRESETS
 
 # ---------------------------------------------------------------------------
 

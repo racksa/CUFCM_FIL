@@ -35,10 +35,10 @@ CILIA_CUDA = cilia_sim_main.cu seeding.cu cuda_functions.cu globals.cu util.cu $
 FLOW_FIELD_CPP = flow_field_main.cpp matrix.cpp quaternion.cpp
 FLOW_FIELD_CUDA = flow_field_evaluator.cu
 
-rbf_bench: src/cilia/filament_rbf_bench_main.cpp src/cilia/filament_rbf.hpp
-	g++ -O2 -std=c++14 -DRBF_BENCHMARK_ENABLED \
+mls_bench: src/cilia/filament_mls_bench_main.cpp src/cilia/filament_mls.hpp
+	g++ -O2 -std=c++14 -DMLS_BENCHMARK_ENABLED \
 	    -I. -Isrc/general -Isrc/flow_field -Isrc/cilia -Isrc/cilia/mobility \
-	    src/cilia/filament_rbf_bench_main.cpp -o bin/rbf_bench
+	    src/cilia/filament_mls_bench_main.cpp -o bin/mls_bench
 
 cilia_clean:
 	-rm cilia
@@ -130,10 +130,10 @@ cilia_nvidia4_CUFCM_pair_calib: $(CILIA_CPP) $(CILIA_CUDA)
 # One-time build: cd ~ && git clone --depth 1 https://github.com/OpenMathLib/OpenBLAS && cd OpenBLAS && make -j$(nproc) NO_FORTRAN=1 && make PREFIX=$$HOME/local install
 LOCAL_PREFIX = $(HOME)/local
 LOCAL_LINK = -lcufft -lcurand -L$(LOCAL_PREFIX)/lib -lopenblas -Xlinker -rpath,$(LOCAL_PREFIX)/lib -lineinfo
-cilia_cluster: $(CILIA_CPP) $(CILIA_CUDA)
+cilia_jeter: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pair
 	
-cilia_cluster_calib: $(CILIA_CPP) $(CILIA_CUDA)
+cilia_jeter_calib: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -DWRITE_GENERALISED_FORCES=true -o bin/cilia_1e-4_pair_calib
 
 cilia_ic_hpc_CUFCM: $(CILIA_CPP) $(CILIA_CUDA)

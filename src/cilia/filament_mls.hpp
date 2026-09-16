@@ -1,7 +1,7 @@
 #pragma once
-// RBF 2D precomputed theta-table lookup and shape reconstruction.
+// MLS precomputed table lookup and shape reconstruction.
 // Header-only, CPU-only, C++11-compatible.
-// Compile benchmark driver with -DRBF_BENCHMARK_ENABLED.
+// Compile benchmark driver with -DMLS_BENCHMARK_ENABLED.
 
 #include <algorithm>
 #include <cmath>
@@ -12,15 +12,15 @@
 #include <string>
 #include <vector>
 
-#ifndef RBF_N_FINE
-#define RBF_N_FINE 500
+#ifndef MLS_N_FINE
+#define MLS_N_FINE 500
 #endif
 
-#ifndef RBF_TABLE_PATH
-#define RBF_TABLE_PATH "input/theta_table.bin"
+#ifndef MLS_TABLE_PATH
+#define MLS_TABLE_PATH "input/mls_table.bin"
 #endif
 
-struct ThetaTable {
+struct MlsTable {
     int32_t n_s  = 0;
     int32_t n_psi = 0;
     std::vector<double> s_grid;           // [n_s]
@@ -28,10 +28,10 @@ struct ThetaTable {
     std::vector<double> theta_grid;       // [n_s * n_psi], row-major: [i*n_psi + j]
 };
 
-inline ThetaTable load_theta_table(const char* path) {
+inline MlsTable load_mls_table(const char* path) {
     FILE* f = std::fopen(path, "rb");
     if (!f)
-        throw std::runtime_error(std::string("load_theta_table: cannot open ") + path);
+        throw std::runtime_error(std::string("load_mls_table: cannot open ") + path);
 
     char magic[8];
     int32_t version, n_s, n_psi, reserved;
@@ -41,12 +41,12 @@ inline ThetaTable load_theta_table(const char* path) {
     std::fread(&n_psi,    4, 1, f);
     std::fread(&reserved, 4, 1, f);
 
-    if (std::memcmp(magic, "RBF2DPC\0", 8) != 0 || version != 1) {
+    if (std::memcmp(magic, "MLSPC\0\0\0", 8) != 0 || version != 1) {
         std::fclose(f);
-        throw std::runtime_error("load_theta_table: bad magic or version");
+        throw std::runtime_error("load_mls_table: bad magic or version");
     }
 
-    ThetaTable t;
+    MlsTable t;
     t.n_s = n_s; t.n_psi = n_psi;
     t.s_grid.resize(n_s);
     t.psi_grid_padded.resize(n_psi);
@@ -59,7 +59,7 @@ inline ThetaTable load_theta_table(const char* path) {
 }
 
 // O(log n) bilinear lookup of theta(s, psi).
-inline double theta_of_s(double s_query, double psi, const ThetaTable& t) {
+inline double theta_of_s(double s_query, double psi, const MlsTable& t) {
     const double TWO_PI = 6.283185307179586;
     double psi_w = std::fmod(psi, TWO_PI);
     if (psi_w < 0.0) psi_w += TWO_PI;
@@ -84,7 +84,7 @@ inline double theta_of_s(double s_query, double psi, const ThetaTable& t) {
 }
 
 // Exact bilinear-interpolated d(theta)/d(psi).
-inline double theta_dpsi_of_s(double s_query, double psi, const ThetaTable& t) {
+inline double theta_dpsi_of_s(double s_query, double psi, const MlsTable& t) {
     const double TWO_PI = 6.283185307179586;
     double psi_w = std::fmod(psi, TWO_PI);
     if (psi_w < 0.0) psi_w += TWO_PI;
@@ -111,7 +111,7 @@ inline double theta_dpsi_of_s(double s_query, double psi, const ThetaTable& t) {
 // Position reconstruction: x_out[q] = int_0^{s_query[q]} cos(theta) ds', etc.
 // Uses trapezoid rule on a fine grid of n_fine points up to max(s_query).
 inline void evaluate_shape(const double* s_query, int n_query, double psi,
-                            const ThetaTable& t, int n_fine,
+                            const MlsTable& t, int n_fine,
                             double* x_out, double* y_out) {
     double s_max = 1e-12;
     for (int k = 0; k < n_query; ++k)
@@ -144,7 +144,7 @@ inline void evaluate_shape(const double* s_query, int n_query, double psi,
 // Velocity direction: d(x,y)/d(psi).
 // Integrates (-sin(theta)*dtheta/dpsi, cos(theta)*dtheta/dpsi) over s.
 inline void evaluate_shape_vel_dir(const double* s_query, int n_query, double psi,
-                                    const ThetaTable& t, int n_fine,
+                                    const MlsTable& t, int n_fine,
                                     double* dx_out, double* dy_out) {
     double s_max = 1e-12;
     for (int k = 0; k < n_query; ++k)
@@ -180,13 +180,13 @@ inline void evaluate_shape_vel_dir(const double* s_query, int n_query, double ps
 }
 
 // =============================================================================
-// Benchmark (compiled only when -DRBF_BENCHMARK_ENABLED)
+// Benchmark (compiled only when -DMLS_BENCHMARK_ENABLED)
 // =============================================================================
-#ifdef RBF_BENCHMARK_ENABLED
+#ifdef MLS_BENCHMARK_ENABLED
 
 #include <chrono>
 
-struct RbfBenchResult {
+struct MlsBenchResult {
     double theta_lookup_ns;    // ns per theta_of_s call
     double evaluate_shape_us;  // us per evaluate_shape call (n_query = nseg)
     double evaluate_veldir_us; // us per evaluate_shape_vel_dir call
@@ -194,9 +194,9 @@ struct RbfBenchResult {
     int nseg, n_fine, n_reps;
 };
 
-inline RbfBenchResult rbf_benchmark(const ThetaTable& t,
+inline MlsBenchResult mls_benchmark(const MlsTable& t,
                                      int nseg   = 20,
-                                     int n_fine = RBF_N_FINE,
+                                     int n_fine = MLS_N_FINE,
                                      int n_reps = 1000) {
     using clock = std::chrono::high_resolution_clock;
     using ns_t  = std::chrono::nanoseconds;
@@ -204,7 +204,7 @@ inline RbfBenchResult rbf_benchmark(const ThetaTable& t,
     std::vector<double> sq(nseg), xo(nseg), yo(nseg), dxo(nseg), dyo(nseg);
     for (int n = 0; n < nseg; ++n) sq[n] = double(n) / double(nseg - 1);
 
-    RbfBenchResult r = {};
+    MlsBenchResult r = {};
     r.nseg = nseg; r.n_fine = n_fine; r.n_reps = n_reps;
 
     // theta_of_s: 100 * n_reps calls
@@ -265,8 +265,8 @@ inline RbfBenchResult rbf_benchmark(const ThetaTable& t,
     return r;
 }
 
-inline void rbf_benchmark_print(const RbfBenchResult& r) {
-    std::printf("=== RBF 2D precomputed benchmark ===\n");
+inline void mls_benchmark_print(const MlsBenchResult& r) {
+    std::printf("=== MLS precomputed benchmark ===\n");
     std::printf("  nseg=%d  n_fine=%d  n_reps=%d\n", r.nseg, r.n_fine, r.n_reps);
     std::printf("  theta_of_s:            %6.1f ns/call\n",  r.theta_lookup_ns);
     std::printf("  evaluate_shape:        %6.1f us/call  (%4.1f ns/seg)\n",
@@ -276,4 +276,4 @@ inline void rbf_benchmark_print(const RbfBenchResult& r) {
     std::printf("  full update:           %6.1f us/call\n",  r.full_update_us);
 }
 
-#endif // RBF_BENCHMARK_ENABLED
+#endif // MLS_BENCHMARK_ENABLED

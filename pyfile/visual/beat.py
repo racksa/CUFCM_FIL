@@ -76,18 +76,18 @@ def volvox_cilia_shape(s, phase):
 
 
 # ---------------------------------------------------------------------------
-# RBF 2D precomputed beat (SHAPE_SEQUENCE=8, theta_table.bin)
+# MLS precomputed beat (SHAPE_SEQUENCE=8, mls_table.bin)
 # ---------------------------------------------------------------------------
 
 _rbf_theta_cache = {}  # path → (s_grid, psi_grid_padded, theta_grid)
 
-def load_rbf_theta_table(path="input/theta_table.bin"):
-    """Load theta_table.bin once; subsequent calls with the same path return the cached result."""
+def load_rbf_theta_table(path="input/mls_table.bin"):
+    """Load mls_table.bin once; subsequent calls with the same path return the cached result."""
     if path in _rbf_theta_cache:
         return _rbf_theta_cache[path]
     with open(path, 'rb') as f:
         magic = f.read(8)
-        assert magic == b'RBF2DPC\x00', f"Bad magic bytes in {path}: {magic!r}"
+        assert magic == b'MLSPC\x00\x00\x00', f"Bad magic bytes in {path}: {magic!r}"
         version, n_s, n_psi, _reserved = struct.unpack('<4i', f.read(16))
         s_grid     = np.frombuffer(f.read(8 * n_s),          dtype=np.float64).copy()
         psi_grid   = np.frombuffer(f.read(8 * n_psi),        dtype=np.float64).copy()

@@ -343,7 +343,9 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
               fene_factor = theta;
             }
 
-            q_angle -= TORSIONAL_SPRING_MAGNITUDE_FACTOR*k_scaling*fene_factor;
+            // Spring applied implicitly in filament.cpp after the time step
+            // (operator splitting — unconditionally stable for any spring_factor).
+            // q_angle -= TORSIONAL_SPRING_MAGNITUDE_FACTOR*k_scaling*fene_factor;
             
           #endif
 

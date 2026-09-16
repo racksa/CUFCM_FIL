@@ -109,12 +109,10 @@ int main(int argc, char** argv){
 
 
   // Derive other global variables
-  #ifdef BICILIA
-    if (BICILIA || BICILIA_LONGT){
-      NSEG_PER_CILIA = NSEG/2;
-    }else{
-      NSEG_PER_CILIA = NSEG;
-    }
+  #if BICILIA_TOPOLOGY
+    NSEG_PER_CILIA = NSEG/2;
+  #else
+    NSEG_PER_CILIA = NSEG;
   #endif
 
   NPAIR = NFIL;

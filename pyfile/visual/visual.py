@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d
 import myIo
@@ -19,23 +21,42 @@ from matplotlib.ticker import ScalarFormatter
 import matplotlib.font_manager as fm
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-
-try:
-    # Path to the directory where fonts are stored
-    font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
-    # # Choose the TTF or OTF version of CMU Serif Regular
-    font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
-    # Load the font into Matplotlib's font manager
-    prop = fm.FontProperties(fname=font_path)
-    # Register each font file with Matplotlib's font manager
+font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+if os.path.isdir(font_dir):
     for font_file in os.listdir(font_dir):
         if font_file.endswith('.otf'):
             fm.fontManager.addfont(os.path.join(font_dir, font_file))
-    # Set the global font family to 'serif' and specify CMU Serif
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['font.serif'] = ['CMU Serif']
-    plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+    plt.rcParams['mathtext.fontset'] = 'cm'
+plt.rcParams.update({'font.size': 24})
+
+
+try:
+    font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+    if os.path.isdir(font_dir):
+        for font_file in os.listdir(font_dir):
+            if font_file.endswith('.otf'):
+                fm.fontManager.addfont(os.path.join(font_dir, font_file))
+        plt.rcParams['font.family'] = 'serif'
+        plt.rcParams['font.serif'] = ['CMU Serif']
+        plt.rcParams['mathtext.fontset'] = 'cm'
     plt.rcParams.update({'font.size': 24})
+    # # Path to the directory where fonts are stored
+    # font_dir = os.path.expanduser("~/.local/share/fonts/cmu/cm-unicode-0.7.0")
+    # # # Choose the TTF or OTF version of CMU Serif Regular
+    # font_path = os.path.join(font_dir, 'cmunrm.ttf')  # Or 'cmunrm.otf' if you prefer OTF
+    # # Load the font into Matplotlib's font manager
+    # prop = fm.FontProperties(fname=font_path)
+    # # Register each font file with Matplotlib's font manager
+    # for font_file in os.listdir(font_dir):
+    #     if font_file.endswith('.otf'):
+    #         fm.fontManager.addfont(os.path.join(font_dir, font_file))
+    # # Set the global font family to 'serif' and specify CMU Serif
+    # plt.rcParams['font.family'] = 'serif'
+    # plt.rcParams['font.serif'] = ['CMU Serif']
+    # plt.rcParams['mathtext.fontset'] = 'cm'  # Use 'cm' for Computer Modern
+    # plt.rcParams.update({'font.size': 24})
 except:    
     print("WARNING: CMU font not found. Using default font.")
 
@@ -46,166 +67,16 @@ class VISUAL:
         self.globals_name = 'globals.ini'
 
 
-        # self.date = '20240608'
-        # self.dir = f"data/IVP159/{self.date}/"
+        self.date = '20260914_bicilia_calib'
+        self.dir = f"data/bicilia/{self.date}/"
 
-        # self.date = '20240717_rpy_get_drag'
-        # self.dir = f"data/regular_wall_sim/{self.date}/"
+        self.date = '20260914_dp_sweep'
+        self.dir = f"data/volvox/{self.date}/"
 
-
-        self.date = '20240724_diaplectic'
-        self.date = '20240724_symplectic'
-        self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
-        # self.dir = f"data/tilt_test/makeup_pattern/{self.date}/"
-
-        # self.date = '20241028_test'
-        # self.dir = f"data/instability/{self.date}/"
-
-        # self.date = '20240710_free'
-        # self.dir = f"data/tilt_test/IVP/{self.date}/"
-
-
-        # self.date = '20240311_3'
-        # self.dir = f"data/ic_hpc_sim_rerun/{self.date}/"    
-
-        # self.date = '20240311_3'
-        # self.dir = f"data/for_paper/IVP_free/{self.date}/"
-
-        # self.date = '20240311_3'
-        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
-
-
-        # self.date = '20250728'
-        # self.dir = f"data/for_paper/roadmap/{self.date}/"
-
-        # self.date = '20250729'
-        # self.dir = f"data/for_paper/twofil/{self.date}/"
-
-        # self.date = '20250802'
-        # self.dir = f"data/for_paper/multifil/{self.date}/"
-
-        # self.date = 'combined_analysis'
-        # self.dir = f"data/giant_swimmer/{self.date}/"
-
-        # self.date = '20250828_dp_sweep'
-        # self.dir = f"data/volvox/{self.date}/"
-
-        # self.date = '20260902_oldbeat'
-        # self.dir = f"data/volvox/{self.date}/"
-
-        # self.date = '20260902_newbeat'
-        # self.dir = f"data/volvox/{self.date}/"
-
-        self.date = '20260909_pair_freq'
-        self.dir = f"data/pair/{self.date}/"
-
-        self.date = '20260910_pair_noise'
-        self.dir = f"data/pair/{self.date}/"
+        self.date = '20260915_pair_freq'
+        self.dir = f"data/volvox/pair/{self.date}/"
         
 
-        # self.date = '20240827_jfm2'
-        # # self.date = '20240731_pnas_L1'
-        # self.date = '20240802_pnas_L0.975'
-        # # self.date = '20240829_pnas_volvox_beat'
-        # # self.date = '20240822_ishikawa_resolution6'
-        # # self.date = '20240902_real_volvox'
-        # # self.date = '20240903_real_volvox_seg20'
-        # self.date = '20240802_pnas_L0.975'
-        # self.dir = f"data/ishikawa/{self.date}/"
-
-        # self.date = '20240906_volvox_symplectic_k=2.35'
-        # self.dir = f"data/volvox_legacy/volvox/{self.date}/"
-
-        # self.date = '20240912_bicilia_IVP'
-        # self.dir = f"data/volvox_bicilia/{self.date}/"
-
-        # self.date = '20240919_bicilia_dia'
-        # self.dir = f"data/volvox_bicilia/dp_sweep2/{self.date}/"
-
-        # self.date = '20241120_fixed'
-        # # self.date = '20241217_fixed_noise'
-        # self.dir = f"data/volvox_bicilia/individual_pair/{self.date}/"
-
-        # self.date = '20250125_fixed_correct'
-        # self.dir = f"data/fixed_swimmer_correct/{self.date}/"
-
-        # self.date = '20250214_1e-6_squirmer'
-        # self.dir = f"data/resolution/{self.date}/"
-
-        # self.date = '20250204_1e-4_ref'
-        # self.dir = f"data/regular_wall_sim/{self.date}/"
-
-        # # # self.date = '20250225_flowfield_sym'
-        # # # self.date = '20250311_flowfield_sym_free'
-        # # # self.date = '20250311_flowfield_dia_free'
-        # self.date = '20250522_flowfield_free'
-        # # # self.date = '20250915_flowfield_free'
-        # self.dir = f"data/for_paper/flowfield_example/{self.date}/"
-
-        # self.date = '20250516_force'
-        # self.date = '20250507'
-        # self.dir = f"data/for_paper/giant_swimmer_rerun/{self.date}/"
-        
-
-        # # self.date = '20240710_free'
-        # # self.dir = f"data/tilt_test/IVP/{self.date}/"
-
-
-        # self.date = '20240311_1'
-        # self.dir = f"data/ic_hpc_sim_free_with_force3/{self.date}/"
-        # self.dir = f"data/tempcheck/ic_hpc_sim_free_with_force3/{self.date}/"
-
-        # self.date = '20240724_symplectic'
-        # self.dir = f"data/tilt_test/makeup_pattern_with_force/{self.date}/"
-        # self.dir = f"data/tempcheck/makeup_pattern_with_force/{self.date}/"
-
-        
-        # # self.date = '20250228'
-        # self.date = '20250302'
-        # self.dir = f"data/for_paper/hydrodynamics_in_one_period/{self.date}/"
-
-
-        # self.date = '20250225_pizza_demo'
-        # self.dir = f"data/pizza_sim/{self.date}/"
-        
-
-        # self.date = '20240115_resolution'
-        # self.dir = f"data/resolution/{self.date}/"
-
-        # self.date = '20240822_sangani_boxsize2'
-        # self.dir = f"data/resolution/{self.date}/"
-
-        # self.date = '20250221_defect_example'
-        # self.dir = f"data/defect_example/{self.date}/"
-
-        # self.date = f'index1_alpha0.10495626822157433'
-        # self.dir = f"data/bisection/k0.020/section16/iteration3_1e-7/{self.date}/"
-        
-        # self.date = 'index6_alpha0.875'
-        # self.dir = f"data/ic_hpc_bisection/k0.005/iteration1/{self.date}/"
-
-
-        # self.date = '20260831_temp_forcing'
-        # self.dir = f"data/regular_wall_sim/{self.date}/"
-        
-
-        # self.date = '20250214_1e-6_squirmer'
-        # self.date = '20250214_1e-6_settling'
-        # self.dir = f"data/resolution/{self.date}/"
-
-        # self.date = '20260305_coherence'
-        # # self.date = '20260319_dp_sweep4'
-        # self.date = '20250828_dp_sweep'
-        # self.dir = f"data/volvox/{self.date}/"
-
-
-        # # self.date = '20260508_inves_k_1d'
-        # self.date = '20260519_inves_k_1d'
-        # # self.date = '20260521_inves_k_2d'
-        # self.dir = f"data/regular_wall_sim/{self.date}/"
-
-        # self.date = '20260504_highk'
-        # self.dir = f"data/for_paper/highk/{self.date}/"
 
         self.pars_list = {
                      "index": [],
@@ -261,7 +132,7 @@ class VISUAL:
         self.check_overlap = False
 
 
-        self.plot_end_frame_setting = 10000
+        self.plot_end_frame_setting = 3000
         self.frames_setting = 300000
 
         self.plot_end_frame = self.plot_end_frame_setting
@@ -2213,12 +2084,12 @@ class VISUAL:
         ax2.set_xlabel('')
         ax2.set_ylabel('')
         ax2.set_zlabel('')
-        ax2.w_xaxis.pane.set_visible(False)
-        ax2.w_yaxis.pane.set_visible(False)
-        ax2.w_zaxis.pane.set_visible(False)
-        ax2.w_xaxis.line.set_visible(False)
-        ax2.w_yaxis.line.set_visible(False)
-        ax2.w_zaxis.line.set_visible(False)
+        ax2.xaxis.pane.set_visible(False)
+        ax2.yaxis.pane.set_visible(False)
+        ax2.zaxis.pane.set_visible(False)
+        ax2.xaxis.line.set_visible(False)
+        ax2.yaxis.line.set_visible(False)
+        ax2.zaxis.line.set_visible(False)
 
         print(self.nfil, self.pars_list['fil_spacing'][self.index])
 
@@ -5533,11 +5404,15 @@ class VISUAL:
         # Shape model: 'lung' | 'volvox' | 'rbf'
         shape_type = 'rbf'
 
+        # Bi-cilia topology: each filament object contains two sub-filaments (nseg split in half)
+        bicilia = True
+        pair_dp = float(self.pair_dp)
+
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
         body_states_f = open(self.simName + '_body_states.dat', "r")
         fil_states_f = open(self.simName + '_true_states.dat', "r")
 
-        _rbf_table = load_rbf_theta_table("input/theta_table.bin") if shape_type == 'rbf' else None
+        _rbf_table = load_rbf_theta_table("input/mls_table.bin") if shape_type == 'rbf' else None
 
         global frame
         frame = 0
@@ -5612,38 +5487,16 @@ class VISUAL:
                     blob_pos = np.array(util.blob_point_from_data(body_states[7*swim : 7*swim+7], self.blob_references[3*blob:3*blob+3])) + shift
                                
                 for fil in range(self.nfil):
-                    fil_i = int(3*fil*self.nseg)
                     fil_base = body_pos + np.matmul(R, self.fil_references[3*fil : 3*fil+3])
-                    fil_data = np.zeros((self.nseg, 3))
-
-                    fil_color = cmap(fil_phases[fil]/(2*np.pi))
-                    alpha = 1
-
-                    s = np.linspace(0, 1, self.nseg)
                     Rfil = util.rot_mat(self.fil_q[4*fil : 4*fil+4])
                     Rtheta = np.array([
                         [np.cos(fil_angles[fil]), -np.sin(fil_angles[fil]), 0],
                         [np.sin(fil_angles[fil]),  np.cos(fil_angles[fil]), 0],
                         [0, 0, 1]
                     ])
-                    xs, ys, zs = cilia_shape_batch(s, fil_phases[fil], shape_type, _rbf_table)
-                    for seg in range(self.nseg):
-                        ref = self.fillength * R @ Rfil @ Rtheta @ np.array([xs[seg], ys[seg], zs[seg]])
-                        fil_data[seg] = fil_base + ref
-
                     centre = body_pos
-                    u = R @ np.array([0.0, 0.0, 1.0])  # body z-axis in lab frame
+                    u = R @ np.array([0.0, 0.0, 1.0])
                     c_a, s_a = np.cos(view_angle), np.sin(view_angle)
-
-                    # Rotate fil_data about body z-axis by view_angle (Rodrigues)
-                    if view_angle != 0.0:
-                        v = fil_data - centre
-                        fil_data = (centre +
-                                    v * c_a +
-                                    np.cross(u, v) * s_a +
-                                    u * (v @ u)[:, None] * (1 - c_a))
-
-                    # Rotate fil_base independently for visibility/zorder
                     v_base = fil_base - centre
                     fil_base_rot = (centre +
                                     v_base * c_a +
@@ -5651,12 +5504,39 @@ class VISUAL:
                                     u * (u @ v_base) * (1 - c_a))
                     base_rel = fil_base_rot - centre
 
-                    if view == 'side':
-                        ax.plot(fil_data[:,1] + shift[1], fil_data[:,2] + shift[2], c=fil_color,
-                                zorder=base_rel[0], alpha=alpha)
-                    if view == 'top':
-                        ax.plot(fil_data[:,1] + shift[0], -fil_data[:,0] + shift[1], c=fil_color,
-                                zorder=base_rel[2], alpha=alpha)
+                    if bicilia:
+                        nseg_per_cilia = self.nseg // 2
+                        sub_phases = [fil_phases[fil],
+                                      fil_phases[fil] + pair_dp * 2.0 * np.pi]
+                        alphas = [1.0, 0.6]
+                    else:
+                        nseg_per_cilia = self.nseg
+                        sub_phases = [fil_phases[fil]]
+                        alphas = [1.0]
+
+                    pair_color = cmap(fil_phases[fil] % (2.0 * np.pi) / (2.0 * np.pi))
+                    for sc, (sc_phase, alpha) in enumerate(zip(sub_phases, alphas)):
+                        s = np.linspace(0, 1, nseg_per_cilia)
+                        fil_color = pair_color
+                        xs, ys, zs = cilia_shape_batch(s, sc_phase, shape_type, _rbf_table)
+                        fil_data = np.zeros((nseg_per_cilia, 3))
+                        for seg in range(nseg_per_cilia):
+                            ref = self.fillength * R @ Rfil @ Rtheta @ np.array([xs[seg], ys[seg], zs[seg]])
+                            fil_data[seg] = fil_base + ref
+
+                        if view_angle != 0.0:
+                            v = fil_data - centre
+                            fil_data = (centre +
+                                        v * c_a +
+                                        np.cross(u, v) * s_a +
+                                        u * (v @ u)[:, None] * (1 - c_a))
+
+                        if view == 'side':
+                            ax.plot(fil_data[:,1] + shift[1], fil_data[:,2] + shift[2],
+                                    c=fil_color, zorder=base_rel[0], alpha=alpha)
+                        if view == 'top':
+                            ax.plot(fil_data[:,1] + shift[0], -fil_data[:,0] + shift[1],
+                                    c=fil_color, zorder=base_rel[2], alpha=alpha)
             Lx = self.boxsize
             Ly = Lx/self.nx*self.ny
             Lz = Lx/self.nx*self.nz
@@ -5669,18 +5549,21 @@ class VISUAL:
             if view=='side':
                 sidex = Lx
                 sidey = Lz
-            focus = 0.7
+            # Zoom to body + cilia extent rather than a fraction of boxsize
+            margin = 10 * self.fillength
+            cx = 0.5 * sidex
+            cy = 0.5 * sidey
+            ax.set_xlim(cx - margin, cx + margin)
+            ax.set_ylim(cy - margin, cy + margin)
 
-            nx_tick = round((focus - 0.5) * sidex / self.radius)
-            ny_tick = round((focus - 0.5) * sidey / self.radius)
-            x_ticks = [0.5*sidex - nx_tick*self.radius, 0.5*sidex, 0.5*sidex + nx_tick*self.radius]
-            y_ticks = [0.5*sidey - ny_tick*self.radius, 0.5*sidey, 0.5*sidey + ny_tick*self.radius]
+            tick_step = self.fillength  # one filament-length per tick
+            n_tick = 1
+            x_ticks = [cx - n_tick*tick_step, cx, cx + n_tick*tick_step]
+            y_ticks = [cy - n_tick*tick_step, cy, cy + n_tick*tick_step]
             ax.set_xticks(x_ticks)
             ax.set_yticks(y_ticks)
-            ax.set_xticklabels([rf'${-nx_tick}R$', r'$0$', rf'${nx_tick}R$'])
-            ax.set_yticklabels([rf'${-ny_tick}R$', r'$0$', rf'${ny_tick}R$'])
-            ax.set_xlim((sidex*(1-focus), Ly*focus))
-            ax.set_ylim((sidey*(1-focus), Lz*focus))
+            ax.set_xticklabels([r'$-L$', r'$0$', r'$L$'])
+            ax.set_yticklabels([r'$-L$', r'$0$', r'$L$'])
 
             frame += 1
 
@@ -6274,14 +6157,14 @@ class VISUAL:
         ax2.set_ylabel('')
         ax2.set_zlabel('')
         # Remove the axis panes (the background faces)
-        ax2.w_xaxis.pane.set_visible(False)
-        ax2.w_yaxis.pane.set_visible(False)
-        ax2.w_zaxis.pane.set_visible(False)
+        ax2.xaxis.pane.set_visible(False)
+        ax2.yaxis.pane.set_visible(False)
+        ax2.zaxis.pane.set_visible(False)
 
         # Remove the axis lines (the 3D box edges)
-        ax2.w_xaxis.line.set_visible(False)
-        ax2.w_yaxis.line.set_visible(False)
-        ax2.w_zaxis.line.set_visible(False)
+        ax2.xaxis.line.set_visible(False)
+        ax2.yaxis.line.set_visible(False)
+        ax2.zaxis.line.set_visible(False)
 
         
 
@@ -6462,12 +6345,12 @@ class VISUAL:
         ax2.set_xlabel('')
         ax2.set_ylabel('')
         ax2.set_zlabel('')
-        ax2.w_xaxis.pane.set_visible(False)
-        ax2.w_yaxis.pane.set_visible(False)
-        ax2.w_zaxis.pane.set_visible(False)
-        ax2.w_xaxis.line.set_visible(False)
-        ax2.w_yaxis.line.set_visible(False)
-        ax2.w_zaxis.line.set_visible(False)
+        ax2.xaxis.pane.set_visible(False)
+        ax2.yaxis.pane.set_visible(False)
+        ax2.zaxis.pane.set_visible(False)
+        ax2.xaxis.line.set_visible(False)
+        ax2.yaxis.line.set_visible(False)
+        ax2.zaxis.line.set_visible(False)
 
         print(self.nfil, self.pars_list['fil_spacing'][self.index])
 
@@ -7964,6 +7847,28 @@ class VISUAL:
                     return key, label, vals
         return 'index', 'simulation index', np.arange(self.num_sim, dtype=float)
 
+    def _detect_curve_param(self, x_key):
+        """Return (key, label, values) for a second varying parameter to use as curve grouping.
+
+        Looks for a parameter that varies AND is different from x_key.
+        Returns None if no second varying parameter is found.
+        """
+        candidates = [
+            ('spring_factor',   r'$k$'),
+            ('pair_dp',         r'$p$'),
+            ('phase_noise_mag', r'$\sigma_\psi$'),
+            ('force_noise_mag', r'$\sigma_f$'),
+            ('omega_spread',    r'$\Omega$'),
+        ]
+        for key, label in candidates:
+            if key == x_key:
+                continue
+            if key in self.pars_list:
+                vals = np.array(self.pars_list[key], dtype=float)
+                if vals.max() - vals.min() > 1e-10:
+                    return key, label, vals
+        return None
+
     def _pair_slip_data(self, ind):
         """Read _true_states for sim `ind` and return per-timestep arrays.
 
@@ -8014,12 +7919,17 @@ class VISUAL:
         Automatically detects the swept parameter (pair_dp, force_noise_mag,
         omega_spread, or spring_factor) and uses it as the x-axis.
 
+        If a second varying parameter is found (e.g. spring_factor when x is
+        pair_dp), each unique value of that parameter becomes a separate curve
+        on the slip-rate plot.
+
         Produces three figures:
           fig1 — group-mean phase difference vs t/T (one coloured line per sim)
-          fig2 — slip rate vs swept parameter
+          fig2 — slip rate vs x-axis parameter (one curve per curve-group value)
           fig3 — mean psi2 (shape rotation angle) vs t/T (if DYNAMIC_SHAPE_ROTATION)
         """
         swept_key, swept_label, swept_vals = self._detect_swept_param()
+        curve_info = self._detect_curve_param(swept_key)
 
         slip_rate_array = np.full(self.num_sim, np.nan)
         cmap   = plt.get_cmap('viridis')
@@ -8052,8 +7962,23 @@ class VISUAL:
         ax1.set_xlim(0, t_end)
         ax1.grid(True, alpha=0.3)
 
-        mask = ~np.isnan(slip_rate_array)
-        ax2.plot(swept_vals[mask], slip_rate_array[mask], 'ko-', markerfacecolor='k')
+        # fig2: slip rate — one curve per elasticity value if a second dimension exists
+        if curve_info is not None:
+            curve_key, curve_label, curve_vals = curve_info
+            unique_curves = np.unique(curve_vals)
+            curve_cmap  = plt.get_cmap('plasma')
+            curve_colors = [curve_cmap(ci / max(len(unique_curves) - 1, 1))
+                            for ci in range(len(unique_curves))]
+            for ci, c_val in enumerate(unique_curves):
+                mask = (~np.isnan(slip_rate_array)) & (np.abs(curve_vals - c_val) < 1e-10)
+                ax2.plot(swept_vals[mask], slip_rate_array[mask],
+                         'o-', color=curve_colors[ci],
+                         label=f'{curve_label}={c_val:.3g}')
+            ax2.legend(fontsize=9, frameon=False)
+        else:
+            mask = ~np.isnan(slip_rate_array)
+            ax2.plot(swept_vals[mask], slip_rate_array[mask], 'ko-', markerfacecolor='k')
+
         ax2.axhline(0, color='k', linewidth=0.8, linestyle='--')
         ax2.set_xlabel(swept_label)
         ax2.set_ylabel(r'phase slip rate  $[\Delta\psi_1 / T]$')

@@ -102,7 +102,11 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 #define PAIR 1
 // Sub-type for prescribed cilia motion.
 // Enables filaments seeded as pairs with different frequencies per filament.
-// Use 0 for bicilia.
+
+#define BICILIA_TOPOLOGY 0
+// Set to 1 to model two sub-filaments per filament object (bi-cilia geometry).
+// Mutually exclusive with PAIR — use PAIR for hydrodynamically-coupled filament pairs.
+// Beat shape is selected independently via SHAPE_SEQUENCE.
 
 #if CILIA_TYPE==0
 
@@ -115,23 +119,22 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif CILIA_TYPE==3
 
-  #define SHAPE_SEQUENCE 1
+  #define SHAPE_SEQUENCE 8
   // Valid options:
   // 0 = 'Build-a-beat'.
   // 1 = Fulford and Blake beat (mammalian airway cilia).
   // 2 = Coral larvae beat pattern.
   // 3 = Volvox beat.
   // 4 = Original Fulford and Blake beat, <L>=0.975.
-  // 5 = Bi-cilia, fixed phase difference.
-  // 6 = Bi-cilia long T, variable phase difference.
   // 7 = Fulford and Blake beat with no-wall generalised force.
-  // 8 = RBF 2D precomputed beat (theta_table.bin, see RBF_2D_PRECOMPUTED_SPEC.md).
+  // 8 = MLS precomputed beat (mls_table.bin, see MLS_PRECOMPUTED_SPEC.md).
+  // Note: to use bi-cilia geometry with any of the above, set BICILIA_TOPOLOGY=1.
 
-  #define DYNAMIC_PHASE_EVOLUTION false
+  #define DYNAMIC_PHASE_EVOLUTION true
   // If true, cilia phase speeds are solved for as part of the dynamics.
   // Requires a prior reference simulation with WRITE_GENERALISED_FORCES=true.
 
-  #define DYNAMIC_SHAPE_ROTATION false
+  #define DYNAMIC_SHAPE_ROTATION true
   // If true, cilia can tip backwards or forwards in their beat planes.
 
   #ifndef WRITE_GENERALISED_FORCES
@@ -187,7 +190,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 7
+  #define SEEDING_TYPE 5
   // Valid options:
   // 0 = Evenly distributed over surface.
   // 1 = Equatorial band.
@@ -227,7 +230,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // 5 = Pairwise FCM.
 
 // --- Body motion ---------------------------------------------------------
-#define BODY_VELOCITY_TYPE 0
+#define BODY_VELOCITY_TYPE 1
 // 0 = Free to swim.
 // 1 = Prescribed velocities.
 // 2 = Prescribed rotation only.
@@ -331,7 +334,7 @@ extern Real REV_RATIO;
 #endif
 
 #define MAX_LINEAR_SYSTEM_ITER 350
-#define LINEAR_SYSTEM_TOL      1e-3
+#define LINEAR_SYSTEM_TOL      1e-4
 
 #define NUM_EULER_STEPS 1 // Number of backwards-Euler steps before switching to BDF2.
 
@@ -404,10 +407,12 @@ extern Real REV_RATIO;
   #define CORAL_LARVAE_BEAT               (SHAPE_SEQUENCE==2)
   #define VOLVOX_BEAT                     (SHAPE_SEQUENCE==3)
   #define FULFORD_AND_BLAKE_BEAT_ORIGINAL (SHAPE_SEQUENCE==4)
-  #define BICILIA                         (SHAPE_SEQUENCE==5) // deprecated - use PAIR instead
-  #define BICILIA_LONGT                   (SHAPE_SEQUENCE==6) // deprecated - use PAIR instead
   #define FULFORD_AND_BLAKE_BEAT_NO_WALL  (SHAPE_SEQUENCE==7)
-  #define RBF_2D_PRECOMPUTED              (SHAPE_SEQUENCE==8)
+  #define MLS_PRECOMPUTED              (SHAPE_SEQUENCE==8)
+
+  #if BICILIA_TOPOLOGY && PAIR
+    #error "BICILIA_TOPOLOGY and PAIR are mutually exclusive — both model two nearby cilia, at different abstraction levels."
+  #endif
 #endif
 
 #define PI 3.14159265358979323846264338327950288
@@ -456,6 +461,8 @@ extern Real REV_RATIO;
     #if !RPY_MOBILITY
       #error "Calibration (WRITE_GENERALISED_FORCES=true) requires MOBILITY_TYPE=1 (RPY with wall corrections)."
     #endif
+    #undef  PAIR
+    #define PAIR 0
     #undef  PRESCRIBED_BODY_VELOCITIES
     #define PRESCRIBED_BODY_VELOCITIES true
     #undef  DYNAMIC_PHASE_EVOLUTION
