@@ -1326,32 +1326,6 @@ void filament::initial_guess(const int nt, const Real *const x_in, const Real *c
 
         shape_rotation_angle += shape_rotation_angle_dot*DT;
 
-        // Implicit backward-Euler step for the torsional spring:
-        //   θ^{n+1} = θ^{n+1/2} / (1 + k_eff*Δt)
-        // This is unconditionally stable for any spring_factor, replacing the
-        // explicit q_angle contribution that was removed from mobility_solver.cpp.
-        #if DYNAMIC_SHAPE_ROTATION
-        {
-          const Real k_eff = TORSIONAL_SPRING_MAGNITUDE_FACTOR
-                             * omega0 * FIL_LENGTH * FIL_LENGTH * FIL_LENGTH;
-          #if FENE_MODEL
-            // Newton iteration for FENE implicit step (usually converges in 2-3 iters)
-            Real th = shape_rotation_angle;
-            constexpr Real theta_max = 0.78;
-            for (int it = 0; it < 6; ++it){
-              const Real f  = th / (1.0 - (th*th)/(theta_max*theta_max));
-              const Real df = (1.0 + (th*th)/(theta_max*theta_max))
-                              / ((1.0 - (th*th)/(theta_max*theta_max))
-                                 * (1.0 - (th*th)/(theta_max*theta_max)));
-              const Real res = th + k_eff*DT*f - shape_rotation_angle;
-              th -= res / (1.0 + k_eff*DT*df);
-            }
-            shape_rotation_angle = th;
-          #else
-            shape_rotation_angle /= (1.0 + k_eff * DT);
-          #endif
-        }
-        #endif
 
       #endif
 

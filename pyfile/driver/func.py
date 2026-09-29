@@ -566,9 +566,9 @@ PRESETS = {
 
     'pair_freq_sweep': {
         'category':   'volvox/pair/',
-        'date':       '20260915_pair_freq',
+        'date':       '20260925_pair_freq',
         'exe_name':   'cilia_1e-4_pair',
-        'sweep_shape': (4, 20, 1, 1),
+        'sweep_shape': (10, 40, 1, 1),
         'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
         'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
         'params': {
@@ -576,7 +576,7 @@ PRESETS = {
             'nblob':        1,
             'nseg':         20,
             'ar':           15.0,
-            'spring_factor': lambda i,j,k,l: round(0.1 *(i+1), 3),
+            'spring_factor': lambda i,j,k,l: round(10 ** (-2 + i/3), 3),
             'period':       1,
             'sim_length':   100,
             'nx':           400, 'ny': 400, 'nz': 400,
@@ -594,8 +594,8 @@ PRESETS = {
             'seg_sep':      2.6,
             'wavnum':       0.0,
             'wavnum_dia':   0.0,
-            'pair_dp':      lambda i,j,k,l: round(1 - 0.05 * j, 3),
-            'fene_model':   0,
+            'pair_dp':      lambda i,j,k,l: round(1 - 0.02 * j, 3),
+            'fene_model':   1,
             'force_noise_mag': 0.0,
             'phase_noise_mag': 0.0,
             'omega_spread': 0.0,
@@ -724,7 +724,7 @@ PRESETS = {
 
 }
 
-ACTIVE_PRESET = 'bicilia_ishikawa'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'bicilia_ishikawa'  # Default preset; can be changed to any key in PRESETS
 # ACTIVE_PRESET = 'bicilia_calibration'  # Default preset; can be changed to any key in PRESETS
 ACTIVE_PRESET = 'pair_freq_sweep'  # Default preset; can be changed to any key in PRESETS
 # ACTIVE_PRESET = 'mls_calibration'  # Default preset; can be changed to any key in PRESETS

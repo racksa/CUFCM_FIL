@@ -207,8 +207,8 @@ void swimmer::initial_setup(const int id, const Real *const data_from_file, Real
 
               const int fil_id = base_id + half*NPAIR;
 
-              // Second member of the pair is offset by one seg-sep in x.
-              filament_references[3*fil_id]     = base_x + half * SEG_SEP * RSEG;
+              // Second member of the pair is offset by 5 blob radii in x.
+              filament_references[3*fil_id]     = base_x + half * 5.0 * RSEG;
               filament_references[3*fil_id + 1] = base_y;
               filament_references[3*fil_id + 2] = BASE_HEIGHT_ABOVE_SURFACE;
 

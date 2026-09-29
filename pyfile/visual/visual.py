@@ -73,7 +73,7 @@ class VISUAL:
         self.date = '20260914_dp_sweep'
         self.dir = f"data/volvox/{self.date}/"
 
-        self.date = '20260915_pair_freq'
+        self.date = '20260925_pair_freq'
         self.dir = f"data/volvox/pair/{self.date}/"
         
 
@@ -6175,25 +6175,29 @@ class VISUAL:
         fil_states_f = open(self.simName + '_true_states.dat', "r")
         seg_states_f = open(self.simName + '_seg_states.dat', "r")
 
-        time_array = np.arange(self.plot_start_frame, self.plot_end_frame )/self.period
-        phase1_array = np.zeros(self.frames)
-        phase2_array = np.zeros(self.frames)
+        time_array       = np.arange(self.plot_start_frame, self.plot_end_frame) / self.period
+        beat_phase_A     = np.zeros(self.frames)
+        beat_phase_B     = np.zeros(self.frames)
+        rot_angle_A      = np.zeros(self.frames)
+        rot_angle_B      = np.zeros(self.frames)
         phase_diff_array = np.zeros(self.frames)
-
 
         for i in range(self.plot_end_frame):
             print(" frame ", i, "/", self.plot_end_frame, "          ", end="\r")
             fil_states_str = fil_states_f.readline()
             seg_states_str = seg_states_f.readline()
 
-            if(i>=self.plot_start_frame):
+            if i >= self.plot_start_frame:
                 fil_states = np.array(fil_states_str.split()[2:], dtype=float)
                 seg_states = np.array(seg_states_str.split()[1:], dtype=float)
                 fil_phases = fil_states[:self.nfil]
                 fil_angles = fil_states[self.nfil:]
-                phase1_array[i-self.plot_start_frame] = fil_angles[0]
-                phase2_array[i-self.plot_start_frame] = fil_angles[1]
-                phase_diff_array[i-self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[0] - fil_phases[1])))
+                beat_phase_A[i - self.plot_start_frame] = fil_phases[0]
+                beat_phase_B[i - self.plot_start_frame] = fil_phases[1]
+                if len(fil_angles) >= 2:
+                    rot_angle_A[i - self.plot_start_frame] = fil_angles[0]
+                    rot_angle_B[i - self.plot_start_frame] = fil_angles[1]
+                phase_diff_array[i - self.plot_start_frame] = np.angle(np.exp(1j * (fil_phases[0] - fil_phases[1])))
                 # phase_diff_array[i-self.plot_start_frame] = (fil_phases[0] - fil_phases[1])
 
                 if (i==self.plot_end_frame-1):
@@ -6203,8 +6207,7 @@ class VISUAL:
                             fil_data = np.zeros((self.nseg, 3))
                             fil_i = int(3*fil*self.nseg)
 
-                            fil_color = cmap(fil_phases[fil]/(2*np.pi))
-                            fil_color = 'black'
+                            fil_color = cmap(fil_phases[fil] / (2*np.pi))
 
                             for seg in range(self.nseg):
                                 seg_pos = seg_states[fil_i+3*(seg) : fil_i+3*(seg+1)]
@@ -6266,20 +6269,32 @@ class VISUAL:
                     ax2.quiver(*arrow_origin, 0, 0, arrow_length, color='black', linewidth=2)  # z-axis (blue)
 
 
-        ax.plot(time_array, phase_diff_array)
-        ax.set_xlabel('t/T')
-        ax.set_ylabel(rf'$\Delta$')
+        # fig: wrapped phase difference
+        ax.plot(time_array, phase_diff_array / (2*np.pi))
+        ax.set_xlabel(r'$t/T$')
+        ax.set_ylabel(r'$(\psi_1^{(A)} - \psi_1^{(B)})\;/\;2\pi$')
         ax.set_xlim(time_array[0], time_array[-1])
-        # ax.set_ylim(0)
         ax.grid()
 
-        ax3.plot(time_array, phase1_array)
-        ax3.plot(time_array, phase2_array)
+        # fig3: beat phases ψ₁
+        ax3.plot(time_array, beat_phase_A / (2*np.pi), label=r'$\psi_1^{(A)}$')
+        ax3.plot(time_array, beat_phase_B / (2*np.pi), label=r'$\psi_1^{(B)}$')
         ax3.set_xlabel(r'$t/T$')
-        ax3.set_ylabel(r'$\psi_1$')
+        ax3.set_ylabel(r'$\psi_1\;/\;2\pi$')
         ax3.set_xlim(time_array[0], time_array[-1])
-        # ax3.set_ylim(0, 2*np.pi)
+        ax3.legend(frameon=False)
         ax3.grid()
+
+        # fig4: shape rotation angles ψ₂
+        fig4, ax4 = plt.subplots()
+        ax4.plot(time_array, rot_angle_A, label=r'$\psi_2^{(A)}$')
+        ax4.plot(time_array, rot_angle_B, label=r'$\psi_2^{(B)}$')
+        ax4.set_xlabel(r'$t/T$')
+        ax4.set_ylabel(r'$\psi_2$')
+        ax4.set_xlim(time_array[0], time_array[-1])
+        ax4.legend(frameon=False)
+        ax4.grid()
+        fig4.tight_layout()
 
         # ax2.set_xlabel('x')
         # ax2.set_ylabel('y')
@@ -7931,6 +7946,9 @@ class VISUAL:
         swept_key, swept_label, swept_vals = self._detect_swept_param()
         curve_info = self._detect_curve_param(swept_key)
 
+        # Last unique swept value in sweep order (e.g. smallest pair_dp).
+        last_swept_val = list(dict.fromkeys(swept_vals.tolist()))[-1]
+
         slip_rate_array = np.full(self.num_sim, np.nan)
         cmap   = plt.get_cmap('viridis')
         colors = [cmap(k / max(self.num_sim - 1, 1)) for k in range(self.num_sim)]
@@ -7941,6 +7959,8 @@ class VISUAL:
         time_array_last = None
 
         for ind in range(self.num_sim):
+            if swept_vals[ind] == last_swept_val:
+                continue
             data = self._pair_slip_data(ind)
             if data is None:
                 continue
@@ -7981,7 +8001,7 @@ class VISUAL:
 
         ax2.axhline(0, color='k', linewidth=0.8, linestyle='--')
         ax2.set_xlabel(swept_label)
-        ax2.set_ylabel(r'phase slip rate  $[\Delta\psi_1 / T]$')
+        ax2.set_ylabel(r'phase slip rate  $[\Delta\psi_1 / (2\pi T)]$')
         ax2.grid(True, alpha=0.3)
 
         ax3.set_xlabel(r'$t/T$')
@@ -7989,9 +8009,10 @@ class VISUAL:
         ax3.set_xlim(0, t_end)
         ax3.grid(True, alpha=0.3)
 
+        plotted_vals = swept_vals[swept_vals != last_swept_val]
         sm = plt.cm.ScalarMappable(cmap=cmap,
-                                   norm=plt.Normalize(vmin=swept_vals.min(),
-                                                      vmax=swept_vals.max()))
+                                   norm=plt.Normalize(vmin=plotted_vals.min(),
+                                                      vmax=plotted_vals.max()))
         sm.set_array([])
         fig1.colorbar(sm, ax=ax1, label=swept_label)
         fig3.colorbar(sm, ax=ax3, label=swept_label)
@@ -8907,6 +8928,230 @@ class VISUAL:
 
             fig.savefig(f'fig/multi_multifil_side_{self.date}.png',
                         bbox_inches='tight', format='png', transparent=True)
+            plt.show()
+
+    def multi_pair_side(self):
+        """Side-view (y-z plane) of a 2-D pair sweep.
+
+        Columns = spring_factor (all unique k values).
+        Rows    = pair_dp (all unique values, downsampled to ≤8).
+
+        Static: best-aligned frame (ψ₁ ≈ 0) per sim.
+        Video : all sims animated in sync (toggle self.video = True).
+        """
+        k_arr  = np.array(self.pars_list['spring_factor'], dtype=float)
+        dp_arr = np.array(self.pars_list['pair_dp'],        dtype=float)
+
+        unique_k  = sorted(np.unique(k_arr).tolist())
+        unique_dp = sorted(np.unique(dp_arr).tolist(), reverse=True)  # high→low dp
+
+        # Keep only the first 8 dp values (highest dp, i.e. nearest to synchrony).
+        max_rows = 8
+        if len(unique_dp) > max_rows:
+            unique_dp = unique_dp[:max_rows]
+
+        n_cols = len(unique_k)
+        n_rows = len(unique_dp)
+
+        # Map (k, dp) → flat sim index.
+        def find_sim(k_val, dp_val):
+            mask = (np.abs(k_arr - k_val) < 1e-9) & (np.abs(dp_arr - dp_val) < 1e-9)
+            idx  = np.where(mask)[0]
+            return int(idx[0]) if len(idx) > 0 else None
+
+        grid = [[find_sim(k_val, dp_val) for k_val in unique_k] for dp_val in unique_dp]
+
+        # ── collect per-sim metadata ──────────────────────────────────────────
+        sim_meta     = {}   # sim_index → dict (or None)
+        not_found    = []
+        for row_i, dp_val in enumerate(unique_dp):
+            for col_i, k_val in enumerate(unique_k):
+                sim = grid[row_i][col_i]
+                if sim is None:
+                    not_found.append((k_val, dp_val))
+                    continue
+                if sim in sim_meta:          # already loaded
+                    continue
+                self.index = sim
+                try:
+                    self.select_sim()
+                    # y-offset: both pair members share the same reference y.
+                    y_off = self.fil_references[1] / self.fillength
+                    sim_meta[sim] = {
+                        'fillength':        self.fillength,
+                        'nfil':             self.nfil,
+                        'nseg':             self.nseg,
+                        'period':           self.period,
+                        'simName':          self.simName,
+                        'plot_end_frame':   self.plot_end_frame,
+                        'plot_start_frame': self.plot_start_frame,
+                        'y_offset':         y_off,
+                        'fil_refs':         list(self.fil_references),
+                        'k_val':            k_val,
+                        'dp_val':           dp_val,
+                    }
+                except Exception as e:
+                    not_found.append((k_val, dp_val))
+                    print(f"WARNING: sim {sim} (k={k_val}, dp={dp_val}) not found — {e}")
+                    sim_meta[sim] = None
+
+        print(f"Not found: {not_found}")
+        valid_meta = [m for m in sim_meta.values() if m is not None]
+        if not valid_meta:
+            print("No valid simulations found.")
+            return
+
+        # Shared axis limits.
+        y_min, y_max = -0.7, 0.7   # in units of L; covers typical beat amplitude
+        z_min, z_max = 0.0, 1.1
+
+        # ── set up figure ─────────────────────────────────────────────────────
+        fig, axes = plt.subplots(
+            n_rows, n_cols, sharex=True, sharey=True,
+            figsize=(max(3, 2.8 * n_cols), max(3, 2.2 * n_rows))
+        )
+        # Guarantee 2-D axes array.
+        axes = np.atleast_2d(axes) if n_rows > 1 or n_cols > 1 else np.array([[axes]])
+        if n_rows == 1 and axes.shape[0] != 1:
+            axes = axes[np.newaxis, :]
+        if n_cols == 1 and axes.shape[1] != 1:
+            axes = axes[:, np.newaxis]
+
+        # Column headers (k values) on top row.
+        for col_i, k_val in enumerate(unique_k):
+            axes[0, col_i].set_title(f'$k={k_val:.3g}$', fontsize=8)
+
+        # Row labels (dp values) on left column.
+        for row_i, dp_val in enumerate(unique_dp):
+            axes[row_i, 0].set_ylabel(f'$p={dp_val:.2f}$\n$z/L$', fontsize=8)
+
+        # Bottom x-labels only on last row.
+        for col_i in range(n_cols):
+            axes[-1, col_i].set_xlabel(r'$y/L$', fontsize=8)
+
+        fil_colors = ['black', 'steelblue']
+
+        def _draw_panel(ax, seg_states, m):
+            """Plot both filaments of the pair onto ax from a flat seg_states array."""
+            for fil in range(m['nfil']):
+                fil_i    = int(3 * fil * m['nseg'])
+                fil_data = np.zeros((m['nseg'], 3))
+                for seg in range(m['nseg']):
+                    fil_data[seg] = seg_states[fil_i + 3*seg : fil_i + 3*seg + 3]
+                ax.plot(
+                    fil_data[:, 1] / m['fillength'] - m['y_offset'],
+                    fil_data[:, 2] / m['fillength'],
+                    c=fil_colors[fil % len(fil_colors)], lw=1.2
+                )
+            ax.axhline(0, color='black', lw=1.0)
+            ax.set_xlim(y_min, y_max)
+            ax.set_ylim(z_min, z_max)
+            ax.set_aspect('equal')
+            ax.tick_params(labelsize=7)
+
+        # ── VIDEO mode ────────────────────────────────────────────────────────
+        if self.video:
+            file_handles = {}
+            for row_i, dp_val in enumerate(unique_dp):
+                for col_i, k_val in enumerate(unique_k):
+                    sim = grid[row_i][col_i]
+                    if sim is None or sim_meta.get(sim) is None:
+                        continue
+                    if sim not in file_handles:
+                        m = sim_meta[sim]
+                        file_handles[sim] = {
+                            'seg': open(m['simName'] + '_seg_states.dat',  'r'),
+                            'fil': open(m['simName'] + '_true_states.dat', 'r'),
+                        }
+
+            n_frames = min(
+                sim_meta[s]['plot_end_frame']
+                for row in grid for s in row
+                if s is not None and sim_meta.get(s) is not None
+            )
+
+            def animation_func(t):
+                print(f" frame {t} / {n_frames}          ", end="\r")
+                for row_i, dp_val in enumerate(unique_dp):
+                    for col_i, k_val in enumerate(unique_k):
+                        ax  = axes[row_i, col_i]
+                        sim = grid[row_i][col_i]
+                        ax.cla()
+                        if sim is None or sim_meta.get(sim) is None or sim not in file_handles:
+                            ax.set_visible(False)
+                            continue
+                        m  = sim_meta[sim]
+                        fh = file_handles[sim]
+                        fh['fil'].readline()                          # advance true_states
+                        seg_str    = fh['seg'].readline()
+                        seg_states = np.array(seg_str.split()[1:], dtype=float)
+                        _draw_panel(ax, seg_states, m)
+                        # Restore labels cla() wiped.
+                        if col_i == 0:
+                            ax.set_ylabel(f'$p={dp_val:.2f}$\n$z/L$', fontsize=8)
+                        if row_i == 0:
+                            ax.set_title(f'$k={k_val:.3g}$', fontsize=8)
+                        if row_i == n_rows - 1:
+                            ax.set_xlabel(r'$y/L$', fontsize=8)
+
+            plt.rcParams['animation.ffmpeg_path'] = '/usr/bin/ffmpeg'
+            ani = animation.FuncAnimation(
+                fig, animation_func, frames=n_frames, interval=1, repeat=False
+            )
+            FFwriter = animation.FFMpegWriter(fps=16)
+            ani.save(f'fig/multi_pair_side_{self.date}_anim.mp4', writer=FFwriter)
+
+            for fh in file_handles.values():
+                fh['seg'].close()
+                fh['fil'].close()
+
+        # ── STATIC mode ───────────────────────────────────────────────────────
+        else:
+            for row_i, dp_val in enumerate(unique_dp):
+                for col_i, k_val in enumerate(unique_k):
+                    ax  = axes[row_i, col_i]
+                    sim = grid[row_i][col_i]
+                    if sim is None or sim_meta.get(sim) is None:
+                        ax.set_visible(False)
+                        continue
+                    m = sim_meta[sim]
+
+                    seg_f = open(m['simName'] + '_seg_states.dat',  'r')
+                    fil_f = open(m['simName'] + '_true_states.dat', 'r')
+
+                    best_dist = np.inf
+                    best_seg  = None
+
+                    for i in range(m['plot_end_frame']):
+                        fil_str = fil_f.readline()
+                        seg_str = seg_f.readline()
+                        # Search last period for best phase alignment.
+                        if i >= m['plot_end_frame'] - int(m['period']):
+                            fil_states = np.array(fil_str.split()[2:], dtype=float)
+                            phase0     = util.box(fil_states[0], 2*np.pi)
+                            dist       = min(phase0, 2*np.pi - phase0)
+                            if dist < best_dist:
+                                best_dist = dist
+                                best_seg  = np.array(seg_str.split()[1:], dtype=float)
+
+                    seg_f.close()
+                    fil_f.close()
+
+                    if best_seg is None:
+                        ax.set_visible(False)
+                        continue
+
+                    _draw_panel(ax, best_seg, m)
+                    print(
+                        f" row {row_i+1}/{n_rows}  col {col_i+1}/{n_cols} done          ",
+                        end="\r"
+                    )
+
+            fig.subplots_adjust(hspace=0.05, wspace=0.05)
+            fig.savefig(
+                f'fig/multi_pair_side_{self.date}.png',
+                bbox_inches='tight', format='png', transparent=True
+            )
             plt.show()
 
 # Summary plot

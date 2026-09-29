@@ -314,39 +314,23 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             // Scale if the natural frequency of this cilium differs from the reference case
             q_angle *= 0.5*swimmers[n].filaments[i].omega0/PI;
 
-            // Apply the torsional spring force
-            // Real Qbar = 0.0;
-            // for (int ii = 0; ii < gen_angle_force_refs.size(); ii++){
-            //   Qbar += std::abs(gen_angle_force_refs[ii]);
-            // }
-            // Qbar /= gen_angle_force_refs.size();
-
-            Real k_scaling = (swimmers[n].filaments[i].omega0*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH);
-
-            // FENE_MODEL=0: linear torsional spring  F = k*θ
-            // FENE_MODEL=1: FENE torsional spring    F = k*θ/(1-(θ/θ_max)²)
-            //   Diverges as θ→θ_max, preventing rotation beyond the limit.
-            //   If a timestep overshoot places |θ|≥θ_max, the angle is clamped
-            //   to (1-ε)*θ_max so the force remains finite and strongly restoring.
-            const Real max_angle = 0.78;
-            Real theta = swimmers[n].filaments[i].shape_rotation_angle;
-            Real fene_factor;
-            if (FENE_MODEL == 1){
-              const Real fene_eps = 1e-4;
-              const Real theta_lim = (1.0 - fene_eps) * max_angle;
-              if (std::abs(theta) >= max_angle){
-                // clamp overshoot — preserves sign, keeps force finite
-                theta = std::copysign(theta_lim, theta);
-              }
-              fene_factor = theta / (1.0 - (theta*theta)/(max_angle*max_angle));
-            } else {
-              fene_factor = theta;
+            // Torsional spring restoring force: k_eff uses filament A's omega0 (2π)
+            // so stiffness is the same for both pair members regardless of pair_dp.
+            {
+              const Real k_eff = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                 * 2.0 * M_PI * FIL_LENGTH * FIL_LENGTH * FIL_LENGTH;
+              const Real theta  = swimmers[n].filaments[i].shape_rotation_angle;
+              #if FENE_MODEL
+                constexpr Real theta_max = 0.78;
+                constexpr Real fene_eps  = 1e-4;
+                const Real th = std::copysign(
+                  std::min(std::abs(theta), (1.0 - fene_eps) * theta_max), theta);
+                q_angle -= k_eff * th / (1.0 - (th*th)/(theta_max*theta_max));
+              #else
+                q_angle -= k_eff * theta;
+              #endif
             }
 
-            // Spring applied implicitly in filament.cpp after the time step
-            // (operator splitting — unconditionally stable for any spring_factor).
-            // q_angle -= TORSIONAL_SPRING_MAGNITUDE_FACTOR*k_scaling*fene_factor;
-            
           #endif
 
           #if DYNAMIC_PHASE_EVOLUTION
@@ -700,7 +684,12 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
               #if DYNAMIC_SHAPE_ROTATION
 
                 out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) -= dot_angle;
-                out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) /= Knorm_angle*seg_mob_inv;
+                {
+                  // Scheme C: augment (theta,theta) preconditioner diagonal.
+                  const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                        * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+                  out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) /= Knorm_angle*seg_mob_inv + k_eff_dt;
+                }
 
               #endif
 
@@ -1181,6 +1170,13 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
                 // for example, I update the two entries of phase and angle at the same time
                 Real phase_m = out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m);
                 Real angle_m = out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL);
+
+                // Scheme C: augment (theta,theta) preconditioner diagonal.
+                {
+                  const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                        * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+                  c22 += k_eff_dt / seg_mob_inv;
+                }
 
                 Real det = c11*c22 - c12*c12;
                 cinv_11 = c22 / det;
@@ -1750,6 +1746,15 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             }
 
+            #if DYNAMIC_SHAPE_ROTATION
+            {
+              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
+              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              out(in_pos + NSWIM*NFIL) -= k_eff_dt * shape_rotation_angle_dot;
+            }
+            #endif
+
           }
 
         }
@@ -1782,6 +1787,13 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
               // "-K^T" mult
               out(in_pos) -= in(out_pos + k)*swimmers[n].filaments[m].vel_dir_angle[k];
 
+            }
+
+            {
+              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
+              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              out(in_pos) -= k_eff_dt * shape_rotation_angle_dot;
             }
 
           }
@@ -2054,6 +2066,15 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             }
 
+            #if DYNAMIC_SHAPE_ROTATION
+            {
+              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
+              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              out(in_pos + NSWIM*NFIL) -= k_eff_dt * shape_rotation_angle_dot;
+            }
+            #endif
+
           }
 
         }
@@ -2086,6 +2107,13 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
               // "-K^T" mult
               out(in_pos) -= in(out_pos + k)*swimmers[n].filaments[m].vel_dir_angle[k];
 
+            }
+
+            {
+              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
+              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              out(in_pos) -= k_eff_dt * shape_rotation_angle_dot;
             }
 
           }
