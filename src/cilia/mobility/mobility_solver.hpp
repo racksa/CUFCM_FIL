@@ -122,6 +122,10 @@ public:
 
     std::vector<Real> gen_angle_force_refs;
 
+    // Angle about which the torsional spring is linearised in the current step, one per filament.
+    std::vector<Real> spring_lin_angle;
+    Real angle_stiffness_dt(const int n, const int m) const;
+
   #endif
 
 

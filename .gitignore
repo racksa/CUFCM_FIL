@@ -56,3 +56,4 @@ pyfile/aux/compare_UAMMD_FCM/
 .DS_Store
 
 !input/*
+doc/

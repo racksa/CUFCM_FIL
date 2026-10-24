@@ -242,7 +242,7 @@ void filament::initial_setup(const Real *const base_pos,
 
       // std::cout << id << "   " << omega0 << std::endl;
 
-      if (PAIR==1){
+      if (PAIR==1 && PAIR_DP_MODE==0){
         if (id/NPAIR == 1){
           omega0 *= PAIR_DP;
         }
@@ -377,6 +377,12 @@ void filament::initial_setup(const Real *const base_pos,
 
       #if BICILIA_TOPOLOGY
         phase2 = phase + PAIR_DP*2.0*PI;
+      #endif
+
+      #if (PAIR==1 && PAIR_DP_MODE==1 && CILIA_IC_TYPE!=5 && !WRITE_GENERALISED_FORCES)
+        if (id/NPAIR == 1){
+          phase += PAIR_DP*2.0*PI;
+        }
       #endif
 
       // qtemp maps x to the surface normal, which we want, but we also need to rotate about the surface normal to align

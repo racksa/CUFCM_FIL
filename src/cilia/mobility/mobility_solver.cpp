@@ -15,6 +15,67 @@
 #include <filesystem>
 namespace fs = std::filesystem;
 
+// Torsional (shape-rotation) spring: linear k*theta, or FENE k*theta/(1 - theta^2/theta_max^2)
+// when FENE_MODEL is set. k uses the reference omega0, so both pair members share it.
+namespace {
+
+  constexpr Real FENE_THETA_MAX  = Real(0.39);
+  constexpr Real FENE_THETA_SAFE = (Real(1) - Real(1e-4))*FENE_THETA_MAX;
+
+  Real spring_k(){
+    return TORSIONAL_SPRING_MAGNITUDE_FACTOR*Real(2.0)*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH;
+  }
+
+  Real fene_clamp(const Real th){
+    return std::copysign(std::min(std::abs(th), FENE_THETA_SAFE), th);
+  }
+
+  Real spring_torque(Real th){
+    if (!FENE_MODEL) return spring_k()*th;
+    th = fene_clamp(th);
+    return spring_k()*th/(Real(1) - th*th/(FENE_THETA_MAX*FENE_THETA_MAX));
+  }
+
+  Real spring_stiffness(Real th){
+    if (!FENE_MODEL) return spring_k();
+    th = fene_clamp(th);
+    const Real u2 = th*th/(FENE_THETA_MAX*FENE_THETA_MAX);
+    return spring_k()*(Real(1) + u2)/((Real(1) - u2)*(Real(1) - u2));
+  }
+
+  // Explicit part of the backward-Euler spring torque T(theta_n + DT*omega), linearised about
+  // theta_lin. The implicit part, stiffness*DT*omega, is in the system matrix.
+  Real spring_torque_lin(const Real theta_n, const Real theta_lin){
+    return spring_torque(theta_lin) + spring_stiffness(theta_lin)*(theta_n - theta_lin);
+  }
+
+  // A linearisation angle past the FENE bound is replaced by the point halfway from the
+  // previous angle to the bound, so the next linearisation approaches the bound gradually.
+  Real limit_lin_angle(const Real proposed, const Real previous){
+    if (!FENE_MODEL || std::abs(proposed) < FENE_THETA_SAFE) return proposed;
+    return Real(0.5)*(fene_clamp(previous) + std::copysign(FENE_THETA_SAFE, proposed));
+  }
+
+  int angle_index(const int n, const int m){
+    #if PRESCRIBED_BODY_VELOCITIES
+      int pos = 3*NSWIM*(NFIL*NSEG + NBLOB) + n*NFIL + m;
+    #else
+      int pos = 3*NSWIM*(NFIL*NSEG + NBLOB + 2) + n*NFIL + m;
+    #endif
+    #if DYNAMIC_PHASE_EVOLUTION
+      pos += NSWIM*NFIL;
+    #endif
+    return pos;
+  }
+
+}
+
+#if DYNAMIC_SHAPE_ROTATION
+  Real mobility_solver::angle_stiffness_dt(const int n, const int m) const {
+    return spring_stiffness(spring_lin_angle[n*NFIL + m])*DT;
+  }
+#endif
+
 mobility_solver::~mobility_solver(){}
 
 mobility_solver::mobility_solver(){}
@@ -75,6 +136,8 @@ void mobility_solver::initialise(){
     #endif
 
     #if DYNAMIC_SHAPE_ROTATION
+
+      spring_lin_angle.assign(NSWIM*NFIL, Real(0));
 
       std::ifstream generalised_angle_force_file(reference_angle_generalised_force_file_name());
 
@@ -314,22 +377,23 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             // Scale if the natural frequency of this cilium differs from the reference case
             q_angle *= 0.5*swimmers[n].filaments[i].omega0/PI;
 
-            // Torsional spring restoring force: k_eff uses filament A's omega0 (2π)
-            // so stiffness is the same for both pair members regardless of pair_dp.
+            // Torsional spring restoring torque (explicit part; see spring_torque_lin).
+            q_angle -= spring_torque_lin(swimmers[n].filaments[i].shape_rotation_angle,
+                                         spring_lin_angle[n*NFIL + i]);
+            #if BASAL_COUPLING_SPRING
             {
-              const Real k_eff = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+              // Basal coupling: spring between the rotation angles of the two pair members.
+              // diff_AB = theta_A - theta_B - preferred_angle (uses filament 0 as A, 1 as B).
+              // Torque on A = -k_b * diff_AB; torque on B = +k_b * diff_AB.
+              const Real k_b   = BASAL_COUPLING_SPRING_FACTOR
                                  * 2.0 * M_PI * FIL_LENGTH * FIL_LENGTH * FIL_LENGTH;
-              const Real theta  = swimmers[n].filaments[i].shape_rotation_angle;
-              #if FENE_MODEL
-                constexpr Real theta_max = 0.78;
-                constexpr Real fene_eps  = 1e-4;
-                const Real th = std::copysign(
-                  std::min(std::abs(theta), (1.0 - fene_eps) * theta_max), theta);
-                q_angle -= k_eff * th / (1.0 - (th*th)/(theta_max*theta_max));
-              #else
-                q_angle -= k_eff * theta;
-              #endif
+              const Real diff_AB = swimmers[n].filaments[0].shape_rotation_angle
+                                 - swimmers[n].filaments[1].shape_rotation_angle
+                                 - BASAL_COUPLING_PREFERRED_ANGLE;
+              const Real sign = (i == 0) ? 1.0 : -1.0;
+              q_angle -= sign * k_b * diff_AB;
             }
+            #endif
 
           #endif
 
@@ -683,12 +747,42 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
               #if DYNAMIC_SHAPE_ROTATION
 
-                out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) -= dot_angle;
                 {
-                  // Scheme C: augment (theta,theta) preconditioner diagonal.
-                  const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                  const Real k_eff_dt = angle_stiffness_dt(n, m);
+                  #if BASAL_COUPLING_SPRING
+                    const Real k_b_dt = BASAL_COUPLING_SPRING_FACTOR
                                         * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
-                  out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) /= Knorm_angle*seg_mob_inv + k_eff_dt;
+                    if (NFIL == 2 && m == 0) {
+                      // Exact 2x2 block preconditioner for the (psi_A, psi_B) subblock.
+                      // Both filaments processed here; the m=1 pass is a no-op for psi.
+                      Real Knorm_angle_B = Real(0), dot_angle_1 = Real(0);
+                      for (int k = 0; k < 3*NSEG; k++) {
+                        Knorm_angle_B += swimmers[n].filaments[1].vel_dir_angle[k]
+                                        * swimmers[n].filaments[1].vel_dir_angle[k];
+                        dot_angle_1   += swimmers[n].filaments[1].vel_dir_angle[k]
+                                        * out(3*NSEG*(n*NFIL+1)+k);
+                      }
+                      const int pos_A = 3*NSWIM*(NBLOB+NFIL*NSEG) + n*NFIL + 0 + NSWIM*NFIL;
+                      const int pos_B = 3*NSWIM*(NBLOB+NFIL*NSEG) + n*NFIL + 1 + NSWIM*NFIL;
+                      const Real rA  = out(pos_A) - dot_angle;
+                      const Real rB  = out(pos_B) - dot_angle_1;
+                      const Real D_A = Knorm_angle   * seg_mob_inv;
+                      const Real D_B = Knorm_angle_B * seg_mob_inv;
+                      const Real aA  = D_A + k_eff_dt + k_b_dt;
+                      const Real aB  = D_B + angle_stiffness_dt(n, 1) + k_b_dt;
+                      const Real det = aA * aB - k_b_dt * k_b_dt;
+                      out(pos_A) = (aB * rA + k_b_dt * rB) / det;
+                      out(pos_B) = (k_b_dt * rA + aA * rB) / det;
+                    } else if (NFIL == 2 && m == 1) {
+                      // psi_B already set in the m=0 pass; no-op.
+                    } else {
+                      out(3*NSWIM*(NBLOB+NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) -= dot_angle;
+                      out(3*NSWIM*(NBLOB+NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) /= Knorm_angle*seg_mob_inv + k_eff_dt + k_b_dt;
+                    }
+                  #else
+                    out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) -= dot_angle;
+                    out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) /= Knorm_angle*seg_mob_inv + k_eff_dt;
+                  #endif
                 }
 
               #endif
@@ -1173,21 +1267,86 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
                 // Scheme C: augment (theta,theta) preconditioner diagonal.
                 {
-                  const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
+                  const Real k_eff_dt = angle_stiffness_dt(n, m);
+                  #if BASAL_COUPLING_SPRING
+                    const Real k_b_dt = BASAL_COUPLING_SPRING_FACTOR
                                         * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
-                  c22 += k_eff_dt / seg_mob_inv;
+                    if (NFIL == 2 && m == 0 && k_b_dt > Real(0)) {
+                      // Exact solve of the pair's coupled (phase, angle) blocks. Filament i has
+                      //   M_i = seg_mob_inv*[[c11,c12],[c12,c22]] + diag(0, k_i_dt + k_b_dt),
+                      // and the pair couples only through -k_b_dt between the two angle DOFs:
+                      //   M_A x_A - k_b_dt e2 (e2.x_B) = r_A,  M_B x_B - k_b_dt e2 (e2.x_A) = r_B.
+                      // k_b_dt == 0 uses the independent per-filament branch below instead.
+                      const int pph_A = 3*NSWIM*(NBLOB+NFIL*NSEG) + n*NFIL + 0;
+                      const int pan_A = pph_A + NSWIM*NFIL;
+                      const int pph_B = pph_A + 1;
+                      const int pan_B = pph_B + NSWIM*NFIL;
+                      // filament B's coefficients and residual (m=1 not yet processed)
+                      Real c11_B = 0.0, c12_B = 0.0, c22_B = 0.0, dot_phase_1 = 0.0, dot_angle_1 = 0.0;
+                      for (int k = 0; k < 3*NSEG; k++) {
+                        const Real kp = swimmers[n].filaments[1].vel_dir_phase[k];
+                        const Real ka = swimmers[n].filaments[1].vel_dir_angle[k];
+                        c11_B += kp*kp; c12_B += kp*ka; c22_B += ka*ka;
+                        dot_phase_1 += kp*out(3*NSEG*(n*NFIL+1)+k);
+                        dot_angle_1 += ka*out(3*NSEG*(n*NFIL+1)+k);
+                      }
+                      out(pph_B) -= dot_phase_1;
+                      out(pan_B) -= dot_angle_1;
+                      // x = [[a11,a12],[a12,a22]]^{-1} r
+                      auto solve2 = [](Real a11, Real a12, Real a22, Real r1, Real r2, Real& x1, Real& x2){
+                        const Real det = a11*a22 - a12*a12;
+                        x1 = ( a22*r1 - a12*r2)/det;
+                        x2 = (-a12*r1 + a11*r2)/det;
+                      };
+                      const Real s = seg_mob_inv;
+                      const Real a22_A = s*c22   + k_eff_dt                + k_b_dt;
+                      const Real a22_B = s*c22_B + angle_stiffness_dt(n, 1) + k_b_dt;
+                      Real yA1, yA2, gA1, gA2, yB1, yB2, gB1, gB2;
+                      solve2(s*c11,   s*c12,   a22_A, phase_m,   angle_m,   yA1, yA2);   // M_A^{-1} r_A
+                      solve2(s*c11,   s*c12,   a22_A, 0.0,       1.0,       gA1, gA2);   // M_A^{-1} e2
+                      solve2(s*c11_B, s*c12_B, a22_B, out(pph_B), out(pan_B), yB1, yB2); // M_B^{-1} r_B
+                      solve2(s*c11_B, s*c12_B, a22_B, 0.0,       1.0,       gB1, gB2);   // M_B^{-1} e2
+                      // x_A = y_A + k_b_dt g_A sB,  x_B = y_B + k_b_dt g_B sA,  s_i = e2.x_i
+                      const Real sA = (yA2 + k_b_dt*gA2*yB2)/(Real(1) - k_b_dt*k_b_dt*gA2*gB2);
+                      const Real sB = yB2 + k_b_dt*gB2*sA;
+                      out(pph_A) = yA1 + k_b_dt*gA1*sB;
+                      out(pan_A) = sA;
+                      out(pph_B) = yB1 + k_b_dt*gB1*sA;
+                      out(pan_B) = sB;
+                      // update phase_m, angle_m for the f_s loop below
+                      phase_m = out(pph_A);
+                      angle_m = out(pan_A);
+                    } else if (NFIL == 2 && m == 1 && k_b_dt > Real(0)) {
+                      // Lines 1205-1206 (outside this block) already subtracted dot_phase/dot_angle
+                      // from out(pph_B) and out(pan_B), corrupting the values set in the m=0 pass.
+                      // Undo those subtractions to restore the preconditioned values.
+                      // (Not entered when k_b_dt == 0; m=1 uses independent treatment instead.)
+                      const int pph_B2 = 3*NSWIM*(NBLOB+NFIL*NSEG) + n*NFIL + 1;
+                      const int pan_B2 = pph_B2 + NSWIM*NFIL;
+                      out(pph_B2) += dot_phase;
+                      out(pan_B2) += dot_angle;
+                      phase_m = out(pph_B2);
+                      angle_m = out(pan_B2);
+                    } else {
+                      c22 += (k_eff_dt + k_b_dt) / seg_mob_inv;
+                      Real det = c11*c22 - c12*c12;
+                      cinv_11 = c22/det; cinv_22 = c11/det; cinv_12 = -c12/det;
+                      out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m)              = (phase_m*cinv_11 + angle_m*cinv_12) / seg_mob_inv;
+                      out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m+NSWIM*NFIL)  = (phase_m*cinv_12 + angle_m*cinv_22) / seg_mob_inv;
+                      phase_m = out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m);
+                      angle_m = out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m+NSWIM*NFIL);
+                    }
+                  #else
+                    c22 += k_eff_dt / seg_mob_inv;
+                    Real det = c11*c22 - c12*c12;
+                    cinv_11 = c22/det; cinv_22 = c11/det; cinv_12 = -c12/det;
+                    out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m)              = (phase_m*cinv_11 + angle_m*cinv_12) / seg_mob_inv;
+                    out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m+NSWIM*NFIL)  = (phase_m*cinv_12 + angle_m*cinv_22) / seg_mob_inv;
+                    phase_m = out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m);
+                    angle_m = out(3*NSWIM*(NBLOB+NFIL*NSEG)+n*NFIL+m+NSWIM*NFIL);
+                  #endif
                 }
 
-                Real det = c11*c22 - c12*c12;
-                cinv_11 = c22 / det;
-                cinv_22 = c11 / det;
-                cinv_12 = - c12 / det;
-
-                out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m) = phase_m*cinv_11 + angle_m*cinv_12;
-                out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m) /= seg_mob_inv;
-
-                out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) = phase_m*cinv_12 + angle_m*cinv_22;
-                out(3*NSWIM*(NBLOB + NFIL*NSEG) + n*NFIL + m + NSWIM*NFIL) /= seg_mob_inv;
               #else
                 // it can't be just dividing by Knorm_phase here if K^T K is not diagonal, i.e. with rotation
                 // but for the phase evolution-only case, this is fine.
@@ -1748,10 +1907,17 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             #if DYNAMIC_SHAPE_ROTATION
             {
-              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
-              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
-                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              const Real k_eff_dt = angle_stiffness_dt(n, m);
               out(in_pos + NSWIM*NFIL) -= k_eff_dt * shape_rotation_angle_dot;
+              #if BASAL_COUPLING_SPRING
+              {
+                const Real k_b_dt = BASAL_COUPLING_SPRING_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+                out(in_pos + NSWIM*NFIL) -= k_b_dt * shape_rotation_angle_dot;
+                const int in_pos_other = in_pos + (NFIL - 1 - 2*m);
+                out(in_pos + NSWIM*NFIL) += k_b_dt * in(in_pos_other + NSWIM*NFIL);
+              }
+              #endif
             }
             #endif
 
@@ -1790,10 +1956,17 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             }
 
             {
-              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
-              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
-                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              const Real k_eff_dt = angle_stiffness_dt(n, m);
               out(in_pos) -= k_eff_dt * shape_rotation_angle_dot;
+              #if BASAL_COUPLING_SPRING
+              {
+                const Real k_b_dt = BASAL_COUPLING_SPRING_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+                out(in_pos) -= k_b_dt * shape_rotation_angle_dot;
+                const int in_pos_other = in_pos + (NFIL - 1 - 2*m);
+                out(in_pos) += k_b_dt * in(in_pos_other);
+              }
+              #endif
             }
 
           }
@@ -2068,10 +2241,17 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
 
             #if DYNAMIC_SHAPE_ROTATION
             {
-              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
-              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
-                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              const Real k_eff_dt = angle_stiffness_dt(n, m);
               out(in_pos + NSWIM*NFIL) -= k_eff_dt * shape_rotation_angle_dot;
+              #if BASAL_COUPLING_SPRING
+              {
+                const Real k_b_dt = BASAL_COUPLING_SPRING_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+                out(in_pos + NSWIM*NFIL) -= k_b_dt * shape_rotation_angle_dot;
+                const int in_pos_other = in_pos + (NFIL - 1 - 2*m);
+                out(in_pos + NSWIM*NFIL) += k_b_dt * in(in_pos_other + NSWIM*NFIL);
+              }
+              #endif
             }
             #endif
 
@@ -2110,10 +2290,17 @@ void mobility_solver::read_positions_and_forces(std::vector<swimmer>& swimmers){
             }
 
             {
-              // Scheme C: augment (theta,theta) diagonal by k_eff*DT (backward-Euler spring).
-              const Real k_eff_dt = TORSIONAL_SPRING_MAGNITUDE_FACTOR
-                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+              const Real k_eff_dt = angle_stiffness_dt(n, m);
               out(in_pos) -= k_eff_dt * shape_rotation_angle_dot;
+              #if BASAL_COUPLING_SPRING
+              {
+                const Real k_b_dt = BASAL_COUPLING_SPRING_FACTOR
+                                    * 2.0*M_PI*FIL_LENGTH*FIL_LENGTH*FIL_LENGTH*DT;
+                out(in_pos) -= k_b_dt * shape_rotation_angle_dot;
+                const int in_pos_other = in_pos + (NFIL - 1 - 2*m);
+                out(in_pos) += k_b_dt * in(in_pos_other);
+              }
+              #endif
             }
 
           }
@@ -2724,13 +2911,76 @@ void mobility_solver::compute_velocities(std::vector<swimmer>& swimmers, int& nu
 
   #if PRESCRIBED_CILIA
 
+    #if DYNAMIC_SHAPE_ROTATION
+      // Backward-Euler torsional spring. The spring is linearised about a guess of theta^{n+1}
+      // (predictor: last step's rate), the full system is solved, and the guess is updated until
+      // the linearisation error is below the GMRES tolerance. The linear spring is exact after
+      // one solve; FENE typically needs one or two, more only close to its bound.
+      spring_lin_angle.resize(NSWIM*NFIL);
+      for (int n = 0; n < NSWIM; n++){
+        for (int m = 0; m < NFIL; m++){
+          const filament& fil = swimmers[n].filaments[m];
+          spring_lin_angle[n*NFIL + m] = limit_lin_angle(
+            fil.shape_rotation_angle + DT*fil.shape_rotation_angle_dot, fil.shape_rotation_angle);
+        }
+      }
+      const std::vector<Real> lin_angle_assembled = spring_lin_angle;
+    #endif
+
     assemble_rhs(swimmers, nt);
 
     #if DISPLAYTIME && PRESCRIBED_CILIA
       { cudaDeviceSynchronize(); assemble_rhs_time += (get_time_cilia() - time_start); time_start = get_time_cilia();}
     #endif
 
+    #if DYNAMIC_SHAPE_ROTATION
+      const matrix rhs_assembled = rhs; // solve_linear_system overwrites rhs; assemble_rhs draws noise.
+    #endif
+
     num_gmres_iterations = solve_linear_system(swimmers);
+
+    #if DYNAMIC_SHAPE_ROTATION
+      if (FENE_MODEL){
+        const Real torque_tol = LINEAR_SYSTEM_TOL*spring_k()*FENE_THETA_MAX;
+        constexpr int max_spring_iters = 20;
+        bool converged = false;
+        std::vector<Real> next_lin_angle(NSWIM*NFIL);
+        for (int iter = 1; ; iter++){
+          converged = true;
+          for (int n = 0; n < NSWIM; n++){
+            for (int m = 0; m < NFIL; m++){
+              const filament& fil = swimmers[n].filaments[m];
+              const Real th_lin = spring_lin_angle[n*NFIL + m];
+              const Real th_new = fil.shape_rotation_angle + DT*fil.shape_rotation_angle_dot;
+              if (std::abs(th_new) >= FENE_THETA_SAFE){
+                converged = false;
+              } else {
+                const Real lin_err = std::abs(spring_torque(th_new) - spring_torque(th_lin)
+                                              - spring_stiffness(th_lin)*(th_new - th_lin));
+                if (lin_err > torque_tol) converged = false;
+              }
+              next_lin_angle[n*NFIL + m] = limit_lin_angle(th_new, th_lin);
+            }
+          }
+          if (converged || iter == max_spring_iters) break;
+
+          spring_lin_angle = next_lin_angle;
+          rhs = rhs_assembled;
+          for (int n = 0; n < NSWIM; n++){
+            for (int m = 0; m < NFIL; m++){
+              const Real th_n = swimmers[n].filaments[m].shape_rotation_angle;
+              rhs(angle_index(n, m)) += spring_torque_lin(th_n, spring_lin_angle[n*NFIL + m])
+                                      - spring_torque_lin(th_n, lin_angle_assembled[n*NFIL + m]);
+            }
+          }
+          num_gmres_iterations += solve_linear_system(swimmers);
+        }
+        if (!converged){
+          std::cout << "Warning: implicit FENE spring not converged after " << max_spring_iters
+                    << " solves at step " << nt << std::endl;
+        }
+      }
+    #endif
 
   #else
     #if !ROD

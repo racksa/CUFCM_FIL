@@ -369,6 +369,185 @@ PRESETS = {
         },
     },
 
+    # Same sphere, seeding and wavenumbers as 'bicilia_ishikawa', but each cilium of a pair is
+    # its own filament (PAIR=1 instead of BICILIA_TOPOLOGY=1): 640 pairs -> 1280 filaments of
+    # 20 segments. pair_dp is the frequency ratio omega_B/omega_A of the second filament of each
+    # pair, as in 'pair_basal_sweep' (binary built with PAIR_DP_MODE=0).
+    # The two filaments of a pair are 5 RSEG apart, as in 'pair_basal_sweep'.
+    'volvox_pair_prescribed': {
+        'category':   'volvox/',
+        'date':       '20261011_volvox_pair',
+        'exe_name':   'cilia_1e-4_volvox_pair',
+        'sweep_shape': (6, 4, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         1280,
+            'nblob':        40962,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': 0.005,
+            'period':       1,
+            'sim_length':   10,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       lambda i,j,k,l: [-2.35, -1, 0, 1][j],
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: round(1 - 0.1 * i, 3),
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+            'basal_coupling_factor': 0.0,
+            'basal_coupling_angle': 0.0,
+        },
+    },
+
+    # Same colony as 'volvox_pair_prescribed', but phases and rotation angles evolve
+    # dynamically (binary built with DYNAMIC_PHASE_EVOLUTION and DYNAMIC_SHAPE_ROTATION
+    # true). Frequency ratio fixed at 0.7, no basal coupling; sweeps the torsional
+    # spring factor k on a log scale from 0.01 to 1.
+    'volvox_pair_dynamic': {
+        'category':   'volvox/',
+        'date':       '20261021_volvox_pair_dynamic',
+        'exe_name':   'cilia_1e-4_volvox_pair_dynamic',
+        'sweep_shape': (7, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         1278,
+            'nblob':        40962,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': lambda i,j,k,l: round(10 ** (-2 + i/3), 3),  # 0.01 ... 1.0
+            'period':       1,
+            'sim_length':   300,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      0.7,
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+            'basal_coupling_factor': 0.0,
+            'basal_coupling_angle': 0.0,
+        },
+    },
+
+    # Control for 'volvox_pair_dynamic': one flagellum per cell instead of a pair. The 639
+    # filaments sit at the positions of the first flagellum of each pair (seed files
+    # input/fourier_modes/sphere639.*, copied from the pair seeding). Binary built with
+    # PAIR=0; otherwise identical settings.
+    'volvox_single_dynamic': {
+        'category':   'volvox/',
+        'date':       '20261018_volvox_single_dynamic',
+        'exe_name':   'cilia_1e-4_volvox_single_dynamic',
+        'sweep_shape': (7, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         639,
+            'nblob':        40962,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': lambda i,j,k,l: float('%.3g' % (0.005 * 16 ** (i/6))),  # 0.005 ... 0.08, log-spaced
+            'period':       1,
+            'sim_length':   300,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,   # unused without PAIR
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+            'basal_coupling_factor': 0.0,
+            'basal_coupling_angle': 0.0,
+        },
+    },
+
+    # As 'volvox_single_dynamic', but with the Fulford-Blake beat (binary built with
+    # SHAPE_SEQUENCE=1 instead of 8). Uses input/forcing/fulford_and_blake_reference_*.
+    'volvox_single_dynamic_fulford': {
+        'category':   'volvox/',
+        'date':       '20261016_volvox_single_dynamic_fulford',
+        'exe_name':   'cilia_1e-4_fulford_single_dynamic',
+        'sweep_shape': (7, 1, 1, 1),
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         639,
+            'nblob':        40962,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': lambda i,j,k,l: float('%.3g' % (0.005 * 16 ** (i/6))),  # 0.005 ... 0.08, log-spaced
+            'period':       1,
+            'sim_length':   300,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      1.0,   # unused without PAIR
+            'fene_model':   0,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+            'basal_coupling_factor': 0.0,
+            'basal_coupling_angle': 0.0,
+        },
+    },
+
     'pair_phase_diff': {
         'category':   'volvox_bicilia/individual_pair/',
         'date':       '20241217_fixed_ospread',
@@ -486,87 +665,9 @@ PRESETS = {
         },
     },
 
-    'volvox_newbeat': {
-        'category':   'volvox/',
-        'date':       '20260902_newbeat',
-        'exe_name':   'cilia_1e-4_free_newbeat',
-        'sweep_shape': (1, 1, 1, 1),
-        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
-        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
-        'params': {
-            'nfil':         639,
-            'nblob':        40961,
-            'nseg':         20,
-            'ar':           15.0,
-            'spring_factor': 0.1,
-            'period':       1,
-            'sim_length':   15,
-            'nx':           400, 'ny': 400, 'nz': 400,
-            'boxsize':      4000,
-            'fil_spacing':  80.0,
-            'fil_x_spacing': 0.0,
-            'blob_spacing': 8.0,
-            'fil_x_dim':    20,
-            'blob_x_dim':   200,
-            'hex_num':      2,
-            'reverse_fil_direction_ratio': 0.0,
-            'twofil_angle': 0.0,
-            'tilt_angle':   0.0,
-            'force_mag':    1.0,
-            'seg_sep':      2.6,
-            'wavnum':       0.5,
-            'wavnum_dia':   0.0,
-            'pair_dp':      1.0,
-            'fene_model':   0,
-            'force_noise_mag': 0.0,
-            'phase_noise_mag': 0.0,
-            'omega_spread': 0.0,
-            'dimensionless_force': 220.0,
-        },
-    },
-
-    'volvox_oldbeat': {
-        'category':   'volvox/',
-        'date':       '20260902_oldbeat',
-        'exe_name':   'cilia_1e-4_free_oldbeat',
-        'sweep_shape': (1, 1, 1, 1),
-        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
-        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
-        'params': {
-            'nfil':         639,
-            'nblob':        40961,
-            'nseg':         20,
-            'ar':           15.0,
-            'spring_factor': 0.1,
-            'period':       1,
-            'sim_length':   15,
-            'nx':           400, 'ny': 400, 'nz': 400,
-            'boxsize':      4000,
-            'fil_spacing':  80.0,
-            'fil_x_spacing': 0.0,
-            'blob_spacing': 8.0,
-            'fil_x_dim':    20,
-            'blob_x_dim':   200,
-            'hex_num':      2,
-            'reverse_fil_direction_ratio': 0.0,
-            'twofil_angle': 0.0,
-            'tilt_angle':   0.0,
-            'force_mag':    1.0,
-            'seg_sep':      2.6,
-            'wavnum':       0.5,
-            'wavnum_dia':   0.0,
-            'pair_dp':      1.0,
-            'fene_model':   0,
-            'force_noise_mag': 0.0,
-            'phase_noise_mag': 0.0,
-            'omega_spread': 0.0,
-            'dimensionless_force': 220.0,
-        },
-    },
-
     'pair_freq_sweep': {
         'category':   'volvox/pair/',
-        'date':       '20260925_pair_freq',
+        'date':       '20260929_pair_freq',
         'exe_name':   'cilia_1e-4_pair',
         'sweep_shape': (10, 40, 1, 1),
         'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
@@ -600,6 +701,8 @@ PRESETS = {
             'phase_noise_mag': 0.0,
             'omega_spread': 0.0,
             'dimensionless_force': 220.0,
+            'basal_coupling_factor': 1.0,
+            'basal_coupling_angle': 0.4,
         },
     },
 
@@ -722,12 +825,104 @@ PRESETS = {
         },
     },
 
+    'pair_basal_sweep': {
+        'category':   'volvox/pair/',
+        'date':       '20261007_pair_basal',
+        'exe_name':   'cilia_1e-4_pair',
+        'sweep_shape': (10, 4, 3, 1),   # i: basal_coupling_factor, j: pair_dp, k: spring_factor
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         2,
+            'nblob':        1,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': lambda i,j,k,l: [0.01, 0.1, 1.0][k],
+            'period':       1,
+            'sim_length':   100,
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: round(1 - 0.1 * j, 3),
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+            'basal_coupling_factor': lambda i,j,k,l: 0.0 if i == 0 else round(10 ** (-2 + (i-1)/3), 3),
+            'basal_coupling_angle': 0.2,
+        },
+    },
+
+    # Same isolated pair above a wall as 'pair_basal_sweep', but with identical frequencies and
+    # no basal coupling, to show hydrodynamic synchronisation alone. The binary is built with
+    # PAIR_DP_MODE=1 and BASAL_COUPLING_SPRING=0, so pair_dp is the initial phase offset of the
+    # second filament as a fraction of a cycle (psi_B = psi_A + 2*pi*pair_dp).
+    'pair_sync': {
+        'category':   'volvox/pair/',
+        'date':       '20261020_pair_sync',
+        'exe_name':   'cilia_1e-4_pair_sync',
+        'sweep_shape': (3, 4, 1, 1),   # i: pair_dp (initial offset), j: spring_factor
+        'filplacement_file':  'input/placement/icosahedron/icosa_d3_N640.dat',
+        'blobplacement_file': 'input/placement/icosahedron/icosa_d6_N40962.dat',
+        'params': {
+            'nfil':         2,
+            'nblob':        1,
+            'nseg':         20,
+            'ar':           15.0,
+            'spring_factor': lambda i,j,k,l: [0.01, 0.1, 1.0, 10.0][j],   # 10: near-rigid tilt (|psi2| < 0.02)
+            'period':       1,
+            'sim_length':   20,    # 0.25 offset locks in 1-2 beats for k <= 1, ~10 beats for k = 10
+            'nx':           400, 'ny': 400, 'nz': 400,
+            'boxsize':      8000,
+            'fil_spacing':  80.0,
+            'fil_x_spacing': 0.0,
+            'blob_spacing': 8.0,
+            'fil_x_dim':    20,
+            'blob_x_dim':   200,
+            'hex_num':      2,
+            'reverse_fil_direction_ratio': 0.0,
+            'twofil_angle': 0.0,
+            'tilt_angle':   0.0,
+            'force_mag':    1.0,
+            'seg_sep':      2.6,
+            'wavnum':       0.0,
+            'wavnum_dia':   0.0,
+            'pair_dp':      lambda i,j,k,l: [0.1, 0.25, 0.4][i],
+            'fene_model':   1,
+            'force_noise_mag': 0.0,
+            'phase_noise_mag': 0.0,
+            'omega_spread': 0.0,
+            'dimensionless_force': 220.0,
+            'basal_coupling_factor': 0.0,
+            'basal_coupling_angle': 0.0,
+        },
+    },
+
 }
 
 # ACTIVE_PRESET = 'bicilia_ishikawa'  # Default preset; can be changed to any key in PRESETS
 # ACTIVE_PRESET = 'bicilia_calibration'  # Default preset; can be changed to any key in PRESETS
-ACTIVE_PRESET = 'pair_freq_sweep'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'pair_freq_sweep'  # Default preset; can be changed to any key in PRESETS
+ACTIVE_PRESET = 'pair_basal_sweep'  # Default preset; can be changed to any key in PRESETS
+ACTIVE_PRESET = 'volvox_pair_dynamic'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'volvox_single_dynamic'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'volvox_single_dynamic_fulford'  # Default preset; can be changed to any key in PRESETS
 # ACTIVE_PRESET = 'mls_calibration'  # Default preset; can be changed to any key in PRESETS
+# ACTIVE_PRESET = 'pair_sync'  # Default preset; can be changed to any key in PRESETS
+
 
 # ---------------------------------------------------------------------------
 
@@ -754,6 +949,7 @@ class DRIVER:
             "reverse_fil_direction_ratio": [], "twofil_angle": [], "pair_dp": [],
             "wavnum": [], "wavnum_dia": [], "dimensionless_force": [],
             "fene_model": [], "force_noise_mag": [], "phase_noise_mag": [], "omega_spread": [],
+            "basal_coupling_factor": [], "basal_coupling_angle": [],
         }
 
         self.num_sim = 0
@@ -808,7 +1004,7 @@ class DRIVER:
                         self.pars_list["index"].append(index)
                         self.pars_list["nswim"].append(1)
                         for key in param_keys:
-                            self.pars_list[key].append(p[key])
+                            self.pars_list[key].append(p.get(key, 0.0))
 
                         index += 1
 

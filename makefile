@@ -20,7 +20,7 @@ else ifeq ($(MOBILITY_TYPE), 3) # FCM using UAMMD
 MOBILITY_OPTS = -std=c++14 -I src/cilia/mobility/UAMMD/src -I src/cilia/mobility/UAMMD/src/third_party -DDOUBLE_PRECISION -lcufft -D_USE_MATH_DEFINES -include ciso646
 MOBILITY_SOURCE = 
 else ifeq ($(MOBILITY_TYPE), 4) # cuFCM
-MOBILITY_OPTS = -arch=sm_75 -std=c++14 -O3 -I../include -lcufft -lcurand -lineinfo
+MOBILITY_OPTS = -arch=sm_89 -std=c++14 -O3 -I../include -lcufft -lcurand -lineinfo
 MOBILITY_SOURCE = fcm_mobility_solver.cu $(CUFCM_ROOT)CUFCM_CELLLIST.cu $(CUFCM_ROOT)CUFCM_FCM.cu $(CUFCM_ROOT)CUFCM_DATA.cu $(CUFCM_ROOT)CUFCM_SOLVER.cu $(CUFCM_ROOT)CUFCM_CORRECTION.cu
 else ifeq ($(MOBILITY_TYPE), 5) # pairwise FCM
 MOBILITY_OPTS = -std=c++11
@@ -111,7 +111,7 @@ flow_field_pc: $(FLOW_FIELD_CPP) $(FLOW_FIELD_CUDA)
 
 
 # With cuFCM
-NVCC_FLAGS=-arch=sm_75 -std=c++17 -O3 -I../include -Xcompiler -fopenmp
+NVCC_FLAGS=-arch=sm_89 -std=c++17 -O3 -I../include -Xcompiler -fopenmp
 
 LINK= -lcufft -lcurand -llapack -lopenblas -llapacke -lineinfo
 # HPC_LINK = -lcufft -lcurand -L/usr/lib64 -l:liblapack.so.3.8 -l:libopenblas.so.0 -l:liblapacke.so.3.8
@@ -131,7 +131,7 @@ cilia_nvidia4_CUFCM_pair_calib: $(CILIA_CPP) $(CILIA_CUDA)
 LOCAL_PREFIX = $(HOME)/local
 LOCAL_LINK = -lcufft -lcurand -L$(LOCAL_PREFIX)/lib -lopenblas -Xlinker -rpath,$(LOCAL_PREFIX)/lib -lineinfo
 cilia_jeter: $(CILIA_CPP) $(CILIA_CUDA)
-	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pair
+	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -o bin/cilia_1e-4_pair_sync
 	
 cilia_jeter_calib: $(CILIA_CPP) $(CILIA_CUDA)
 	nvcc $^  $(NVCC_FLAGS) $(LOCAL_LINK) $(GEN_FLAGS) -DWRITE_GENERALISED_FORCES=true -o bin/cilia_1e-4_pair_calib

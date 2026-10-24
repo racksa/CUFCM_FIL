@@ -65,6 +65,10 @@ int main(int argc, char** argv){
   PERIOD = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "period"));
   SIM_LENGTH = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "sim_length"));
   TORSIONAL_SPRING_MAGNITUDE_FACTOR = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "spring_factor"));
+  #if BASAL_COUPLING_SPRING
+    BASAL_COUPLING_SPRING_FACTOR   = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "basal_coupling_factor"));
+    BASAL_COUPLING_PREFERRED_ANGLE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "basal_coupling_angle"));
+  #endif
   TILT_ANGLE = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "tilt_angle"));
   PAIR_DP = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "pair_dp"));
   WAVNUM = std::stof(data_from_ini(GLOBAL_FILE_NAME, "Parameters", "wavnum"));

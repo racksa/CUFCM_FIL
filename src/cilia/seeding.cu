@@ -1556,6 +1556,41 @@
     }
   }
 
+  // PAIR version of icosa_seeding: the file holds the N/2 pair positions. Filament n < N/2 sits
+  // on the file position; its partner n + N/2 is displaced azimuthally (increasing phi, i.e.
+  // across the beat plane) by 5.0*RSEG, the same separation as the plane-wall PAIR seeding.
+  void icosa_seeding_pair(Real *const pos_ref, Real *const polar_dir_refs, Real *const azi_dir_refs, Real *const normal_refs, const int N, shape_fourier_description& shape, const std::string ico_file){
+
+    const int NP = N/2;
+
+    icosa_seeding(pos_ref, polar_dir_refs, azi_dir_refs, normal_refs, NP, shape, ico_file);
+
+    for (int n = NP; n < N; n++){
+
+      const Real *const base = &pos_ref[3*(n - NP)];
+      const Real base_theta = std::atan2(std::sqrt(base[0]*base[0] + base[1]*base[1]), base[2]);
+      const Real rotation_angle = Real(5.0)*RSEG/(Real(0.5)*AXIS_DIR_BODY_LENGTH*std::sin(base_theta));
+
+      Real X[3];
+      X[0] = std::cos(rotation_angle)*base[0] - std::sin(rotation_angle)*base[1];
+      X[1] = std::sin(rotation_angle)*base[0] + std::cos(rotation_angle)*base[1];
+      X[2] = base[2];
+      shape.project_onto_surface(X);
+
+      const Real theta = std::atan2(std::sqrt(X[0]*X[0] + X[1]*X[1]), X[2]);
+      const Real phi = std::atan2(X[1], X[0]);
+      matrix frame = shape.full_frame(theta, phi);
+
+      for (int d = 0; d < 3; d++){
+        pos_ref[3*n + d] = X[d];
+        polar_dir_refs[3*n + d] = frame(d);
+        azi_dir_refs[3*n + d] = frame(3 + d);
+        normal_refs[3*n + d] = frame(6 + d);
+      }
+
+    }
+  }
+
   void seed_blobs(Real *const blob_references, Real *const polar_dir_refs, Real *const azi_dir_refs, Real *const normal_refs){
 
     const std::string file_name_trunk = GENERATRIX_FILE_NAME+std::to_string(NBLOB);
@@ -1730,7 +1765,11 @@
       std::cout << "Seeking a icosahedron distribution for the filaments..." << std::endl;
       const std::string ico_file = SIMULATION_FILPLACEMENT_NAME;
       
-      icosa_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, ico_file);
+      if (PAIR){
+        icosa_seeding_pair(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, ico_file);
+      }else{
+        icosa_seeding(filament_references, polar_dir_refs, azi_dir_refs, normal_refs, NFIL, shape, ico_file);
+      }
     
     
     #elif MISMATCH_SEEDING

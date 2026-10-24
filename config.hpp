@@ -103,10 +103,22 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 // Sub-type for prescribed cilia motion.
 // Enables filaments seeded as pairs with different frequencies per filament.
 
+#define PAIR_DP_MODE 1
+// Meaning of pair_dp for the second filament of each pair (PAIR=1 only).
+// 0 = Frequency ratio: omega_B = pair_dp * omega_A.
+// 1 = Initial phase offset: psi_B = psi_A + 2*pi*pair_dp, with equal frequencies.
+//     Not applied when phases are read from file (CILIA_IC_TYPE=5).
+
 #define BICILIA_TOPOLOGY 0
 // Set to 1 to model two sub-filaments per filament object (bi-cilia geometry).
 // Mutually exclusive with PAIR — use PAIR for hydrodynamically-coupled filament pairs.
 // Beat shape is selected independently via SHAPE_SEQUENCE.
+
+#define BASAL_COUPLING_SPRING 0
+// 0 = No basal coupling spring (default).
+// 1 = Add a spring between the rotation angles of the two pair members,
+//     modelling mechanical coupling at the cell basal bodies.
+//     Requires PAIR=1 and DYNAMIC_SHAPE_ROTATION=true.
 
 #if CILIA_TYPE==0
 
@@ -190,7 +202,7 @@ extern std::string CUFCM_CONFIG_FILE_NAME;
 
 #elif BODY_OR_SURFACE_TYPE==2 or BODY_OR_SURFACE_TYPE==4 or BODY_OR_SURFACE_TYPE==5
 
-  #define SEEDING_TYPE 5
+  #define SEEDING_TYPE 7
   // Valid options:
   // 0 = Evenly distributed over surface.
   // 1 = Equatorial band.
@@ -262,6 +274,10 @@ extern int  NBLOB;
 extern Real AR;
 extern Real AXIS_DIR_BODY_LENGTH;
 extern Real TORSIONAL_SPRING_MAGNITUDE_FACTOR; // Pre-multiplies mean generalised driving force to give rotational spring constant.
+#if BASAL_COUPLING_SPRING
+  extern Real BASAL_COUPLING_SPRING_FACTOR;   // Spring constant factor for the basal coupling (same units as TORSIONAL_SPRING_MAGNITUDE_FACTOR).
+  extern Real BASAL_COUPLING_PREFERRED_ANGLE; // Preferred rotation-angle difference theta_A - theta_B (radians); 0 = symmetric.
+#endif
 extern Real GEN_FORCE_MAGNITUDE_FACTOR;
 extern int  NTOTAL;
 extern Real END_FORCE_MAGNITUDE;
@@ -412,6 +428,14 @@ extern Real REV_RATIO;
 
   #if BICILIA_TOPOLOGY && PAIR
     #error "BICILIA_TOPOLOGY and PAIR are mutually exclusive — both model two nearby cilia, at different abstraction levels."
+  #endif
+
+  #if BASAL_COUPLING_SPRING && !PAIR
+    #error "BASAL_COUPLING_SPRING requires PAIR=1."
+  #endif
+
+  #if BASAL_COUPLING_SPRING && !DYNAMIC_SHAPE_ROTATION
+    #error "BASAL_COUPLING_SPRING requires DYNAMIC_SHAPE_ROTATION=true."
   #endif
 #endif
 
